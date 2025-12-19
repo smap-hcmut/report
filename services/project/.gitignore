@@ -1,0 +1,16 @@
+# Dependencies
+vendor/
+.go-version
+
+# Environment variables
+.env
+sqlboiler.toml
+
+docs
+
+# OpenSpec
+.cursor/*
+.agent/*
+.claude/*
+AGENTS.md
+CLAUDE.md

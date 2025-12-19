@@ -1,0 +1,148 @@
+package config
+
+import (
+	"fmt"
+
+	"github.com/caarlos0/env/v9"
+)
+
+type Config struct {
+	// Environment Configuration
+	// Determines CORS behavior and other environment-specific settings
+	// Values: "production" (strict), "staging" (permissive), "dev" (permissive)
+	// Default: "production" (fail-safe for security)
+	Environment EnvironmentConfig
+
+	// Server Configuration
+	HTTPServer HTTPServerConfig
+	Logger     LoggerConfig
+
+	// Database Configuration
+	Postgres PostgresConfig
+
+	// SMTP Configuration
+	SMTP SMTPConfig
+
+	// Message Queue Configuration
+	RabbitMQ RabbitMQConfig
+
+	// Authentication & Security Configuration
+	JWT            JWTConfig
+	Cookie         CookieConfig
+	Encrypter      EncrypterConfig
+	InternalConfig InternalConfig
+
+	// Monitoring & Notification Configuration
+	Discord DiscordConfig
+}
+
+// EnvironmentConfig is the configuration for the deployment environment.
+// It controls environment-specific behavior such as CORS validation.
+type EnvironmentConfig struct {
+	// Name is the environment name: "production", "staging", or "dev"
+	// Production uses strict CORS origins, non-production allows private subnets and localhost
+	Name string `env:"ENV" envDefault:"production"`
+}
+
+// CookieConfig is the configuration for the cookie,
+// which is used to store the token.
+type CookieConfig struct {
+	Domain         string `env:"COOKIE_DOMAIN" envDefault:".smap.com"`
+	Secure         bool   `env:"COOKIE_SECURE" envDefault:"true"`
+	SameSite       string `env:"COOKIE_SAMESITE" envDefault:"Lax"`
+	MaxAge         int    `env:"COOKIE_MAX_AGE" envDefault:"7200"`
+	MaxAgeRemember int    `env:"COOKIE_MAX_AGE_REMEMBER" envDefault:"2592000"`
+	Name           string `env:"COOKIE_NAME" envDefault:"smap_auth_token"`
+}
+
+// JWTConfig is the configuration for the JWT,
+// which is used to generate and verify the JWT.
+type JWTConfig struct {
+	SecretKey string `env:"JWT_SECRET"`
+}
+
+// HTTPServerConfig is the configuration for the HTTP server,
+// which is used to start, call API, etc.
+type HTTPServerConfig struct {
+	Host string `env:"HOST" envDefault:""`
+	Port int    `env:"APP_PORT" envDefault:"8080"`
+	Mode string `env:"API_MODE" envDefault:"debug"`
+}
+
+// SMTPConfig is the configuration for the SMTP,
+// which is used to send email.
+type SMTPConfig struct {
+	Host     string `env:"SMTP_HOST" envDefault:"smtp.gmail.com"`
+	Port     int    `env:"SMTP_PORT" envDefault:"587"`
+	Username string `env:"SMTP_USERNAME"`
+	Password string `env:"SMTP_PASSWORD"`
+	From     string `env:"SMTP_FROM"`
+	FromName string `env:"SMTP_FROM_NAME"`
+}
+
+// RabbitMQConfig is the configuration for the RabbitMQ,
+// which is used to connect to the RabbitMQ.
+type RabbitMQConfig struct {
+	URL string `env:"RABBITMQ_URL"`
+}
+
+// LoggerConfig is the configuration for the logger,
+// which is used to log the application.
+type LoggerConfig struct {
+	Level        string `env:"LOGGER_LEVEL" envDefault:"debug"`
+	Mode         string `env:"LOGGER_MODE" envDefault:"debug"`
+	Encoding     string `env:"LOGGER_ENCODING" envDefault:"console"`
+	ColorEnabled bool   `env:"LOGGER_COLOR_ENABLED" envDefault:"true"`
+}
+
+// PostgresConfig is the configuration for the Postgres,
+// which is used to connect to the Postgres.
+type PostgresConfig struct {
+	Host     string `env:"POSTGRES_HOST" envDefault:"localhost"`
+	Port     int    `env:"POSTGRES_PORT" envDefault:"5432"`
+	User     string `env:"POSTGRES_USER" envDefault:"postgres"`
+	Password string `env:"POSTGRES_PASSWORD" envDefault:"postgres"`
+	DBName   string `env:"POSTGRES_DB" envDefault:"postgres"`
+	SSLMode  string `env:"POSTGRES_SSLMODE" envDefault:"prefer"`
+}
+
+type MinIOConfig struct {
+	Endpoint  string `env:"MINIO_ENDPOINT" envDefault:"localhost:9000"`
+	AccessKey string `env:"MINIO_ACCESS_KEY" envDefault:"minioadmin"`
+	SecretKey string `env:"MINIO_SECRET_KEY" envDefault:"minioadmin"`
+	UseSSL    bool   `env:"MINIO_USE_SSL" envDefault:"false"`
+	Region    string `env:"MINIO_REGION" envDefault:"us-east-1"`
+	Bucket    string `env:"MINIO_BUCKET"`
+
+	// Async upload settings
+	AsyncUploadWorkers   int `env:"MINIO_ASYNC_UPLOAD_WORKERS" envDefault:"4"`
+	AsyncUploadQueueSize int `env:"MINIO_ASYNC_UPLOAD_QUEUE_SIZE" envDefault:"100"`
+}
+
+type DiscordConfig struct {
+	WebhookID    string `env:"DISCORD_WEBHOOK_ID"`
+	WebhookToken string `env:"DISCORD_WEBHOOK_TOKEN"`
+}
+
+// EncrypterConfig is the configuration for the encrypter,
+// which is used to encrypt and decrypt the data.
+type EncrypterConfig struct {
+	Key string `env:"ENCRYPT_KEY"`
+}
+
+// InternalConfig is the configuration for the internal,
+// which is used to check the internal request.
+type InternalConfig struct {
+	InternalKey string `env:"INTERNAL_KEY"`
+}
+
+// Load is the function to load the configuration from the environment variables.
+func Load() (*Config, error) {
+	cfg := &Config{}
+	err := env.Parse(cfg)
+	if err != nil {
+		fmt.Printf("Error loading configuration: %v", err)
+		return nil, err
+	}
+	return cfg, nil
+}
