@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # Next.js Application
+  # ============================================
+  seo-controller:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+
+    container_name: seo-controller-app
+
+    # Port mapping (host:container)
+    ports:
+      - "5000:5000"
+
+    # Environment variables
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - HOSTNAME=0.0.0.0
+
+    # Mount volumes for development (optional)
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
+    #   - /app/.next
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+# ============================================
+# Networks (optional)
+# ============================================
+networks:
+  default:
+    name: seo-network

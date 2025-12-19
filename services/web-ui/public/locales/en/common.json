@@ -1,0 +1,698 @@
+{
+  "navbar": {
+    "brand": "SMAP SOLUTION",
+    "overview": "Overview",
+    "dashboard": "Dashboard",
+    "trendAnalysis": "Trend Analysis",
+    "dataCenter": "Data Center",
+    "workflow": "Workflow",
+    "analyst": "Analyst",
+    "reportWizard": "Report Wizard",
+    "login": "Login",
+    "register": "Register",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "language": {
+    "en": "English",
+    "vi": "Vietnamese"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Real-time social media analytics and insights",
+    "realTime": "Real-time",
+    "lastUpdate": "Last updated",
+    "export": "Export",
+    "share": "Share",
+    "totalReach": "Total Reach",
+    "engagementRate": "Engagement Rate",
+    "sentimentScore": "Sentiment Score",
+    "contentVolume": "Content Volume",
+    "trendingTopics": "Trending Topics",
+    "topContent": "Top Content",
+    "competitorAnalysis": "Competitor Analysis",
+    "audienceInsights": "Audience Insights",
+    "performanceMetrics": "Performance Metrics",
+    "socialMediaOverview": "Social Media Overview",
+    "noData": "No data available",
+    "loading": "Loading...",
+    "error": "Error loading data",
+    "tryAgain": "Try Again",
+    "selectProject": "Select Project",
+    "createNewProject": "Create New Project",
+    "noProjects": "No projects available",
+    "selectRange": "Select Range",
+    "offline": "Offline",
+    "enableRealTime": "Enable real-time updates",
+    "disableRealTime": "Disable real-time updates",
+    "timeRanges": {
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days", 
+      "last90Days": "Last 90 days",
+      "lastYear": "Last year"
+    }
+  },
+  "trendAnalysis": {
+    "title": "Trend Analysis",
+    "subtitle": "Discover trending topics, hashtags, and content insights",
+    "searchPlaceholder": "Search topics, hashtags, or keywords...",
+    "filters": "Filters",
+    "sortBy": "Sort by",
+    "sortByVolume": "Volume",
+    "sortByDelta": "Change",
+    "sortBySentiment": "Sentiment",
+    "sortByEngagement": "Engagement",
+    "sortByDate": "Date",
+    "sortByConfidence": "Confidence",
+    "topics": "Topics",
+    "hashtags": "Hashtags",
+    "posts": "Posts",
+    "mentions": "mentions",
+    "sentiment": "Sentiment",
+    "positive": "Positive",
+    "neutral": "Neutral",
+    "negative": "Negative",
+    "confidence": "Confidence",
+    "keywords": "Keywords",
+    "platforms": "Platforms",
+    "engagementRate": "Engagement Rate",
+    "activeTopics": "Active Topics",
+    "totalVolume": "Total Volume",
+    "avgConfidence": "Avg Confidence",
+    "avgSentiment": "Avg Sentiment",
+    "hashtagVolume": "Hashtag Volume",
+    "avgEngagementRate": "Avg Engagement Rate",
+    "noTopicsFound": "No topics found",
+    "noHashtagsFound": "No hashtags found",
+    "noPostsFound": "No posts found",
+    "tryAdjustingFilters": "Try adjusting your filters",
+    "errorLoadingData": "Error loading data",
+    "viewPost": "View Post",
+    "overview": "Overview",
+    "samplePosts": "Sample Posts",
+    "analytics": "Analytics",
+    "sentimentDistribution": "Sentiment Distribution",
+    "netSentimentScore": "Net Sentiment Score",
+    "vsPreviousPeriod": "vs previous period",
+    "systemConfidenceInTopic": "System confidence in this topic",
+    "noSamplePostsFound": "No sample posts found",
+    "mentionsOverTime": "Mentions Over Time",
+    "platformDistribution": "Platform Distribution",
+    "refresh": "Refresh",
+    "saveTopic": "Save topic",
+    "removeFromSaved": "Remove from saved",
+    "shareTopic": "Share topic"
+  },
+  "reportWizard": {
+    "title": "Report Wizard",
+    "subtitle": "Create professional reports in minutes",
+    "step": "Step",
+    "of": "of",
+    "previous": "Previous",
+    "next": "Next",
+    "generateReport": "Generate Report",
+    "generating": "Generating...",
+    "chooseTemplate": "Choose Template",
+    "timeRange": "Time Range",
+    "dataSources": "Data Sources",
+    "customize": "Customize",
+    "selectTemplate": "Select a template that best fits your reporting needs",
+    "selectTimeRange": "Choose the period for your report data",
+    "selectDataSources": "Choose which social media platforms to include in your report",
+    "customizeReport": "Fine-tune the content and appearance of your report",
+    "performanceSummary": "Performance Summary",
+    "performanceSummaryDesc": "Overall performance overview with key metrics",
+    "trendAnalysisReport": "Trend Analysis Report",
+    "trendAnalysisReportDesc": "Trend analysis and insights from social media data",
+    "competitorComparison": "Competitor Comparison",
+    "competitorComparisonDesc": "Performance comparison with competitors",
+    "customReport": "Custom Report",
+    "customReportDesc": "Create custom report with selected sections",
+    "last7Days": "Last 7 Days",
+    "last30Days": "Last 30 Days",
+    "last90Days": "Last 90 Days",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "thisQuarter": "This Quarter",
+    "lastQuarter": "Last Quarter",
+    "thisYear": "This Year",
+    "lastYear": "Last Year",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "selectedPeriod": "Selected Period",
+    "from": "From",
+    "to": "To",
+    "duration": "Duration",
+    "days": "days",
+    "longPeriodWarning": "Long Period Selected",
+    "longPeriodDesc": "Reports covering more than 1 year may take longer to generate and could result in large file sizes.",
+    "sourcesSelected": "Sources Selected",
+    "connectedSources": "Connected Sources",
+    "availableToConnect": "Available to Connect",
+    "connected": "Connected",
+    "notConnected": "Not Connected",
+    "lastSync": "Last sync",
+    "clickToConnect": "Click to connect",
+    "availableData": "Available Data",
+    "connect": "Connect",
+    "selectedDataSources": "Selected Data Sources",
+    "noDataSourcesSelected": "No Data Sources Selected",
+    "noDataSourcesDesc": "Please select at least one data source to generate your report.",
+    "sections": "Sections",
+    "branding": "Branding",
+    "output": "Output",
+    "reportSections": "Report Sections",
+    "chooseSections": "Choose which sections to include in your report",
+    "contentTypes": "Content Types",
+    "chartsGraphs": "Charts & Graphs",
+    "dataTables": "Data Tables",
+    "keyMetrics": "Key Metrics",
+    "aiInsights": "AI Insights",
+    "brandingStyling": "Branding & Styling",
+    "customizeAppearance": "Customize the appearance of your report",
+    "companyName": "Company Name",
+    "enterCompanyName": "Enter your company name",
+    "logoUpload": "Logo Upload",
+    "clickToUpload": "Click to upload logo",
+    "logoFormat": "PNG, JPG up to 2MB",
+    "colorScheme": "Color Scheme",
+    "outputSettings": "Output Settings",
+    "chooseFormat": "Choose the format and language for your report",
+    "outputFormat": "Output Format",
+    "language": "Language",
+    "reportSummary": "Report Summary",
+    "template": "Template",
+    "timeRange": "Time Range",
+    "dataSources": "Data Sources",
+    "sections": "Sections",
+    "format": "Format",
+    "language": "Language",
+    "reportPreview": "Report Preview",
+    "backToWizard": "Back to Wizard",
+    "viewStatus": "View Status",
+    "viewPreview": "View Preview",
+    "downloadReport": "Download Report",
+    "reportStatus": "Report Status",
+    "progress": "Progress",
+    "fileSize": "File Size",
+    "pages": "Pages",
+    "completed": "Completed",
+    "reportDetails": "Report Details",
+    "reportId": "Report ID",
+    "created": "Created",
+    "template": "Template",
+    "format": "Format",
+    "language": "Language",
+    "share": "Share",
+    "generatedOn": "Generated on",
+    "period": "Period",
+    "executiveSummary": "Executive Summary",
+    "keyMetrics": "Key Metrics",
+    "trendAnalysis": "Trend Analysis",
+    "topPerformingContent": "Top Performing Content",
+    "totalReach": "Total Reach",
+    "engagementRate": "Engagement Rate",
+    "sentimentScore": "Sentiment Score",
+    "contentVolume": "Content Volume",
+    "performanceTrends": "Performance trends over time showing consistent growth in key metrics.",
+    "bestPerformingPosts": "Best performing posts ranked by engagement and reach.",
+    "thisReportProvides": "This report provides a comprehensive analysis of your social media performance over the selected time period. Key highlights include significant growth in engagement rates and positive sentiment trends across all platforms.",
+    "professionalPdf": "Professional PDF layout",
+    "interactiveCharts": "Interactive charts and graphs",
+    "executiveSummary": "Executive summary",
+    "dataInsights": "Data insights and recommendations",
+    "brandCustomization": "Brand customization options",
+    "includes": "Includes",
+    "required": "Required",
+    "optional": "Optional",
+    "minutesToGenerate": "minutes to generate",
+    "templateDetails": "Template Details",
+    "sectionsIncluded": "Sections Included",
+    "reportFeatures": "Report Features"
+  },
+  "landing": {
+    "header": {
+      "home": "Home",
+      "features": "Features",
+      "solutions": "Solutions",
+      "feedback": "Feedback",
+      "pricing": "Pricing",
+      "aboutUs": "About Us",
+      "contact": "Contact",
+      "login": "Login",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "tagline": "One input, endless insights",
+      "subtitle": "Proud to be the pioneering force in business data analytics driven by user trends, empowered by cutting‑edge technology and a team of engineers from Ho Chi Minh University of Technology.",
+      "cta": "Start Free Trial",
+      "watchDemo": "Watch Demo"
+    },
+    "features": {
+      "title": "Powerful Data Collection & AI Analysis",
+      "subtitle": "Connect multiple social media platforms and let our AI transform raw data into actionable insights",
+      "step1Title": "Data Preparation",
+      "step1Description": "Listen to discussions about your business or competitors from the perspective of social media users.",
+      "step2Title": "Data Analysis",
+      "step2Description": "Standardize data, detect trends, and train models to extract hidden value.",
+      "step3Title": "Data Visualization",
+      "step3Description": "Transform insights into charts, dashboards, and easy-to-understand reports to support your business unconditionally.",
+      "cta": "Get Started Now"
+    },
+    "solutions": {
+      "title": "Your platform to make smarter decisions",
+      "subtitle": "Unlock powerful insights and drive growth with our all-in-one platform. We provide the tools you need to succeed in the competitive digital landscape.",
+      "solution1Title": "Crisis Management",
+      "solution1Description": "Proactively identify and manage potential risks before they escalate, protecting your brand reputation.",
+      "solution2Title": "Market Trend Analysis",
+      "solution2Description": "Stay ahead by capturing and analyzing emerging trends in your industry in real-time.",
+      "solution3Title": "Competitive Analysis",
+      "solution3Description": "Gain an edge by tracking, analyzing marketing strategies and customer responses to competitors.",
+      "solution4Title": "Campaign Optimization",
+      "solution4Description": "Measure marketing and social media campaign effectiveness visually to optimize ROI.",
+      "solution5Title": "Deep Customer Insights",
+      "solution5Description": "Understand target audience needs, desires and behaviors through social media data analysis.",
+      "solution6Title": "Product & Service Improvement",
+      "solution6Description": "Listen to customer feedback to improve products, services and enhance user experience."
+    },
+    "feedback": {
+      "title": "Trusted by our customers",
+      "subtitle": "Thousands of businesses have transformed how they analyze social media data with our platform",
+      "stats": {
+        "customersCount": "5000+",
+        "customersLabel": "Happy Customers",
+        "rating": "4.9/5",
+        "ratingLabel": "Average Rating",
+        "growthRate": "300%",
+        "growthLabel": "Growth in 2024",
+        "satisfaction": "98%",
+        "satisfactionLabel": "Satisfaction Rate"
+      },
+      "testimonials": {
+        "testimonial1Name": "John Smith",
+        "testimonial1Position": "CEO",
+        "testimonial1Company": "TechViet Co.",
+        "testimonial1Quote": "SMAP Solution helped us understand our customers and competitors better. ROI increased 200% in just 6 months. This is an indispensable tool for our marketing strategy.",
+        "testimonial2Name": "Sarah Johnson",
+        "testimonial2Position": "Marketing Director",
+        "testimonial2Company": "FastFood Chain",
+        "testimonial2Quote": "With SMAP, we can detect PR crises before they spread. The support team is very professional and the platform is easy to use.",
+        "testimonial3Name": "Michael Chen",
+        "testimonial3Position": "Social Media Manager",
+        "testimonial3Company": "Fashion Brand",
+        "testimonial3Quote": "Intuitive dashboard, accurate insights and automated reporting save me 10 hours every week. I can focus on strategy instead of manual data analysis."
+      },
+      "caseStudiesTitle": "Success Stories",
+      "caseStudies": {
+        "case1": {
+          "metric": "250%",
+          "title": "Engagement Growth",
+          "description": "Fashion brand increased engagement rate from 2% to 5% in 3 months"
+        },
+        "case2": {
+          "metric": "85%",
+          "title": "Time Saved",
+          "description": "F&B company reduced data analysis time by 85% with automation"
+        },
+        "case3": {
+          "metric": "40%",
+          "title": "Lower Ad Costs",
+          "description": "Tech startup optimized targeting and reduced cost per conversion by 40%"
+        }
+      }
+    },
+    "pricing": {
+      "title": "Transparent Pricing",
+      "subtitle": "Choose the plan that fits your needs. No hidden fees, cancel anytime.",
+      "popular": "Most Popular",
+      "perMonth": "month",
+      "getStarted": "Get Started",
+      "note": "All plans include 24/7 support and free updates. 14-day trial without credit card.",
+      "plans": {
+        "starter": {
+          "name": "Starter",
+          "price": "$49",
+          "description": "Perfect for startups and small businesses starting social media analysis.",
+          "features": {
+            "feature1": "3 tracking projects",
+            "feature2": "1,000 mentions/month",
+            "feature3": "Basic reporting"
+          }
+        },
+        "professional": {
+          "name": "Professional",
+          "price": "$149",
+          "description": "For businesses wanting in-depth analysis and strategy optimization.",
+          "features": {
+            "feature1": "10 tracking projects",
+            "feature2": "10,000 mentions/month",
+            "feature3": "AI sentiment analysis",
+            "feature4": "Custom reports",
+            "feature5": "API access"
+          }
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "Contact Us",
+          "description": "Comprehensive solution for large enterprises with special needs.",
+          "features": {
+            "feature1": "Unlimited projects",
+            "feature2": "Unlimited mentions",
+            "feature3": "Custom AI & ML",
+            "feature4": "Dedicated support",
+            "feature5": "On-premise option",
+            "feature6": "99.9% SLA guarantee"
+          }
+        }
+      }
+    },
+"contact": {
+      "title": "Get In Touch",
+      "subtitle": "Have questions or need consultation? Our team is ready to support you 24/7.",
+      "form": {
+        "title": "Send a message",
+        "name": "Full Name",
+        "namePlaceholder": "Enter your full name",
+        "email": "Email",
+        "emailPlaceholder": "email@example.com",
+        "company": "Company",
+        "companyPlaceholder": "Your company name",
+        "message": "Message",
+        "messagePlaceholder": "How can we help you?",
+        "submit": "Send Message"
+      },
+      "info": {
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "addressValue": "268 Ly Thuong Kiet, Ward 14, District 10, HCMC",
+        "hours": "Working Hours",
+        "hoursValue": "Mon - Fri: 8:00 AM - 6:00 PM"
+      }
+    },
+    "about": {
+      "title": "About Us",
+      "subtitle": "We are a passionate team of technology and data experts, committed to delivering the best social media analytics solutions for businesses.",
+      "mission": {
+        "title": "Mission",
+        "description": "Help businesses make smarter decisions by harnessing the power of social media data and artificial intelligence."
+      },
+      "vision": {
+        "title": "Vision",
+        "description": "Become the leading social media analytics platform in Southeast Asia, accompanying the growth of thousands of businesses."
+      },
+      "story": {
+        "title": "Our Story",
+        "description": "Founded by a team of engineers from Ho Chi Minh University of Technology, SMAP Solution was born from a passion to turn data into real value for businesses. We believe every business deserves world-class analytics tools."
+      },
+      "values": {
+        "title": "Core Values",
+        "innovation": {
+          "title": "Innovation",
+          "description": "Continuously researching and applying cutting-edge technology"
+        },
+        "transparency": {
+          "title": "Transparency",
+          "description": "Honest and clear in all operations"
+        },
+        "customerFirst": {
+          "title": "Customer First",
+          "description": "Every decision is oriented toward customer benefit"
+        },
+        "excellence": {
+          "title": "Excellence",
+          "description": "Committed to the highest quality in every product"
+        }
+      },
+      "stats": {
+        "yearsExperience": "5+",
+        "yearsLabel": "Years Experience",
+        "teamMembers": "50+",
+        "teamLabel": "Team Members",
+        "projectsCompleted": "500+",
+        "projectsLabel": "Projects Completed",
+        "clientSatisfaction": "98%",
+        "satisfactionLabel": "Client Satisfaction"
+      }
+    },
+    "footer": {
+      "description": "Advanced social media analytics platform helping businesses understand their audience and grow their brand.",
+      "product": "Product",
+      "features": "Features",
+      "solutions": "Solutions",
+      "pricing": "Pricing",
+      "company": "Company",
+      "aboutUs": "About Us",
+      "careers": "Careers",
+      "blog": "Blog",
+      "contact": "Contact",
+      "support": "Support",
+      "documentation": "Documentation",
+      "helpCenter": "Help Center",
+      "community": "Community",
+      "legal": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "copyright": "© 2025 SMAP SOLUTION. All rights reserved.",
+      "followUs": "Follow Us"
+    }
+  },
+  "register": {
+    "title": "Create account",
+    "subtitle": "Sign up free to start analyzing",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your full name",
+    "email": "Email",
+    "emailPlaceholder": "email@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password (min 8 characters)",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "agreeToTerms": "I agree to the",
+    "termsLink": "Terms of Service",
+    "and": "and",
+    "privacyLink": "Privacy Policy",
+    "submit": "Register",
+    "hasAccount": "Already have an account?",
+    "login": "Sign in",
+    "backToHome": "Back to home",
+    "benefits": {
+      "benefit1": {
+        "title": "14-day free trial",
+        "description": "No credit card required, cancel anytime"
+      },
+      "benefit2": {
+        "title": "Multi-platform connection",
+        "description": "Integrate Facebook, Instagram, TikTok, Twitter and more"
+      },
+      "benefit3": {
+        "title": "24/7 support",
+        "description": "Expert team ready to help you anytime"
+      }
+    }
+  },
+  "forgotPassword": {
+    "title": "Forgot password?",
+    "subtitle": "Enter your email and we'll send you a reset link",
+    "email": "Email",
+    "emailPlaceholder": "email@example.com",
+    "submit": "Send reset link",
+    "successTitle": "Email sent!",
+    "successMessage": "Please check your inbox to reset your password.",
+    "checkSpam": "Didn't receive the email? Check your spam folder.",
+    "backToLogin": "Back to login",
+    "backToHome": "Back to home"
+  },
+  "login": {
+    "welcome": "Welcome back!",
+    "welcomeSubtitle": "Sign in to access your social media analytics dashboard and discover the latest insights.",
+    "title": "Sign In",
+    "subtitle": "Enter your email to receive your login link",
+    "email": "Email",
+    "emailPlaceholder": "email@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "submit": "Login",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "loginWithGoogle": "Google",
+    "loginWithApple": "Apple",
+    "noAccount": "Not registered?",
+    "register": "Do it here",
+    "backToHome": "Back to home",
+    "trustedBy": "Trusted by +5000 happy users",
+    "loggingIn": "Logging in...",
+    "sendingOtp": "Sending OTP...",
+    "tagline": "Social Media Analytics with Superpowers",
+    "footerDescription": "Analyze social media data, track trends, and more. Just connect and let our AI handle the rest! Works in 50+ languages.",
+    "features": {
+      "feature1": {
+        "title": "Real-time Analytics",
+        "description": "Track and analyze social media data instantly with advanced AI technology"
+      },
+      "feature2": {
+        "title": "Deep Insights",
+        "description": "Discover hidden trends and customer behaviors with AI sentiment analysis"
+      },
+      "feature3": {
+        "title": "Data Security",
+        "description": "Your data is encrypted and protected with the highest security standards"
+      }
+    }
+  },
+  "emptyState": {
+    "welcome": {
+      "title": "Welcome to SMAP Analytics",
+      "description": "Start your brand and competitor analysis journey. Create your first project to discover valuable insights."
+    },
+    "features": {
+      "trendAnalysis": {
+        "title": "Trend Analysis",
+        "description": "Discover trending content in real-time"
+      },
+      "competitorTracking": {
+        "title": "Competitor Tracking",
+        "description": "Track and compare with competitors"
+      },
+      "shareOfVoice": {
+        "title": "Share of Voice",
+        "description": "Measure market share in conversations"
+      }
+    },
+    "quickActions": {
+      "createProject": {
+        "title": "Create New Project",
+        "description": "Start tracking your brand and competitors",
+        "buttonText": "Get Started"
+      },
+      "importCSV": {
+        "title": "Import from CSV",
+        "description": "Import competitor lists in bulk",
+        "buttonText": "Learn More"
+      }
+    },
+    "tip": "Tip: You can create multiple projects to track different brands"
+  },
+  "verifyOtp": {
+    "title": "Verify Your Email",
+    "subtitle": "We've sent a 6-digit code to",
+    "enterCode": "Enter verification code",
+    "verify": "Verify",
+    "verifying": "Verifying...",
+    "resendCode": "Resend code",
+    "resending": "Resending...",
+    "resendIn": "Resend code in",
+    "backToLogin": "Back to login",
+    "securityInfo": {
+      "title": "Why verify?",
+      "description": "Email verification helps us ensure your account security and protect against unauthorized access."
+    }
+  },
+  "projects": {
+    "title": "My Projects",
+    "subtitle": "Manage your brand monitoring and competitor analysis projects",
+    "createNew": "Create New Project",
+    "searchPlaceholder": "Search projects...",
+    "error": "Failed to load projects",
+    "fetchError": "Unable to fetch projects. Please try again.",
+    "createSuccess": "Project has been created successfully!",
+    "createError": "Failed to create project. Please try again.",
+    "noProjects": "No projects yet",
+    "noProjectsDescription": "Create your first project to start analyzing social media data",
+    "createFirst": "Create First Project",
+    "noResults": "No projects found",
+    "noResultsDescription": "Try adjusting your search query",
+    "noDescription": "No description provided",
+    "brands": "Brands",
+    "competitors": "Competitors",
+    "created": "Created",
+    "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone.",
+    "status": {
+      "completed": "Completed",
+      "draft": "Draft",
+      "process": "Process"
+    },
+    "actions": {
+      "view": "View Project",
+      "edit": "Edit Project",
+      "delete": "Delete Project"
+    },
+    "deleteConfirm": {
+      "title": "Delete Project?",
+      "text": "Are you sure you want to delete this project?",
+      "confirm": "Yes, Delete",
+      "cancel": "Cancel",
+      "success": "Deleted!",
+      "successText": "Project has been deleted successfully.",
+      "error": "Error!",
+      "errorText": "Failed to delete project. Please try again."
+    },
+    "draft": {
+      "title": "Project Unavailable",
+      "message": "This project is currently in draft and cannot be accessed."
+    },
+    "processing": {
+      "initializing": "Initializing data collection...",
+      "crawling": "Collecting data from social media...",
+      "processing": "Processing and analyzing data...",
+      "done": "Almost done...",
+      "failed": "Processing failed. Please try again.",
+      "connected": "Connected. Waiting for updates...",
+      "connectionError": "Connection error. Retrying...",
+      "connectionFailed": "Connection failed. Please refresh the page."
+    },
+    "error": {
+      "notFound": "Project Not Found",
+      "notFoundText": "The project you're looking for doesn't exist.",
+      "invalidStatus": "Invalid Status",
+      "invalidStatusText": "This project has an invalid status."
+    }
+  },
+  "preview": {
+    "title": "Preview Sample Data",
+    "subtitle": "Review sample posts collected from keywords",
+    "loading": "Loading preview data...",
+    "loadingSubtext": "This may take a few moments...",
+    "dataLoaded": "Preview data loaded successfully",
+    "noData": "No preview data available",
+    "sampleDataBanner": "Sample Data Preview",
+    "sampleDataDescription": "Data preview will include these information",
+    "viewRealDataButton": "Preview actual project data",
+    "viewingRealData": "Viewing actual project data",
+    "noPosts": "No posts found for this keyword",
+    "samplePosts": "Sample Posts",
+    "allKeywords": "All Keywords",
+    "matchedKeyword": "Matched Keyword",
+    "transcription": "Transcription",
+    "viewComments": "View Comments",
+    "viewOriginal": "View Original Post",
+    "moreComments": "more comments",
+    "author": "Author",
+    "replies": "replies",
+    "followers": "followers",
+    "videos": "videos",
+    "engagement": "engagement",
+    "errorTitle": "Unable to Load Preview",
+    "retry": "Retry",
+    "minutesAgo": "minutes ago",
+    "hoursAgo": "hours ago",
+    "daysAgo": "days ago",
+    "metrics": {
+      "views": "Views",
+      "likes": "Likes",
+      "comments": "Comments",
+      "shares": "Shares",
+      "avgEngagement": "Avg. Engagement"
+    }
+  },
+  "common": {
+    "back": "Back",
+    "next": "Next"
+  }
+}

@@ -1,0 +1,704 @@
+{
+  "navbar": {
+    "brand": "SMAP SOLUTION",
+    "overview": "Tổng quan",
+    "dashboard": "Bảng điều khiển",
+    "trendAnalysis": "Phân tích xu hướng",
+    "dataCenter": "Trung tâm dữ liệu",
+    "workflow": "Quy trình",
+    "analyst": "Phân tích",
+    "reportWizard": "Tạo báo cáo",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "settings": "Cài đặt",
+    "logout": "Đăng xuất"
+  },
+  "theme": {
+    "light": "Sáng",
+    "dark": "Tối"
+  },
+  "language": {
+    "en": "Tiếng Anh",
+    "vi": "Tiếng Việt"
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "subtitle": "Phân tích và thông tin chi tiết về mạng xã hội theo thời gian thực",
+    "realTime": "Thời gian thực",
+    "lastUpdate": "Cập nhật lần cuối",
+    "export": "Xuất",
+    "share": "Chia sẻ",
+    "totalReach": "Tổng tiếp cận",
+    "engagementRate": "Tỷ lệ tương tác",
+    "sentimentScore": "Điểm cảm xúc",
+    "contentVolume": "Khối lượng nội dung",
+    "trendingTopics": "Chủ đề thịnh hành",
+    "topContent": "Nội dung hàng đầu",
+    "competitorAnalysis": "Phân tích đối thủ",
+    "audienceInsights": "Thông tin chi tiết khán giả",
+    "performanceMetrics": "Chỉ số hiệu suất",
+    "socialMediaOverview": "Tổng quan mạng xã hội",
+    "noData": "Không có dữ liệu",
+    "loading": "Đang tải...",
+    "error": "Lỗi tải dữ liệu",
+    "tryAgain": "Thử lại",
+    "selectProject": "Chọn dự án",
+    "createNewProject": "Tạo dự án mới",
+    "noProjects": "Không có dự án nào",
+    "selectRange": "Chọn khoảng thời gian",
+    "offline": "Ngoại tuyến",
+    "enableRealTime": "Bật cập nhật thời gian thực",
+    "disableRealTime": "Tắt cập nhật thời gian thực",
+    "timeRanges": {
+      "last7Days": "7 ngày qua",
+      "last30Days": "30 ngày qua",
+      "last90Days": "90 ngày qua", 
+      "lastYear": "Năm ngoái"
+    }
+  },
+  "trendAnalysis": {
+    "title": "Phân tích xu hướng",
+    "subtitle": "Khám phá các chủ đề thịnh hành, hashtag và thông tin chi tiết về nội dung",
+    "searchPlaceholder": "Tìm kiếm chủ đề, hashtag hoặc từ khóa...",
+    "filters": "Bộ lọc",
+    "sortBy": "Sắp xếp theo",
+    "sortByVolume": "Khối lượng",
+    "sortByDelta": "Thay đổi",
+    "sortBySentiment": "Cảm xúc",
+    "sortByEngagement": "Tương tác",
+    "sortByDate": "Ngày",
+    "sortByConfidence": "Độ tin cậy",
+    "topics": "Chủ đề",
+    "hashtags": "Hashtag",
+    "posts": "Bài đăng",
+    "mentions": "lượt đề cập",
+    "sentiment": "Cảm xúc",
+    "positive": "Tích cực",
+    "neutral": "Trung tính",
+    "negative": "Tiêu cực",
+    "confidence": "Độ tin cậy",
+    "keywords": "Từ khóa",
+    "platforms": "Nền tảng",
+    "engagementRate": "Tỷ lệ tương tác",
+    "activeTopics": "Chủ đề hoạt động",
+    "totalVolume": "Tổng khối lượng",
+    "avgConfidence": "Độ tin cậy TB",
+    "avgSentiment": "Cảm xúc TB",
+    "hashtagVolume": "Khối lượng hashtag",
+    "avgEngagementRate": "Tỷ lệ tương tác TB",
+    "noTopicsFound": "Không tìm thấy chủ đề",
+    "noHashtagsFound": "Không tìm thấy hashtag",
+    "noPostsFound": "Không tìm thấy bài đăng",
+    "tryAdjustingFilters": "Thử điều chỉnh bộ lọc của bạn",
+    "errorLoadingData": "Lỗi tải dữ liệu",
+    "viewPost": "Xem bài đăng",
+    "overview": "Tổng quan",
+    "samplePosts": "Bài đăng mẫu",
+    "analytics": "Phân tích",
+    "sentimentDistribution": "Phân bố cảm xúc",
+    "netSentimentScore": "Điểm cảm xúc ròng",
+    "vsPreviousPeriod": "so với kỳ trước",
+    "systemConfidenceInTopic": "Độ tin cậy của hệ thống về chủ đề này",
+    "noSamplePostsFound": "Không tìm thấy bài đăng mẫu",
+    "mentionsOverTime": "Lượt đề cập theo thời gian",
+    "platformDistribution": "Phân bố nền tảng",
+    "refresh": "Làm mới",
+    "saveTopic": "Lưu chủ đề",
+    "removeFromSaved": "Xóa khỏi đã lưu",
+    "shareTopic": "Chia sẻ chủ đề"
+  },
+  "reportWizard": {
+    "title": "Trình tạo báo cáo",
+    "subtitle": "Tạo báo cáo chuyên nghiệp trong vài phút",
+    "step": "Bước",
+    "of": "của",
+    "previous": "Trước",
+    "next": "Tiếp theo",
+    "generateReport": "Tạo báo cáo",
+    "generating": "Đang tạo...",
+    "chooseTemplate": "Chọn mẫu",
+    "timeRange": "Khoảng thời gian",
+    "dataSources": "Nguồn dữ liệu",
+    "customize": "Tùy chỉnh",
+    "selectTemplate": "Chọn mẫu phù hợp nhất với nhu cầu báo cáo của bạn",
+    "selectTimeRange": "Chọn khoảng thời gian cho dữ liệu báo cáo",
+    "selectDataSources": "Chọn nền tảng mạng xã hội để đưa vào báo cáo",
+    "customizeReport": "Điều chỉnh nội dung và giao diện của báo cáo",
+    "performanceSummary": "Tóm tắt hiệu suất",
+    "performanceSummaryDesc": "Tổng quan hiệu suất tổng thể với các chỉ số chính",
+    "trendAnalysisReport": "Báo cáo phân tích xu hướng",
+    "trendAnalysisReportDesc": "Phân tích xu hướng và thông tin chi tiết từ dữ liệu mạng xã hội",
+    "competitorComparison": "So sánh đối thủ",
+    "competitorComparisonDesc": "So sánh hiệu suất với các đối thủ cạnh tranh",
+    "customReport": "Báo cáo tùy chỉnh",
+    "customReportDesc": "Tạo báo cáo tùy chỉnh với các phần được chọn",
+    "last7Days": "7 ngày qua",
+    "last30Days": "30 ngày qua",
+    "last90Days": "90 ngày qua",
+    "thisMonth": "Tháng này",
+    "lastMonth": "Tháng trước",
+    "thisQuarter": "Quý này",
+    "lastQuarter": "Quý trước",
+    "thisYear": "Năm nay",
+    "lastYear": "Năm ngoái",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "selectedPeriod": "Khoảng thời gian đã chọn",
+    "from": "Từ",
+    "to": "Đến",
+    "duration": "Thời lượng",
+    "days": "ngày",
+    "longPeriodWarning": "Đã chọn khoảng thời gian dài",
+    "longPeriodDesc": "Báo cáo bao gồm hơn 1 năm có thể mất nhiều thời gian hơn để tạo và có thể dẫn đến kích thước tệp lớn.",
+    "sourcesSelected": "Nguồn đã chọn",
+    "connectedSources": "Nguồn đã kết nối",
+    "availableToConnect": "Có thể kết nối",
+    "connected": "Đã kết nối",
+    "notConnected": "Chưa kết nối",
+    "lastSync": "Đồng bộ lần cuối",
+    "clickToConnect": "Nhấp để kết nối",
+    "availableData": "Dữ liệu có sẵn",
+    "connect": "Kết nối",
+    "selectedDataSources": "Nguồn dữ liệu đã chọn",
+    "noDataSourcesSelected": "Chưa chọn nguồn dữ liệu",
+    "noDataSourcesDesc": "Vui lòng chọn ít nhất một nguồn dữ liệu để tạo báo cáo.",
+    "sections": "Phần",
+    "branding": "Thương hiệu",
+    "output": "Đầu ra",
+    "reportSections": "Phần báo cáo",
+    "chooseSections": "Chọn phần nào để đưa vào báo cáo",
+    "contentTypes": "Loại nội dung",
+    "chartsGraphs": "Biểu đồ & Đồ thị",
+    "dataTables": "Bảng dữ liệu",
+    "keyMetrics": "Chỉ số chính",
+    "aiInsights": "Thông tin chi tiết AI",
+    "brandingStyling": "Thương hiệu & Kiểu dáng",
+    "customizeAppearance": "Tùy chỉnh giao diện của báo cáo",
+    "companyName": "Tên công ty",
+    "enterCompanyName": "Nhập tên công ty của bạn",
+    "logoUpload": "Tải lên logo",
+    "clickToUpload": "Nhấp để tải lên logo",
+    "logoFormat": "PNG, JPG tối đa 2MB",
+    "colorScheme": "Bảng màu",
+    "outputSettings": "Cài đặt đầu ra",
+    "chooseFormat": "Chọn định dạng và ngôn ngữ cho báo cáo",
+    "outputFormat": "Định dạng đầu ra",
+    "language": "Ngôn ngữ",
+    "reportSummary": "Tóm tắt báo cáo",
+    "template": "Mẫu",
+    "timeRange": "Khoảng thời gian",
+    "dataSources": "Nguồn dữ liệu",
+    "sections": "Phần",
+    "format": "Định dạng",
+    "language": "Ngôn ngữ",
+    "reportPreview": "Xem trước báo cáo",
+    "backToWizard": "Quay lại trình tạo",
+    "viewStatus": "Xem trạng thái",
+    "viewPreview": "Xem trước",
+    "downloadReport": "Tải xuống báo cáo",
+    "reportStatus": "Trạng thái báo cáo",
+    "progress": "Tiến độ",
+    "fileSize": "Kích thước tệp",
+    "pages": "Trang",
+    "completed": "Hoàn thành",
+    "reportDetails": "Chi tiết báo cáo",
+    "reportId": "ID báo cáo",
+    "created": "Đã tạo",
+    "template": "Mẫu",
+    "format": "Định dạng",
+    "language": "Ngôn ngữ",
+    "share": "Chia sẻ",
+    "generatedOn": "Được tạo vào",
+    "period": "Khoảng thời gian",
+    "executiveSummary": "Tóm tắt điều hành",
+    "keyMetrics": "Chỉ số chính",
+    "trendAnalysis": "Phân tích xu hướng",
+    "topPerformingContent": "Nội dung hiệu suất cao nhất",
+    "totalReach": "Tổng tiếp cận",
+    "engagementRate": "Tỷ lệ tương tác",
+    "sentimentScore": "Điểm cảm xúc",
+    "contentVolume": "Khối lượng nội dung",
+    "performanceTrends": "Xu hướng hiệu suất theo thời gian cho thấy sự tăng trưởng ổn định trong các chỉ số chính.",
+    "bestPerformingPosts": "Bài đăng hiệu suất tốt nhất được xếp hạng theo tương tác và tiếp cận.",
+    "thisReportProvides": "Báo cáo này cung cấp phân tích toàn diện về hiệu suất mạng xã hội của bạn trong khoảng thời gian đã chọn. Các điểm nổi bật chính bao gồm sự tăng trưởng đáng kể về tỷ lệ tương tác và xu hướng cảm xúc tích cực trên tất cả các nền tảng.",
+    "professionalPdf": "Bố cục PDF chuyên nghiệp",
+    "interactiveCharts": "Biểu đồ và đồ thị tương tác",
+    "executiveSummary": "Tóm tắt điều hành",
+    "dataInsights": "Thông tin chi tiết dữ liệu và khuyến nghị",
+    "brandCustomization": "Tùy chọn tùy chỉnh thương hiệu",
+    "includes": "Bao gồm",
+    "required": "Bắt buộc",
+    "optional": "Tùy chọn",
+    "minutesToGenerate": "phút để tạo",
+    "templateDetails": "Chi tiết mẫu",
+    "sectionsIncluded": "Phần được bao gồm",
+    "reportFeatures": "Tính năng báo cáo"
+  },
+  "landing": {
+    "header": {
+      "home": "Trang chủ",
+      "features": "Tính năng",
+      "solutions": "Giải pháp",
+      "feedback": "Phản hồi",
+      "pricing": "Bảng giá",
+      "aboutUs": "Về chúng tôi",
+      "contact": "Liên hệ",
+      "login": "Đăng nhập",
+      "getStarted": "Bắt đầu ngay"
+    },
+    "hero": {
+      "tagline": "One input, endless insights",
+      "subtitle": "Tự hào là những cánh chim tiên phong trong lĩnh vực phân tích dữ liệu doanh nghiệp dựa trên xu hướng người dùng với đội ngũ kỹ sư và công nghệ tiên tiến đến từ Đại học Bách Khoa.",
+      "cta": "Dùng thử miễn phí",
+      "watchDemo": "Xem Demo"
+    },
+    "features": {
+      "title": "Thu Thập Dữ Liệu & Phân Tích AI Mạnh Mẽ",
+      "subtitle": "Kết nối nhiều nền tảng mạng xã hội và để AI chuyển đổi dữ liệu thô thành thông tin hữu ích",
+      "step1Title": "Chuẩn bị dữ liệu",
+      "step1Description": "Lắng nghe những bàn tán về doanh nghiệp của bạn hoặc đối thủ dưới góc nhìn người dùng mạng xã hội.",
+      "step2Title": "Phân tích dữ liệu",
+      "step2Description": "Chuẩn hóa dữ liệu, phát hiện xu hướng và huấn luyện mô hình để khai thác giá trị tiềm ẩn.",
+      "step3Title": "Trực quan hóa dữ liệu",
+      "step3Description": "Biến insight thành biểu đồ, dashboard và báo cáo dễ hiểu để hỗ trợ doanh nghiệp vô điều kiện.",
+      "cta": "Bắt đầu ngay"
+    },
+    "solutions": {
+      "title": "Nền tảng của bạn để đưa ra quyết định sáng suốt hơn",
+      "subtitle": "Khai phá những insight mạnh mẽ và thúc đẩy tăng trưởng với nền tảng tất-cả-trong-một. Chúng tôi cung cấp các công cụ bạn cần để thành công trong bối cảnh kỹ thuật số cạnh tranh.",
+      "solution1Title": "Xử lý khủng hoảng truyền thống",
+      "solution1Description": "Chủ động xác định và quản lý các rủi ro tiềm ẩn trước khi chúng leo thang, bảo vệ danh tiếng thương hiệu của bạn.",
+      "solution2Title": "Nắm bắt xu hướng thị trường",
+      "solution2Description": "Đi trước đón đầu bằng cách nắm bắt và phân tích các xu hướng mới nổi trong ngành của bạn theo thời gian thực.",
+      "solution3Title": "Phân tích đối thủ cạnh tranh",
+      "solution3Description": "Giành lợi thế bằng cách theo dõi, phân tích chiến lược marketing và phản ứng của khách hàng đối với đối thủ.",
+      "solution4Title": "Tối ưu hóa chiến dịch",
+      "solution4Description": "Đo lường hiệu quả các chiến dịch marketing, social media một cách trực quan để tối ưu hóa ROI.",
+      "solution5Title": "Thấu hiểu khách hàng sâu sắc",
+      "solution5Description": "Hiểu rõ nhu cầu, mong muốn và hành vi của khán giả mục tiêu thông qua phân tích dữ liệu mạng xã hội.",
+      "solution6Title": "Cải thiện sản phẩm & dịch vụ",
+      "solution6Description": "Lắng nghe phản hồi của khách hàng để cải tiến sản phẩm, dịch vụ và nâng cao trải nghiệm người dùng."
+    },
+    "feedback": {
+      "title": "Khách hàng tin tưởng chúng tôi",
+      "subtitle": "Hàng nghìn doanh nghiệp đã chuyển đổi cách họ phân tích dữ liệu mạng xã hội với nền tảng của chúng tôi",
+      "stats": {
+        "customersCount": "5000+",
+        "customersLabel": "Khách hàng tin dùng",
+        "rating": "4.9/5",
+        "ratingLabel": "Đánh giá trung bình",
+        "growthRate": "300%",
+        "growthLabel": "Tăng trưởng năm 2024",
+        "satisfaction": "98%",
+        "satisfactionLabel": "Mức độ hài lòng"
+      },
+      "testimonials": {
+        "testimonial1Name": "Nguyễn Văn An",
+        "testimonial1Position": "CEO",
+        "testimonial1Company": "TechViet Co.",
+        "testimonial1Quote": "SMAP Solution đã giúp chúng tôi hiểu rõ hơn về khách hàng và đối thủ cạnh tranh. ROI tăng 200% chỉ trong 6 tháng. Đây là công cụ không thể thiếu cho chiến lược marketing của chúng tôi.",
+        "testimonial2Name": "Trần Thị Bình",
+        "testimonial2Position": "Marketing Director",
+        "testimonial2Company": "FastFood Chain",
+        "testimonial2Quote": "Với SMAP, chúng tôi có thể phát hiện khủng hoảng truyền thông trước khi nó lan rộng. Đội ngũ hỗ trợ rất chuyên nghiệp và nền tảng rất dễ sử dụng.",
+        "testimonial3Name": "Lê Minh Châu",
+        "testimonial3Position": "Social Media Manager",
+        "testimonial3Company": "Fashion Brand",
+        "testimonial3Quote": "Dashboard trực quan, insights chính xác và báo cáo tự động giúp tôi tiết kiệm 10 giờ mỗi tuần. Tôi có thể tập trung vào chiến lược thay vì phân tích dữ liệu thủ công."
+      },
+      "caseStudiesTitle": "Câu chuyện thành công",
+      "caseStudies": {
+        "case1": {
+          "metric": "250%",
+          "title": "Tăng trưởng tương tác",
+          "description": "Thương hiệu thời trang tăng engagement rate từ 2% lên 5% sau 3 tháng"
+        },
+        "case2": {
+          "metric": "85%",
+          "title": "Tiết kiệm thời gian",
+          "description": "Công ty F&B giảm 85% thời gian phân tích dữ liệu với automation"
+        },
+        "case3": {
+          "metric": "40%",
+          "title": "Giảm chi phí quảng cáo",
+          "description": "Startup tech tối ưu hóa targeting và giảm 40% chi phí mỗi conversion"
+        }
+      }
+    },
+    "pricing": {
+      "title": "Bảng giá minh bạch",
+      "subtitle": "Chọn gói phù hợp với nhu cầu của bạn. Không có chi phí ẩn, hủy bất cứ lúc nào.",
+      "popular": "Phổ biến nhất",
+      "perMonth": "tháng",
+      "getStarted": "Bắt đầu ngay",
+      "note": "Tất cả các gói đều bao gồm hỗ trợ 24/7 và cập nhật miễn phí. Dùng thử 14 ngày không cần thẻ tín dụng.",
+      "plans": {
+        "starter": {
+          "name": "Starter",
+          "price": "1.990K",
+          "description": "Phù hợp cho startup và doanh nghiệp nhỏ bắt đầu phân tích social media.",
+          "features": {
+            "feature1": "3 dự án theo dõi",
+            "feature2": "1.000 mentions/tháng",
+            "feature3": "Báo cáo cơ bản"
+          }
+        },
+        "professional": {
+          "name": "Professional",
+          "price": "4.990K",
+          "description": "Dành cho doanh nghiệp muốn phân tích chuyên sâu và tối ưu chiến lược.",
+          "features": {
+            "feature1": "10 dự án theo dõi",
+            "feature2": "10.000 mentions/tháng",
+            "feature3": "Phân tích sentiment AI",
+            "feature4": "Báo cáo tùy chỉnh",
+            "feature5": "API access"
+          }
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "Liên hệ",
+          "description": "Giải pháp toàn diện cho doanh nghiệp lớn với nhu cầu đặc biệt.",
+          "features": {
+            "feature1": "Không giới hạn dự án",
+            "feature2": "Không giới hạn mentions",
+            "feature3": "AI & ML tùy chỉnh",
+            "feature4": "Dedicated support",
+            "feature5": "On-premise option",
+            "feature6": "SLA cam kết 99.9%"
+          }
+        }
+      }
+    },
+"contact": {
+      "title": "Liên Hệ Với Chúng Tôi",
+      "subtitle": "Bạn có câu hỏi hoặc cần tư vấn? Đội ngũ của chúng tôi sẵn sàng hỗ trợ bạn 24/7.",
+      "form": {
+        "title": "Gửi tin nhắn",
+        "name": "Họ và tên",
+        "namePlaceholder": "Nhập họ và tên của bạn",
+        "email": "Email",
+        "emailPlaceholder": "email@example.com",
+        "company": "Công ty",
+        "companyPlaceholder": "Tên công ty của bạn",
+        "message": "Tin nhắn",
+        "messagePlaceholder": "Bạn cần hỗ trợ gì?",
+        "submit": "Gửi tin nhắn"
+      },
+      "info": {
+        "email": "Email",
+        "phone": "Điện thoại",
+        "address": "Địa chỉ",
+        "addressValue": "268 Lý Thường Kiệt, P.14, Q.10, TP.HCM",
+        "hours": "Giờ làm việc",
+        "hoursValue": "Thứ 2 - Thứ 6: 8:00 - 18:00"
+      }
+    },
+    "about": {
+      "title": "Về Chúng Tôi",
+      "subtitle": "Chúng tôi là đội ngũ đam mê công nghệ và dữ liệu, cam kết mang đến giải pháp phân tích mạng xã hội tốt nhất cho doanh nghiệp Việt Nam.",
+      "mission": {
+        "title": "Sứ mệnh",
+        "description": "Giúp doanh nghiệp Việt Nam ra quyết định thông minh hơn thông qua việc khai thác sức mạnh của dữ liệu mạng xã hội và trí tuệ nhân tạo."
+      },
+      "vision": {
+        "title": "Tầm nhìn",
+        "description": "Trở thành nền tảng phân tích mạng xã hội hàng đầu Đông Nam Á, đồng hành cùng sự phát triển của hàng nghìn doanh nghiệp."
+      },
+      "story": {
+        "title": "Câu chuyện của chúng tôi",
+        "description": "Được thành lập bởi đội ngũ kỹ sư từ Đại học Bách Khoa TP.HCM, SMAP Solution ra đời từ niềm đam mê biến dữ liệu thành giá trị thực cho doanh nghiệp. Chúng tôi tin rằng mỗi doanh nghiệp đều xứng đáng có công cụ phân tích đẳng cấp thế giới."
+      },
+      "values": {
+        "title": "Giá trị cốt lõi",
+        "innovation": {
+          "title": "Đổi mới",
+          "description": "Không ngừng nghiên cứu và áp dụng công nghệ tiên tiến"
+        },
+        "transparency": {
+          "title": "Minh bạch",
+          "description": "Trung thực và rõ ràng trong mọi hoạt động"
+        },
+        "customerFirst": {
+          "title": "Khách hàng là trọng tâm",
+          "description": "Mọi quyết định đều hướng đến lợi ích khách hàng"
+        },
+        "excellence": {
+          "title": "Xuất sắc",
+          "description": "Cam kết chất lượng cao nhất trong từng sản phẩm"
+        }
+      },
+      "stats": {
+        "yearsExperience": "5+",
+        "yearsLabel": "Năm kinh nghiệm",
+        "teamMembers": "50+",
+        "teamLabel": "Thành viên",
+        "projectsCompleted": "500+",
+        "projectsLabel": "Dự án hoàn thành",
+        "clientSatisfaction": "98%",
+        "satisfactionLabel": "Khách hàng hài lòng"
+      }
+    },
+    "footer": {
+      "description": "Nền tảng phân tích mạng xã hội tiên tiến giúp doanh nghiệp hiểu rõ khán giả và phát triển thương hiệu.",
+      "product": "Sản phẩm",
+      "features": "Tính năng",
+      "solutions": "Giải pháp",
+      "pricing": "Bảng giá",
+      "company": "Công ty",
+      "aboutUs": "Về chúng tôi",
+      "careers": "Tuyển dụng",
+      "blog": "Blog",
+      "contact": "Liên hệ",
+      "support": "Hỗ trợ",
+      "documentation": "Tài liệu",
+      "helpCenter": "Trung tâm trợ giúp",
+      "community": "Cộng đồng",
+      "legal": "Pháp lý",
+      "privacy": "Chính sách bảo mật",
+      "terms": "Điều khoản dịch vụ",
+      "copyright": "© 2025 SMAP SOLUTION. Bảo lưu mọi quyền.",
+      "followUs": "Theo dõi chúng tôi"
+    }
+  },
+  "register": {
+    "title": "Tạo tài khoản",
+    "subtitle": "Đăng ký miễn phí để bắt đầu phân tích",
+    "name": "Họ và tên",
+    "namePlaceholder": "Nhập họ và tên của bạn",
+    "email": "Email",
+    "emailPlaceholder": "email@example.com",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu (tối thiểu 8 ký tự)",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu của bạn",
+    "agreeToTerms": "Tôi đồng ý với",
+    "termsLink": "Điều khoản dịch vụ",
+    "and": "và",
+    "privacyLink": "Chính sách bảo mật",
+    "submit": "Đăng ký",
+    "hasAccount": "Đã có tài khoản?",
+    "login": "Đăng nhập",
+    "backToHome": "Quay lại trang chủ",
+    "benefits": {
+      "benefit1": {
+        "title": "Dùng thử 14 ngày miễn phí",
+        "description": "Không cần thẻ tín dụng, hủy bất cứ lúc nào"
+      },
+      "benefit2": {
+        "title": "Kết nối đa nền tảng",
+        "description": "Tích hợp Facebook, Instagram, TikTok, Twitter và nhiều hơn nữa"
+      },
+      "benefit3": {
+        "title": "Hỗ trợ 24/7",
+        "description": "Đội ngũ chuyên gia sẵn sàng giúp đỡ bạn mọi lúc"
+      }
+    }
+  },
+  "forgotPassword": {
+    "title": "Quên mật khẩu?",
+    "subtitle": "Nhập email của bạn và chúng tôi sẽ gửi link đặt lại mật khẩu",
+    "email": "Email",
+    "emailPlaceholder": "email@example.com",
+    "submit": "Gửi link đặt lại",
+    "successTitle": "Đã gửi email!",
+    "successMessage": "Vui lòng kiểm tra hộp thư của bạn để đặt lại mật khẩu.",
+    "checkSpam": "Không thấy email? Kiểm tra thư mục spam.",
+    "backToLogin": "Quay lại đăng nhập",
+    "backToHome": "Quay lại trang chủ"
+  },
+  "login": {
+    "welcome": "Chào mừng trở lại!",
+    "welcomeSubtitle": "Đăng nhập để truy cập dashboard phân tích mạng xã hội và khám phá insights mới nhất.",
+    "title": "Đăng nhập",
+    "subtitle": "Nhập email để nhận link đăng nhập",
+    "email": "Email",
+    "emailPlaceholder": "email@example.com",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgotPassword": "Quên mật khẩu?",
+    "submit": "Đăng nhập",
+    "or": "hoặc",
+    "continueWithGoogle": "Tiếp tục với Google",
+    "loginWithGoogle": "Google",
+    "loginWithApple": "Apple",
+    "noAccount": "Chưa có tài khoản?",
+    "register": "Đăng ký tại đây",
+    "backToHome": "Quay lại trang chủ",
+    "trustedBy": "Được tin dùng bởi +5000 khách hàng",
+    "loggingIn": "Đang đăng nhập...",
+    "sendingOtp": "Đang gửi mã OTP...",
+    "tagline": "Phân tích mạng xã hội siêu năng lực",
+    "footerDescription": "Phân tích dữ liệu mạng xã hội, theo dõi xu hướng và nhiều hơn nữa. Hỗ trợ tiếng Việt và đa ngôn ngữ.",
+    "features": {
+      "feature1": {
+        "title": "Phân tích thời gian thực",
+        "description": "Theo dõi và phân tích dữ liệu mạng xã hội ngay lập tức với công nghệ AI tiên tiến"
+      },
+      "feature2": {
+        "title": "Thông tin chi tiết sâu sắc",
+        "description": "Khám phá xu hướng ẩn và hành vi khách hàng với phân tích sentiment AI"
+      },
+      "feature3": {
+        "title": "Bảo mật dữ liệu",
+        "description": "Dữ liệu của bạn được mã hóa và bảo vệ với tiêu chuẩn bảo mật cao nhất"
+      }
+    }
+  },
+  "emptyState": {
+    "welcome": {
+      "title": "Chào mừng đến với SMAP Analytics",
+      "description": "Bắt đầu hành trình phân tích thương hiệu và đối thủ của bạn. Tạo project đầu tiên để khám phá những insights có giá trị."
+    },
+    "features": {
+      "trendAnalysis": {
+        "title": "Phân tích xu hướng",
+        "description": "Khám phá xu hướng nội dung theo thời gian thực"
+      },
+      "competitorTracking": {
+        "title": "Theo dõi đối thủ",
+        "description": "Theo dõi và so sánh với đối thủ cạnh tranh"
+      },
+      "shareOfVoice": {
+        "title": "Thị phần tiếng nói",
+        "description": "Đo lường tỷ lệ thị phần trong cuộc trò chuyện"
+      }
+    },
+    "quickActions": {
+      "createProject": {
+        "title": "Tạo Project Mới",
+        "description": "Bắt đầu theo dõi thương hiệu và đối thủ",
+        "buttonText": "Bắt đầu ngay"
+      },
+      "importCSV": {
+        "title": "Nhập từ CSV",
+        "description": "Import danh sách đối thủ hàng loạt",
+        "buttonText": "Tìm hiểu thêm"
+      }
+    },
+    "tip": "Mẹo: Bạn có thể tạo nhiều project để theo dõi các thương hiệu khác nhau"
+  },
+  "verifyOtp": {
+    "title": "Xác Thực Email",
+    "subtitle": "Chúng tôi đã gửi mã 6 số đến",
+    "enterCode": "Nhập mã xác thực",
+    "verify": "Xác thực",
+    "verifying": "Đang xác thực...",
+    "resendCode": "Gửi lại mã",
+    "resending": "Đang gửi lại...",
+    "resendIn": "Gửi lại mã sau",
+    "backToLogin": "Quay lại đăng nhập",
+    "securityInfo": {
+      "title": "Tại sao cần xác thực?",
+      "description": "Xác thực email giúp chúng tôi đảm bảo bảo mật tài khoản và bảo vệ khỏi truy cập trái phép."
+    }
+  },
+  "projects": {
+    "title": "Dự Án Của Tôi",
+    "subtitle": "Quản lý các dự án giám sát thương hiệu và phân tích đối thủ cạnh tranh",
+    "createNew": "Tạo Dự Án Mới",
+    "searchPlaceholder": "Tìm kiếm dự án...",
+    "fetchError": "Không thể tải danh sách dự án. Vui lòng thử lại.",
+    "error": "Không thể tải danh sách dự án",
+    "createSuccess": {
+      "title": "Đã Tạo!",
+      "text": "Dự án đã được tạo thành công!"
+    },
+    "createError": {
+      "title": "Lỗi!",
+      "text": "Không thể tạo dự án. Vui lòng thử lại."
+    },
+    "noProjects": "Chưa có dự án nào",
+    "noProjectsDescription": "Tạo dự án đầu tiên để bắt đầu phân tích dữ liệu mạng xã hội",
+    "createFirst": "Tạo Dự Án Đầu Tiên",
+    "noResults": "Không tìm thấy dự án",
+    "noResultsDescription": "Thử điều chỉnh từ khóa tìm kiếm",
+    "noDescription": "Chưa có mô tả",
+    "brands": "Thương hiệu",
+    "competitors": "Đối thủ",
+    "created": "Tạo lúc",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa dự án này? Hành động này không thể hoàn tác.",
+    "status": {
+      "completed": "Hoàn thành",
+      "draft": "Nháp",
+      "process": "Đang xử lý"
+    },
+    "actions": {
+      "view": "Xem Dự Án",
+      "edit": "Chỉnh Sửa",
+      "delete": "Xóa Dự Án"
+    },
+    "deleteConfirm": {
+      "title": "Xóa Dự Án?",
+      "text": "Bạn có chắc chắn muốn xóa dự án này?",
+      "confirm": "Có, Xóa",
+      "cancel": "Hủy",
+      "success": "Đã Xóa!",
+      "successText": "Dự án đã được xóa thành công.",
+      "error": "Lỗi!",
+      "errorText": "Không thể xóa dự án. Vui lòng thử lại."
+    },
+    "draft": {
+      "title": "Dự Án Không Khả Dụng",
+      "message": "Dự án này hiện đang ở trạng thái nháp và không thể truy cập."
+    },
+    "processing": {
+      "initializing": "Đang khởi tạo thu thập dữ liệu...",
+      "crawling": "Đang thu thập dữ liệu từ mạng xã hội...",
+      "processing": "Đang xử lý và phân tích dữ liệu...",
+      "done": "Sắp hoàn tất...",
+      "failed": "Xử lý thất bại. Vui lòng thử lại.",
+      "connected": "Đã kết nối. Đang chờ cập nhật...",
+      "connectionError": "Lỗi kết nối. Đang thử lại...",
+      "connectionFailed": "Kết nối thất bại. Vui lòng làm mới trang."
+    },
+    "error": {
+      "notFound": "Không Tìm Thấy Dự Án",
+      "notFoundText": "Dự án bạn đang tìm không tồn tại.",
+      "invalidStatus": "Trạng Thái Không Hợp Lệ",
+      "invalidStatusText": "Dự án này có trạng thái không hợp lệ."
+    }
+  },
+  "preview": {
+    "title": "Xem Trước Dữ Liệu Mẫu",
+    "subtitle": "Xem các bài đăng mẫu thu thập từ từ khóa",
+    "loading": "Đang tải dữ liệu xem trước...",
+    "loadingSubtext": "Quá trình này có thể mất vài phút...",
+    "dataLoaded": "Đã tải dữ liệu xem trước thành công",
+    "noData": "Không có dữ liệu xem trước",
+    "sampleDataBanner": "Dữ Liệu Mẫu",
+    "sampleDataDescription": "Dữ liệu preview sẽ bao gồm các thông tin này",
+    "viewRealDataButton": "Xem trước dữ liệu thực tế của project này",
+    "viewingRealData": "Đang xem dữ liệu thực tế",
+    "noPosts": "Không tìm thấy bài đăng cho từ khóa này",
+    "samplePosts": "Bài Đăng Mẫu",
+    "allKeywords": "Tất Cả Từ Khóa",
+    "matchedKeyword": "Từ Khóa Khớp",
+    "transcription": "Bản Chép Lời",
+    "viewComments": "Xem Bình Luận",
+    "viewOriginal": "Xem Bài Gốc",
+    "moreComments": "bình luận khác",
+    "author": "Tác Giả",
+    "replies": "phản hồi",
+    "followers": "người theo dõi",
+    "videos": "video",
+    "engagement": "tương tác",
+    "errorTitle": "Không Thể Tải Xem Trước",
+    "retry": "Thử Lại",
+    "minutesAgo": "phút trước",
+    "hoursAgo": "giờ trước",
+    "daysAgo": "ngày trước",
+    "metrics": {
+      "views": "Lượt Xem",
+      "likes": "Lượt Thích",
+      "comments": "Bình Luận",
+      "shares": "Chia Sẻ",
+      "avgEngagement": "Tương Tác TB"
+    }
+  },
+  "common": {
+    "back": "Quay Lại",
+    "next": "Tiếp Theo"
+  }
+}

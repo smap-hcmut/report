@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smap-web-ingress
+  namespace: smap
+  labels:
+    app: smap-web
+    component: frontend
+  annotations:
+    # Basic NGINX Ingress annotations
+    # SSL is handled by external NGINX, so no SSL redirect here
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+
+    # Proxy settings
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+
+    # WebSocket support
+    # Updated for new WebSocket specification:
+    # - Port: 8081 (changed from 8080)
+    # - Authentication: HttpOnly Cookie (automatic)
+    # - Connection patterns: /ws?projectId={id} or /ws?jobId={id}
+    nginx.ingress.kubernetes.io/websocket-services: "smap-web-service"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+
+    # Trust X-Forwarded headers from external NGINX
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+
+    # Rate limiting (optional - can also be done at external NGINX)
+    # nginx.ingress.kubernetes.io/limit-rps: "100"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: smap.tantai.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: smap-web-service
+                port:
+                  number: 80
