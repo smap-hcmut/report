@@ -1,0 +1,116 @@
+services:
+  # ========================================
+  # Development API Service (Optimized for Fast Restart)
+  # ========================================
+  # Build once with Dockerfile.dev, then restart is instant
+  # Only model download on first run (cached in volume)
+  api-dev:
+    build:
+      context: .
+      dockerfile: cmd/api/Dockerfile.dev
+    platform: linux/amd64 # Force x86_64 for Whisper .so libraries
+    container_name: stt-api-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    working_dir: /app
+
+    # Mount source code for hot-reload (not entire project)
+    volumes:
+      - ./cmd:/app/cmd
+      - ./core:/app/core
+      - ./services:/app/services
+      - ./internal:/app/internal
+      - ./interfaces:/app/interfaces
+      - ./infrastructure:/app/infrastructure
+      - ./scripts:/app/scripts
+      - ./logs:/app/logs
+      # Cache model artifacts (persist across restarts)
+      - whisper_library_base:/app/models/whisper_base_xeon
+      - whisper_library_small:/app/models/whisper_small_xeon
+      - whisper_library_medium:/app/models/whisper_medium_xeon
+
+    environment:
+      # Application
+      APP_NAME: "Speech-to-Text API"
+      APP_VERSION: "1.0.0"
+      ENVIRONMENT: "development"
+      DEBUG: "True"
+
+      # API
+      API_HOST: "0.0.0.0"
+      API_PORT: "8000"
+      MAX_UPLOAD_SIZE_MB: "500"
+
+      # Storage
+      TEMP_DIR: "/tmp/stt_processing"
+
+      # Whisper Library Settings
+      WHISPER_MODEL_SIZE: "${WHISPER_MODEL_SIZE:-base}"
+      WHISPER_ARTIFACTS_DIR: "models"
+      LD_LIBRARY_PATH: "/app/models/whisper_base_xeon:/app/models/whisper_small_xeon:/app/models/whisper_medium_xeon"
+
+      # MinIO Configuration
+      MINIO_ENDPOINT: "${MINIO_ENDPOINT:-http://172.16.19.115:9000}"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY:-smap}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY:-hcmut2025}"
+
+      # Whisper Settings
+      WHISPER_LANGUAGE: "vi"
+      WHISPER_MODEL: "base"
+      WHISPER_N_THREADS: "${WHISPER_N_THREADS:-0}"
+
+      # Chunking
+      WHISPER_CHUNK_ENABLED: "${WHISPER_CHUNK_ENABLED:-true}"
+      WHISPER_CHUNK_DURATION: "${WHISPER_CHUNK_DURATION:-30}"
+      WHISPER_CHUNK_OVERLAP: "${WHISPER_CHUNK_OVERLAP:-1}"
+
+      # Whisper Flags
+      WHISPER_MAX_CONTEXT: "0"
+      WHISPER_NO_SPEECH_THOLD: "0.7"
+      WHISPER_ENTROPY_THOLD: "2.6"
+      WHISPER_LOGPROB_THOLD: "-0.8"
+      WHISPER_NO_FALLBACK: "true"
+
+      # Logging
+      LOG_LEVEL: "INFO"
+      LOG_FILE: "logs/stt.log"
+
+      # API Security
+      INTERNAL_API_KEY: "${INTERNAL_API_KEY:-your-api-key-here}"
+      TRANSCRIBE_TIMEOUT_SECONDS: "90"
+
+      # Redis (for async job state)
+      REDIS_HOST: "host.docker.internal"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-21042004}"
+      REDIS_DB: "0"
+
+    networks:
+      - stt-network
+
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s # Faster startup now
+
+networks:
+  stt-network:
+    driver: bridge
+
+volumes:
+  whisper_library_base:
+    driver: local
+  whisper_library_small:
+    driver: local
+  whisper_library_medium:
+    driver: local

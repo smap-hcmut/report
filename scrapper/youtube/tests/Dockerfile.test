@@ -1,0 +1,59 @@
+# =============================================================================
+# Multi-stage Dockerfile for Testing YouTube Scraper
+# =============================================================================
+
+# Stage 1: Base - Install dependencies
+FROM python:3.11-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        curl \
+        && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt ./
+COPY tests/requirements-test.txt ./
+
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    pip install -r requirements-test.txt
+
+# =============================================================================
+# Stage 2: Test - Ready for running tests
+# =============================================================================
+FROM base AS test
+
+# Copy application code
+COPY . .
+
+# Create directories for test artifacts
+RUN mkdir -p htmlcov .pytest_cache
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Default command runs all tests
+CMD ["pytest", "tests/", "-v", "--cov=.", "--cov-report=html", "--cov-report=term"]
+
+# =============================================================================
+# Stage 3: Development - For local development with hot reload
+# =============================================================================
+FROM test AS development
+
+# Install development tools
+RUN pip install ipython ipdb
+
+# Expose ports for debugging
+EXPOSE 5678
+
+CMD ["bash"]

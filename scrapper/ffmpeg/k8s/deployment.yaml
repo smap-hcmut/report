@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smap-ffmpeg
+  namespace: smap
+  labels:
+    app: smap-ffmpeg
+    component: api
+    version: v3
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: smap-ffmpeg
+  template:
+    metadata:
+      labels:
+        app: smap-ffmpeg
+        component: api
+        version: v3
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+        config/hash: "PLACEHOLDER_CONFIG_HASH"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+      - name: smap-ffmpeg
+        image: registry.tantai.dev/smap/smap-ffmpeg:251211-095912
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false  # FFmpeg needs write access for temp files
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        envFrom:
+        - configMapRef:
+            name: smap-ffmpeg-config
+        - secretRef:
+            name: smap-ffmpeg-secrets
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: app-tmp
+          mountPath: /app/tmp
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: app-tmp
+        emptyDir:
+          sizeLimit: 1Gi
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: smap-ffmpeg
+              topologyKey: kubernetes.io/hostname

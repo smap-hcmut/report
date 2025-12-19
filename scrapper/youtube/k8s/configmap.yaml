@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smap-youtube-scraper-config
+  namespace: smap
+  labels:
+    app: smap-youtube-scraper
+    component: config
+    version: v3
+data:
+  # ========== Application Settings ==========
+  APP_ENV: "production"
+  LOG_LEVEL: "INFO"
+
+  # ========== RabbitMQ Settings ==========
+  RABBITMQ_HOST: "172.16.19.112"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USER: "smap"
+  RABBITMQ_VHOST: "/"
+  RABBITMQ_QUEUE_NAME: "youtube_crawl_queue"
+  RABBITMQ_EXCHANGE: "youtube_exchange"
+  RABBITMQ_ROUTING_KEY: "youtube.crawl"
+  RABBITMQ_PREFETCH_COUNT: "1"
+
+  # ========== Result Publisher Settings ==========
+  RESULT_PUBLISHER_ENABLED: "true"
+  RESULT_EXCHANGE_NAME: "youtube_exchange"
+  RESULT_ROUTING_KEY: "youtube.res"
+  RESULT_QUEUE_NAME: "youtube_result_queue"
+
+  # ========== Event Publisher Settings (Event-Driven Architecture) ==========
+  EVENT_PUBLISHER_ENABLED: "true"
+  EVENT_EXCHANGE_NAME: "smap.events"
+  EVENT_ROUTING_KEY: "data.collected"
+
+  # ========== Batch Upload Settings ==========
+  BATCH_SIZE: "20"
+  BATCH_UPLOAD_ENABLED: "true"
+  MINIO_CRAWL_RESULTS_BUCKET: "crawl-results"
+
+  # ========== MongoDB Settings ==========
+  MONGODB_HOST: "172.16.19.100"
+  MONGODB_PORT: "27017"
+  MONGODB_DATABASE: "smap"
+  MONGODB_AUTH_SOURCE: "smap"
+
+  # ========== Crawler Settings ==========
+  CRAWLER_QUIET: "true"
+  CRAWLER_NO_WARNINGS: "true"
+  CRAWLER_MAX_CONCURRENT: "8"
+  CRAWLER_MAX_COMMENTS: "200"
+
+  # ========== Limit Settings ==========
+  # Default limits (applied when payload doesn't specify)
+  DEFAULT_SEARCH_LIMIT: "50"
+  DEFAULT_LIMIT_PER_KEYWORD: "50"
+  DEFAULT_CHANNEL_LIMIT: "100"
+  DEFAULT_CRAWL_LINKS_LIMIT: "200"
+  # Hard limits (safety caps)
+  MAX_SEARCH_LIMIT: "500"
+  MAX_CRAWL_LINKS_LIMIT: "1000"
+  MAX_CHANNEL_LIMIT: "500"
+
+  # ========== Media Download Settings ==========
+  MEDIA_DOWNLOAD_DIR: "./downloads"
+  MEDIA_DOWNLOAD_ENABLED: "true"
+  MEDIA_DEFAULT_TYPE: "audio"
+
+  # ========== Remote FFmpeg Service Configuration ==========
+  MEDIA_FFMPEG_SERVICE_URL: "smap-ffmpeg:8000"
+  MEDIA_FFMPEG_TIMEOUT: "600"
+  MEDIA_FFMPEG_MAX_RETRIES: "3"
+  MEDIA_FFMPEG_BACKOFF_FACTOR: "2.0"
+  MEDIA_FFMPEG_CIRCUIT_BREAKER: "true"
+  MEDIA_FFMPEG_CIRCUIT_THRESHOLD: "5"
+  MEDIA_FFMPEG_CIRCUIT_RECOVERY: "60.0"
+  MEDIA_FFMPEG_MAX_CONNECTIONS: "100"
+  MEDIA_FFMPEG_KEEPALIVE_CONNECTIONS: "20"
+
+  MEDIA_MAX_FILE_SIZE_MB: "500"
+  MEDIA_DOWNLOAD_TIMEOUT: "300"
+  MEDIA_CHUNK_SIZE: "8192"
+  MEDIA_UPLOAD_TO_STORAGE: "false"
+
+  # ========== Compression Settings ==========
+  COMPRESSION_ENABLED: "true"
+  COMPRESSION_ALGORITHM: "zstd"
+  COMPRESSION_DEFAULT_LEVEL: "2"
+  COMPRESSION_MIN_SIZE_BYTES: "1024"
+
+  # ========== Async Upload Settings ==========
+  MINIO_ASYNC_UPLOAD_ENABLED: "true"
+  MINIO_ASYNC_UPLOAD_WORKERS: "4"
+  MINIO_ASYNC_UPLOAD_QUEUE_SIZE: "100"
+  MINIO_UPLOAD_CHUNK_SIZE: "5242880"
+  MINIO_PROGRESS_UPDATE_INTERVAL: "0.5"
+
+  # ========== Archival Settings ==========
+  ENABLE_JSON_ARCHIVE: "true"
+  ENABLE_DB_PERSISTENCE: "true"
+  MINIO_ARCHIVE_BUCKET: "youtube-archive"
+
+  # ========== Metadata Settings ==========
+  DEFAULT_LANG: "vi"
+  DEFAULT_REGION: "VN"
+  PIPELINE_VERSION: "crawler_youtube_v3"
+
+  # ========== Gemini AI Summary Settings ==========
+  GEMINI_ENABLED: "false"
+  GEMINI_MODEL: "gemini-2.5-flash"
+  GEMINI_TIMEOUT: "120"
+  GEMINI_TRANSCRIPT_LANGUAGES: "en,vi,en-US,en-GB,vi-VN"
+
+  # ========== MinIO Storage Settings ==========
+  MINIO_ENDPOINT: "172.16.19.115:9000"
+  MINIO_BUCKET: "smap-stt-audio-files"
+  MINIO_USE_SSL: "false"
+  MINIO_BASE_PATH: ""
+
+  # ========== Speech-to-Text Settings ==========
+  STT_API_ENABLED: "true"
+  STT_API_URL: "smap-speech-to-text/transcribe"
+  STT_API_KEY: "smap-internal-key-changeme"
+  STT_TIMEOUT: "300"
+  STT_PRESIGNED_URL_EXPIRES_HOURS: "168"
+  STT_POLLING_MAX_RETRIES: "60"
+  STT_POLLING_WAIT_INTERVAL: "3"
+
+  # ========== Worker Settings ==========
+  WORKER_NAME: "youtube-worker-1"
+  WORKER_MAX_RETRIES: "3"
+  WORKER_RETRY_DELAY: "5"
+  WORKER_GRACEFUL_SHUTDOWN_TIMEOUT: "30"

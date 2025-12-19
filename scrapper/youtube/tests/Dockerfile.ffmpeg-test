@@ -1,0 +1,12 @@
+FROM alpine:3.19
+
+# Install the ffmpeg binary only (no extra docs or build deps)
+RUN apk add --no-cache \
+        ffmpeg \
+        ca-certificates \
+    && update-ca-certificates
+
+WORKDIR /workspace
+
+# Default command prints the ffmpeg version; override in `docker run` as needed.
+CMD ["ffmpeg", "-version"]

@@ -1,0 +1,94 @@
+---
+# RabbitMQ Configuration Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbitmq-config
+  namespace: smap
+type: Opaque
+stringData:
+  RABBITMQ_HOST: 172.16.19.112
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USER: smap
+  RABBITMQ_PASSWORD: hcmut
+  RABBITMQ_VHOST: /
+  RABBITMQ_QUEUE_NAME: youtube_crawl_queue
+  RABBITMQ_EXCHANGE: youtube_exchange
+  RABBITMQ_ROUTING_KEY: youtube.crawl
+  RABBITMQ_PREFETCH_COUNT: "1"
+
+---
+# MongoDB Configuration Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-config
+  namespace: smap
+type: Opaque
+stringData:
+  MONGODB_HOST: 172.16.19.100
+  MONGODB_PORT: "27017"
+  MONGODB_USER: smap
+  MONGODB_PASSWORD: hcmut2025
+  MONGODB_DATABASE: youtube_crawl
+  MONGODB_AUTH_SOURCE: admin
+
+---
+# MinIO Configuration Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-config
+  namespace: smap
+type: Opaque
+stringData:
+  MINIO_ENDPOINT: 172.16.19.115:9000
+  MINIO_ACCESS_KEY: smap
+  MINIO_SECRET_KEY: hcmut2025
+  MINIO_BUCKET: youtube-media
+  MINIO_USE_SSL: "False"
+
+---
+# Crawler Settings Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: crawler-config
+  namespace: smap
+type: Opaque
+stringData:
+  CRAWLER_QUIET: "True"
+  CRAWLER_NO_WARNINGS: "True"
+  CRAWLER_MAX_CONCURRENT: "8"
+  CRAWLER_MAX_COMMENTS: "200"
+
+---
+# Application Settings Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-crawler-config
+  namespace: smap
+type: Opaque
+stringData:
+  APP_ENV: "development"
+  LOG_LEVEL: "INFO"
+  WORKER_NAME: "youtube-crawler-worker"
+  WORKER_MAX_RETRIES: "3"
+  WORKER_RETRY_DELAY: "5"
+
+---
+# Media Download Settings Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: media-config
+  namespace: smap
+type: Opaque
+stringData:
+  MEDIA_DOWNLOAD_DIR: "./downloads"
+  MEDIA_DOWNLOAD_ENABLED: "True"
+  MEDIA_DEFAULT_TYPE: "audio"
+  MEDIA_MAX_FILE_SIZE_MB: "500"
+  MEDIA_DOWNLOAD_TIMEOUT: "300"
+  MEDIA_CHUNK_SIZE: "8192"

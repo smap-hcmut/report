@@ -1,0 +1,97 @@
+# Build context optimization - exclude unnecessary files
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Documentation and examples  
+README.md
+docs/
+examples/
+*.md
+
+# Development files
+.env*
+!.env.example
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+tests/
+test_*.py
+*_test.py
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyo
+*.pyd
+.mypy_cache/
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+.cache/
+downloads/
+media/
+
+# Scripts and tools (not needed in container)
+scripts/
+Makefile
+docker-compose*.yml
+*.sh
+
+# Kubernetes manifests
+k8s/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Database files
+*.sqlite
+*.db
+
+# Node.js (if any)
+node_modules/
+
+# Docker files (not needed in build context)
+Dockerfile*
+.dockerignore
+
+# Keep only essential files for runtime
+!app/
+!application/
+!config/
+!domain/
+!internal/
+!utils/
+!pyproject.toml
+!uv.lock

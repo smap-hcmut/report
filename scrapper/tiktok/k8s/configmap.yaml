@@ -1,0 +1,124 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smap-tiktok-scraper-config
+  namespace: smap
+  labels:
+    app: smap-tiktok-scraper
+    component: config
+    version: v3
+data:
+  # ========== Application Settings ==========
+  APP_ENV: "production"
+  LOG_LEVEL: "INFO"
+
+  # ========== RabbitMQ Configuration ==========
+  RABBITMQ_HOST: "172.16.19.112"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USER: "smap"
+  RABBITMQ_VHOST: "/"
+  RABBITMQ_QUEUE_NAME: "tiktok_crawl_queue"
+  RABBITMQ_EXCHANGE: "tiktok_exchange"
+  RABBITMQ_ROUTING_KEY: "tiktok.crawl"
+  RABBITMQ_PREFETCH_COUNT: "1"
+
+  # ========== MongoDB Configuration ==========
+  MONGODB_HOST: "172.16.19.100"
+  MONGODB_PORT: "27017"
+  MONGODB_DATABASE: "smap"
+  MONGODB_AUTH_SOURCE: "smap"
+
+  # ========== Crawler Settings ==========
+  CRAWLER_HEADLESS: "True"
+  CRAWLER_TIMEOUT: "30000"
+  CRAWLER_WAIT_AFTER_LOAD: "3000"
+  CRAWLER_SCROLL_DELAY: "1500"
+  CRAWLER_MAX_SCROLL_ATTEMPTS: "10"
+  CRAWLER_USER_AGENT: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  CRAWLER_MAX_CONCURRENT: "8"
+  CRAWLER_REQUESTS_PER_MINUTE: "20"
+  CRAWLER_DELAY_MIN: "2"
+  CRAWLER_DELAY_MAX: "5"
+
+  # ========== Limit Settings ==========
+  # Default limits (applied when payload doesn't specify)
+  DEFAULT_SEARCH_LIMIT: "50"
+  DEFAULT_LIMIT_PER_KEYWORD: "50"
+  DEFAULT_PROFILE_LIMIT: "100"
+  DEFAULT_CRAWL_LINKS_LIMIT: "200"
+  # Hard limits (safety caps)
+  MAX_SEARCH_LIMIT: "500"
+  MAX_CRAWL_LINKS_LIMIT: "1000"
+  MAX_PROFILE_LIMIT: "500"
+
+  # ========== Playwright Service Configuration ==========
+  PLAYWRIGHT_WS_ENDPOINT: "ws://smap-playwright:4444/?headless=1"
+  PLAYWRIGHT_REST_API_ENABLED: "True"
+  PLAYWRIGHT_REST_API_URL: "http://smap-playwright:8001"
+
+  # ========== Media Download Settings ==========
+  MEDIA_DOWNLOAD_DIR: "./tiktok"
+  MEDIA_DOWNLOAD_ENABLED: "True"
+  MEDIA_DEFAULT_TYPE: "audio"
+  MEDIA_ENABLE_FFMPEG: "True"
+  MEDIA_FFMPEG_PATH: "ffmpeg"
+  MEDIA_MAX_FILE_SIZE_MB: "500"
+  MEDIA_DOWNLOAD_TIMEOUT: "300"
+  MEDIA_CHUNK_SIZE: "8192"
+
+  # ========== Compression Settings ==========
+  COMPRESSION_ENABLED: "true"
+  COMPRESSION_ALGORITHM: "zstd"
+  COMPRESSION_DEFAULT_LEVEL: "2"
+  COMPRESSION_MIN_SIZE_BYTES: "1024"
+
+  # ========== MinIO Configuration ==========
+  MINIO_ENDPOINT: "172.16.19.115:9000"
+  MINIO_BUCKET: "smap-stt-audio-files"
+  MINIO_BUCKET_MODEL: "smap-whisper"
+  MINIO_USE_SSL: "False"
+  MINIO_ARCHIVE_BUCKET: "tiktok-archive"
+  MINIO_ASYNC_UPLOAD_ENABLED: "false"
+  MINIO_ASYNC_UPLOAD_WORKERS: "4"
+  MINIO_ASYNC_UPLOAD_QUEUE_SIZE: "100"
+  MINIO_UPLOAD_CHUNK_SIZE: "5242880"
+  MINIO_PROGRESS_UPDATE_INTERVAL: "0.5"
+
+  # ========== Archival Settings ==========
+  ENABLE_JSON_ARCHIVE: "True"
+  ENABLE_DB_PERSISTENCE: "False"
+
+  # ========== Result Publisher Settings ==========
+  RESULT_PUBLISHER_ENABLED: "True"
+  RESULT_EXCHANGE_NAME: "tiktok_exchange"
+  RESULT_ROUTING_KEY: "tiktok.res"
+  RESULT_QUEUE_NAME: "tiktok_result_queue"
+
+  # ========== Event Publisher Settings (Event-Driven Architecture) ==========
+  EVENT_PUBLISHER_ENABLED: "true"
+  EVENT_EXCHANGE_NAME: "smap.events"
+  EVENT_ROUTING_KEY: "data.collected"
+
+  # ========== Batch Upload Settings ==========
+  BATCH_SIZE: "50"
+  BATCH_UPLOAD_ENABLED: "true"
+  MINIO_CRAWL_RESULTS_BUCKET: "crawl-results"
+
+  # ========== Metadata Settings ==========
+  DEFAULT_LANG: "vi"
+  DEFAULT_REGION: "VN"
+  PIPELINE_VERSION: "crawler_tiktok_v3"
+
+  # ========== Speech-to-Text Settings ==========
+  STT_API_ENABLED: "true"
+  STT_API_URL: "smap-speech-to-text/transcribe"
+  STT_API_KEY: "smap-internal-key-changeme"
+  STT_TIMEOUT: "300"
+  STT_PRESIGNED_URL_EXPIRES_HOURS: "168"
+  STT_POLLING_MAX_RETRIES: "60"
+  STT_POLLING_WAIT_INTERVAL: "3"
+
+  # ========== Worker Settings ==========
+  WORKER_NAME: "tiktok-worker-1"
+  WORKER_MAX_RETRIES: "3"
+  WORKER_RETRY_DELAY: "5"

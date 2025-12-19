@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: playwright
+  namespace: smap
+  labels:
+    app: playwright
+    component: browser-service
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: playwright
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: playwright
+        component: browser-service
+    spec:
+      imagePullSecrets:
+      - name: harbor-secret
+      containers:
+      - name: playwright
+        image: registry.tantai.dev/smap/playwright:251106-230213
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4444
+          name: server
+          protocol: TCP
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 4444
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 4444
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: playwright
+  namespace: smap
+  labels:
+    app: playwright
+    component: browser-service
+spec:
+  selector:
+    app: playwright
+  ports:
+  - port: 4444
+    targetPort: 4444
+    protocol: TCP
+    name: server
+  type: ClusterIP
+  sessionAffinity: None
