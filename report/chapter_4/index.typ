@@ -1,7 +1,7 @@
 // Import counter dùng chung
 #import "../counters.typ": table_counter, image_counter
 
-= CHƯƠNG 4: PHÂN TÍCH THIẾT KẾ
+= CHƯƠNG 4: PHÂN TÍCH HỆ THỐNG
 
 // Import các section
 #import "section_4_1.typ" as section_4_1
@@ -18,14 +18,3 @@
 #import "section_4_5.typ" as section_4_5
 #section_4_5
 
-#import "section_4_6.typ" as section_4_6
-#section_4_6
-
-
-== 4.7 Kiến trúc hệ thống tổng quan
-
-#import "section_4_7.typ" as system_architecture_overview
-#system_architecture_overview
-
-#import "section_4_8.typ" as section_4_8
-#section_4_8

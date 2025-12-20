@@ -37,17 +37,18 @@
 // Chương 3: Phân tích bài toán & yêu cầu
 #include "chapter_3/index.typ"
 #pagebreak()
-// Chương 4: Thiết kế & phân tích hệ thống
+// Chương 4: phân tích hệ thống
 #include "chapter_4/index.typ"
 #pagebreak()
-// Chương 5: Tổng Kết
+// Chương 5: Thiết kế hệ thống
 #include "chapter_5/index.typ"
-// Chương 6: tài liệu tham khảo 
+// Chương 6: Tổng kết
 #include "chapter_6/index.typ"
 #pagebreak()
-// Chương 7: Phụ lục
+// Chương 7: tài liệu tham khảo 
 #include "chapter_7/index.typ"
-
+// Chương 8: Phụ lục
+#include "chapter_8/index.typ"
 // ==== Các hướng dẫn thêm chương mới ====
 // #import "chapter_x_typ" as cx
 // #cx
