@@ -1,13 +1,14 @@
 // Import counter dùng chung
 #import "../counters.typ": image_counter, table_counter
 
+\
+
 == 4.3 Yêu cầu phi chức năng (Non-Functional Requirements)
 Dựa trên đặc thù xử lý dữ liệu lớn từ mạng xã hội với luồng thông tin phát sinh liên tục, nhóm tác giả thiết lập bộ tiêu chí phi chức năng (NFRs) làm rào chắn kỹ thuật cho dự án. Các yêu cầu này không tồn tại độc lập mà hỗ trợ lẫn nhau, được chia làm hai trụ cột chính: Đặc tính kiến trúc (tập trung vào cấu trúc nội tại) và Thuộc tính chất lượng (tập trung vào trải nghiệm người dùng)
 
-// === PHẦN 1: ĐẶC TÍNH KIẾN TRÚC ===
-== 4.3.1 Đặc tính kiến trúc
+=== 4.3.1 Đặc tính kiến trúc
 Phần này xác định các đặc tính kiến trúc (Architecture Characteristics) nhằm đảm bảo hiệu quả vận hành và cấu trúc của hệ thống. Đây là các tiêu chí kỹ thuật dùng để đánh giá và định hướng thiết kế, giúp hệ thống đáp ứng các ràng buộc về công nghệ và bảo trì.
-=== 4.3.1.1 Đặc tính kiến trúc chính (Primary ACs)
+==== 4.3.1.1 Đặc tính kiến trúc chính (Primary ACs)
 #context (align(center)[_Bảng #table_counter.display(): Đặc tính kiến trúc chính_])
 #table_counter.step()
 #text()[
@@ -65,13 +66,13 @@ Phần này xác định các đặc tính kiến trúc (Architecture Characteri
     align(center + horizon)[AC-2],
     [
       Metrics: Số lượng concurrent workers, throughput (items/phút), response time dưới tải \
-      Mục tiêu: Scale từ 2 → 20 workers trong < 5 phút (do AI Docker images nặng >1GB). Xử lý 1,000 items/phút với 10 workers. .
+      Mục tiêu: Scale từ 2 - 20 workers trong < 5 phút (do AI Docker images nặng >1GB). Xử lý 1,000 items/phút với 10 workers (bao gồm cả posts và comments). Hệ thống cần đảm bảo throughput ổn định khi số lượng projects chạy đồng thời tăng lên, với khả năng xử lý song song nhiều batch dữ liệu từ các platform khác nhau.
     ],
 
     align(center + horizon)[AC-3],
     [
       Metrics: Response time percentiles (p95), throughput, NLP response time \
-      Mục tiêu: NLP response time < 300ms (p95) trên CPU. API response < 500ms (p95), dashboard load < 2 giây, WebSocket message delivery < 100ms.
+      Mục tiêu: NLP response time < 700ms (p95) trên CPU. API response < 500ms (p95), dashboard load < 2 giây, WebSocket message delivery < 100ms.
     ],
 
     align(center + horizon)[AC-4],
@@ -81,8 +82,9 @@ Phần này xác định các đặc tính kiến trúc (Architecture Characteri
     ],
   )
 ]
-#pagebreak()
-=== 4.3.1.2 Đặc tính kiến trúc bổ trợ (Secondary ACs)
+\
+
+==== 4.3.1.2 Đặc tính kiến trúc bổ trợ (Secondary ACs)
 
 #context (align(center)[_Bảng #table_counter.display(): Đặc tính kiến trúc bổ trợ_])
 #table_counter.step()
@@ -144,14 +146,13 @@ Phần này xác định các đặc tính kiến trúc (Architecture Characteri
     ],
   )
 ]
-
-// === PHẦN 2: THUỘC TÍNH CHẤT LƯỢNG ===
-== 4.3.2 Thuộc tính chất lượng
-Mục này xác định các thuộc tính chất lượng nhằm mô tả hành vi và hiệu quả sử dụng của hệ thống từ góc độ người dùng cuối. Các tiêu chí này được thiết lập làm cơ sở để đánh giá mức độ đáp ứng của hệ thống đối với các nhu cầu thực tế trong quá trình vận hành. Các thuộc tính được nhóm thành 3 nhóm lớn dựa trên bản chất: (1) Hiệu năng & Vận hành, (2) An toàn & Tuân thủ, (3) Trải nghiệm & Hỗ trợ.
-
 \
 
-=== 4.3.2.1 Hiệu năng & Vận hành
+// === PHẦN 2: THUỘC TÍNH CHẤT LƯỢNG ===
+=== 4.3.2 Thuộc tính chất lượng
+Mục này xác định các thuộc tính chất lượng nhằm mô tả hành vi và hiệu quả sử dụng của hệ thống từ góc độ người dùng cuối. Các tiêu chí này được thiết lập làm cơ sở để đánh giá mức độ đáp ứng của hệ thống đối với các nhu cầu thực tế trong quá trình vận hành. Các thuộc tính được nhóm thành 3 nhóm lớn dựa trên bản chất: (1) Hiệu năng & Vận hành, (2) An toàn & Tuân thủ, (3) Trải nghiệm & Hỗ trợ.
+
+==== 4.3.2.1 Hiệu năng & Vận hành
 #context (align(center)[_Bảng #table_counter.display(): Hiệu năng & Vận hành_])
 #table_counter.step()
 #text()[
@@ -169,16 +170,18 @@ Mục này xác định các thuộc tính chất lượng nhằm mô tả hành
     // Response Time (4 rows)
     table.cell(rowspan: 4, align(center + horizon)[*Performance:* \ Response Time]),
     align(center + horizon)[API Endpoints], [Response time < 500ms (p95) và < 1 giây (p99)],
-    align(center + horizon)[Dashboard Loading], [Dashboard initial load < 3 giây],
+    align(center + horizon)[Dashboard Loading],
+    table.cell(align: horizon, inset: (y: 0.8em))[Dashboard initial load < 3 giây],
     align(center + horizon)[WebSocket Updates], [WebSocket message delivery < 100ms (p95)],
-    align(center + horizon)[Report Generation], [Report generation < 10 phút],
+    align(center + horizon)[Report Generation],
+    table.cell(align: horizon, inset: (y: 0.8em))[Report generation < 10 phút],
 
     // Throughput (3 rows)
     table.cell(rowspan: 3, align(center + horizon)[*Performance:* \ Throughput]),
     align(center + horizon)[Crawling],
-    [Hệ thống tận dụng tối đa rate-limit của từng platform. Hỗ trợ parallel crawling.],
+    [Hệ thống tận dụng tối đa rate-limit của từng platform. Hỗ trợ parallel crawling. Thu thập đồng thời cả posts và comments từ các nền tảng mạng xã hội.],
     align(center + horizon)[Analytics Processing],
-    [Xử lý \~70 items/phút với 1 worker, batch processing 20-50 items/batch],
+    [Xử lý \~70 items/phút với 1 worker (bao gồm cả posts và comments), batch processing 20-50 items/batch. Mỗi item được phân tích qua pipeline NLP đầy đủ (preprocessing, intent classification, keyword extraction, sentiment analysis, impact calculation).],
     align(center + horizon)[WebSocket Connections], [Hỗ trợ 1,000 concurrent WebSocket connections],
 
     // Resource Utilization (3 rows)
@@ -189,7 +192,7 @@ Mục này xác định các thuộc tính chất lượng nhằm mô tả hành
   )
 ]
 
-=== 4.3.2.2 An toàn & Tuân thủ
+==== 4.3.2.2 An toàn & Tuân thủ
 
 #context (align(center)[_Bảng #table_counter.display(): An toàn & Tuân thủ_])
 #table_counter.step()
@@ -214,7 +217,8 @@ Mục này xác định các thuộc tính chất lượng nhằm mô tả hành
     // Data Protection (3 rows)
     table.cell(rowspan: 2, [*Security:* \ Data Protection]),
     [Data Encryption], [TLS 1.3 cho tất cả communications, AES-256 cho data at rest],
-    [Password Security], [bcrypt hashing với salt, minimum 8 characters, complexity requirements],
+    [Password Security],
+    [Minimum 8 characters. Password được hash trước khi lưu vào database, không lưu plaintext. Hệ thống validate độ dài tối thiểu ở cả frontend và backend để đảm bảo bảo mật.],
 
     // Application Security (3 rows)
     table.cell(rowspan: 2, [*Security:* \ Application Security]),
@@ -235,7 +239,9 @@ Mục này xác định các thuộc tính chất lượng nhằm mô tả hành
   )
 ]
 
-=== 4.3.2.3 Trải nghiệm & Hỗ trợ
+#pagebreak()
+
+==== 4.3.2.3 Trải nghiệm & Hỗ trợ
 #context (align(center)[_Bảng #table_counter.display(): Trải nghiệm & Hỗ trợ_])
 #table_counter.step()
 #text()[
@@ -253,7 +259,7 @@ Mục này xác định các thuộc tính chất lượng nhằm mô tả hành
     // === USABILITY ===
     // User Experience (5 rows)
     table.cell(rowspan: 6, [*Usability:* \ User Experience]),
-    [Internationalization], [Đa ngôn ngữ (Tiếng Việt, Tiếng Anh)],
+    [Internationalization], table.cell(align: horizon, inset: (y: 0.8em))[Đa ngôn ngữ (Tiếng Việt, Tiếng Anh)],
     [Loading States], [Hiển thị loading indicators cho mọi async operations, skeleton screens],
     [Error Messages], [Error messages rõ ràng, actionable, với error codes để support],
     [Confirmation Dialogs], [Xác nhận cho destructive actions, có thể undo trong 30 giây],
