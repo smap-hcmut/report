@@ -1,61 +1,46 @@
 // Import counter dùng chung
-#import "../counters.typ": table_counter, image_counter
+#import "../counters.typ": image_counter, table_counter
 
-== 4.8 Sơ đồ tuần tự (Sequence Diagram)
+== 4.8 Sơ đồ cơ sở dữ liệu (Database Schema)
 
-=== Sơ đồ tuần tự UC-01: Cấu hình Project theo dõi
+=== Tổng quan kiến trúc Database
 
-#image("../images/sequence/1.png")
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ tuần tự UC-01_])
+Hệ thống SMAP sử dụng kiến trúc microservices với 2 database PostgreSQL độc lập:
+- *Identity Service Database*: Quản lý users, plans, subscriptions
+- *Project Service Database*: Quản lý projects
+
+Việc tách biệt database cho phép scaling độc lập giữa các services và tuân thủ nguyên tắc microservices. Mối quan hệ giữa users và projects được validate thông qua JWT token ở application layer thay vì Foreign Key constraint.
+
+=== Schema Identity Service
+
+// #image("../images/schema/identity-schema.png")
+#context (align(center)[_Hình #image_counter.display(): Schema Identity Service_])
 #image_counter.step()
 
-Sơ đồ tuần tự mô tả tương tác giữa Client, Project Service và Database trong quá trình cấu hình Project. Client gửi request POST /projects với thông tin project, Project Service validate dữ liệu và lưu vào Database với status=Draft, sau đó trả về response chứa project_id cho Client.
+Schema Identity Service bao gồm 3 tables chính: *users* (lưu thông tin người dùng với xác thực, phân quyền, OTP), *plans* (định nghĩa các gói dịch vụ subscription với max_usage giới hạn số projects), và *subscriptions* (quản lý subscription của users với plans, bao gồm status enum: active, trialing, past_due, cancelled, expired). Mối quan hệ: users ← subscriptions → plans (many-to-many qua subscriptions). Tất cả tables implement soft delete pattern với field deleted_at.
 
-=== Sơ đồ tuần tự UC-02: Kiểm tra từ khóa (Dry-run)
+=== Schema Project Service
 
-#image("../images/sequence/2.png")
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ tuần tự UC-02_])
+#image("../images/schema/SMAP-collector.png")
+#context (align(center)[_Hình #image_counter.display(): Schema Project Service_])
 #image_counter.step()
 
-Sơ đồ tuần tự mô tả luồng dry-run từ khóa qua các services. Client gửi POST /projects/dryrun, Project Service tạo job_id và publish message lên RabbitMQ. Collector Service nhận message, dispatch đến Crawler Workers để thu thập mẫu dữ liệu. Kết quả được gửi về qua webhook đến Project Service, sau đó publish lên Redis Pub/Sub. WebSocket Service subscribe và gửi kết quả real-time đến Client qua WebSocket connection.
+Schema Project Service bao gồm table *projects* lưu trữ thông tin dự án theo dõi thương hiệu với các fields chính: id (UUID), name, description, status (draft/active/completed/archived/cancelled), from_date/to_date (khoảng thời gian theo dõi), brand_name, competitor_names (TEXT[]), brand_keywords (TEXT[]), competitor_keywords_map (JSONB chứa map từ khóa của từng đối thủ), exclude_keywords (TEXT[]), và created_by (UUID của user, không có FK vì ở database khác). Indexes được tạo trên created_by, status và deleted_at để tối ưu query performance.
 
-=== Sơ đồ tuần tự UC-03: Khởi chạy và theo dõi Project
+=== Mối quan hệ Cross-Database
 
-#image("../images/sequence/3.png")
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ tuần tự UC-03_])
-#image_counter.step()
+Mối quan hệ giữa projects.created_by và users.id là logical relationship (không có FK constraint) do nằm ở 2 databases khác nhau. Việc validate user_id được thực hiện ở application layer thông qua JWT token, cho phép:
+- Scaling độc lập giữa Identity và Project services
+- Deploy và maintain riêng biệt từng service
+- Tránh distributed transaction complexity
 
-Sơ đồ tuần tự mô tả quá trình khởi chạy Project với các pha xử lý. Client gửi POST /projects/{id}/start, Project Service cập nhật status=Running và publish message lên RabbitMQ. Collector Service điều phối Crawler Workers thu thập dữ liệu, sau đó gửi đến AI/ML Service để phân tích. Tiến độ từng pha được publish lên Redis Pub/Sub và WebSocket Service gửi real-time updates đến Client. Khi hoàn tất, Project Service cập nhật status=Completed.
+=== Data Types và Constraints
 
-=== Sơ đồ tuần tự UC-04: Xem kết quả phân tích
+Hệ thống sử dụng các PostgreSQL-specific types:
+- *UUID*: Sử dụng extension uuid-ossp với gen_random_uuid()
+- *TIMESTAMPTZ*: Timestamp with timezone cho tất cả time fields
+- *TEXT[]*: PostgreSQL array type cho danh sách strings
+- *JSONB*: Binary JSON format cho competitor_keywords_map (flexible data)
+- *ENUM*: Custom enum type cho subscription_status
 
-#image("../images/sequence/4.png")
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ tuần tự UC-04_])
-#image_counter.step()
-
-Sơ đồ tuần tự mô tả quá trình xem kết quả phân tích. Client gửi GET /projects/{id}/results, Project Service truy vấn Database lấy kết quả phân tích bao gồm KPIs, sentiment trends, aspects và competitor comparison, sau đó trả về cho Client để hiển thị trên dashboard.
-
-=== Sơ đồ tuần tự UC-05: Quản lý danh sách Projects
-
-#image("../images/sequence/5.png")
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ tuần tự UC-05_])
-#image_counter.step()
-
-Sơ đồ tuần tự mô tả quá trình quản lý danh sách Projects. Client gửi GET /projects với các filter parameters, Project Service truy vấn Database lấy danh sách projects của user kèm trạng thái, sau đó trả về cho Client. Client có thể thực hiện các thao tác như chỉnh sửa Draft (PUT /projects/{id}), xóa (DELETE /projects/{id}) hoặc điều hướng đến các use case khác.
-
-=== Sơ đồ tuần tự UC-06: Xuất báo cáo
-
-#image("../images/sequence/6.png")
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ tuần tự UC-06_])
-#image_counter.step()
-
-Sơ đồ tuần tự mô tả quá trình xuất báo cáo. Client gửi POST /projects/{id}/export với format và nội dung mong muốn, Project Service tạo export job và trả về job_id. Hệ thống xử lý bất đồng bộ, generate báo cáo (PDF/PPTX/Excel) và lưu vào MinIO. Khi hoàn tất, gửi notification qua WebSocket với download link. Nếu timeout hoặc file quá lớn, hệ thống fallback sang summary-only mode.
-
-=== Sơ đồ tuần tự UC-07: Phát hiện trend tự động
-
-#image("../images/sequence/8.png")
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ tuần tự UC-07_])
-#image_counter.step()
-
-Sơ đồ tuần tự mô tả quá trình phát hiện trend tự động theo lịch. Scheduler trigger TrendRun job, gửi message lên RabbitMQ. Collector Service dispatch đến Crawler Workers thu thập trend data từ các platforms. AI/ML Service tính score và xếp hạng trends theo engagement/velocity. Kết quả được lưu vào Database và publish notification lên Redis Pub/Sub. WebSocket Service gửi thông báo có feed trend mới đến Client, cho phép truy cập Trend Dashboard.
-
+Tất cả tables có indexes phù hợp và implement soft delete pattern (deleted_at) để hỗ trợ audit trail, recovery và historical data analysis.

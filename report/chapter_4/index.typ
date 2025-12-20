@@ -24,15 +24,8 @@
 
 == 4.7 Kiến trúc hệ thống tổng quan
 
-#import "section_4_7_1.typ" as system_architecture_overview
+#import "section_4_7.typ" as system_architecture_overview
 #system_architecture_overview
-
-#import "section_4_7_2.typ" as system_architecture_selection
-#system_architecture_selection
-
 
 #import "section_4_8.typ" as section_4_8
 #section_4_8
-
-#import "section_4_9.typ" as section_4_9
-#section_4_9
