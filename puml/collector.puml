@@ -1,0 +1,87 @@
+@startuml
+
+title Component Diagram for Collector Service (Golang 1.25)
+
+' Cấu hình giao diện
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #A80036
+
+' External Systems (Hệ thống bên ngoài)
+cloud "RabbitMQ Broker" as rabbitmq <<System>>
+database "Redis Server" as redis_ext <<System>>
+node "Project Service" as project_svc <<System>>
+
+' Collector Service Boundary
+package "Collector Service" as collector_svc {
+
+    ' Presentation Layer
+    package "Presentation Layer (Delivery)" as delivery_layer {
+        [Event Consumer] as rmq_consumer <<component>>
+        note bottom of rmq_consumer: Consume: project.created
+        
+        [Task Producer] as rmq_producer <<component>>
+        note bottom of rmq_producer: Publish: Platform tasks
+    }
+
+    ' Application Layer
+    package "Application Layer (UseCase)" as usecase_layer {
+        [Dispatcher] as dispatcher_uc <<UseCase>>
+        [State Manager] as state_uc <<UseCase>>
+        [Results Handler] as results_uc <<UseCase>>
+        [Webhook Notifier] as webhook_uc <<UseCase>>
+    }
+
+    ' Domain Layer
+    package "Domain Layer (Models)" as domain_layer {
+        [Domain Models] as models <<DomainModel>>
+    }
+
+    ' Infrastructure Layer
+    package "Infrastructure Layer (Repository)" as infra_layer {
+        [State Repository] as redis_repo <<Repository>>
+        [Project Client] as project_client <<component>>
+    }
+}
+
+' Relationships (Mối quan hệ)
+
+' External to Presentation
+rabbitmq -[#blue]> rmq_consumer : project.created
+rmq_producer -[#blue]> rabbitmq : tasks
+
+' Presentation to Application
+rmq_consumer --> dispatcher_uc
+dispatcher_uc --> state_uc
+dispatcher_uc --> rmq_producer
+
+' Application Layer interactions
+results_uc --> state_uc
+state_uc --> webhook_uc
+webhook_uc --> project_client
+
+' Infrastructure to External
+redis_repo -[#red]> redis_ext : TCP
+project_client -[#green]> project_svc : HTTPS
+
+' Application to Infrastructure
+state_uc --> redis_repo
+webhook_uc ..> project_client
+
+' Domain dependencies (lightweight)
+usecase_layer ..> models
+delivery_layer ..> models
+
+' Legend
+legend right
+  |= Color |= Protocol |
+  | <#blue> | AMQP (Message Queue) |
+  | <#green> | HTTPS/JSON (REST API) |
+  | <#red> | TCP (Database) |
+  | <#black> | Internal Call |
+endlegend
+
+@enduml

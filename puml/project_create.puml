@@ -1,0 +1,27 @@
+@startuml
+title Dataflow: Create Project Flow
+
+autonumber
+skinparam Style strictuml
+
+actor "User (Web UI)" as user
+participant "ProjectHandler" as handler
+participant "ProjectUseCase" as uc
+database "PostgreSQL" as db #LightCyan
+
+user -> handler : HTTP POST /projects (config payload)
+activate handler
+    handler -> uc : Create(ProjectInput) (~5ms)
+    activate uc
+        uc -> uc : Validate date range\n(to_date > from_date)
+        uc -> uc : Extract competitor names from keywords
+        
+        uc -> db : ProjectRepository.Create() (~10ms)
+        note right: Status: "draft"\nSave Keywords as JSONB
+        db --[#green]> uc : Return project_id (~20ms)
+        
+        uc --> handler : Return ProjectOutput (~5ms)
+    deactivate uc
+    handler --> user : HTTP 201 Created (Project Object)
+deactivate handler
+@enduml

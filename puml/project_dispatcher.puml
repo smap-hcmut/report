@@ -1,0 +1,25 @@
+@startuml
+title Dataflow: Project Created Dispatching
+
+autonumber
+skinparam Style strictuml
+
+participant "RabbitMQ\n(smap.events)" as rmq
+participant "ProjectEventConsumer" as consumer
+participant "DispatcherUseCase" as dispatcher
+participant "StateUseCase" as state
+participant "Redis" as redis
+participant "WebhookUseCase" as webhook
+participant "Project Service" as project_svc
+
+rmq -> consumer : project.created event
+consumer -> dispatcher : HandleProjectCreatedEvent(payload)
+note over dispatcher : Transform Event -> CrawlRequest[]\n(Apply keyword limits)
+dispatcher -> state : SetTasksTotal()
+state -> redis : HMSet smap:proj:{id} (TTL 7d)
+dispatcher -> dispatcher : Dispatch() 
+dispatcher -> rmq : Publish CollectorTasks\n(TikTok/YouTube queues)
+dispatcher -> webhook : NotifyProgress()
+webhook -> project_svc : POST Initial Progress
+consumer -> rmq : Acknowledge Event
+@enduml

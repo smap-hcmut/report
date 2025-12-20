@@ -1,0 +1,37 @@
+@startuml
+title Dataflow: Analytics Ingestion & Batching
+
+autonumber
+skinparam Style strictuml
+skinparam MaxMessageSize 200
+
+participant "RabbitMQ\n(smap.events)" as rmq #LightBlue
+participant "EventConsumer" as consumer
+participant "MinioAdapter" as minio_adapter
+participant "MinIO" as minio #LightYellow
+participant "AnalyticsOrchestrator" as orchestrator
+
+rmq -> consumer : data.collected event (~10ms)
+consumer -> consumer : Extract minio_path (~5ms)
+
+consumer -> minio_adapter : download_batch(path)
+activate minio_adapter
+    minio_adapter -> minio : Get file (Zstd compressed)
+    minio <- minio : Decompress & Parse Protobuf
+    return List of Atomic JSON (20-50 items)
+deactivate minio_adapter
+note right: Latency: 2-5s per batch
+
+consumer -> consumer : Extract projectID from jobID
+
+loop For each item in batch
+    alt fetch_status == "success"
+        consumer -> consumer : Enrich item with batch context
+        consumer -> orchestrator : process_post(Atomic JSON)
+    else fetch_status == "error"
+        consumer -> consumer : save_error_record()
+    end
+end
+
+consumer -> rmq : Acknowledge message (ACK)
+@enduml

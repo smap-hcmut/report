@@ -1,0 +1,74 @@
+@startuml
+
+title Component Diagram for WebSocket Service (Golang 1.25)
+
+' Cấu hình giao diện
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #A80036
+
+' External Systems (Hệ thống bên ngoài)
+database "Redis Server" as redis_ext <<System>>
+node "Project Service" as project_svc <<System>>
+actor "Web UI Client" as web_client <<User>>
+
+' WebSocket Service Boundary
+package "WebSocket Service" as websocket_svc {
+
+    ' Presentation Layer
+    package "Presentation Layer (Delivery)" as delivery {
+        [WebSocket Handler] as ws_handler <<component>>
+        note bottom of ws_handler: HandleConnection,\nHandleMessage
+        
+        [Health Endpoints] as health <<component>>
+    }
+
+    ' Application Layer
+    package "Application Layer (UseCase)" as usecase {
+        [Connection Manager] as conn_mgr <<UseCase>>
+        [Message Handler] as msg_handler <<UseCase>>
+    }
+
+    ' Infrastructure Layer
+    package "Infrastructure Layer" as infra {
+        [PubSub Client] as redis_client <<component>>
+        [WebSocket Upgrader] as ws_upgrader <<component>>
+    }
+}
+
+' Relationships (Mối quan hệ)
+
+' Client connection flow
+web_client -[#orange]> ws_handler : Upgrade
+ws_handler --> ws_upgrader
+ws_handler --> conn_mgr : Register
+
+' Message subscription flow
+web_client -[#orange]> ws_handler : Subscribe
+ws_handler --> msg_handler
+msg_handler --> redis_client
+redis_client -[#red]> redis_ext : Subscribe
+
+' Real-time data flow
+project_svc -[#red]> redis_ext : Publish
+redis_ext -[#red]> redis_client : Message
+redis_client --> msg_handler
+msg_handler --> conn_mgr
+conn_mgr --> ws_handler
+ws_handler -[#orange]> web_client : Deliver
+
+' Health check
+health ..> redis_client
+
+' Legend
+legend right
+  |= Color |= Protocol |
+  | <#orange> | WebSocket |
+  | <#red> | TCP (Redis Pub/Sub) |
+  | <#black> | Internal Call |
+endlegend
+
+@enduml

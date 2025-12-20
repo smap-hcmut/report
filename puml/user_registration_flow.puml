@@ -1,0 +1,34 @@
+@startuml
+title Dataflow: User Registration Flow
+
+autonumber
+skinparam Style strictuml
+
+actor "User" as user
+participant "AuthHandler" as handler
+participant "AuthenticationUseCase" as auth_uc
+participant "UserUseCase" as user_uc
+participant "PasswordEncrypter" as crypt
+database "PostgreSQL" as db #LightCyan
+
+user -> handler : HTTP POST /register (email, password)
+activate handler
+    handler -> auth_uc : Register() (~5ms)
+    activate auth_uc
+        auth_uc -> db : Check email exists (GetOne)
+        
+        auth_uc -> user_uc : Create() 
+        activate user_uc
+            user_uc -> crypt : HashPassword (bcrypt cost 10) (~50ms)
+            return hash
+            user_uc -> user_uc : Set is_active = false\nGenerate OTP & Expiry
+            
+            user_uc -> db : UserRepository.Create() (~20ms)
+            return success
+        deactivate user_uc
+        
+        auth_uc --> handler : Return UserOutput (No hash)
+    deactivate auth_uc
+    handler --> user : HTTP 201 Created
+deactivate handler
+@enduml

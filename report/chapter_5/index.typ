@@ -8,8 +8,14 @@
 #import "section_5_2.typ" as system_architecture_overview
 #system_architecture_overview
 
-#import "section_5_3.typ" as sequence
+#import "section_5_3.typ" as service_decomposition
+#service_decomposition
+
+#import "section_5_4.typ" as database_strategy
+#database_strategy
+
+#import "section-extra.typ" as sequence
 #sequence
 
-#import "section_5_4.typ" as erd
+#import "section_textra-2.typ" as erd
 #erd

@@ -1,0 +1,32 @@
+@startuml
+title Dataflow: Real-time Message Delivery
+
+autonumber
+skinparam Style strictuml
+
+participant "Project Service" as project_svc
+database "Redis Pub/Sub" as redis #LightPink
+participant "RedisPubSubClient\n(Goroutine)" as redis_client
+participant "MessageHandler" as msg_handler
+participant "ConnectionManager" as conn_mgr
+actor "Web Client" as client
+
+project_svc -> redis : Publish message to topic (~5ms)\n(project:{id}:{uid})
+
+activate redis_client
+    redis -> redis_client : Receive Message (~1ms)
+    
+    redis_client -> msg_handler : RouteMessage(msg)
+    activate msg_handler
+        msg_handler -> conn_mgr : GetConnections(topic)
+        return Active Connections
+        
+        loop For each connection in topic
+            msg_handler -> conn_mgr : BroadcastMessage(conn, payload)
+            conn_mgr -> client : Send via WebSocket (~50ms)
+        end
+    deactivate msg_handler
+deactivate redis_client
+
+client -> client : onmessage(event)\nUpdate UI Progress
+@enduml

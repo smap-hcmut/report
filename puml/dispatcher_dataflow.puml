@@ -1,0 +1,22 @@
+@startuml
+title Dataflow: DispatcherUseCase.Dispatch() Logic
+
+autonumber
+participant "Caller" as caller
+participant "DispatcherUseCase" as dispatcher
+participant "PayloadMapper" as mapper
+participant "RabbitMQ" as rmq
+
+caller -> dispatcher : Dispatch(CrawlRequest)
+dispatcher -> dispatcher : Validate request
+dispatcher -> dispatcher : Select platforms (TT/YT)
+
+loop For each platform
+    dispatcher -> dispatcher : Create BaseCollectorTask
+    dispatcher -> mapper : MapPayload(Generic -> Platform-specific)
+    return Platform-specific Task
+    dispatcher -> rmq : Publish Task (collector.{platform}.tasks)
+end
+
+dispatcher --> caller : Return []CollectorTask (Published)
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+title Dataflow: Web UI Login & Auth State
+
+autonumber
+skinparam Style strictuml
+
+actor "User" as user
+participant "Login Page" as page
+participant "useAuth (Hook)" as hook
+participant "IdentityClient" as client
+participant "Identity Service" as api
+
+user -> page : Enter credentials & Submit
+page -> hook : login(email, password)
+hook -> client : login()
+client -> api : POST /identity/authentication/login
+
+api --[#green]> client : 200 OK (Set-Cookie: smap_auth_token)
+note right: Cookie is HttpOnly (Secure)
+
+client --> hook : Return User Info
+hook -> hook : Update AuthContext (setUser)
+hook --> page : Redirect to /projects
+page --> user : Show Dashboard
+@enduml

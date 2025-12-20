@@ -1,0 +1,48 @@
+@startuml
+title Dataflow: Analytics Pipeline (5-Step AI Logic)
+
+autonumber
+skinparam Style strictuml
+
+participant "EventConsumer" as caller
+participant "AnalyticsOrchestrator" as orchestrator
+participant "TextPreprocessor" as prep
+participant "IntentClassifier" as intent
+participant "KeywordExtractor" as keyword
+participant "SentimentAnalyzer\n(PhoBERT ONNX)" as sentiment
+participant "ImpactCalculator" as impact
+database "PostgreSQL" as db #LightCyan
+
+caller -> orchestrator : process_post(item)
+activate orchestrator
+
+    orchestrator -> prep : **STEP 1**: preprocess() (~10ms)
+    note right: Merge content, Normalize, Calculate noise
+    return prep_result
+
+    orchestrator -> intent : **STEP 2**: predict() (~0.01ms)
+    return intent_result (7 categories)
+
+    orchestrator -> orchestrator : should_skip(prep, intent)
+    
+    alt If Skip (SPAM/SEEDING/NOISE)
+        orchestrator -> db : Save skipped result (Neutral/Low risk)
+    else If Continue
+        orchestrator -> keyword : **STEP 3**: extract() (~50ms)
+        note right: Hybrid: Dict + SpaCy-YAKE\nAspect mapping
+        return keyword_results
+
+        orchestrator -> sentiment : **STEP 4**: analyze() (~650ms)
+        note right: **Bottleneck**: PhoBERT Inference\nOverall & Aspect-based
+        return sentiment_results
+
+        orchestrator -> impact : **STEP 5**: calculate() (~5ms)
+        return impact_score & risk_level
+
+        orchestrator -> db : **Save PostAnalytics (JSONB)** (~20ms)
+        orchestrator -> db : Save comments (if any) (~50ms)
+    end
+
+orchestrator --> caller : Task Finished
+deactivate orchestrator
+@enduml

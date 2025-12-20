@@ -1,0 +1,29 @@
+@startuml
+title Dataflow: Real-time Progress Tracking (Web UI)
+
+autonumber
+skinparam Style strictuml
+
+participant "Project Detail Page" as page
+participant "useProjectProgress" as h_progress
+participant "useWebSocket" as h_ws
+participant "ProjectClient" as s_project
+participant "WebSocket Service" as ws_svc
+
+page -> h_progress : Initialize (projectID)
+h_progress -> s_project : GetProgress (Initial state)
+h_progress -> h_ws : connect(projectID, userID)
+
+activate h_ws
+    h_ws -> ws_svc : WS Handshake & Subscribe topic
+    ws_svc --> h_ws : Connection Established
+deactivate h_ws
+
+== Listening for Updates ==
+
+ws_svc -[#orange]> h_ws : Message: { "phase": "CRAWLING", "done": 10, "total": 100 }
+h_ws -> h_progress : onMessage(data)
+h_progress -> h_progress : Update local state
+h_progress -> page : Re-render Component
+page -> page : Update Progress Bar
+@enduml

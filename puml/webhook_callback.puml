@@ -1,0 +1,30 @@
+@startuml
+title Dataflow: Webhook Progress Callback
+
+autonumber
+skinparam Style strictuml
+
+participant "Collector Service" as collector
+participant "WebhookHandler" as handler
+participant "WebhookUseCase" as uc
+database "Redis Pub/Sub" as redis #LightPink
+participant "WebSocket Service" as ws
+actor "User Client" as client
+
+collector -> handler : HTTP POST /webhooks/progress (Callback payload)
+activate handler
+    handler -> uc : HandleProgressCallback() (~5ms)
+    activate uc
+        uc -> uc : Validate projectID & userID
+        uc -> uc : Detect format (Phase-based vs Flat)
+        uc -> uc : Transform to ProjectMessage
+        
+        uc -> redis : Publish to topic (~5ms)
+        note right: Topic: project:{projectID}:{userID}
+    deactivate uc
+    handler --> collector : HTTP 200 OK
+deactivate handler
+
+redis -[#red]> ws : Consume message
+ws -[#orange]> client : Deliver via WebSocket (~50ms)
+@enduml

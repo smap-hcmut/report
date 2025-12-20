@@ -1,0 +1,39 @@
+@startuml
+title Dataflow: Execute Project Flow
+
+autonumber
+skinparam Style strictuml
+
+actor "User" as user
+participant "ProjectHandler" as handler
+participant "ProjectUseCase" as uc
+database "PostgreSQL" as db #LightCyan
+database "Redis" as redis #LightPink
+queue "RabbitMQ" as rmq #LightBlue
+
+user -> handler : HTTP POST /projects/:id/execute
+activate handler
+    handler -> uc : Execute(projectID, userID) (~5ms)
+    activate uc
+        uc -> db : Verify ownership (~10ms)
+        db --> uc : Owner confirmed
+        
+        uc -> redis : Check duplicate execution (~5ms)
+        note right: Query smap:proj:{id}
+        alt status exists AND status != terminal
+            uc --> handler : Return Error 30008
+        else logic continue
+            uc -> db : Update status: "draft" -> "process" (~15ms)
+            
+            uc -> redis : InitProjectState() (~5ms)
+            note right: status="INITIALIZING", TTL: 24h
+            
+            uc -> rmq : Publish "project.created" event (~50ms)
+            note right: Exchange: smap.events\nRouting key: project.created
+        end
+        
+        uc --> handler : Return Success
+    deactivate uc
+    handler --> user : HTTP 200 OK
+deactivate handler
+@enduml

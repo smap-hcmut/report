@@ -1,0 +1,93 @@
+@startuml
+
+title Component Diagram for Project Service (Golang 1.25)
+
+' Cấu hình giao diện
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #A80036
+
+' External Systems (Hệ thống bên ngoài)
+cloud "RabbitMQ Broker" as rabbitmq <<System>>
+database "PostgreSQL" as postgres <<System>>
+database "Redis Server" as redis_ext <<System>>
+node "Identity Service" as auth_svc <<System>>
+
+' Project Service Boundary
+package "Project Service" as project_svc {
+
+    ' Presentation Layer
+    package "Presentation Layer (Delivery)" as delivery {
+        [HTTP Handlers] as http_handler <<component>>
+        note bottom of http_handler: POST /projects\nGET /projects/:id/progress
+        
+        [Webhook Handlers] as webhook_handler <<component>>
+        [Event Producer] as rmq_producer <<component>>
+    }
+
+    ' Application Layer
+    package "Application Layer (UseCase)" as usecase {
+        [Project Manager] as project_uc <<UseCase>>
+        [State Manager] as state_uc <<UseCase>>
+        [Webhook Handler] as webhook_uc <<UseCase>>
+        [Sampling Manager] as sampling_uc <<UseCase>>
+    }
+
+    ' Domain Layer
+    package "Domain Layer (Models)" as domain {
+        [Domain Models] as models <<DomainModel>>
+    }
+
+    ' Infrastructure Layer
+    package "Infrastructure Layer (Repository)" as infra {
+        [Project Repository] as project_repo <<Repository>>
+        [State Repository] as state_repo <<Repository>>
+        [PubSub Client] as redis_pubsub <<component>>
+    }
+}
+
+' Relationships (Mối quan hệ)
+
+' External authentication
+http_handler ..> auth_svc : JWT Validation
+
+' Presentation to Application
+http_handler --> project_uc
+http_handler --> sampling_uc
+webhook_handler --> webhook_uc
+
+' Project execution flow
+project_uc --> state_uc
+project_uc --> rmq_producer
+rmq_producer -[#blue]> rabbitmq : project.created
+
+' Webhook & real-time updates
+webhook_uc --> state_uc
+webhook_uc --> redis_pubsub
+redis_pubsub -[#red]> redis_ext : Pub/Sub
+
+' Application to Infrastructure
+project_uc --> project_repo
+state_uc --> state_repo
+
+' Infrastructure to External
+project_repo -[#green]> postgres : CRUD
+state_repo -[#red]> redis_ext : State
+
+' Domain dependencies
+usecase ..> models
+infra ..> models
+
+' Legend
+legend right
+  |= Color |= Protocol |
+  | <#blue> | AMQP (Message Queue) |
+  | <#green> | TCP (PostgreSQL) |
+  | <#red> | TCP (Redis) |
+  | <#black> | Internal Call |
+endlegend
+
+@enduml

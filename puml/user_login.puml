@@ -1,0 +1,36 @@
+@startuml
+title Dataflow: User Login Flow
+
+autonumber
+skinparam Style strictuml
+
+actor "User" as user
+participant "AuthHandler" as handler
+participant "AuthenticationUseCase" as auth_uc
+participant "PasswordEncrypter" as crypt
+participant "JWTManager" as jwt
+database "PostgreSQL" as db #LightCyan
+
+user -> handler : HTTP POST /login (email, password)
+activate handler
+    handler -> auth_uc : Login() (~5ms)
+    activate auth_uc
+        auth_uc -> db : GetOne(email) (~10ms)
+        auth_uc -> auth_uc : Check is_active == true
+        
+        auth_uc -> crypt : CheckPasswordHash() (~20ms)
+        crypt --> auth_uc : Valid
+        
+        auth_uc -> jwt : CreateToken(claims) (~5ms)
+        note right: Claims: userID, username, role
+        return Access Token
+        
+        auth_uc --> handler : Return LoginOutput + Token
+    deactivate auth_uc
+    
+    handler -> handler : Set HttpOnly Cookie\n(smap_auth_token)
+    note right: Secure: true, SameSite: Lax
+    
+    handler --> user : HTTP 200 OK (with Cookie)
+deactivate handler
+@enduml

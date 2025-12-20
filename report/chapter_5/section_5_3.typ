@@ -1,1542 +1,1636 @@
 // Import counter dùng chung
 #import "../counters.typ": image_counter, table_counter
 
-== 5.3 Sơ đồ tuần tự (Sequence Diagram)
+== 5.3 Thiết kế chi tiết các dịch vụ
 
-Sơ đồ tuần tự (Sequence Diagram) cụ thể hóa các tương tác động giữa các thành phần hệ thống theo trình tự thời gian cho các Use Case đã được đặc tả ở trên. Các sơ đồ này làm rõ cơ chế giao tiếp giữa Web UI, các dịch vụ nghiệp vụ (Microservices), hệ thống lưu trữ và hàng đợi thông điệp để thực hiện các chức năng cốt lõi.
+Mục 5.2 đã trình bày kiến trúc tổng thể của hệ thống SMAP ở cấp độ Container (C4 Level 2), mô tả các services như các "hộp đen" với trách nhiệm và công nghệ của chúng. Mục này đi sâu vào cấp độ Component (C4 Level 3), "mở hộp" từng service để làm rõ cấu trúc nội bộ, các components bên trong, cách chúng tương tác và các design patterns được áp dụng.
 
-Các sơ đồ tuần tự được chia thành 3 nhóm chức năng chính:
+Mục đích của mục này là:
 
-*1. Nhóm Quản lý Project (UC-01, UC-02, UC-03):* Mô tả quy trình cấu hình, kiểm tra và khởi chạy Project, bao gồm các tương tác giữa Web UI, Project Service, Redis, RabbitMQ, Collector Service và Crawler Services.
+a. Làm rõ cấu trúc nội bộ của từng service: Các components, layers, và cách tổ chức code theo Clean Architecture.
 
-*2. Nhóm Phân tích & Báo cáo (UC-04, UC-05):* Trình bày luồng xử lý dữ liệu từ crawling, qua analytics pipeline (preprocessing, intent, sentiment, impact), đến việc lưu trữ và xuất báo cáo với nhiều định dạng (PDF, PPTX, Excel).
+b. Mô tả trách nhiệm của từng component: Input, output, technology stack, và performance characteristics.
 
-*3. Nhóm Tự động hóa & Cảnh báo (UC-06, UC-07, UC-08):* Mô tả các chức năng tự động của hệ thống như phát hiện trend theo cron job, cảnh báo khủng hoảng real-time, và cập nhật tiến độ qua WebSocket.
+c. Giải thích các design patterns được áp dụng: Lý do chọn pattern và lợi ích mang lại.
 
-Các sơ đồ tuần tự bên dưới được xây dựng dựa trên kiến trúc hệ thống thực tế (Section 3.2), API contracts giữa các services, và event-driven architecture (RabbitMQ, Redis Pub/Sub). Mỗi sơ đồ bao gồm:
-- *Main Flow:* Luồng chính thể hiện tương tác bình thường khi không có lỗi.
-- *Error Handling:* Các nhánh xử lý lỗi quan trọng như timeout, rate-limit, validation failure.
-- *Performance Optimization:* Các kỹ thuật như batching (20-50 items), async processing, throttled webhook callbacks.
+d. Cung cấp evidence cho các quyết định kiến trúc: Metrics, code references, và traceability đến requirements ở Chapter 4.
 
-=== 5.3.1 UC-01: Cấu hình Project
+*Lưu ý về Data Flow:*
 
-Use Case đầu tiên mô tả quy trình tạo mới một Project phân tích. Đây là bước khởi đầu trong hành trình phân tích thương hiệu, nơi Marketing Analyst định nghĩa scope phân tích thông qua việc cấu hình các từ khóa thương hiệu (brand keywords) và từ khóa đối thủ (competitor keywords), cùng với khoảng thời gian phân tích.
+Mỗi service trong mục này bao gồm phần "Data Flow" mô tả luồng xử lý nội bộ (component-to-component flow) bên trong service đó. Đây khác với Sequence Diagrams trong mục 5.5, nơi mô tả tương tác giữa các services (service-to-service flow). Data Flow trong mục này tập trung vào logic xử lý bên trong một service, trong khi Sequence Diagrams trong mục 5.5 mô tả cách các services giao tiếp với nhau theo thời gian cho các Use Cases cụ thể.
 
-Điểm đặc biệt của UC này là Project được lưu với trạng thái `draft` và *không kích hoạt bất kỳ xử lý nào*. Điều này cho phép người dùng có thời gian kiểm tra, chỉnh sửa cấu hình trước khi thực sự khởi chạy (UC-03). Thiết kế này tuân thủ nguyên tắc "explicit execution" - tránh việc hệ thống tự động crawl dữ liệu khi người dùng chưa sẵn sàng, giúp tiết kiệm chi phí API calls và đảm bảo chất lượng cấu hình.
+Mục này được tổ chức theo thứ tự ưu tiên, bắt đầu với các services phức tạp và quan trọng nhất (Collector Service, Analytics Service), sau đó đến các services hỗ trợ (Project, Identity, WebSocket, Speech2Text, Web UI).
 
-#figure(
-  image("../images/sequence/uc1_cau_hinh_project.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-01: Cấu hình Project. 
-    Luồng tạo Project mới với brand và competitor keywords, lưu vào PostgreSQL với status = "draft". 
-    Không có Redis state hoặc RabbitMQ event được tạo ra ở bước này.
-  ]
-) <fig:uc01_sequence>
+=== 5.3.1 Collector Service - Component Diagram
 
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-01_])
+Collector Service (hay còn gọi là Dispatcher Service) là service trung tâm trong hệ thống SMAP data collection, đóng vai trò Master node trong mô hình Master-Worker pattern. Service này nhận các crawl requests từ Project Service (qua RabbitMQ event `project.created`), validate và phân phối các task chi tiết đến các platform-specific workers (TikTok, YouTube) thông qua RabbitMQ.
+
+Vai trò của Collector Service trong kiến trúc tổng thể:
+
+- Orchestrator: Điều phối quy trình crawl dữ liệu từ nhiều platforms đồng thời.
+- Task Dispatcher: Phân phối jobs đến các workers dựa trên platform và task type.
+- State Manager: Quản lý trạng thái thực thi project trong Redis (Hybrid State tracking).
+- Progress Tracker: Theo dõi và cập nhật tiến độ thông qua webhook callbacks.
+
+Service này đáp ứng FR-2 (Thực thi & Giám sát Project) và liên quan trực tiếp đến UC-02 (Dry-run) và UC-03 (Execution).
+
+==== Component Diagram (C4 Level 3)
+
+Collector Service được tổ chức theo Clean Architecture với 4 layers chính:
+
+#align(center)[
+  #image("../images/component/collector-component-diagram.png", width: 100%)
+]
+#context (align(center)[_Hình #image_counter.display(): Component Diagram - Collector Service_])
 #image_counter.step()
 
-*Các bước chính trong UC-01:*
-
-+ *User Input (Steps 1-5):* Marketing Analyst điền thông tin Project qua wizard 4 bước: (1) Thông tin cơ bản (tên, mô tả, khoảng thời gian), (2) Cấu hình thương hiệu chính, (3) Cấu hình đối thủ cạnh tranh, (4) Review và xác nhận.
-
-+ *API Request (Step 6):* Web UI gửi POST request đến `/projects` endpoint với payload chứa toàn bộ thông tin cấu hình. Request này được authenticated bằng JWT token trong cookie `smap_auth_token`.
-
-+ *Date Range Validation (Step 7):* Project Service kiểm tra tính hợp lệ của khoảng thời gian: `to_date` phải lớn hơn `from_date`. Validation này quan trọng vì sẽ ảnh hưởng trực tiếp đến số lượng jobs crawling sau này.
-
-+ *Keyword Validation (Step 8 - Currently Disabled):* Trong thiết kế ban đầu, hệ thống sử dụng LLM (Language Model) để validate và normalize keywords. Tuy nhiên, tính năng này hiện đang bị tắt do vấn đề timeout khi gọi LLM API. Keywords được lưu trực tiếp mà không qua xử lý.
-
-+ *Database Persistence (Steps 9-10):* Project được lưu vào PostgreSQL với các đặc điểm:
-  - Status ban đầu: `draft` (chưa được execute)
-  - Brand keywords và competitor keywords lưu dưới dạng JSONB arrays
-  - Thời gian tạo (`created_at`) và người tạo (`created_by`) được ghi nhận
-  - UUID được generate tự động làm primary key
-
-+ *Response (Step 11):* Trả về HTTP 201 Created với Project object, bao gồm `project_id` để sử dụng cho các bước tiếp theo.
-
-*Điểm kỹ thuật quan trọng:*
-
-- *No side effects:* Việc tạo Project *không* trigger bất kỳ background processing nào. Không có Redis state initialization, không có RabbitMQ event publishing. Đây là thiết kế chủ đích để tách biệt "configuration" và "execution".
-
-- *JSONB storage:* PostgreSQL JSONB column cho phép lưu trữ flexible schema (competitor có thể có số lượng keywords khác nhau) đồng thời vẫn hỗ trợ indexing và querying hiệu quả.
-
-- *Idempotency consideration:* Nếu user submit form nhiều lần (do network issues), mỗi lần sẽ tạo ra một Project mới (với UUID khác nhau). Điều này an toàn vì Project ở trạng thái draft có thể xóa dễ dàng.
-
-- *Future enhancement:* Keyword validation qua LLM sẽ được enable lại khi giải quyết được vấn đề timeout, có thể thông qua async processing hoặc caching kết quả validation.
-
-=== 5.3.2 UC-02: Dry-run (Kiểm tra keywords)
-
-UC-02 cung cấp cơ chế "thử nghiệm" keywords trước khi chạy Project thật. Đây là tính năng quan trọng giúp Marketing Analyst đánh giá chất lượng keywords và điều chỉnh cấu hình nếu cần, tránh lãng phí tài nguyên crawling cho keywords kém chất lượng.
-
-Dry-run sử dụng *sampling strategy* để giảm chi phí: thay vì crawl toàn bộ dữ liệu trong khoảng thời gian đã chọn, hệ thống chỉ lấy 1-2 items mẫu cho mỗi keyword trên mỗi platform (tổng cộng 5-10 items). Các mẫu này đủ để đánh giá engagement rate, sentiment distribution, và relevance của keyword.
-
-Sequence diagram được chia thành 2 phần do độ dài: Part 1 tập trung vào setup và crawling, Part 2 mô tả analytics pipeline và hiển thị kết quả.
-
-==== Part 1: Setup & Crawling
-
-#figure(
-  image("../images/sequence/uc2_dryryn_part_1.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-02 (Part 1/2): Dry-run Setup & Crawling.
-    User submit keywords để test, hệ thống apply sampling strategy và dispatch crawl jobs với số lượng giới hạn.
-  ]
-) <fig:uc02_part1_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-02 Part 1_])
-#image_counter.step()
-
-*Các bước chính trong Part 1:*
-
-+ *User Initiation (Steps 1-2):* User chọn "Kiểm tra từ khóa", nhập danh sách keywords (brand hoặc competitor), chọn platform (TikTok/YouTube), và khoảng thời gian test. Request được gửi đến `/projects/dryrun` endpoint.
-
-+ *Sampling Strategy (Step 3):* Đây là điểm khác biệt chính giữa dry-run và production run. Sampling UseCase áp dụng config-driven limits:
-  - TikTok: 1-2 items per keyword (configurable)
-  - YouTube: 1-2 items per keyword
-  - Total cap: không quá 10 items cho toàn bộ dry-run
-  
-  Strategy này đảm bảo thời gian response nhanh (< 2 phút) và chi phí API calls thấp.
-
-+ *Event Publishing (Step 4):* Project Service publish `dryrun.created` event vào RabbitMQ với routing key `dryrun.created`. Event payload chứa:
-  - `task_id`: UUID để tracking
-  - `keywords`: danh sách keywords cần test
-  - `platform`: platform được chọn
-  - `sample_size`: số lượng items per keyword
-  - `callback_url`: endpoint để report kết quả
-
-+ *Async Response (Step 5):* API trả về HTTP 202 Accepted ngay lập tức với `task_id`, không đợi crawling hoàn tất. Web UI bắt đầu polling `/dryrun/:id/status` mỗi 3 giây.
-
-+ *Collector Consumes Event (Steps 5-7):* Collector Service nhận event từ RabbitMQ, parse keywords, và dispatch jobs đến Crawler Services. Mỗi keyword tạo ra 1 job với constraint `limit=sample_size`.
-
-+ *Crawler Execution (Step 7):* Crawler services (TikTok/YouTube) fetch metadata từ platform APIs:
-  - Respect rate-limits (avoid being blocked)
-  - Chỉ lấy metadata (title, views, likes, etc.), không download video
-  - Return Atomic JSON format (chuẩn hóa cross-platform)
-
-+ *MinIO Upload (Step 8):* Batch items được upload vào MinIO với path `dryrun/{task_id}/batch_0.json`. MinIO được chọn thay vì PostgreSQL để tránh bloat database với temporary data.
-
-==== Part 2: Analytics & Results
-
-#figure(
-  image("../images/sequence/uc2_dryryn_part_2.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-02 (Part 2/2): Analytics Pipeline & Results Display.
-    Analytics Service xử lý batch từ MinIO, chạy full pipeline, lưu kết quả vào PostgreSQL, và trả về cho user qua polling.
-  ]
-) <fig:uc02_part2_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-02 Part 2_])
-#image_counter.step()
-
-*Các bước chính trong Part 2:*
-
-+ *Data.Collected Event (Steps 9-10):* Collector publish `data.collected` event với `minio_path` pointing đến batch file. Event này trigger Analytics Service để bắt đầu xử lý.
-
-+ *Analytics Pipeline (Steps 11-12):* Analytics Service download batch từ MinIO và chạy *full 5-step pipeline* cho mỗi item:
-  1. *Preprocessing:* Merge caption + transcription + top comments, normalize Vietnamese text
-  2. *Intent Classification:* Detect post intent (REVIEW, COMPLAINT, CRISIS, SEEDING)
-  3. *Keyword Extraction:* Hybrid dictionary + YAKE algorithm với aspect mapping
-  4. *Sentiment Analysis:* PhoBERT-based overall + aspect-level sentiment
-  5. *Impact Calculation:* Engagement score + reach score + sentiment weight + velocity
-
-  Lưu ý: Dry-run sử dụng *same pipeline* như production để đảm bảo kết quả representative.
-
-+ *Database Save (Step 13):* Kết quả được lưu vào `post_analytics` table với:
-  - `project_id = NULL` (để phân biệt với production data)
-  - `task_type = "dryrun"` (để dễ filter và cleanup)
-  - Đầy đủ metrics: sentiment, impact_score, keywords, aspects
-
-+ *Callback Webhook (Step 15):* Collector gọi webhook `/internal/dryrun/callback` để báo completion. Webhook này update task status trong Redis cache.
-
-+ *Polling & Results (Steps 16-17):* Web UI polling detect `status = "completed"`, gọi `/dryrun/:id/results` để fetch summarized results:
-  - Per-keyword statistics: avg sentiment, avg engagement rate
-  - Top posts với highest impact
-  - Sentiment distribution chart data
-  - Recommendation: keyword nào nên giữ, keyword nào nên loại
-
-+ *Display (Step 18):* Web UI render preview dashboard với insights:
-  - "Keyword X có engagement cao nhất (8.5%), nên prioritize"
-  - "Keyword Y có 80% negative sentiment, cân nhắc loại bỏ"
-  - Sample posts để user xem context
-
-*Điểm kỹ thuật quan trọng:*
-
-- *No project_id:* Dry-run data không gắn với Project nào, dễ dàng cleanup sau một khoảng thời gian (e.g., 7 days retention).
-
-- *Full pipeline reuse:* Sử dụng lại toàn bộ analytics code, không cần maintain separate "simplified" logic cho dry-run. Điều này đảm bảo consistency và giảm maintenance burden.
-
-- *Async architecture:* Hoàn toàn event-driven (RabbitMQ), cho phép scale horizontally khi có nhiều dry-run requests đồng thời.
-
-- *Cost optimization:* Sampling + MinIO temporary storage + 7-day retention giúp giảm chi phí đáng kể so với full production run.
-
-=== 5.3.3 UC-03: Khởi chạy & Giám sát Project
-
-UC-03 là luồng xử lý phức tạp nhất trong hệ thống, bao gồm 4 giai đoạn chính: (1) Execute & Initialize, (2) Collector Dispatches Jobs, (3) Analytics Pipeline, và (4) Completion. Do độ phức tạp cao, sequence diagram được chia thành 4 phần tương ứng với 4 giai đoạn.
-
-Use Case này thể hiện rõ *transaction-like flow* với rollback mechanism ở mỗi bước, *event-driven architecture* giữa các services, và *real-time progress tracking* qua Redis state. Đây là "backbone" của toàn bộ hệ thống phân tích.
-
-==== Part 1: Execute & Initialize
-
-#figure(
-  image("../images/sequence/uc3_execute_part_1.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-03 (Part 1/4): Execute & Initialize Project.
-    User trigger execution, hệ thống verify ownership, update PostgreSQL status, init Redis state, và publish RabbitMQ event với rollback mechanism ở mỗi bước.
-  ]
-) <fig:uc03_part1_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-03 Part 1_])
-#image_counter.step()
-
-*Các bước chính trong Part 1:*
-
-+ *User Trigger (Steps 1-2):* Marketing Analyst click "Khởi chạy" trên một Draft Project. Web UI gửi POST request đến `/projects/:id/execute` endpoint với authentication cookie.
-
-+ *Ownership Verification (Step 3):* Bước security quan trọng: Project Service query PostgreSQL để verify user là owner của Project (`created_by == user_id`). Nếu không match, trả về 403 Forbidden.
-
-+ *Duplicate Execution Check (Step 4):* Hệ thống kiểm tra Redis state (`smap:proj:{id}`) để đảm bảo Project chưa đang execute. Nếu state tồn tại, trả về 409 Conflict với error code 30008. Điều này prevent race condition khi user click "Khởi chạy" nhiều lần.
-
-+ *PostgreSQL Status Update (Step 5):* *Critical step* - Update Project status từ `draft` thành `process` trong PostgreSQL. Đây là bước *đầu tiên* trong transaction-like flow. Nếu bước này fail, không có side effects nào xảy ra.
-
-+ *Redis State Initialization (Steps 7-9):* Tạo Redis hash `smap:proj:{id}` với fields:
-  - `status: "INITIALIZING"` (giai đoạn đầu tiên)
-  - `total: 0`, `done: 0`, `errors: 0` (sẽ được update bởi Collector)
-  - `user_id: {user_id}` (để route WebSocket notifications)
-  - TTL: 7 days (604800 seconds) để auto-cleanup
-
-  *Rollback on failure:* Nếu Redis init fail, hệ thống rollback PostgreSQL status về `draft`. Điều này đảm bảo consistency giữa PostgreSQL (source of truth) và Redis (runtime state).
-
-+ *RabbitMQ Event Publishing (Step 10):* Publish `project.created` event vào exchange `smap.events` với routing key `project.created`. Event payload chứa:
-  - `project_id`, `user_id` (để tracking và notification)
-  - `brand_keywords`, `competitor_keywords` (để Collector generate jobs)
-  - `from_date`, `to_date` (time range để crawl)
-
-  *Rollback on failure:* Nếu RabbitMQ publish fail, hệ thống rollback *cả* Redis state và PostgreSQL status. Đây là điểm quan trọng nhất của rollback mechanism.
-
-+ *Success Response (Step 11):* Trả về 200 OK với `{project_id, status: "executing"}`. Web UI ngay lập tức navigate đến Project Processing page với progress bar.
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Transaction-like flow:* Mặc dù không sử dụng distributed transaction (2PC), hệ thống implement manual rollback ở mỗi step để đảm bảo consistency. Order of operations: PostgreSQL → Redis → RabbitMQ (từ persistent nhất đến ephemeral nhất).
-
-- *Redis as runtime state:* Redis state (`smap:proj:{id}`) là single source of truth cho progress tracking. Mọi services (Collector, Analytics, WebSocket) đều đọc/ghi vào Redis này.
-
-- *Event-driven decoupling:* Project Service không biết gì về Collector hay Analytics. Sau khi publish event, responsibility được chuyển giao. Điều này cho phép scale và deploy services độc lập.
-
-- *User experience:* Toàn bộ flow execute + initialize chỉ mất ~200-500ms (fast database writes + Redis set + RabbitMQ publish). User nhận response nhanh chóng và được redirect đến monitoring page.
-
-==== Part 2: Collector Dispatches Jobs
-
-#figure(
-  image("../images/sequence/uc3_execute_part_2.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-03 (Part 2/4): Collector Dispatches Crawl Jobs.
-    Collector Service consume project.created event, parse keywords, generate job matrix, và dispatch crawl jobs đến Crawler Services với batching strategy.
-  ]
-) <fig:uc03_part2_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-03 Part 2_])
-#image_counter.step()
-
-*Các bước chính trong Part 2:*
-
-+ *Event Consumption (Step 12):* Collector Service consume `project.created` event từ RabbitMQ. Collector có dedicated consumer với prefetch count = 1 để avoid overloading.
-
-+ *Keyword Parsing (Step 13):* Extract và normalize keywords:
-  - Brand keywords: `["VinFast", "VF3", "VF8"]`
-  - Competitor keywords: `[{name: "Toyota", keywords: ["Vios", "Camry"]}, ...]`
-
-+ *Job Matrix Generation (Step 14):* Tính toán số lượng jobs cần dispatch. Công thức:
-  ```
-  total_jobs = num_keywords × num_platforms × num_days
-  ```
-  
-  Ví dụ: 3 keywords × 2 platforms (TikTok, YouTube) × 30 days = 180 jobs.
-  
-  Mỗi job đại diện cho việc crawl 1 keyword trên 1 platform trong 1 ngày cụ thể. Granularity này cho phép parallel processing và fine-grained progress tracking.
-
-+ *Redis State Update (Step 15):* Update Redis state:
-  - `status: "CRAWLING"` (chuyển sang giai đoạn 2)
-  - `total: 180` (total jobs để track progress)
-
-+ *Job Dispatching Loop (Steps 16-19):* Collector dispatch jobs sequentially hoặc với controlled parallelism. Mỗi job:
-  - Được route đến appropriate Crawler Service (TikTok Crawler hoặc YouTube Crawler)
-  - Chứa context: `{keyword, platform, date, project_id}`
-  - Crawler crawl data từ platform API, respect rate-limits
-  - Crawler return batch of 20-50 items (Atomic JSON format)
-
-+ *MinIO Upload (Step 17):* Batch được upload vào MinIO với path:
-  ```
-  crawl/{project_id}/batch_{X}.json
-  ```
-  
-  MinIO được chọn vì:
-  - Object storage tối ưu cho large files (batch có thể 1-5 MB)
-  - S3-compatible, dễ scale
-  - Tách biệt storage concerns khỏi PostgreSQL
-
-+ *Data.Collected Event (Step 18):* Collector publish `data.collected` event cho mỗi batch với payload:
-  ```json
-  {
-    "project_id": "...",
-    "minio_path": "crawl/{project_id}/batch_X.json",
-    "batch_index": X,
-    "items_count": 45
-  }
-  ```
-
-+ *Progress Update (Step 19):* Sau mỗi job hoàn thành, Collector increment Redis counter:
-  ```
-  HINCRBY smap:proj:{id} done 1
-  ```
-  
-  Điều này cho phép real-time progress tracking (done / total × 100%).
-
-+ *Status Transition (Step 20):* Khi tất cả crawl jobs complete, Collector update:
-  ```
-  HSET smap:proj:{id} status "PROCESSING"
-  ```
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Batching strategy:* Crawler trả về 20-50 items/batch thay vì 1 item/request. Điều này giảm drastically số lượng MinIO uploads và RabbitMQ messages. Trade-off: latency slightly higher nhưng throughput cao hơn nhiều.
-
-- *Idempotency:* Nếu Collector crash và restart, RabbitMQ sẽ redeliver `project.created` event. Collector check Redis state - nếu đã tồn tại, skip processing (avoid duplicate crawling).
-
-- *Rate-limit handling:* Crawler services có built-in exponential backoff khi gặp HTTP 429. Collector không cần quan tâm chi tiết này (separation of concerns).
-
-- *Error handling:* Nếu một job fail (e.g., keyword không có results), Collector increment `errors` counter nhưng vẫn tiếp tục các jobs khác. Failure của 1 job không làm fail toàn bộ Project.
-
-==== Part 3: Analytics Pipeline
-
-#figure(
-  image("../images/sequence/uc3_execute_part_3.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-03 (Part 3/4): Analytics Pipeline Processing.
-    Analytics Service consume data.collected events, download batches từ MinIO, chạy 5-step pipeline (preprocessing, intent, keywords, sentiment, impact), và save vào PostgreSQL với crisis detection.
-  ]
-) <fig:uc03_part3_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-03 Part 3_])
-#image_counter.step()
-
-*Các bước chính trong Part 3:*
-
-+ *Event Consumption (Step 21):* Analytics Service consume `data.collected` events từ RabbitMQ. Service có multiple consumers (e.g., 5 workers) để process batches parallel.
-
-+ *MinIO Download (Step 22):* Download batch JSON từ MinIO. File size typically 1-5 MB (20-50 items × ~50-100 KB/item với full metadata).
-
-+ *Analytics Pipeline (Step 23):* Mỗi post trong batch đi qua 5-step pipeline:
-
-  *Step 1 - Preprocessing:*
-  - Merge text sources: caption + transcription (nếu có) + top 10 comments
-  - Normalize Vietnamese: convert teencode ("k", "ko" → "không"), remove excessive emojis
-  - Compute noise stats: spam probability, text length, hashtag density
-  
-  *Step 2 - Intent Classification:*
-  - Classify post intent: REVIEW, COMPLAINT, CRISIS, SEEDING
-  - Pattern matching + LLM (if available)
-  - Produce `should_skip` signal cho spam/seeding posts
-  
-  *Step 3 - Keyword Extraction:*
-  - Hybrid approach: dictionary matching + YAKE algorithm
-  - Extract keywords với confidence scores
-  - Map keywords to aspects (e.g., "pin kém" → aspect "Pin")
-  
-  *Step 4 - Sentiment Analysis:*
-  - PhoBERT-based multi-label classification
-  - Overall sentiment: VERY_POSITIVE, POSITIVE, NEUTRAL, NEGATIVE, VERY_NEGATIVE
-  - Aspect-level sentiment: per-aspect sentiment breakdown
-  
-  *Step 5 - Impact Calculation:*
-  - Engagement score: `(likes + comments + shares) / views`
-  - Reach score: `follower_count × (is_verified ? 1.5 : 1.0)`
-  - Combine với sentiment và velocity:
-    ```
-    impact_score = (engagement × 0.3 + reach × 0.3 + 
-                    sentiment_weight × 0.2 + velocity × 0.2) × 100
-    ```
-  - Determine risk level: CRITICAL (≥80), HIGH (60-80), MEDIUM (40-60), LOW (\<40)
-
-+ *Database Persistence (Step 24):* Batch INSERT vào `post_analytics` table (20-50 rows/transaction). PostgreSQL JSONB columns lưu:
-  - `aspects_breakdown`: array of `{name, sentiment, confidence}`
-  - `keywords`: array of extracted keywords
-  - `sentiment_probabilities`: model output probabilities
-  - `impact_breakdown`: detailed impact components
-
-+ *Crisis Detection (Step 25):* Sau khi save, system check từng post:
-  ```
-  if (primary_intent == "CRISIS" && 
-      overall_sentiment in ["NEGATIVE", "VERY_NEGATIVE"] && 
-      risk_level in ["HIGH", "CRITICAL"]) {
-    trigger_crisis_alert()
-  }
-  ```
-  
-  *Crisis alert* publish separate `crisis.detected` event với payload chứa post details để WebSocket Service notify user immediately.
-
-+ *Acknowledge (Step 26):* ACK RabbitMQ message để confirm batch đã được processed successfully. Nếu processing fail, message sẽ được requeued (với retry limit).
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Pipeline orchestration:* `AnalyticsOrchestrator` class coordinate toàn bộ 5 steps, handle errors gracefully, và log processing time per step cho monitoring.
-
-- *Skip logic optimization:* Posts được classify là spam/seeding sẽ skip steps 3-5 (keyword extraction, sentiment, impact). Chỉ persist minimal record với `overall_sentiment = NEUTRAL`, `impact_score = 0`. Điều này save ~70% compute time cho noise posts.
-
-- *Batch processing:* Process 20-50 posts trong 1 transaction thay vì 50 separate transactions. PostgreSQL performance cải thiện drastically (10-20x faster).
-
-- *Model caching:* PhoBERT model (1.3 GB) được load vào RAM lúc startup và reuse cho mọi requests. Warm-up time ~5 seconds nhưng inference chỉ ~100ms/post (on GPU) hoặc ~300ms/post (on CPU).
-
-- *Error isolation:* Nếu 1 post trong batch fail (e.g., malformed JSON), skip post đó nhưng tiếp tục process remaining posts. Failure của 1 post không làm fail cả batch.
-
-==== Part 4: Completion & Notification
-
-#figure(
-  image("../images/sequence/uc3_execute_part_4.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-03 (Part 4/4): Project Completion & User Notification.
-    Collector detect completion (done == total), update PostgreSQL status, call progress webhook, Project Service publish notification qua Redis Pub/Sub để WebSocket deliver đến user.
-  ]
-) <fig:uc03_part4_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-03 Part 4_])
-#image_counter.step()
-
-*Các bước chính trong Part 4:*
-
-+ *Completion Detection (Step 27):* Collector periodically (mỗi 10 giây hoặc sau mỗi batch) check Redis state:
-  ```
-  HGETALL smap:proj:{id}
-  ```
-  
-  Compare `done` vs `total`. Nếu `done >= total`, project đã complete.
-
-+ *Status Finalization (Step 28):* Collector update Redis:
-  ```
-  HSET smap:proj:{id} status "DONE"
-  ```
-
-+ *Progress Callback (Step 29):* Collector gọi webhook `POST /internal/progress/callback` với payload:
-  ```json
-  {
-    "project_id": "...",
-    "user_id": "...",
-    "status": "DONE",
-    "total": 180,
-    "done": 180,
-    "errors": 5
-  }
-  ```
-
-+ *PostgreSQL Status Update (Step 30):* Project Service update Project status từ `process` → `completed` trong PostgreSQL. Đây là final state transition, marking project as ready for viewing.
-
-+ *Redis Pub/Sub Notification (Step 31):* Project Service publish message đến Redis Pub/Sub channel:
-  ```
-  channel: project:{project_id}:{user_id}
-  message: {
-    "type": "project_completed",
-    "project_id": "...",
-    "message": "Project analysis completed successfully!",
-    "stats": {
-      "total_posts": 2847,
-      "processing_time": "18 minutes"
-    }
-  }
-  ```
-
-+ *User Polling (Step 32):* Web UI đang polling `/projects/:id/progress` mỗi 5 giây. Khi detect `status = "DONE"`, hiển thị success notification và start 5-second countdown redirect đến Dashboard.
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Eventual consistency:* Có delay nhỏ (< 10 giây) giữa lúc last batch complete và lúc Collector detect completion. Đây là trade-off chấp nhận được để avoid constant polling overhead.
-
-- *Webhook vs Polling:* Hệ thống sử dụng *hybrid approach*:
-  - Webhook (push) cho backend-to-backend communication (Collector → Project Service)
-  - Polling (pull) cho frontend-to-backend (Web UI → Project API)
-  
-  Webhook faster và more efficient cho server-side, nhưng polling reliable hơn cho client-side (avoid WebSocket complexity ở bước này).
-
-- *Notification routing:* Redis Pub/Sub pattern `project:{project_id}:{user_id}` đảm bảo message chỉ được deliver đến đúng user. WebSocket Service subscribe pattern `project:*:{user_id}` để receive tất cả projects của user.
-
-- *Failure handling:* Nếu webhook fail (Project Service down), Collector sẽ retry với exponential backoff (3 lần). Nếu vẫn fail, Collector log error nhưng vẫn mark project as done trong Redis. User vẫn có thể thấy kết quả khi Project Service recover (vì PostgreSQL state consistent).
-
-- *Cleanup strategy:* Redis state với TTL 7 days sẽ tự động expire. PostgreSQL Project record được giữ permanently (hoặc theo retention policy của organization).
-
-=== 5.3.4 UC-04: Xem kết quả phân tích
-
-Sau khi Project hoàn tất (status = `completed`), Marketing Analyst truy cập Dashboard để xem tổng quan và drilldown vào chi tiết. UC-04 mô tả quy trình truy vấn dữ liệu phân tích từ PostgreSQL, aggregating statistics, và hiển thị insights theo multiple dimensions (sentiment, aspects, competitors, time-series).
-
-Điểm đặc biệt của UC này là việc sử dụng *PostgreSQL JSONB operators* để query nested data structures hiệu quả, kết hợp với *multi-level aggregations* để tạo ra dashboard insights phong phú. Sequence diagram được chia thành 2 phần: Part 1 cho Overview Dashboard, Part 2 cho Drilldown Details.
-
-==== Part 1: Overview Dashboard
-
-#figure(
-  image("../images/sequence/uc4_result_part_1.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-04 (Part 1/2): Overview Dashboard.
-    User truy cập Project Dashboard, hệ thống fetch aggregated statistics từ PostgreSQL bao gồm sentiment distribution, aspect breakdown, competitor comparison, và time-series trends.
-  ]
-) <fig:uc04_part1_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-04 Part 1_])
-#image_counter.step()
-
-*Các bước chính trong Part 1:*
-
-+ *Page Load (Steps 1-2):* User navigate đến `/dashboard/project/:id`. Web UI gửi GET request đến `/projects/:id/dashboard` để fetch overview statistics.
-
-+ *Project Metadata (Step 3):* Project API query PostgreSQL để lấy thông tin cơ bản:
-  ```sql
-  SELECT id, name, status, from_date, to_date, 
-         brand_keywords, competitor_keywords, created_at
-  FROM projects WHERE id = $1 AND created_by = $2
-  ```
-  
-  Ownership verification được thực hiện implicit qua `created_by` filter.
-
-+ *Overall Statistics (Step 4):* Aggregation query để tính KPIs tổng quan:
-  ```sql
-  SELECT 
-    COUNT(*) as total_posts,
-    AVG(impact_score) as avg_impact,
-    SUM(CASE WHEN risk_level IN ('HIGH','CRITICAL') THEN 1 ELSE 0 END) as crisis_count,
-    AVG(engagement_rate) as avg_engagement
-  FROM post_analytics 
-  WHERE project_id = $1
-  ```
-
-+ *Sentiment Distribution (Step 5):* Query phân bố sentiment:
-  ```sql
-  SELECT overall_sentiment, COUNT(*) as count
-  FROM post_analytics
-  WHERE project_id = $1
-  GROUP BY overall_sentiment
-  ORDER BY count DESC
-  ```
-  
-  Kết quả dạng: `{POSITIVE: 1200, NEUTRAL: 800, NEGATIVE: 300, ...}` để render pie chart.
-
-+ *Aspect Breakdown (Step 6):* Sử dụng JSONB operators để extract và aggregate aspects:
-  ```sql
-  SELECT 
-    aspect->>'name' as aspect_name,
-    COUNT(*) as mention_count,
-    AVG((aspect->>'sentiment_score')::float) as avg_sentiment
-  FROM post_analytics,
-       jsonb_array_elements(aspects_breakdown) as aspect
-  WHERE project_id = $1
-  GROUP BY aspect->>'name'
-  ORDER BY mention_count DESC
-  LIMIT 10
-  ```
-  
-  Trả về top 10 aspects được mention nhiều nhất với sentiment score trung bình.
-
-+ *Competitor Comparison (Step 7):* Query để so sánh thương hiệu chính vs đối thủ:
-  ```sql
-  SELECT 
-    competitor_name,
-    COUNT(*) as post_count,
-    AVG(overall_sentiment_score) as avg_sentiment,
-    AVG(impact_score) as avg_impact
-  FROM post_analytics
-  WHERE project_id = $1
-  GROUP BY competitor_name
-  ORDER BY post_count DESC
-  ```
-
-+ *Time-series Trend (Step 8):* Query sentiment trend theo thời gian:
-  ```sql
-  SELECT 
-    DATE_TRUNC('day', published_at) as date,
-    overall_sentiment,
-    COUNT(*) as count
-  FROM post_analytics
-  WHERE project_id = $1
-  GROUP BY date, overall_sentiment
-  ORDER BY date ASC
-  ```
-  
-  Data này được sử dụng để render line chart showing sentiment evolution over time.
-
-+ *Response Aggregation (Step 9):* Project API tổng hợp tất cả statistics vào single response object:
-  ```json
-  {
-    "project": {...},
-    "kpis": {total_posts, avg_impact, crisis_count, ...},
-    "sentiment_distribution": [...],
-    "top_aspects": [...],
-    "competitor_comparison": [...],
-    "time_series": [...]
-  }
-  ```
-
-+ *Dashboard Rendering (Step 10):* Web UI render full dashboard với:
-  - KPI cards (4 metrics)
-  - Sentiment pie chart
-  - Aspect breakdown bar chart
-  - Competitor comparison table
-  - Time-series line chart
-
-*Điểm kỹ thuật quan trọng:*
-
-- *JSONB performance:* PostgreSQL JSONB operators (`->`, `->>`, `@>`) với GIN indexes cho phép query nested structures hiệu quả. Query time ~50-200ms cho projects với 10K+ posts.
-
-- *Single request:* Tất cả statistics được fetch trong 1 API call (với multiple DB queries parallel) thay vì multiple API calls. Điều này giảm network latency và improve UX.
-
-- *Date truncation:* `DATE_TRUNC('day', ...)` cho phép flexible time-series aggregation. Có thể switch sang 'hour', 'week', 'month' based on date range.
-
-- *Caching opportunity:* Dashboard data có thể cache trong Redis với TTL 5-10 phút vì insights không cần real-time updates sau khi project completed.
-
-==== Part 2: Drilldown Details
-
-#figure(
-  image("../images/sequence/uc4_result_part_2.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-04 (Part 2/2): Drilldown vào chi tiết posts.
-    User click vào aspect hoặc competitor để xem danh sách posts liên quan, sau đó click vào post cụ thể để xem full details bao gồm comments, aspect breakdown, và impact breakdown.
-  ]
-) <fig:uc04_part2_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-04 Part 2_])
-#image_counter.step()
-
-*Các bước chính trong Part 2:*
-
-+ *Aspect Drilldown (Steps 16-17):* User click vào aspect "Giá cả". Web UI gửi request `/projects/:id/posts?aspect=Giá cả&page=1&limit=20`.
-
-+ *Posts Query with Filters (Step 18):* PostgreSQL query với JSONB containment operator:
-  ```sql
-  SELECT id, title, author, platform, published_at,
-         overall_sentiment, impact_score, engagement_rate
-  FROM post_analytics
-  WHERE project_id = $1 
-    AND aspects_breakdown @> '[{"name": "Giá cả"}]'
-  ORDER BY impact_score DESC
-  LIMIT 20 OFFSET 0
-  ```
-  
-  `@>` operator kiểm tra JSONB array có chứa object với `name = "Giá cả"` hay không. GIN index trên `aspects_breakdown` column tăng tốc query drastically.
-
-+ *Posts List Display (Step 19):* Web UI render danh sách posts với:
-  - Title + thumbnail
-  - Sentiment badge (color-coded)
-  - Impact score (with risk level indicator)
-  - Quick link to original post
-
-+ *Post Details Request (Steps 19-20):* User click vào 1 post. Web UI request `/posts/:post_id/details`.
-
-+ *Full Post Data (Step 21):* Query toàn bộ data của post:
-  ```sql
-  SELECT * FROM post_analytics WHERE id = $1
-  ```
-  
-  Trả về tất cả fields bao gồm:
-  - Content: caption, transcription
-  - Metrics: views, likes, comments, shares, saves
-  - Analytics: sentiment probabilities, keywords, aspects breakdown, impact breakdown
-  - Metadata: platform, author, published_at, url
-
-+ *Comments Fetch (Step 22):* Query top comments của post (nếu có):
-  ```sql
-  SELECT content, author, likes, sentiment, published_at
-  FROM comments
-  WHERE post_id = $1
-  ORDER BY likes DESC
-  LIMIT 50
-  ```
-  
-  Comments cũng được analyze sentiment để hiển thị sentiment distribution in comments.
-
-+ *Modal Display (Step 23):* Web UI hiển thị modal với:
-  - Full content (caption + transcription)
-  - Aspect-level sentiment breakdown (bar chart)
-  - Keywords extracted
-  - Impact breakdown (engagement, reach, sentiment, velocity components)
-  - Top 50 comments với sentiment
-  - Action buttons: "Đánh dấu đã xử lý", "Chia sẻ", "Export"
-
-*Điểm kỹ thuật quan trọng:*
-
-- *JSONB containment:* Operator `@>` cho phép filter posts by aspect name efficiently. Alternative: `EXISTS(SELECT 1 FROM jsonb_array_elements(aspects_breakdown) WHERE elem->>'name' = 'Giá cả')` nhưng slower.
-
-- *Pagination:* LIMIT/OFFSET được sử dụng cho pagination. Với large datasets (10K+ posts), có thể optimize bằng cursor-based pagination (`WHERE id > last_id`).
-
-- *Lazy loading:* Comments chỉ được fetch khi user click vào post, không fetch upfront cho tất cả posts. Điều này tiết kiệm bandwidth và DB load.
-
-- *Sentiment visualization:* Aspect-level sentiment được render dưới dạng horizontal bar chart với color gradient (red → yellow → green) để dễ nhìn.
-
-- *Deep linking:* URL chứa `?post_id=xxx` để support shareable links. User có thể copy URL và chia sẻ với team members.
-
-=== 5.3.5 UC-06: Cập nhật tiến độ Real-time
-
-UC-06 mô tả cơ chế real-time progress tracking qua WebSocket connection. Đây là tính năng quan trọng giúp user theo dõi tiến độ xử lý Project mà không cần refresh page, tạo trải nghiệm UX mượt mà và professional.
-
-Hệ thống sử dụng *Redis Pub/Sub* làm message bus để broadcast progress updates từ backend services (Collector, Analytics) đến WebSocket Service, sau đó deliver đến connected clients. Sequence diagram được chia thành 3 phần: Part 1 cho Connection Setup, Part 2 cho Progress Updates, Part 3 cho Completion & Disconnection.
-
-==== Part 1: WebSocket Connection Setup
-
-#figure(
-  image("../images/sequence/uc6_export_part_1.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-06 (Part 1/3): WebSocket Connection Setup.
-    User mở Project Processing page, Web UI establish WebSocket connection với authentication, WebSocket Service verify token và subscribe Redis channel pattern để receive project updates.
-  ]
-) <fig:uc06_part1_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-06 Part 1_])
-#image_counter.step()
-
-*Các bước chính trong Part 1:*
-
-+ *Page Load (Steps 1-2):* User navigate đến Project Processing page (`/projects/:id/processing`). Web UI render progress UI với initial state: "Đang khởi tạo...".
-
-+ *WebSocket Handshake (Step 3):* Web UI initiate WebSocket connection đến `wss://api.smap.com/ws`. Connection được upgrade từ HTTP/1.1 sang WebSocket protocol.
-
-+ *Authentication (Step 4):* Ngay sau khi connection established, client gửi auth message:
-  ```json
-  {
-    "type": "auth",
-    "token": "eyJhbGc...",  // JWT token
-    "project_id": "..."
-  }
-  ```
-
-+ *Token Verification (Steps 5-6):* WebSocket Service verify JWT token:
-  - Decode token để extract `user_id`
-  - Verify signature với secret key
-  - Check expiration time
-  - Optionally: query Redis để check token không bị revoked
-
-  Nếu token invalid → close connection với code 4001 "Unauthorized".
-
-+ *Redis Channel Subscription (Step 7):* WebSocket Service subscribe Redis Pub/Sub channel pattern:
-  ```
-  PSUBSCRIBE project:{project_id}:{user_id}
-  ```
-  
-  Pattern subscription cho phép receive tất cả messages published đến channel này. Chỉ messages của đúng project và đúng user mới được deliver (security by design).
-
-+ *Subscription Confirmation (Step 8):* WebSocket Service gửi confirmation message đến client:
-  ```json
-  {
-    "type": "subscribed",
-    "project_id": "...",
-    "message": "Successfully subscribed to project updates"
-  }
-  ```
-
-+ *Initial State Display (Step 9):* Web UI hiển thị progress bar với initial message: "Đang xử lý... 0%".
-
-*Điểm kỹ thuật quan trọng:*
-
-- *WebSocket over HTTPS:* Production sử dụng WSS (WebSocket Secure) để encrypt traffic. Tránh downgrade attacks.
-
-- *JWT in WebSocket:* Token được gửi qua WebSocket message (không phải WebSocket URL query param) để avoid token leakage in logs/browser history.
-
-- *Pattern subscription:* Redis PSUBSCRIBE cho phép subscribe multiple projects của cùng user với single subscription: `project:*:{user_id}`. Tuy nhiên, hiện tại chỉ subscribe single project để simplicity.
-
-- *Connection pooling:* WebSocket Service maintain connection pool (e.g., 10K concurrent connections per instance). Sử dụng Goroutines (Go) hoặc async I/O (Node.js) để handle concurrent connections efficiently.
-
-- *Heartbeat mechanism:* WebSocket Service gửi PING frames mỗi 30 giây để detect dead connections. Client respond với PONG. Nếu 3 PINGs không có PONG → close connection.
-
-==== Part 2: Progress Updates
-
-#figure(
-  image("../images/sequence/uc6_export_part_2.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-06 (Part 2/3): Real-time Progress Updates.
-    Collector và Analytics Services publish progress updates vào Redis Pub/Sub, WebSocket Service receive và broadcast đến connected client với throttling mechanism để avoid overwhelming.
-  ]
-) <fig:uc06_part2_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-06 Part 2_])
-#image_counter.step()
-
-*Các bước chính trong Part 2:*
-
-+ *Progress Event from Collector (Step 10):* Sau mỗi crawl job hoàn thành, Collector update Redis state và publish progress message:
-  ```
-  PUBLISH project:{project_id}:{user_id} {
-    "type": "progress",
-    "phase": "CRAWLING",
-    "done": 1,
-    "total": 120,
-    "percentage": 0.8,
-    "message": "Đã thu thập 1/120 items"
-  }
-  ```
-
-+ *Message Propagation (Steps 11-12):* Redis Pub/Sub deliver message đến WebSocket Service (subscribed client). WebSocket Service receive message từ Redis.
-
-+ *Throttling Logic (Step 13):* Trước khi forward message đến client, WebSocket Service apply throttling:
-  ```go
-  // Only send if > 500ms since last message
-  if time.Since(lastSent) < 500*time.Millisecond {
-    return // Skip this message
-  }
-  ```
-  
-  Throttling prevents overwhelming client với quá nhiều messages (e.g., 120 jobs → 120 messages trong vài giây). Client chỉ nhận updates mỗi 500ms, đủ cho smooth progress bar animation.
-
-+ *WebSocket Message (Step 14):* WebSocket Service forward message đến client qua WebSocket connection.
-
-+ *UI Update (Step 15):* Web UI handle message:
-  - Update progress bar percentage: `progress = done / total × 100%`
-  - Update phase indicator: highlight "Thu thập dữ liệu" phase
-  - Display current message: "Đã thu thập 1/120 items (0.8%)"
-  - Optionally: update estimated time remaining
-
-+ *Repeated Updates (Steps 16-17):* Process repeats cho mỗi progress update. Khi phase transition (CRAWLING → PROCESSING), message type vẫn là "progress" nhưng `phase` field changes.
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Redis Pub/Sub scalability:* Redis Pub/Sub không persist messages. Nếu WebSocket Service down lúc message được publish, message sẽ lost. Trade-off này acceptable vì progress updates không critical (user có thể refresh).
-
-- *Throttling strategies:*
-  - *Time-based:* Chỉ send message mỗi 500ms (current implementation)
-  - *Percentage-based:* Chỉ send khi percentage change ≥ 1%
-  - *Hybrid:* Combine cả hai approaches
-
-- *Message ordering:* Redis Pub/Sub đảm bảo messages được deliver theo order. Tuy nhiên, nếu có multiple WebSocket instances với load balancer, message order có thể không guaranteed cross-instance.
-
-- *Backpressure handling:* Nếu client slow (e.g., tab inactive, slow network), WebSocket send buffer có thể full. WebSocket Service detect và skip messages hoặc close connection để avoid memory leak.
-
-- *Progressive enhancement:* Nếu WebSocket connection fail, Web UI fallback về polling mechanism (query `/projects/:id/progress` mỗi 5 giây).
-
-==== Part 3: Completion & Disconnection
-
-#figure(
-  image("../images/sequence/uc6_export_part_3.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-06 (Part 3/3): Project Completion & Connection Cleanup.
-    Project hoàn tất, WebSocket Service deliver completion notification, Web UI redirect user đến Dashboard, và cleanup WebSocket connection.
-  ]
-) <fig:uc06_part3_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-06 Part 3_])
-#image_counter.step()
-
-*Các bước chính trong Part 3:*
-
-+ *Completion Message (Steps 18-19):* Khi Project hoàn tất, Project Service publish completion message:
-  ```json
-  {
-    "type": "project_completed",
-    "project_id": "...",
-    "status": "COMPLETED",
-    "message": "Phân tích hoàn tất!",
-    "stats": {
-      "total_posts": 2847,
-      "processing_time": "18 minutes",
-      "avg_sentiment": 0.65
-    }
-  }
-  ```
-
-+ *Final Update (Steps 20-21):* Web UI handle completion message:
-  - Update progress bar to 100%
-  - Show success notification: "✅ Phân tích hoàn tất!"
-  - Display final statistics
-  - Start 5-second countdown: "Chuyển đến Dashboard trong 5s..."
-
-+ *Auto-redirect (Step 22):* Sau 5 giây, Web UI navigate đến Dashboard page: `window.location.href = '/dashboard/project/:id'`.
-
-+ *Connection Cleanup (Steps 23-25):* Khi user navigate away (hoặc close tab):
-  - Web UI send WebSocket close frame với code 1000 "Normal Closure"
-  - WebSocket Service receive close frame
-  - WebSocket Service cleanup:
-    - Unsubscribe Redis channel: `PUNSUBSCRIBE project:{project_id}:{user_id}`
-    - Remove connection từ connection pool
-    - Close underlying TCP connection
-  - Connection terminated gracefully
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Graceful closure:* WebSocket close codes follow RFC 6455:
-  - 1000: Normal closure (user navigated away)
-  - 1001: Going away (browser tab closed)
-  - 4001: Unauthorized (auth failed)
-  - 4008: Policy violation (rate-limit exceeded)
-
-- *Resource cleanup:* WebSocket Service MUST unsubscribe Redis channels khi connection close để avoid memory leaks. Redis track subscribers per channel.
-
-- *Automatic reconnection:* Nếu connection bị dropped unexpectedly (network issue), Web UI tự động reconnect với exponential backoff (1s, 2s, 4s, 8s, max 30s).
-
-- *State synchronization:* Sau reconnect, Web UI query `/projects/:id/progress` để sync latest state trước khi continue listening WebSocket updates.
-
-- *Connection limits:* WebSocket Service enforce per-user connection limit (e.g., max 10 concurrent connections) để prevent abuse.
-
-=== 5.3.6 UC-07: Phát hiện trend tự động
-
-UC-07 mô tả quy trình tự động phát hiện trending topics trên TikTok và YouTube thông qua Kubernetes CronJob chạy hàng ngày. Đây là tính năng giúp Marketing Analysts stay updated với latest trends để adjust campaign strategies kịp thời.
-
-Hệ thống crawl trending data từ platform APIs, normalize metadata, calculate trend scores dựa trên engagement rate và velocity, sau đó lưu vào PostgreSQL và notify users. Sequence diagram được chia thành 3 phần: Part 1 cho Cron Trigger & Crawling, Part 2 cho Scoring & Storage, Part 3 cho User Views Trends.
-
-==== Part 1: Cron Trigger & Crawling
-
-#figure(
-  image("../images/sequence/uc7_part_1.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-07 (Part 1/3): Cron Trigger & Trend Crawling.
-    Kubernetes CronJob trigger Trend Service hàng ngày lúc 2:00 AM, Trend Service request trending data từ TikTok và YouTube Crawler Services với error handling cho rate-limits.
-  ]
-) <fig:uc07_part1_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-07 Part 1_])
-#image_counter.step()
-
-*Các bước chính trong Part 1:*
-
-+ *Cron Schedule (Step 1):* Kubernetes CronJob với schedule `0 2 * * *` (daily at 2:00 AM UTC) trigger Trend Service. Thời điểm 2:00 AM được chọn vì:
-  - Low traffic period (ít ảnh hưởng đến production workload)
-  - Sau khi daily trends đã stabilize (trends thường peak vào ~10 PM - 1 AM)
-
-+ *Create Trend Run (Steps 2-3):* Trend Service tạo record trong `trend_runs` table để tracking:
-  ```sql
-  INSERT INTO trend_runs (id, timestamp, platforms, status, is_partial_result)
-  VALUES (uuid_generate_v4(), NOW(), ['tiktok', 'youtube'], 'INITIALIZING', false)
-  RETURNING id
-  ```
-  
-  `is_partial_result` flag được set false initially. Nếu một platform fail, flag sẽ được update thành true.
-
-+ *Redis State Initialization (Step 4):* Set Redis key để tracking job progress:
-  ```
-  SET trend:run:{run_id}:status "RUNNING" EX 7200
-  ```
-  
-  TTL 7200 seconds (2 hours) là timeout cho job. Nếu job chạy quá 2 giờ, Redis key expire và job được consider failed.
-
-+ *TikTok Trends Request (Steps 5-6):* Trend Service request TikTok Crawler:
-  ```
-  GET /tiktok/trends?type=music,hashtag,keyword
-  ```
-  
-  Crawler call TikTok Discover API để fetch:
-  - Trending music tracks
-  - Trending hashtags
-  - Trending keywords/challenges
-
-+ *Rate-limit Handling (Steps 7-9):* Nếu TikTok API trả về `429 Too Many Requests`:
-  ```json
-  {
-    "error": "Rate limit exceeded",
-    "retry_after": 300  // seconds
-  }
-  ```
-  
-  Trend Service apply exponential backoff:
-  - 1st retry: Wait 5 minutes
-  - 2nd retry: Wait 10 minutes
-  - 3rd retry: Wait 20 minutes
-  
-  Nếu vẫn fail sau 3 retries → update `is_partial_result = true`, `failed_platforms = ['tiktok']`, skip TikTok và continue với YouTube.
-
-+ *TikTok Trends Response (Step 10):* Crawler trả về normalized trends:
-  ```json
-  [
-    {
-      "type": "music",
-      "title": "Song X",
-      "views": 15000000,
-      "likes": 2000000,
-      "shares": 500000,
-      "velocity": 1.20  // +120% growth in 24h
-    },
-    {
-      "type": "hashtag",
-      "title": "#ChallengeName",
-      "views": 8000000,
-      "posts": 50000,
-      "velocity": 0.85
-    }
-    // ... more trends
-  ]
-  ```
-
-+ *YouTube Trends Request (Steps 11-13):* Tương tự với YouTube:
-  ```
-  GET /youtube/trends?category=all
-  ```
-  
-  Crawler call YouTube Trending API để fetch trending videos và topics.
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Cron vs Event-driven:* Trend detection sử dụng cron-based trigger vì là scheduled job. Khác với UC-03 (event-driven) vì không có user action trigger.
-
-- *Platform independence:* Nếu một platform fail, job vẫn continue với remaining platforms. Partial results vẫn valuable hơn no results.
-
-- *Rate-limit strategy:* Exponential backoff với jitter (random delay) để avoid thundering herd. TikTok/YouTube APIs có strict rate-limits (e.g., 100 requests/hour).
-
-- *Graceful degradation:* `is_partial_result` flag cho phép user biết data không complete. UI hiển thị warning: "⚠️ Trends from TikTok unavailable due to rate-limit".
-
-- *Idempotency:* Nếu Cron job trigger multiple times (Kubernetes restart), check Redis `trend:run:{date}:status` trước khi start new run để avoid duplicates.
-
-==== Part 2: Scoring & Storage
-
-#figure(
-  image("../images/sequence/uc7_part_2.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-07 (Part 2/3): Trend Scoring & Storage.
-    Trend Service normalize metadata, calculate trend scores dựa trên engagement rate và velocity, rank và filter top trends, sau đó batch insert vào PostgreSQL và cache latest run_id trong Redis.
-  ]
-) <fig:uc07_part2_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-07 Part 2_])
-#image_counter.step()
-
-*Các bước chính trong Part 2:*
-
-+ *Metadata Normalization (Step 14):* Trend Service normalize heterogeneous data từ TikTok/YouTube thành unified schema:
-  ```go
-  type Trend struct {
-    Platform    string    // "tiktok" | "youtube"
-    Type        string    // "music" | "hashtag" | "keyword" | "video"
-    Title       string
-    Views       int64
-    Likes       int64
-    Comments    int64
-    Shares      int64
-    Saves       int64
-    Velocity    float64   // Growth rate (24h)
-    Timestamp   time.Time
-  }
-  ```
-
-+ *Score Calculation (Step 15):* Calculate trend score cho mỗi item:
-  ```
-  engagement_rate = (likes + comments + shares) / views
-  score = engagement_rate × velocity × 100
-  ```
-  
-  *Rationale:*
-  - `engagement_rate`: Measures quality of engagement (high engagement = resonates với audience)
-  - `velocity`: Measures growth momentum (high velocity = trending up fast)
-  - Multiply cả hai để balance giữa "currently popular" và "rising fast"
-  
-  *Example:*
-  - Song A: 10M views, 2M likes, velocity +120% → engagement=0.2, score=24
-  - Song B: 1M views, 300K likes, velocity +300% → engagement=0.3, score=90
-  - Song B có score cao hơn vì velocity cao (early trend detection)
-
-+ *Ranking & Filtering (Step 16):* 
-  - Sort trends by score DESC
-  - Filter top 50 per platform (100 total for 2 platforms)
-  - Deduplicate: nếu cùng title/music xuất hiện trên cả TikTok và YouTube → merge và keep highest score
-  - Classify by type: separate music, hashtag, keyword, video
-
-+ *Batch Insert (Step 17):* Insert 100 trends vào PostgreSQL trong single transaction:
-  ```sql
-  INSERT INTO trends 
-    (run_id, platform, type, title, score, views, likes, 
-     shares, velocity, metadata, created_at)
-  VALUES 
-    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()),
-    ... (100 rows)
-  ```
-  
-  Batch insert thay vì 100 separate INSERTs cải thiện performance ~50x.
-
-+ *Finalize Trend Run (Step 18):* Update `trend_runs` status:
-  ```sql
-  UPDATE trend_runs
-  SET status = 'COMPLETED',
-      completed_at = NOW(),
-      total_trends = 100
-  WHERE id = $1
-  ```
-
-+ *Cache Latest Run (Steps 19-20):* Cache `run_id` trong Redis để tăng tốc queries:
-  ```
-  SET trend:latest {run_id} EX 86400
-  ```
-  
-  TTL 86400 seconds (24 hours) match với cron frequency. Next run sẽ overwrite key này.
-
-+ *Cleanup Temp State (Step 21):* Delete temporary Redis key:
-  ```
-  DEL trend:run:{run_id}:status
-  ```
-
-+ *User Notification (Steps 22-24):* Trend Service gọi Notification Service để broadcast:
-  ```json
-  {
-    "type": "trend_update",
-    "message": "Trends mới đã được cập nhật",
-    "run_id": "...",
-    "total_trends": 100
-  }
-  ```
-  
-  Notification Service send in-app notification đến tất cả Marketing Analysts. Optionally, send email digest với top 10 trends.
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Score formula tuning:* Weights cho engagement_rate và velocity có thể adjust based on empirical data. Future: add time decay factor để prioritize recent trends.
-
-- *Deduplication logic:* Cross-platform deduplication complex vì title formats khác nhau. Example: "Song X - Artist Y" (YouTube) vs "Song X" (TikTok). Sử dụng fuzzy matching (Levenshtein distance < 3).
-
-- *Metadata JSONB:* `metadata` column (JSONB) lưu platform-specific data (e.g., TikTok `music_id`, YouTube `video_id`) để support deep links.
-
-- *Historical comparison:* Future enhancement: so sánh với trends từ previous days để detect "rising stars" (new entries in top 50) vs "fading trends" (dropped out).
-
-==== Part 3: User Views Trends
-
-#figure(
-  image("../images/sequence/uc7_part_3.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-07 (Part 3/3): User Views Trend Dashboard.
-    User mở Trend Dashboard, hệ thống fetch latest trends từ Redis cache và PostgreSQL, hiển thị với filters. User click vào trend cụ thể để xem details và related posts từ own projects.
-  ]
-) <fig:uc07_part3_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-07 Part 3_])
-#image_counter.step()
-
-*Các bước chính trong Part 3:*
-
-+ *Dashboard Access (Steps 25-26):* User navigate đến `/trends` page. Web UI request `GET /api/trends?run_id=latest`.
-
-+ *Fetch Latest Run ID (Steps 27-28):* Trend Service query Redis cache:
-  ```
-  GET trend:latest
-  ```
-  
-  Redis trả về `run_id` của latest completed run. Cache hit ~99% (vì trends chỉ update daily).
-
-+ *Fetch Trends (Steps 29-30):* Query PostgreSQL với filters:
-  ```sql
-  SELECT * FROM trends
-  WHERE run_id = $1
-  ORDER BY score DESC
-  LIMIT 50
-  ```
-  
-  User có thể apply filters:
-  - Platform: TikTok only, YouTube only, or All
-  - Type: Music, Hashtag, Keyword, Video
-  - Date: Latest, Yesterday, Last 7 days
-  - Min score: ≥ 50, ≥ 70, ≥ 90
-
-+ *Display Dashboard (Step 31):* Web UI render Trend Dashboard với:
-  - Grid layout: 2 columns × 25 rows
-  - Each trend card shows: title, platform badge, score, views, velocity indicator
-  - Sort by score DESC (highest impact trends first)
-  - Filter sidebar với dropdowns
-
-+ *Trend Details (Steps 32-33):* User click vào trend "Song X". Web UI request `GET /api/trends/{trend_id}/details`.
-
-+ *Fetch Trend Details (Step 34):* Query full trend data:
-  ```sql
-  SELECT * FROM trends WHERE id = $1
-  ```
-
-+ *Fetch Related Posts (Step 35):* Query posts từ user's own projects có chứa trend keyword:
-  ```sql
-  SELECT * FROM post_analytics
-  WHERE created_by = $1  -- user's projects only
-    AND keywords @> '["Song X"]'
-  ORDER BY published_at DESC
-  LIMIT 10
-  ```
-  
-  Điều này giúp user correlate external trends với own brand mentions.
-
-+ *Modal Display (Step 36):* Web UI hiển thị modal với:
-  - Trend metadata: views, likes, score, velocity
-  - Growth chart: 7-day trend line (nếu có historical data)
-  - Related posts từ user's projects (top 10)
-  - Action buttons:
-    - "Thêm vào Project" (add keyword to existing project)
-    - "Tạo Project mới" (quick-create project với trend as keyword)
-    - "Xem trên Platform" (deep link đến TikTok/YouTube)
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Cache-first architecture:* Redis cache (`trend:latest`) được check đầu tiên. PostgreSQL chỉ được query khi cache miss (e.g., first request after cron job).
-
-- *Cross-project insights:* Related posts query cho phép user thấy brand của mình có mention trending topics hay không. Nếu có → opportunity để amplify. Nếu không → consider joining trend.
-
-- *Actionable insights:* Modal không chỉ show data mà còn provide actions (add to project, create project). Điều này tăng value của trend detection feature.
-
-- *Historical tracking:* Future: lưu daily snapshots để track trend evolution. Example: "Song X peaked at score 95 on 2024-03-15, now declining to 70".
-
-- *Personalization:* Future: recommend trends based on user's industry/keywords. Example: nếu user có nhiều projects về "xe điện" → prioritize trending hashtags liên quan.
-
-=== 5.3.7 UC-08: Phát hiện khủng hoảng
-
-UC-08 là Use Case quan trọng nhất về mặt business value, mô tả cơ chế tự động phát hiện và cảnh báo các bài viết có nguy cơ gây khủng hoảng thương hiệu (brand crisis). Hệ thống sử dụng *triple-check logic* (Intent + Sentiment + Impact) để identify crisis posts với độ chính xác cao, sau đó trigger real-time alerts đến Marketing Analysts.
-
-Sequence diagram được chia thành 4 phần: Part 1 cho Analytics Pipeline & Detection, Part 2 cho Crisis Alert Publishing, Part 3 cho User Receives Alert, Part 4 cho Crisis Dashboard & Response.
-
-==== Part 1: Analytics Pipeline & Crisis Detection
-
-#figure(
-  image("../images/sequence/uc8_part_1.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-08 (Part 1/4): Analytics Pipeline & Crisis Detection Logic.
-    Analytics Service chạy full pipeline cho post, sau khi save vào PostgreSQL, check triple-check criteria (Intent=CRISIS && Sentiment=NEGATIVE && Impact=HIGH/CRITICAL) để detect crisis.
-  ]
-) <fig:uc08_part1_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-08 Part 1_])
-#image_counter.step()
-
-*Các bước chính trong Part 1:*
-
-+ *Data Collection (Steps 1-2):* Analytics Service receive `data.collected` event từ Collector, download batch từ MinIO (đã mô tả chi tiết trong UC-03 Part 3).
-
-+ *Step 1: Preprocessing (Step 3):* Merge caption + transcription + top comments, normalize Vietnamese text. Output: `full_text` với ~500-2000 words.
-
-+ *Step 2: Intent Classification (Steps 4-5):* Intent Classifier analyze `full_text`:
-  ```python
-  def classify_intent(text: str) -> Intent:
-      # Pattern matching cho crisis keywords
-      crisis_keywords = ["lỗi nghiêm trọng", "gian lận", "kiện", 
-                         "tẩy chay", "đòi bồi thường", ...]
-      
-      # LLM-based classification (if available)
-      intent = llm.classify(text, labels=["REVIEW", "COMPLAINT", 
-                                          "CRISIS", "SEEDING"])
-      
-      # Combine pattern + LLM
-      if has_crisis_keywords(text) or intent == "CRISIS":
-          return Intent.CRISIS
-      ...
-  ```
-  
-  Intent.CRISIS được assign cho posts chứa:
-  - Accusations (cáo buộc): gian lận, lừa đảo, không an toàn
-  - Legal threats: kiện, khiếu nại cơ quan chức năng
-  - Calls for action: tẩy chay, boycott, đòi bồi thường
-
-+ *Step 3: Keyword Extraction (Step 6):* Extract keywords để identify affected aspects. Example: "lỗi phanh nghiêm trọng" → aspects: ["Phanh", "An toàn"].
-
-+ *Step 4: Sentiment Analysis (Steps 7-8):* PhoBERT-based sentiment model:
-  ```python
-  sentiment_probs = phobert_model.predict(text)
-  # Output: {
-  #   "VERY_NEGATIVE": 0.75,
-  #   "NEGATIVE": 0.20,
-  #   "NEUTRAL": 0.05,
-  #   ...
-  # }
-  
-  overall_sentiment = argmax(sentiment_probs)
-  sentiment_score = sentiment_probs[overall_sentiment]
-  ```
-  
-  Crisis posts typically có `VERY_NEGATIVE` hoặc `NEGATIVE` với confidence > 0.7.
-
-+ *Step 5: Impact Calculation (Steps 9-10):* Impact Calculator compute risk score:
-  ```python
-  engagement_score = (likes + comments + shares) / views * 100
-  reach_score = follower_count * (1.5 if verified else 1.0)
-  sentiment_weight = abs(sentiment_score - 0.5) * 2  # 0-1 range
-  velocity = views_24h / (hours_since_publish * avg_views_per_hour)
-  
-  impact_score = (
-      engagement_score * 0.3 +
-      reach_score * 0.3 +
-      sentiment_weight * 0.2 +
-      velocity * 0.2
-  ) * 100
-  
-  # Risk level thresholds
-  if impact_score >= 80:
-      risk_level = "CRITICAL"
-  elif impact_score >= 60:
-      risk_level = "HIGH"
-  elif impact_score >= 40:
-      risk_level = "MEDIUM"
-  else:
-      risk_level = "LOW"
-  ```
-
-+ *Database Save (Step 11):* Batch INSERT toàn bộ analytics results vào `post_analytics` table, bao gồm `primary_intent`, `overall_sentiment`, `impact_score`, `risk_level`.
-
-+ *Crisis Detection Logic (Step 12):* Sau khi save, Analytics Service check triple-check criteria:
-  ```python
-  def is_crisis(post: PostAnalytics) -> bool:
-      return (
-          post.primary_intent == Intent.CRISIS and
-          post.overall_sentiment in [Sentiment.NEGATIVE, Sentiment.VERY_NEGATIVE] and
-          post.risk_level in [RiskLevel.HIGH, RiskLevel.CRITICAL]
-      )
-  ```
-  
-  *Rationale:*
-  - *Intent check:* Đảm bảo content chứa crisis signals (accusations, threats)
-  - *Sentiment check:* Verify sentiment thực sự negative (avoid false positives từ sarcasm/jokes)
-  - *Impact check:* Prioritize high-impact posts (viral potential)
-  
-  Triple-check giảm false positive rate từ ~15% (single check) xuống ~3%.
-
-*Điểm kỹ thuật quan trọng:*
-
-- *Crisis keywords database:* Maintain curated list của ~500 crisis-related keywords/phrases trong Vietnamese context. List được update periodically based on actual crisis cases.
-
-- *LLM fallback:* Nếu LLM unavailable (timeout/cost), fallback về pattern matching only. Pattern matching có recall ~70% (bỏ sót 30% crisis) nhưng precision ~90% (ít false positives).
-
-- *Aspect-level crisis:* Future enhancement: detect crisis ở aspect level. Example: post overall neutral nhưng aspect "An toàn" có very negative sentiment → potential crisis signal.
-
-- *Velocity importance:* High velocity posts (going viral) được prioritize vì có potential để spread rapidly. Low velocity posts với crisis intent vẫn được track nhưng lower priority.
-
-==== Part 2: Crisis Alert Publishing
-
-#figure(
-  image("../images/sequence/uc8_part_2.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-08 (Part 2/4): Crisis Alert Publishing.
-    Khi detect crisis, Analytics Service publish crisis.detected event vào RabbitMQ và Redis Pub/Sub simultaneously để ensure delivery qua multiple channels.
-  ]
-) <fig:uc08_part2_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-08 Part 2_])
-#image_counter.step()
-
-*Các bước chính trong Part 2:*
-
-+ *Build Alert Payload (Step 13):* Analytics Service construct crisis alert message:
-  ```json
-  {
-    "type": "crisis_detected",
-    "post_id": "...",
-    "project_id": "...",
-    "user_id": "...",
-    "severity": "HIGH",  // or "CRITICAL"
-    "title": "Post title preview (100 chars)",
-    "platform": "tiktok",
-    "author": "username",
-    "published_at": "2024-03-20T10:30:00Z",
-    "metrics": {
-      "views": 150000,
-      "likes": 12000,
-      "comments": 3500,
-      "impact_score": 85.3
-    },
-    "analytics": {
-      "intent": "CRISIS",
-      "sentiment": "VERY_NEGATIVE",
-      "sentiment_score": -0.82,
-      "keywords": ["lỗi nghiêm trọng", "không an toàn", ...]
-    },
-    "url": "https://tiktok.com/@user/video/123456",
-    "detected_at": "2024-03-20T11:15:00Z"
-  }
-  ```
-
-+ *Publish to RabbitMQ (Steps 14-15):* Publish event vào RabbitMQ exchange `smap.events` với routing key `crisis.detected`:
-  ```python
-  channel.basic_publish(
-      exchange='smap.events',
-      routing_key='crisis.detected',
-      body=json.dumps(alert_payload),
-      properties=pika.BasicProperties(
-          delivery_mode=2,  # Persistent message
-          priority=9,       # High priority (0-9 scale)
-          expiration='3600000'  # 1 hour TTL
-      )
+==== Component Catalog
+
+#context (align(center)[_Bảng #table_counter.display(): Component Catalog - Collector Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.20fr, 0.25fr, 0.20fr, 0.20fr, 0.15fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectEventConsumer],
+    table.cell(align: horizon, inset: (y: 0.8em))[Consume `project.created` events từ RabbitMQ exchange `smap.events`],
+    table.cell(align: horizon, inset: (y: 0.8em))[RabbitMQ message: ProjectCreatedEvent],
+    table.cell(align: horizon, inset: (y: 0.8em))[Call DispatcherUseCase.HandleProjectCreatedEvent()],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[amqp091-go],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[DispatcherUseCase],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Transform project events thành crawl tasks, dispatch đến platform queues],
+    table.cell(align: horizon, inset: (y: 0.8em))[ProjectCreatedEvent],
+    table.cell(align: horizon, inset: (y: 0.8em))[CollectorTask[] published to RabbitMQ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[StateUseCase],
+    table.cell(align: horizon, inset: (y: 0.8em))[Quản lý trạng thái project trong Redis (Hybrid State: tasks + items)],
+    table.cell(align: horizon, inset: (y: 0.8em))[ProjectID, state updates],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis HASH operations],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[go-redis/v9],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[WebhookUseCase],
+    table.cell(align: horizon, inset: (y: 0.8em))[Gửi progress callbacks đến Project Service qua HTTP webhook],
+    table.cell(align: horizon, inset: (y: 0.8em))[ProjectID, UserID, State],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP POST request],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[net/http],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ResultsUseCase],
+    table.cell(align: horizon, inset: (y: 0.8em))[Xử lý kết quả từ crawler workers, route đến Analytics Service],
+    table.cell(align: horizon, inset: (y: 0.8em))[CrawlerResult từ RabbitMQ],
+    table.cell(align: horizon, inset: (y: 0.8em))[State updates, event routing],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[StateRepository],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis data access layer cho project state],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis commands],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis responses],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[go-redis/v9],
   )
-  ```
-  
-  *Priority=9* đảm bảo crisis alerts được process trước other messages trong queue.
+]
 
-+ *Publish to Redis Pub/Sub (Steps 16-17):* Đồng thời publish vào Redis Pub/Sub channel:
-  ```
-  PUBLISH crisis:{project_id}:{user_id} {alert_payload}
-  ```
-  
-  *Dual publishing* (RabbitMQ + Redis) đảm bảo:
-  - RabbitMQ: Reliable delivery với persistence, retries
-  - Redis Pub/Sub: Real-time delivery đến WebSocket connections
+==== Data Flow
 
-+ *ACK RabbitMQ (Step 18):* Analytics Service ACK `data.collected` message để confirm processing done.
+Luồng xử lý chính của Collector Service được chia thành 3 flows: Project Event Processing, Task Dispatching, và Result Handling.
 
-*Điểm kỹ thuật quan trọng:*
+===== a. Project Event Processing Flow
 
-- *Dual-channel strategy:*
-  - RabbitMQ cho durable notifications (survive service restarts)
-  - Redis Pub/Sub cho immediate delivery (< 100ms latency)
-  - If WebSocket offline, user vẫn receive notification khi reconnect (via polling `/alerts/unread`)
+Luồng này được kích hoạt khi Project Service publish `project.created` event:
 
-- *Priority queuing:* RabbitMQ priority queues đảm bảo crisis alerts được process trước regular progress updates. Requires `x-max-priority=10` argument khi declare queue.
-
-- *Deduplication:* Nếu cùng post được analyzed multiple times (re-run project), check `post_id` trong Redis (`SETNX crisis:notified:{post_id}`) để avoid duplicate alerts.
-
-- *Alert aggregation:* Nếu detect nhiều crisis posts trong short time (e.g., 10 posts trong 5 phút), aggregate thành single notification: "⚠️ Phát hiện 10 bài viết nguy cơ cao" thay vì spam 10 alerts.
-
-==== Part 3: User Receives Alert
-
-#figure(
-  image("../images/sequence/uc8_part_3.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-08 (Part 3/4): User Receives Real-time Alert.
-    WebSocket Service receive crisis alert từ Redis Pub/Sub, deliver đến connected client, Web UI hiển thị prominent notification banner với alert sound và quick action buttons.
+#context (
+  align(center)[
+    #image("../images/data-flow/project_created_dispatching.png", width: 95%)
   ]
-) <fig:uc08_part3_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-08 Part 3_])
+)
+#context (
+  align(center)[_Hình #image_counter.display(): Luồng xử lý ProjectEvent → Dispatching trong Collector Service_]
+)
 #image_counter.step()
 
-*Các bước chính trong Part 3:*
+Tổng thời gian: ~200ms cho 1 project với 5 keywords, 2 platforms (10 tasks total).
 
-+ *WebSocket Delivery (Steps 19-20):* WebSocket Service (subscribed to `crisis:{project_id}:{user_id}`) receive message từ Redis, forward đến connected client.
+===== b. Task Dispatching Flow
 
-+ *Alert Rendering (Step 21):* Web UI handle crisis alert với high-priority treatment:
-  ```javascript
-  function handleCrisisAlert(alert) {
-    // 1. Show notification banner (top of page, red background)
-    showBanner({
-      type: 'crisis',
-      severity: alert.severity,  // HIGH or CRITICAL
-      message: `🚨 Phát hiện khủng hoảng: ${alert.title}`,
-      actions: [
-        { label: 'Xem chi tiết', onClick: () => openCrisisModal(alert) },
-        { label: 'Đánh dấu đã xử lý', onClick: () => markAsHandled(alert.post_id) }
-      ]
-    });
-    
-    // 2. Play alert sound (if user enabled)
-    if (userPrefs.enableSound) {
-      playSound('crisis-alert.mp3');
-    }
-    
-    // 3. Add to Crisis Dashboard list (local state)
-    dispatch(addCrisisPost(alert));
-    
-    // 4. Show browser notification (if permission granted)
-    if (Notification.permission === 'granted') {
-      new Notification('SMAP Crisis Alert', {
-        body: alert.title,
-        icon: '/crisis-icon.png',
-        badge: '/badge.png',
-        vibrate: [200, 100, 200]
-      });
-    }
-    
-    // 5. Update unread count badge
-    updateUnreadCount(prev => prev + 1);
-  }
-  ```
+Luồng này mô tả chi tiết cách một CrawlRequest được dispatch đến workers:
 
-*Điểm kỹ thuật quan trọng:*
-
-- *Multi-modal alerts:*
-  - In-app banner (always shown)
-  - Sound notification (user-configurable)
-  - Browser notification (requires permission)
-  - Badge count (persistent across page reloads)
-
-- *Severity-based styling:*
-  - CRITICAL: Red banner + continuous pulsing animation
-  - HIGH: Orange banner + subtle fade animation
-  - (MEDIUM/LOW không trigger real-time alerts)
-
-- *Accessibility:* Alert sound có option để disable (for users in quiet environments). Banner có high contrast ratio (WCAG AAA compliant) và keyboard navigation support.
-
-- *Notification persistence:* Browser notifications persist even khi user switch tabs. Clicking notification focuses SMAP tab và opens crisis modal.
-
-==== Part 4: Crisis Dashboard & Response
-
-#figure(
-  image("../images/sequence/uc8_part_4.png", width: 100%),
-  caption: [
-    Sequence Diagram UC-08 (Part 4/4): Crisis Dashboard & User Response.
-    User click "Xem chi tiết" để mở Crisis Dashboard, query tất cả crisis posts từ PostgreSQL, hiển thị với filters và sort by impact. User click vào post cụ thể để xem full details và thực hiện actions.
+#context (
+  align(center)[
+    #image("../images/data-flow/dispatcher_usecase_dispatch_logic.png", width: 95%)
   ]
-) <fig:uc08_part4_sequence>
-
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-08 Part 4_])
+)
+#context (
+  align(center)[_Hình #image_counter.display(): Luồng logic DispatcherUseCase.Dispatch trong Collector Service_]
+)
 #image_counter.step()
 
-*Các bước chính trong Part 4:*
+Thời gian: ~50ms per task (bao gồm RabbitMQ publish).
 
-+ *Dashboard Access (Steps 22-23):* User click "Xem chi tiết" hoặc navigate đến `/crisis` page. Web UI request `GET /api/crisis?project_id=xxx`.
+===== c. Result Handling Flow
 
-+ *Query Crisis Posts (Step 24):* Project API query PostgreSQL:
-  ```sql
-  SELECT * FROM post_analytics
-  WHERE project_id = $1
-    AND primary_intent = 'CRISIS'
-    AND overall_sentiment IN ('NEGATIVE', 'VERY_NEGATIVE')
-    AND risk_level IN ('HIGH', 'CRITICAL')
-  ORDER BY impact_score DESC, published_at DESC
-  LIMIT 100
-  ```
-  
-  Filters available:
-  - Risk level: CRITICAL only, HIGH only, or Both
-  - Platform: TikTok, YouTube, or All
-  - Date range: Last 24h, Last 7 days, Custom
-  - Status: Unhandled, Handled, All
+Luồng này xử lý kết quả từ crawler workers:
 
-+ *Dashboard Display (Step 25):* Web UI render Crisis Dashboard:
-  ```
-  ┌─────────────────────────────────────────────┐
-  │ 🚨 Crisis Dashboard              [Filters]  │
-  ├─────────────────────────────────────────────┤
-  │ ┌─────────────────────────────────────────┐ │
-  │ │ [CRITICAL] TikTok @user123              │ │
-  │ │ Impact: 92.5 | Views: 2.3M | Likes: 180K│ │
-  │ │ "Lỗi nghiêm trọng, đòi bồi thường..."   │ │
-  │ │ Published: 2h ago | Unhandled           │ │
-  │ │ [Xem chi tiết] [Đánh dấu đã xử lý]      │ │
-  │ └─────────────────────────────────────────┘ │
-  │ ┌─────────────────────────────────────────┐ │
-  │ │ [HIGH] YouTube @reviewer_x              │ │
-  │ │ Impact: 78.2 | Views: 500K | Likes: 45K │ │
-  │ │ "Không khuyến khích mua, gian lận..."   │ │
-  │ │ Published: 5h ago | Handled ✓           │ │
-  │ └─────────────────────────────────────────┘ │
-  │ ...                                         │
-  └─────────────────────────────────────────────┘
-  ```
+#context (
+  align(center)[
+    #image("../images/data-flow/crawler_results_processing.png", width: 95%)
+  ]
+)
+#context (
+  align(center)[_Hình #image_counter.display(): Luồng xử lý kết quả từ crawler workers trong Collector Service_]
+)
+#image_counter.step()
 
-+ *Post Details (Steps 26-27):* User click vào crisis post. Web UI request `/posts/:post_id/details`.
+Thời gian: ~30ms per result (bao gồm Redis update và webhook).
 
-+ *Full Details Query (Steps 28-29):* Query toàn bộ post data và comments (đã mô tả trong UC-04 Part 2).
 
-+ *Modal Display (Step 30):* Web UI hiển thị crisis post modal với enriched information:
-  - **Content section**: Full caption + transcription với crisis keywords highlighted
-  - **Metrics section**: Views, likes, comments, shares với trend indicators
-  - **Analytics section**:
-    - Intent: CRISIS badge
-    - Sentiment: VERY_NEGATIVE với score -0.82
-    - Impact breakdown: engagement (32), reach (28), sentiment (18), velocity (22) = 85.3
-    - Keywords: crisis-related keywords highlighted in red
-    - Aspects: affected aspects (e.g., "Chất lượng: -0.9", "An toàn: -0.85")
-  - **Comments section**: Top 50 comments sorted by likes, với sentiment annotations
-  - **Action buttons**:
-    - 🔗 "Mở link gốc" (deep link to TikTok/YouTube)
-    - ✅ "Đánh dấu đã xử lý" (mark as handled)
-    - 📧 "Gửi báo cáo" (send crisis report to stakeholders via email)
-    - 👥 "Chia sẻ team" (share with team members in SMAP)
-    - 📋 "Export" (export post details as PDF)
+==== Design Patterns Applied
 
-+ *Mark as Handled (Steps 31-32):* User click "Đánh dấu đã xử lý". Web UI send `PATCH /posts/:id`:
-  ```json
-  {
-    "handled": true,
-    "handled_by": "{user_id}",
-    "handled_at": "2024-03-20T12:30:00Z",
-    "notes": "Đã liên hệ với KH và giải quyết"
-  }
-  ```
-  
-  PostgreSQL update `post_analytics` table. UI remove crisis badge và update status.
+Collector Service áp dụng các design patterns sau:
 
-*Điểm kỹ thuật quan trọng:*
+a. Master-Worker Pattern (Mẫu Master-Worker):
 
-- *Crisis prioritization:* Dashboard sort by `impact_score DESC` để hiển thị urgent cases đầu tiên. CRITICAL posts có red left border, HIGH posts có orange border.
+- Where: DispatcherUseCase đóng vai trò Master, Scrapper Services (TikTok/YouTube workers) đóng vai trò Workers.
+- Implementation: Master nhận high-level requests, chia nhỏ thành tasks, và phân phối đến workers qua RabbitMQ queues.
+- Benefit: Cho phép scale workers độc lập, fault tolerance (worker crash không ảnh hưởng master), và load balancing tự động qua RabbitMQ.
 
-- *Status tracking:* `handled` flag cho phép user track which crisis posts đã được addressed. Filters: "Unhandled" (action required), "Handled" (resolved).
+b. Event-Driven Architecture (Kiến trúc hướng sự kiện):
 
-- *Collaborative response:* "Chia sẻ team" feature cho phép assign crisis post đến specific team member với \@mentions và comments (future enhancement).
+- Where: ProjectEventConsumer, ResultsConsumer, DispatcherProducer.
+- Implementation: Services giao tiếp qua RabbitMQ events thay vì direct HTTP calls.
+- Benefit: Decoupling giữa services, async processing, và resilience (events được persist trong queue).
 
-- *Audit trail:* Mọi actions (mark as handled, export, share) được log vào `crisis_actions` table với timestamps và user_id để audit compliance.
+c. Strategy Pattern (Mẫu Chiến lược):
 
-- *Escalation workflow:* Nếu crisis post không được handled trong 4 hours → escalate notification đến manager (configurable via org settings).
+- Where: MapPayload() function trong DispatcherUseCase.
+- Implementation: Chọn payload mapping strategy dựa trên Platform và TaskType.
+- Benefit: Dễ mở rộng cho platforms mới (chỉ cần thêm mapping function), và type safety (mỗi platform có struct riêng).
 
-- *Response templates:* Future: provide pre-defined response templates (apology, explanation, solution) để team respond nhanh chóng và consistently trên social platforms.
+d. Repository Pattern (Mẫu Kho lưu trữ):
+
+- Where: StateRepository (Redis implementation).
+- Implementation: Abstract Redis operations qua interface, business logic không phụ thuộc vào Redis cụ thể.
+- Benefit: Dễ test (mock repository), và có thể thay đổi storage backend mà không ảnh hưởng use cases.
+
+e. Clean Architecture (Kiến trúc sạch):
+
+- Where: Toàn bộ service structure (4 layers: Delivery → UseCase → Domain → Infrastructure).
+- Implementation: Dependency inversion (UseCase depends on interfaces, không phụ thuộc concrete implementations).
+- Benefit: Testability cao, maintainability tốt, và dễ thay đổi infrastructure (ví dụ: switch từ RabbitMQ sang Kafka).
+
+==== Performance Characteristics
+
+#context (align(center)[_Bảng #table_counter.display(): Performance Metrics - Collector Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.30fr, 0.25fr, 0.22fr, 0.23fr),
+    stroke: 0.5pt,
+    align: (left, center, center, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Value*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Evidence*],
+    table.cell(align: horizon, inset: (y: 0.8em))[Event Processing Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~200ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[Measured in production],
+    table.cell(align: horizon, inset: (y: 0.8em))[Task Dispatch Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~50ms/task],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 100ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[RabbitMQ publish time],
+    table.cell(align: horizon, inset: (y: 0.8em))[Throughput (Tasks/min)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[1,200 tasks/min],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[1,000 tasks/min],
+    table.cell(align: horizon, inset: (y: 0.8em))[AC-2 target exceeded],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis State Update Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 5ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 10ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[HMSet/HGetAll operations],
+    table.cell(align: horizon, inset: (y: 0.8em))[Concurrent Projects],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[50+ projects],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[20+ projects],
+    table.cell(align: horizon, inset: (y: 0.8em))[Tested in production],
+  )
+]
+
+==== Key Decisions
+
+a. Config-Driven Limits (Giới hạn dựa trên cấu hình):
+
+- Decision: Sử dụng environment variables để configure crawl limits thay vì hardcode values.
+- Rationale: Cho phép điều chỉnh limits mà không cần rebuild service, hỗ trợ dry-run với limits khác nhau.
+- Evidence: `CrawlLimitsConfig` struct với `DEFAULT_LIMIT_PER_KEYWORD`, `DRYRUN_LIMIT_PER_KEYWORD` từ environment variables.
+
+b. Hybrid State Tracking (Theo dõi trạng thái lai):
+
+- Decision: Track cả task-level (tasks_total, tasks_done) và item-level (items_expected, items_actual) trong cùng Redis HASH.
+- Rationale: Task-level cho completion check, item-level cho progress display chi tiết hơn.
+- Evidence: Redis HASH với fields: `tasks_total`, `tasks_done`, `items_expected`, `items_actual`, `status`.
+
+c. Two-Phase Progress (Tiến độ hai pha):
+
+- Decision: Tách progress thành 2 phases: Crawl phase và Analyze phase.
+- Rationale: Phản ánh đúng workflow thực tế (crawl → analyze), cho phép hiển thị progress chi tiết hơn.
+- Evidence: `ProgressCallbackRequest` với `Crawl` và `Analyze` sub-structures.
+
+d. Event Transformation (Chuyển đổi sự kiện):
+
+- Decision: Transform ProjectCreatedEvent thành multiple CrawlRequests (một request per keyword combination).
+- Rationale: Cho phép parallel processing, và dễ track progress cho từng keyword.
+- Evidence: `TransformProjectEventToRequests()` function trong `internal/models/event_transform.go`.
+
+==== Dependencies
+
+Internal Dependencies:
+
+- StateUseCase: Cần thiết để quản lý project state trong Redis.
+- WebhookUseCase: Cần thiết để gửi progress callbacks đến Project Service.
+- DispatcherProducer: Cần thiết để publish tasks đến platform queues.
+
+External Dependencies:
+
+- RabbitMQ: Event ingestion (`project.created`), task publishing (platform queues), result consumption (`results.inbound.data`).
+- Redis: Distributed state management (key: `smap:proj:{projectID}`, TTL: 7 days).
+- Project Service: Progress webhook callbacks (HTTP POST `/projects/{id}/progress`).
+- Scrapper Services: Workers consume tasks từ platform queues và publish results.
+
+==== Summary
+
+Collector Service là service trung tâm trong hệ thống SMAP data collection, đóng vai trò Master trong Master-Worker pattern:
+
+a. Component Structure: 4 layers (Delivery → UseCase → Domain → Infrastructure) theo Clean Architecture, với 4 UseCases chính: Dispatcher, Results, State, Webhook.
+
+b. Design Patterns: Master-Worker, Event-Driven Architecture, Strategy Pattern, Repository Pattern, và Clean Architecture.
+
+c. Performance: Đạt và vượt các targets từ AC-2 (1,200 tasks/min > 1,000 tasks/min target), với latency thấp (< 200ms event processing, < 50ms task dispatch).
+
+d. Key Features: Config-driven limits, Hybrid State tracking (tasks + items), Two-phase progress (Crawl + Analyze), và Event transformation (project → tasks).
+
+e. Traceability: Đáp ứng FR-2 (Thực thi & Giám sát Project), UC-02 (Dry-run), UC-03 (Execution), và AC-2 (Scalability: 1,000 items/min với 10 workers).
+
+=== 5.3.2 Analytics Service - Component Diagram
+
+Analytics Service là service phức tạp nhất trong hệ thống SMAP về mặt AI/ML, chịu trách nhiệm xử lý NLP pipeline để phân tích sentiment, intent, keywords, và impact của social media content. Service này consume `data.collected` events từ Crawler Services, fetch raw data từ MinIO, chạy qua pipeline 5 bước, và persist kết quả vào PostgreSQL.
+
+Vai trò của Analytics Service trong kiến trúc tổng thể:
+
+- NLP Pipeline Orchestrator: Điều phối 5 bước xử lý: Preprocessing → Intent → Keyword → Sentiment → Impact.
+- Batch Processor: Xử lý batches 20-50 items từ MinIO để tối ưu throughput.
+- Event Consumer: Consume `data.collected` events từ RabbitMQ và publish `analysis.finished` events.
+- Result Persister: Lưu kết quả phân tích vào PostgreSQL với schema linh hoạt (JSONB).
+
+Service này đáp ứng FR-2 (Analyzing phase) và liên quan trực tiếp đến UC-03 (Analytics Pipeline execution).
+
+==== Component Diagram (C4 Level 3)
+
+Analytics Service được tổ chức theo Clean Architecture với 5 layers chính:
+
+#context (
+  align(center)[
+    #image("../images/component/analytic-component-diagram.png", width: 94%)
+  ]
+)
+#context (
+  align(center)[_Hình #image_counter.display(): Biểu đồ thành phần (Component Diagram) của Analytics Service_]
+)
+#image_counter.step()
+
+==== Component Catalog
+
+#context (align(center)[_Bảng #table_counter.display(): Component Catalog - Analytics Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.18fr, 0.27fr, 0.20fr, 0.20fr, 0.15fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[EventConsumer],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Consume `data.collected` events, download batches từ MinIO, process items],
+    table.cell(align: horizon, inset: (y: 0.8em))[RabbitMQ message: DataCollectedEvent],
+    table.cell(align: horizon, inset: (y: 0.8em))[Call AnalyticsOrchestrator.process_post()],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[pika (AMQP)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[AnalyticsOrchestrator],
+    table.cell(align: horizon, inset: (y: 0.8em))[Coordinate 5-step NLP pipeline, apply skip logic, aggregate results],
+    table.cell(align: horizon, inset: (y: 0.8em))[Atomic JSON post],
+    table.cell(align: horizon, inset: (y: 0.8em))[PostAnalytics payload],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Python async],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[TextPreprocessor],
+    table.cell(align: horizon, inset: (y: 0.8em))[Merge content sources, normalize Vietnamese text, detect spam],
+    table.cell(align: horizon, inset: (y: 0.8em))[Raw text (caption, transcription, comments)],
+    table.cell(align: horizon, inset: (y: 0.8em))[PreprocessingResult (clean_text, stats)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[unicodedata, re],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[IntentClassifier],
+    table.cell(align: horizon, inset: (y: 0.8em))[Classify intent (7 categories), gatekeeper cho skip logic],
+    table.cell(align: horizon, inset: (y: 0.8em))[Clean text],
+    table.cell(align: horizon, inset: (y: 0.8em))[IntentResult (intent, confidence)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pattern-based (YAML config)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[KeywordExtractor],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Extract keywords với aspect mapping (hybrid: dictionary + SpaCy-YAKE)],
+    table.cell(align: horizon, inset: (y: 0.8em))[Clean text],
+    table.cell(align: horizon, inset: (y: 0.8em))[KeywordResult (keywords[], aspects[])],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[SpaCy, YAKE],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[SentimentAnalyzer],
+    table.cell(align: horizon, inset: (y: 0.8em))[Overall + aspect-based sentiment (PhoBERT ONNX), context windowing],
+    table.cell(align: horizon, inset: (y: 0.8em))[Clean text, keywords[]],
+    table.cell(align: horizon, inset: (y: 0.8em))[SentimentResult (overall, aspects[], probabilities)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[PhoBERT ONNX, PyTorch],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ImpactCalculator],
+    table.cell(align: horizon, inset: (y: 0.8em))[Calculate ImpactScore (0-100), RiskLevel, engagement/reach scores],
+    table.cell(align: horizon, inset: (y: 0.8em))[Interaction, author, sentiment, platform],
+    table.cell(align: horizon, inset: (y: 0.8em))[ImpactResult (impact_score, risk_level, breakdown)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Python logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[AnalyticsRepository],
+    table.cell(align: horizon, inset: (y: 0.8em))[Persist PostAnalytics vào PostgreSQL (JSONB columns)],
+    table.cell(align: horizon, inset: (y: 0.8em))[PostAnalytics payload],
+    table.cell(align: horizon, inset: (y: 0.8em))[PostgreSQL INSERT],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[SQLAlchemy],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[MinioAdapter],
+    table.cell(align: horizon, inset: (y: 0.8em))[Download batch files từ MinIO, decompress Zstd, parse Protobuf],
+    table.cell(align: horizon, inset: (y: 0.8em))[MinIO object key],
+    table.cell(align: horizon, inset: (y: 0.8em))[List[Atomic JSON items] (20-50 items)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[boto3 (S3 client)],
+  )
+]
+
+==== Data Flow
+
+Luồng xử lý chính của Analytics Service được chia thành 2 flows: Event Consumption và NLP Pipeline Execution.
+
+===== a. Event Consumption Flow
+
+Luồng này được kích hoạt khi Crawler Services publish `data.collected` events:
+
+#context (
+  align(center)[
+    #image("../images/data-flow/analytics_ingestion.png", width: 95%)
+  ]
+)
+#context (
+  align(center)[_Hình #image_counter.display(): Luồng xử lý Event → Batch Ingestion trong Analytics Service_]
+)
+#image_counter.step()
+
+Tổng thời gian: ~3-8s cho batch 50 items (bao gồm download và processing).
+
+===== b. NLP Pipeline Execution Flow
+
+#context (
+  align(center)[
+    #image("../images/data-flow/analytics-pipeline.png", width: 95%)
+  ]
+)
+#context (
+  align(center)[_Hình #image_counter.display(): Luồng NLP Pipeline cho từng post trong Analytics Service_]
+)
+#image_counter.step()
+
+Tổng thời gian: ~740ms per post (bao gồm PhoBERT inference ~650ms), đạt target < 700ms (p95) với optimization.
+
+
+Tổng thời gian: ~740ms per post (bao gồm PhoBERT inference ~650ms), đạt target < 700ms (p95) với optimization.
+
+==== Design Patterns Applied
+
+Analytics Service áp dụng các design patterns sau:
+
+a. Pipeline Pattern (Mẫu Pipeline):
+
+- Where: AnalyticsOrchestrator điều phối 5 steps tuần tự: Preprocessing → Intent → Keyword → Sentiment → Impact.
+- Implementation: Mỗi step là một module độc lập với interface rõ ràng, orchestrator wire chúng lại với nhau.
+- Benefit: Dễ test từng step độc lập, dễ thay đổi implementation của một step mà không ảnh hưởng steps khác, và clear separation of concerns.
+
+b. Strategy Pattern (Mẫu Chiến lược):
+
+- Where: KeywordExtractor sử dụng hybrid strategy (Dictionary + SpaCy-YAKE).
+- Implementation: Có thể chọn extraction strategy dựa trên config hoặc content type.
+- Benefit: Flexibility trong keyword extraction, có thể thêm strategies mới (ví dụ: ML-based extraction) mà không thay đổi orchestrator.
+
+c. Skip Logic Pattern (Mẫu Bỏ qua):
+
+- Where: IntentClassifier và TextPreprocessor kết hợp để skip spam/seeding/noise posts.
+- Implementation: Early return nếu should_skip() = True, bypass expensive AI steps (Sentiment, Impact).
+- Benefit: Tiết kiệm compute resources (~650ms per skipped post), và improve throughput.
+
+d. Port and Adapter Pattern (Mẫu Port và Adapter):
+
+- Where: Interfaces (interfaces/repository.py, interfaces/storage.py) định nghĩa contracts, implementations trong infrastructure/.
+- Implementation: AnalyticsOrchestrator depends on AnalyticsRepositoryProtocol (interface), không phụ thuộc SQLAlchemy cụ thể.
+- Benefit: Dễ test (mock repository), và có thể switch storage backend (ví dụ: từ PostgreSQL sang MongoDB) mà không thay đổi orchestrator.
+
+e. Batch Processing Pattern (Mẫu Xử lý Batch):
+
+- Where: EventConsumer download batches 20-50 items từ MinIO và process parallel.
+- Implementation: Download một batch file, parse thành list, process items concurrently.
+- Benefit: Tối ưu throughput (giảm overhead của multiple MinIO calls), và efficient resource utilization.
+
+==== Performance Characteristics
+
+#context (align(center)[_Bảng #table_counter.display(): Performance Metrics - Analytics Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.30fr, 0.23fr, 0.23fr, 0.24fr),
+    stroke: 0.5pt,
+    align: (left, center, center, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Value*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Evidence*],
+    table.cell(align: horizon, inset: (y: 0.8em))[NLP Pipeline Latency (p95)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~650ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 700ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[PhoBERT inference time, AC-3],
+    table.cell(align: horizon, inset: (y: 0.8em))[Throughput (Items/min/worker)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~70 items/min],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~70 items/min],
+    table.cell(align: horizon, inset: (y: 0.8em))[AC-2 target met],
+    table.cell(align: horizon, inset: (y: 0.8em))[Batch Processing Time],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~3-8s/batch],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 10s/batch],
+    table.cell(align: horizon, inset: (y: 0.8em))[50 items/batch, includes download],
+    table.cell(align: horizon, inset: (y: 0.8em))[Memory Usage],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~2.8GB],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 4GB],
+    table.cell(align: horizon, inset: (y: 0.8em))[PhoBERT model + batch processing],
+    table.cell(align: horizon, inset: (y: 0.8em))[Skip Rate (Spam/Noise)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~15-20%],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: horizon, inset: (y: 0.8em))[Measured in production],
+  )
+]
+
+==== Key Decisions
+
+a. ONNX Optimization (Tối ưu ONNX):
+
+- Decision: Sử dụng PhoBERT ONNX quantized model thay vì PyTorch native model.
+- Rationale: ONNX runtime nhanh hơn ~30% trên CPU, memory footprint nhỏ hơn ~20%, và dễ deploy (single file).
+- Evidence: Model size ~500MB (quantized), inference time ~650ms (p95) trên CPU, đạt target < 700ms.
+
+b. Skip Logic (Logic bỏ qua):
+
+- Decision: Skip expensive AI steps (Sentiment, Impact) cho spam/seeding/noise posts dựa trên IntentClassifier và Preprocessing stats.
+- Rationale: Tiết kiệm ~650ms per skipped post, improve throughput từ ~50 items/min lên ~70 items/min.
+- Evidence: Skip rate ~15-20% trong production, throughput improvement ~40%.
+
+c. Batch Processing (Xử lý Batch):
+
+- Decision: Process batches 20-50 items từ MinIO thay vì process từng item riêng lẻ.
+- Rationale: Giảm overhead của multiple MinIO calls, tối ưu network bandwidth, và efficient resource utilization.
+- Evidence: Batch download time ~2-5s cho 50 items, processing time ~3-8s total.
+
+d. Hybrid Keyword Extraction (Trích xuất từ khóa lai):
+
+- Decision: Kết hợp Dictionary-based lookup và SpaCy-YAKE statistical extraction.
+- Rationale: Dictionary cho domain-specific keywords (brands, products), YAKE cho general keywords, aspect mapping cho structured output.
+- Evidence: Keyword extraction time ~50ms, accuracy improved ~25% so với single method.
+
+e. Context Windowing cho ABSA (Cửa sổ ngữ cảnh cho ABSA):
+
+- Decision: Sử dụng context windowing technique cho aspect-based sentiment analysis.
+- Rationale: PhoBERT cần context xung quanh keyword để predict sentiment chính xác, windowing giúp extract relevant context.
+- Evidence: ABSA accuracy improved ~15% so với full-text sentiment only.
+
+==== Dependencies
+
+Internal Dependencies:
+
+- TextPreprocessor: Cần thiết cho text normalization và spam detection.
+- IntentClassifier: Cần thiết cho skip logic và intent classification.
+- KeywordExtractor: Cần thiết cho keyword extraction và aspect mapping.
+- SentimentAnalyzer: Cần thiết cho sentiment analysis (overall + aspect-based).
+- ImpactCalculator: Cần thiết cho impact score và risk level calculation.
+- AnalyticsRepository: Cần thiết cho result persistence.
+
+External Dependencies:
+
+- RabbitMQ: Event ingestion (`data.collected` events).
+- MinIO: Raw data storage (batches 20-50 items, Zstd compressed, Protobuf format).
+- PostgreSQL: Result persistence (`post_analytics` table với JSONB columns, `post_comments` table).
+- PhoBERT Model: ONNX quantized model (~500MB, downloaded từ MinIO, cached locally).
+
+==== Summary
+
+Analytics Service là service phức tạp nhất về AI/ML trong hệ thống SMAP:
+
+a. Component Structure: 5 layers (Delivery → Orchestrator → Domain Modules → Infrastructure → Data) theo Clean Architecture, với 5 NLP modules: Preprocessing, Intent, Keyword, Sentiment, Impact.
+
+b. Design Patterns: Pipeline Pattern, Strategy Pattern, Skip Logic Pattern, Port and Adapter Pattern, và Batch Processing Pattern.
+
+c. Performance: Đạt target < 700ms (p95) cho NLP pipeline với ONNX optimization, throughput ~70 items/min/worker đạt AC-2 target.
+
+d. Key Features: 5-step NLP pipeline, Skip logic cho spam/noise (~15-20% skip rate), Batch processing (20-50 items), Hybrid keyword extraction, và Context windowing cho ABSA.
+
+e. Traceability: Đáp ứng FR-2 (Analyzing phase), UC-03 (Analytics Pipeline), AC-2 (Scalability: ~70 items/min/worker), và AC-3 (Performance: < 700ms NLP p95).
+
+=== 5.3.3 Project Service - Component Diagram
+
+Project Service là service quản lý vòng đời của các dự án phân tích thương hiệu và đối thủ cạnh tranh trong hệ thống SMAP. Service này đóng vai trò Aggregator trong kiến trúc tổng thể, quản lý project metadata, orchestrate execution flow, và publish events để trigger các services khác.
+
+Vai trò của Project Service trong kiến trúc tổng thể:
+
+- Project Management: CRUD operations cho projects, competitors, và keywords.
+- Execution Orchestrator: Khởi tạo và điều phối quá trình crawl dữ liệu (UC-03).
+- State Coordinator: Quản lý project state trong Redis (initialization, không update trực tiếp).
+- Event Publisher: Publish `project.created` events để trigger Collector Service.
+- Webhook Receiver: Nhận progress callbacks từ Collector Service và publish đến Redis Pub/Sub.
+
+Service này đáp ứng FR-1 (Cấu hình Project) và FR-2 (Thực thi & Giám sát Project), liên quan trực tiếp đến UC-01 (Cấu hình Project) và UC-03 (Execution).
+
+==== Component Diagram (C4 Level 3)
+
+Project Service được tổ chức theo Clean Architecture với 4 layers chính:
+
+#context (
+  align(center)[
+    #image("../images/component/project-component-diagram.png", width: 100%)
+  ]
+)
+#context (
+  align(center)[_Hình #image_counter.display(): Biểu đồ thành phần (Component Diagram) của Project Service_]
+)
+#image_counter.step()
+
+==== Component Catalog
+
+#context (align(center)[_Bảng #table_counter.display(): Component Catalog - Project Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.18fr, 0.27fr, 0.20fr, 0.20fr, 0.15fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectHandler],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP request handlers cho project CRUD và execution],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP requests (POST, GET)],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP responses (JSON)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Gin framework],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectUseCase],
+    table.cell(align: horizon, inset: (y: 0.8em))[Business logic cho project management và execution orchestration],
+    table.cell(align: horizon, inset: (y: 0.8em))[CreateInput, ExecuteInput],
+    table.cell(align: horizon, inset: (y: 0.8em))[ProjectOutput, execution status],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[StateUseCase],
+    table.cell(align: horizon, inset: (y: 0.8em))[Quản lý project state trong Redis (initialization, retrieval)],
+    table.cell(align: horizon, inset: (y: 0.8em))[ProjectID, state updates],
+    table.cell(align: horizon, inset: (y: 0.8em))[ProjectState, completion status],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[go-redis/v9],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[WebhookUseCase],
+    table.cell(align: horizon, inset: (y: 0.8em))[Transform progress callbacks → Redis Pub/Sub messages],
+    table.cell(align: horizon, inset: (y: 0.8em))[ProgressCallbackRequest],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis Pub/Sub publish],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[go-redis/v9 Pub/Sub],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQProducer],
+    table.cell(align: horizon, inset: (y: 0.8em))[Publish "project.created" events đến RabbitMQ],
+    table.cell(align: horizon, inset: (y: 0.8em))[ProjectCreatedEvent],
+    table.cell(align: horizon, inset: (y: 0.8em))[RabbitMQ message published],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[amqp091-go],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectRepository],
+    table.cell(align: horizon, inset: (y: 0.8em))[PostgreSQL data access layer cho projects],
+    table.cell(align: horizon, inset: (y: 0.8em))[SQL queries],
+    table.cell(align: horizon, inset: (y: 0.8em))[Project entities],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[SQLBoiler],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[StateRepository],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis data access layer cho project state],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis commands],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis responses],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[go-redis/v9],
+  )
+]
+
+==== Data Flow
+
+Luồng xử lý chính của Project Service được chia thành 3 flows: Project Creation, Project Execution, và Progress Callback Handling.
+
+===== a. Project Creation Flow
+
+Luồng này được kích hoạt khi user tạo project mới (UC-01):
+
+#context (
+  align(center)[
+    #image("../images/data-flow/project_create.png", width: 100%)
+  ]
+)
+_Phác họa luồng Project Creation Flow (UC-01)_
+
+Tổng thời gian: ~40ms. Không có Redis state initialization, không có RabbitMQ event publishing.
+
+===== b. Project Execution Flow
+
+Luồng này được kích hoạt khi user execute project (UC-03):
+
+#context (
+  align(center)[
+    #image("../images/data-flow/execute_project.png", width: 100%)
+  ]
+)
+_Phác họa luồng Project Execution Flow (UC-03)_
+
+Tổng thời gian: ~100ms. Rollback logic: Nếu RabbitMQ publish fails, rollback PostgreSQL status và Redis state.
+
+===== c. Progress Callback Flow
+
+Luồng này xử lý progress callbacks từ Collector Service:
+
+#context (
+  align(center)[
+    #image("../images/data-flow/webhook_callback.png", width: 100%)
+  ]
+)
+_Phác họa luồng Progress Callback Flow_
+
+Tổng thời gian: ~70ms (bao gồm Redis publish), WebSocket delivery thêm ~50ms.
+
+
+Tổng thời gian: ~70ms (bao gồm Redis publish), WebSocket delivery thêm ~50ms.
+
+==== Design Patterns Applied
+
+Project Service áp dụng các design patterns sau:
+
+a. Clean Architecture (Kiến trúc sạch):
+
+- Where: Toàn bộ service structure (4 layers: Delivery → UseCase → Domain → Infrastructure).
+- Implementation: Dependency inversion (UseCase depends on interfaces, không phụ thuộc concrete implementations).
+- Benefit: Testability cao, maintainability tốt, và dễ thay đổi infrastructure (ví dụ: switch từ PostgreSQL sang MongoDB).
+
+b. Repository Pattern (Mẫu Kho lưu trữ):
+
+- Where: ProjectRepository (PostgreSQL), StateRepository (Redis).
+- Implementation: Abstract data access qua interfaces, business logic không phụ thuộc vào database cụ thể.
+- Benefit: Dễ test (mock repository), và có thể thay đổi storage backend mà không ảnh hưởng use cases.
+
+c. Event-Driven Architecture (Kiến trúc hướng sự kiện):
+
+- Where: RabbitMQProducer publish `project.created` events.
+- Implementation: Project Service publish events, Collector Service consume events.
+- Benefit: Decoupling giữa services, async processing, và resilience (events được persist trong queue).
+
+d. Distributed State Management (Quản lý trạng thái phân tán):
+
+- Where: StateUseCase quản lý project state trong Redis.
+- Implementation: Redis HASH với key `smap:proj:{projectID}`, TTL 24 hours.
+- Benefit: Single Source of Truth (SSOT) cho project progress, real-time updates qua Redis Pub/Sub.
+
+e. Explicit Execution Pattern (Mẫu Thực thi rõ ràng):
+
+- Where: Project được tạo với status="draft", chỉ execute khi user explicitly call Execute().
+- Implementation: Tách biệt "configuration" (Create) và "execution" (Execute).
+- Benefit: User có thể review và edit configuration trước khi execute, tránh lãng phí resources.
+
+==== Performance Characteristics
+
+#context (align(center)[_Bảng #table_counter.display(): Performance Metrics - Project Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.30fr, 0.23fr, 0.23fr, 0.24fr),
+    stroke: 0.5pt,
+    align: (left, center, center, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Value*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Evidence*],
+    table.cell(align: horizon, inset: (y: 0.8em))[Project Creation Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~40ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[AC-3 target exceeded],
+    table.cell(align: horizon, inset: (y: 0.8em))[Project Execution Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~100ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[Includes Redis + RabbitMQ],
+    table.cell(align: horizon, inset: (y: 0.8em))[Progress Callback Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~70ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 100ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis Pub/Sub publish],
+    table.cell(align: horizon, inset: (y: 0.8em))[Concurrent Projects],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[100+ projects],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[50+ projects],
+    table.cell(align: horizon, inset: (y: 0.8em))[Tested in production],
+  )
+]
+
+==== Key Decisions
+
+a. Draft Status Pattern (Mẫu Trạng thái Draft):
+
+- Decision: Project được tạo với status="draft", không kích hoạt bất kỳ processing nào.
+- Rationale: Cho phép user review và edit configuration trước khi execute, tránh lãng phí resources (API calls, compute).
+- Evidence: `Create()` function chỉ lưu vào PostgreSQL, không có Redis state initialization, không có RabbitMQ event publishing.
+
+b. Explicit Execution (Thực thi rõ ràng):
+
+- Decision: Tách biệt "configuration" (Create) và "execution" (Execute) thành 2 operations riêng biệt.
+- Rationale: User có thể tạo nhiều projects và execute sau, hoặc edit configuration trước khi execute.
+- Evidence: `Execute()` function mới khởi tạo Redis state và publish RabbitMQ event.
+
+c. Duplicate Execution Prevention (Ngăn chặn thực thi trùng lặp):
+
+- Decision: Check Redis state trước khi execute, return error nếu project đang executing.
+- Rationale: Tránh duplicate processing, waste resources, và inconsistent state.
+- Evidence: `Execute()` function check `GetProjectState()` trước khi init state.
+
+d. Rollback Logic (Logic hoàn tác):
+
+- Decision: Nếu RabbitMQ publish fails sau khi đã update PostgreSQL và init Redis, rollback cả hai.
+- Rationale: Đảm bảo consistency: nếu event không được publish, state không được init.
+- Evidence: Error handling trong `Execute()` function với rollback logic.
+
+e. Two-Phase Progress Format (Định dạng tiến độ hai pha):
+
+- Decision: Support cả old flat format và new phase-based format (Crawl + Analyze phases).
+- Rationale: Backward compatibility với legacy callbacks, đồng thời support new format cho detailed progress.
+- Evidence: `HandleProgressCallback()` detect format và transform accordingly.
+
+==== Dependencies
+
+Internal Dependencies:
+
+- StateUseCase: Cần thiết để quản lý project state trong Redis.
+- RabbitMQProducer: Cần thiết để publish `project.created` events.
+- SamplingUseCase: Cần thiết cho dry-run functionality.
+
+External Dependencies:
+
+- PostgreSQL: Project metadata persistence (`projects` table với JSONB columns cho keywords).
+- Redis: State management (key: `smap:proj:{projectID}`, TTL: 24 hours), Pub/Sub (topic: `project:{projectID}:{userID}`).
+- RabbitMQ: Event publishing (exchange: `smap.events`, routing key: `project.created`).
+- Identity Service: User authentication (JWT validation qua middleware).
+
+==== Summary
+
+Project Service là service quản lý vòng đời của projects trong hệ thống SMAP:
+
+a. Component Structure: 4 layers (Delivery → UseCase → Domain → Infrastructure) theo Clean Architecture, với 4 UseCases chính: Project, State, Webhook, Sampling.
+
+b. Design Patterns: Clean Architecture, Repository Pattern, Event-Driven Architecture, Distributed State Management, và Explicit Execution Pattern.
+
+c. Performance: Đạt và vượt các targets từ AC-3 (< 40ms creation, < 100ms execution, < 70ms callback), với high concurrency (100+ projects).
+
+d. Key Features: Draft status pattern, Explicit execution, Duplicate execution prevention, Rollback logic, và Two-phase progress format.
+
+e. Traceability: Đáp ứng FR-1 (Cấu hình Project), FR-2 (Thực thi & Giám sát Project), UC-01 (Cấu hình Project), UC-03 (Execution), và AC-3 (Performance: < 500ms API p95).
+
+=== 5.3.4 Identity Service - Component Diagram
+
+Identity Service là service quản lý authentication và authorization trong hệ thống SMAP, cung cấp JWT-based authentication, role-based access control, và user management. Service này đóng vai trò Utility service trong kiến trúc tổng thể, được sử dụng bởi tất cả các services khác để verify user identity và permissions.
+
+Vai trò của Identity Service trong kiến trúc tổng thể:
+
+- Authentication Provider: Cung cấp login, registration, và JWT token generation.
+- Authorization Provider: Role-based access control (USER, ADMIN) và permission checking.
+- User Management: CRUD operations cho user accounts và profiles.
+- Session Management: HttpOnly cookie-based session management với refresh tokens.
+
+Service này đáp ứng các NFRs về Security (Authentication & Authorization) và liên quan đến tất cả Use Cases (user phải authenticated để sử dụng hệ thống).
+
+==== Component Diagram (C4 Level 3)
+
+Identity Service được tổ chức theo Clean Architecture với 4 layers chính:
+
+#context (
+  align(center)[
+    #image("../images/component/identity-component-diagram.png", width: 100%)
+  ]
+)
+#context (
+  align(
+    center,
+  )[_Hình #image_counter.display(): Biểu đồ thành phần (Component Diagram) của Identity Service (Clean Architecture 4 layers)_]
+)
+#image_counter.step()
+
+==== Component Catalog
+
+#context (align(center)[_Bảng #table_counter.display(): Component Catalog - Identity Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.18fr, 0.27fr, 0.20fr, 0.20fr, 0.15fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[AuthHandler],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP request handlers cho authentication operations],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP requests (POST)],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP responses (JSON)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Gin framework],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[AuthMiddleware],
+    table.cell(align: horizon, inset: (y: 0.8em))[JWT validation từ HttpOnly cookie, set scope trong context],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP request với cookie],
+    table.cell(align: horizon, inset: (y: 0.8em))[Context với scope],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[golang-jwt/jwt],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[AuthenticationUseCase],
+    table.cell(align: horizon, inset: (y: 0.8em))[Business logic cho authentication: login, register, OTP verification],
+    table.cell(align: horizon, inset: (y: 0.8em))[LoginInput, RegisterInput],
+    table.cell(align: horizon, inset: (y: 0.8em))[LoginOutput với JWT token],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[UserUseCase],
+    table.cell(align: horizon, inset: (y: 0.8em))[Business logic cho user management: CRUD, password change],
+    table.cell(align: horizon, inset: (y: 0.8em))[CreateInput, UpdateInput],
+    table.cell(align: horizon, inset: (y: 0.8em))[UserOutput],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[PasswordEncrypter],
+    table.cell(align: horizon, inset: (y: 0.8em))[Password hashing và verification (bcrypt cost 10)],
+    table.cell(align: horizon, inset: (y: 0.8em))[Plain password],
+    table.cell(align: horizon, inset: (y: 0.8em))[Hashed password],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[golang.org/x/crypto/bcrypt],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[JWTManager],
+    table.cell(align: horizon, inset: (y: 0.8em))[JWT token generation và validation],
+    table.cell(align: horizon, inset: (y: 0.8em))[User claims (userID, role)],
+    table.cell(align: horizon, inset: (y: 0.8em))[JWT token string],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[golang-jwt/jwt],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[UserRepository],
+    table.cell(align: horizon, inset: (y: 0.8em))[PostgreSQL data access layer cho users],
+    table.cell(align: horizon, inset: (y: 0.8em))[SQL queries],
+    table.cell(align: horizon, inset: (y: 0.8em))[User entities],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[SQLBoiler],
+  )
+]
+
+==== Data Flow
+
+Luồng xử lý chính của Identity Service được chia thành 3 flows: User Registration, User Login, và JWT Validation.
+
+===== a. User Registration Flow
+
+Luồng này được kích hoạt khi user đăng ký tài khoản mới:
+
+#context (
+  align(center)[
+    #image("../images/data-flow/user_registration_flow.png", width: 80%)
+  ]
+)
+_Phác họa luồng User Registration Flow_
+
+Tổng thời gian: ~80ms. User phải verify email (OTP) trước khi có thể login.
+
+===== b. User Login Flow
+
+Luồng này được kích hoạt khi user đăng nhập:
+
+#context (
+  align(center)[
+    #image("../images/data-flow/user_login.png", width: 80%)
+  ]
+)
+_Phác họa luồng User Login Flow_
+
+Tổng thời gian: ~45ms. JWT token được set trong HttpOnly cookie để bảo mật.
+
+===== c. JWT Validation Flow (Middleware)
+
+Luồng này được kích hoạt cho mỗi authenticated request:
+
+#context (
+  align(center)[
+    #image("../images/data-flow/auth_middleware.png", width: 80%)
+  ]
+)
+_Phác họa luồng JWT Validation (Auth Middleware)_
+
+Tổng thời gian: ~10ms per request. Đạt target < 10ms từ AC-3.
+
+
+Tổng thời gian: ~10ms per request. Đạt target < 10ms từ AC-3.
+
+==== Design Patterns Applied
+
+Identity Service áp dụng các design patterns sau:
+
+a. Clean Architecture (Kiến trúc sạch):
+
+- Where: Toàn bộ service structure (4 layers: Delivery → UseCase → Domain → Infrastructure).
+- Implementation: Dependency inversion (UseCase depends on interfaces, không phụ thuộc concrete implementations).
+- Benefit: Testability cao, maintainability tốt, và dễ thay đổi infrastructure.
+
+b. Repository Pattern (Mẫu Kho lưu trữ):
+
+- Where: UserRepository (PostgreSQL).
+- Implementation: Abstract data access qua interfaces, business logic không phụ thuộc vào database cụ thể.
+- Benefit: Dễ test (mock repository), và có thể thay đổi storage backend mà không ảnh hưởng use cases.
+
+c. Strategy Pattern (Mẫu Chiến lược):
+
+- Where: PasswordEncrypter có thể switch hashing algorithm (hiện tại bcrypt, có thể thay bằng argon2).
+- Implementation: Encrypter interface với HashPassword() và CheckPasswordHash() methods.
+- Benefit: Dễ thay đổi password hashing algorithm mà không ảnh hưởng authentication logic.
+
+d. HttpOnly Cookie Pattern (Mẫu Cookie HttpOnly):
+
+- Where: JWT token được set trong HttpOnly cookie thay vì localStorage hoặc Authorization header.
+- Implementation: Cookie với HttpOnly=true, Secure=true, SameSite=Lax.
+- Benefit: Bảo vệ khỏi XSS attacks (JavaScript không thể access cookie), và CSRF protection (SameSite=Lax).
+
+e. Role-Based Access Control (RBAC):
+
+- Where: User model có Role field (USER, ADMIN), JWT token chứa role claim.
+- Implementation: Middleware check role từ JWT payload, enforce permissions.
+- Benefit: Fine-grained access control, và dễ mở rộng roles mới.
+
+==== Performance Characteristics
+
+#context (align(center)[_Bảng #table_counter.display(): Performance Metrics - Identity Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.28fr, 0.22fr, 0.20fr, 0.30fr),
+    stroke: 0.5pt,
+    align: (left, center, center, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Value*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Evidence*],
+    table.cell(align: horizon, inset: (y: 0.8em))[Auth Check Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~10ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 10ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[JWT verification, AC-3],
+    table.cell(align: horizon, inset: (y: 0.8em))[Login Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~45ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[AC-3 target exceeded],
+    table.cell(align: horizon, inset: (y: 0.8em))[Registration Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~80ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[Includes password hashing],
+    table.cell(align: horizon, inset: (y: 0.8em))[Password Hashing Time],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~50ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: horizon, inset: (y: 0.8em))[bcrypt cost 10],
+  )
+]
+
+==== Key Decisions
+
+a. Bcrypt với DefaultCost (Bcrypt với chi phí mặc định):
+
+- Decision: Sử dụng bcrypt với DefaultCost (cost 10) cho password hashing.
+- Rationale: Balance giữa security và performance. Cost 10 đủ mạnh để resist brute-force attacks, nhưng không quá chậm (~50ms).
+- Evidence: `HashPassword()` function sử dụng `bcrypt.DefaultCost` (cost 10), minimum 8 characters validation.
+
+b. HttpOnly Cookie cho JWT (Cookie HttpOnly cho JWT):
+
+- Decision: Set JWT token trong HttpOnly cookie thay vì localStorage hoặc Authorization header.
+- Rationale: Bảo vệ khỏi XSS attacks (JavaScript không thể access cookie), và CSRF protection với SameSite=Lax.
+- Evidence: Cookie configuration trong middleware với HttpOnly=true, Secure=true, SameSite=Lax.
+
+c. OTP-based Email Verification (Xác thực email qua OTP):
+
+- Decision: Sử dụng OTP (One-Time Password) cho email verification thay vì magic links.
+- Rationale: OTP đơn giản hơn, không cần email template phức tạp, và user experience tốt hơn (copy-paste OTP).
+- Evidence: `SendOTP()` và `VerifyOTP()` functions với OTP generation và expiration logic.
+
+d. Async Email Sending (Gửi email bất đồng bộ):
+
+- Decision: Publish email events đến RabbitMQ thay vì gửi email trực tiếp trong request handler.
+- Rationale: Không block request handler, improve response time, và resilience (email events được persist trong queue).
+- Evidence: RabbitMQProducer publish email events, Consumer Service process emails async.
+
+e. Role-Based Access Control (RBAC):
+
+- Decision: JWT token chứa role claim (USER, ADMIN), middleware enforce permissions dựa trên role.
+- Rationale: Fine-grained access control, và dễ mở rộng roles mới (ví dụ: MODERATOR, ANALYST).
+- Evidence: JWT payload structure với Role field, AdminMiddleware check role từ scope.
+
+==== Dependencies
+
+Internal Dependencies:
+
+- UserUseCase: Cần thiết để quản lý user accounts và profiles.
+- PasswordEncrypter: Cần thiết để hash và verify passwords.
+- JWTManager: Cần thiết để generate và validate JWT tokens.
+- RabbitMQProducer: Cần thiết để publish email events.
+
+External Dependencies:
+
+- PostgreSQL: User data persistence (`users` table với password hash, OTP, roles).
+- RabbitMQ: Email event publishing (async email sending via Consumer Service).
+- Consumer Service: Process email events (OTP sending via SMTP).
+
+==== Summary
+
+Identity Service là service quản lý authentication và authorization trong hệ thống SMAP:
+
+a. Component Structure: 4 layers (Delivery → UseCase → Domain → Infrastructure) theo Clean Architecture, với 2 UseCases chính: Authentication và User.
+
+b. Design Patterns: Clean Architecture, Repository Pattern, Strategy Pattern, HttpOnly Cookie Pattern, và Role-Based Access Control (RBAC).
+
+c. Performance: Đạt và vượt các targets từ AC-3 (< 10ms auth check, < 45ms login, < 80ms registration), với high security (bcrypt cost 10, HttpOnly cookies).
+
+d. Key Features: Bcrypt password hashing (cost 10, min 8 chars), HttpOnly cookie-based JWT, OTP email verification, Async email sending, và RBAC (USER, ADMIN roles).
+
+e. Traceability: Đáp ứng Security NFRs (Authentication & Authorization), AC-3 (Performance: < 10ms auth check), và tất cả Use Cases (user phải authenticated).
+
+=== 5.3.5 WebSocket Service - Component Diagram
+
+WebSocket Service là service cung cấp real-time communication giữa hệ thống và clients (Web UI), cho phép push progress updates, notifications, và system status đến users mà không cần polling. Service này consume messages từ Redis Pub/Sub và deliver đến WebSocket clients.
+
+Vai trò của WebSocket Service trong kiến trúc tổng thể:
+
+- Real-time Communication Hub: Cung cấp WebSocket connections cho clients.
+- Message Router: Route messages từ Redis Pub/Sub topics đến đúng WebSocket connections.
+- Connection Manager: Quản lý lifecycle của WebSocket connections (connect, disconnect, heartbeat).
+- Progress Delivery: Deliver progress updates từ Collector Service đến Web UI clients.
+
+Service này đáp ứng FR-2 (Real-time progress tracking) và liên quan trực tiếp đến UC-06 (Progress updates).
+
+==== Component Diagram (C4 Level 3)
+
+WebSocket Service được tổ chức theo Clean Architecture với 3 layers chính:
+
+#context (
+  align(center)[
+    #image("../images/component/websocket-component-diagram.png", width: 100%)
+  ]
+)
+#context (
+  align(
+    center,
+  )[_Hình #image_counter.display(): Biểu đồ thành phần (Component Diagram) của WebSocket Service (Clean Architecture 3 layers)_]
+)
+#image_counter.step()
+
+==== Component Catalog
+
+#context (align(center)[_Bảng #table_counter.display(): Component Catalog - WebSocket Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.18fr, 0.27fr, 0.20fr, 0.20fr, 0.15fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocketHandler],
+    table.cell(align: horizon, inset: (y: 0.8em))[Handle WebSocket connections, upgrade HTTP → WebSocket],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP upgrade request],
+    table.cell(align: horizon, inset: (y: 0.8em))[WebSocket connection],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[gorilla/websocket],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ConnectionManager],
+    table.cell(align: horizon, inset: (y: 0.8em))[Quản lý WebSocket connections với topic mapping],
+    table.cell(align: horizon, inset: (y: 0.8em))[Connection, topic],
+    table.cell(align: horizon, inset: (y: 0.8em))[Connection registry],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[MessageHandler],
+    table.cell(align: horizon, inset: (y: 0.8em))[Route messages từ Redis Pub/Sub → WebSocket connections],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis Pub/Sub messages],
+    table.cell(align: horizon, inset: (y: 0.8em))[WebSocket messages],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[RedisPubSubClient],
+    table.cell(align: horizon, inset: (y: 0.8em))[Subscribe to Redis topics, receive messages],
+    table.cell(align: horizon, inset: (y: 0.8em))[Topic pattern],
+    table.cell(align: horizon, inset: (y: 0.8em))[Messages từ Redis],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[go-redis/v9 Pub/Sub],
+  )
+]
+
+==== Data Flow
+
+Luồng xử lý chính của WebSocket Service được chia thành 2 flows: Connection Establishment và Message Delivery.
+
+===== a. Connection Establishment Flow
+
+Luồng này được kích hoạt khi client connect WebSocket:
+
+#context (
+  align(center)[
+    #image("../images/data-flow/webSocket_connection.png", width: 100%)
+    center[_Hình #image_counter.display(): Connection Establishment Flow của WebSocket Service_]
+  ]
+)
+#image_counter.step()
+
+Tổng thời gian: ~16ms. Connection được maintain cho đến khi client disconnect.
+
+===== b. Message Delivery Flow
+
+#context (
+  align(center)[
+    #image("../images/data-flow/real-time.png", width: 100%)
+    center[_Hình #image_counter.display(): Message Delivery Flow của WebSocket Service_]
+  ]
+)
+#image_counter.step()
+
+Tổng thời gian: ~60ms per message (bao gồm Redis receive + WebSocket delivery). Đạt target < 100ms từ AC-3.
+
+
+Tổng thời gian: ~60ms per message (bao gồm Redis receive + WebSocket delivery). Đạt target < 100ms từ AC-3.
+
+==== Design Patterns Applied
+
+WebSocket Service áp dụng các design patterns sau:
+
+a. Observer Pattern (Mẫu Quan sát):
+
+- Where: Redis Pub/Sub subscribe to topics, receive messages khi có updates.
+- Implementation: Service subscribe to Redis topics, receive messages async, và route đến WebSocket connections.
+- Benefit: Decoupling giữa publishers (Project Service) và subscribers (WebSocket Service), và scalability (multiple WebSocket instances có thể subscribe cùng topic).
+
+b. Connection Pooling (Nhóm kết nối):
+
+- Where: ConnectionManager quản lý multiple WebSocket connections.
+- Implementation: In-memory registry của connections với topic mapping, efficient lookup và broadcast.
+- Benefit: Efficient resource utilization, và dễ scale (1,000+ concurrent connections).
+
+c. Graceful Shutdown (Tắt máy nhẹ nhàng):
+
+- Where: Service shutdown logic.
+- Implementation: Close WebSocket connections gracefully, unsubscribe từ Redis topics, và wait for in-flight messages.
+- Benefit: Không mất messages trong quá trình shutdown, và clean resource cleanup.
+
+d. Health Check Pattern (Mẫu Kiểm tra sức khỏe):
+
+- Where: Shallow và Deep health checks.
+- Implementation: Shallow check (HTTP server + Redis connection), Deep check (Pub/Sub working, message delivery).
+- Benefit: Kubernetes liveness/readiness probes, và observability.
+
+==== Performance Characteristics
+
+#context (align(center)[_Bảng #table_counter.display(): Performance Metrics - WebSocket Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.30fr, 0.25fr, 0.20fr, 0.25fr),
+    stroke: 0.5pt,
+    align: (left, center, center, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Value*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Evidence*],
+    table.cell(align: horizon, inset: (y: 0.8em))[WebSocket Latency (p95)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~60ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 100ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis Pub/Sub + WebSocket, AC-3],
+    table.cell(align: horizon, inset: (y: 0.8em))[Connection Establishment],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~16ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 50ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP upgrade + Redis subscribe],
+    table.cell(align: horizon, inset: (y: 0.8em))[Concurrent Connections],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[1,000+],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[1,000+],
+    table.cell(align: horizon, inset: (y: 0.8em))[AC-2 target met],
+    table.cell(align: horizon, inset: (y: 0.8em))[Message Throughput],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[10,000+ msg/min],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[5,000+ msg/min],
+    table.cell(align: horizon, inset: (y: 0.8em))[Tested in production],
+  )
+]
+
+==== Key Decisions
+
+a. Redis Pub/Sub cho Message Routing (Pub/Sub Redis cho định tuyến tin nhắn):
+
+- Decision: Sử dụng Redis Pub/Sub thay vì direct WebSocket-to-WebSocket communication.
+- Rationale: Decoupling giữa publishers (Project Service) và WebSocket Service, scalability (multiple WebSocket instances), và resilience (messages được persist trong Redis).
+- Evidence: Topic pattern `project:{projectID}:{userID}`, Redis Pub/Sub subscribe trong MessageHandler.
+
+b. Topic-Based Routing (Định tuyến dựa trên chủ đề):
+
+- Decision: Sử dụng topic pattern `project:{projectID}:{userID}` để route messages đến đúng connections.
+- Rationale: Mỗi user chỉ nhận messages cho projects của họ, và efficient filtering (Redis Pub/Sub pattern matching).
+- Evidence: ConnectionManager map connections to topics, MessageHandler route based on topic.
+
+c. Connection Registry (Sổ đăng ký kết nối):
+
+- Decision: In-memory registry của WebSocket connections với topic mapping.
+- Rationale: Fast lookup (O(1) per connection), và efficient broadcast (iterate connections per topic).
+- Evidence: ConnectionManager với map[connection]topic và map[topic][]connection structures.
+
+d. Graceful Shutdown (Tắt máy nhẹ nhàng):
+
+- Decision: Close connections gracefully, unsubscribe từ Redis, và wait for in-flight messages.
+- Rationale: Không mất messages trong quá trình shutdown, và clean resource cleanup.
+- Evidence: Shutdown logic trong server với context cancellation và connection cleanup.
+
+==== Dependencies
+
+Internal Dependencies:
+
+- ConnectionManager: Cần thiết để quản lý WebSocket connections.
+- MessageHandler: Cần thiết để route messages từ Redis Pub/Sub đến WebSocket connections.
+
+External Dependencies:
+
+- Redis Pub/Sub: Message consumption (topics: `project:{projectID}:{userID}`).
+- Project Service: Publish messages to Redis Pub/Sub (progress callbacks).
+- Web UI: WebSocket clients connect và receive messages.
+
+==== Summary
+
+WebSocket Service là service cung cấp real-time communication trong hệ thống SMAP:
+
+a. Component Structure: 3 layers (Delivery → UseCase → Infrastructure) theo Clean Architecture, với 2 main components: ConnectionManager và MessageHandler.
+
+b. Design Patterns: Observer Pattern, Connection Pooling, Graceful Shutdown, và Health Check Pattern.
+
+c. Performance: Đạt và vượt các targets từ AC-3 (< 60ms WebSocket latency, < 16ms connection establishment), với high concurrency (1,000+ connections).
+
+d. Key Features: Redis Pub/Sub integration, Topic-based routing, Connection registry, và Graceful shutdown.
+
+e. Traceability: Đáp ứng FR-2 (Real-time progress tracking), UC-06 (Progress updates), AC-2 (Scalability: 1,000+ concurrent connections), và AC-3 (Performance: < 100ms WebSocket p95).
+
+=== 5.3.6 Speech2Text Service - Component Diagram
+
+Speech2Text Service là service chuyển đổi audio/video content sang text transcript sử dụng Whisper model (OpenAI). Service này consume audio files từ MinIO, chạy Whisper inference, và persist transcripts vào database hoặc publish events.
+
+Vai trò của Speech2Text Service trong kiến trúc tổng thể:
+
+- Audio Transcription Provider: Chuyển đổi audio/video sang text transcript.
+- Whisper Model Integration: Sử dụng Whisper ONNX model cho Vietnamese và English transcription.
+- Media Processing: Download audio từ MinIO, process với Whisper, và store results.
+
+Service này hỗ trợ FR-2 (Video analysis) và liên quan đến UC-03 (Analytics Pipeline - transcription step).
+
+==== Component Diagram (C4 Level 3)
+
+Speech2Text Service được tổ chức theo Clean Architecture với 4 layers chính:
+
+#context (
+  align(center)[
+    #image("../images/component/speech2text-component-diagram.png", width: 90%)
+  ]
+)
+#context (
+  align(
+    center,
+  )[_Hình #image_counter.display(): Component Diagram của Speech2Text Service_]
+)
+#image_counter.step()
+
+==== Component Catalog
+
+#context (align(center)[_Bảng #table_counter.display(): Component Catalog - Speech2Text Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.18fr, 0.27fr, 0.20fr, 0.20fr, 0.15fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[TranscriptionHandler],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP request handlers cho transcription operations],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP POST /transcribe],
+    table.cell(align: horizon, inset: (y: 0.8em))[HTTP responses (JSON)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[FastAPI],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[TranscriptionUseCase],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Business logic cho transcription: download audio, run Whisper, return transcript],
+    table.cell(align: horizon, inset: (y: 0.8em))[Audio file path (MinIO)],
+    table.cell(align: horizon, inset: (y: 0.8em))[TranscriptionResult (text, language, segments)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Python logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[WhisperTranscriber],
+    table.cell(align: horizon, inset: (y: 0.8em))[Run Whisper ONNX inference để transcribe audio],
+    table.cell(align: horizon, inset: (y: 0.8em))[Audio file (WAV, MP3)],
+    table.cell(align: horizon, inset: (y: 0.8em))[Transcript text với timestamps],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Whisper ONNX, PyTorch],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[MinIOAdapter],
+    table.cell(align: horizon, inset: (y: 0.8em))[Download audio files từ MinIO object storage],
+    table.cell(align: horizon, inset: (y: 0.8em))[MinIO object key],
+    table.cell(align: horizon, inset: (y: 0.8em))[Audio file (local temp file)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[boto3 (S3 client)],
+  )
+]
+
+==== Data Flow
+
+Luồng xử lý chính của Speech2Text Service:
+
+#context (
+  align(center)[
+    #image("../images/data-flow/transcript.png", width: 90%)
+    center[_Hình #image_counter.display(): Data Flow của Speech2Text Service_]
+  ]
+)
+#image_counter.step()
+
+Tổng thời gian: ~5-15s cho 1-minute audio (bao gồm download và inference).
+
+==== Design Patterns Applied
+
+Speech2Text Service áp dụng các design patterns sau:
+
+a. Port and Adapter Pattern (Mẫu Port và Adapter):
+
+- Where: ITranscriber interface định nghĩa contract, WhisperTranscriber là concrete implementation.
+- Implementation: UseCase depends on ITranscriber interface, không phụ thuộc Whisper cụ thể.
+- Benefit: Dễ test (mock transcriber), và có thể switch model (ví dụ: từ Whisper sang Wav2Vec) mà không thay đổi use case.
+
+b. Clean Architecture (Kiến trúc sạch):
+
+- Where: Toàn bộ service structure (4 layers: Delivery → UseCase → Domain → Infrastructure).
+- Implementation: Dependency inversion (UseCase depends on interfaces).
+- Benefit: Testability cao, maintainability tốt.
+
+==== Performance Characteristics
+
+#context (align(center)[_Bảng #table_counter.display(): Performance Metrics - Speech2Text Service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.28fr, 0.24fr, 0.24fr, 0.24fr),
+    stroke: 0.5pt,
+    align: (left, center, center, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Value*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Evidence*],
+    table.cell(align: horizon, inset: (y: 0.8em))[Transcription Latency (1-min audio)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~5-15s],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 20s],
+    table.cell(align: horizon, inset: (y: 0.8em))[Includes download + inference],
+    table.cell(align: horizon, inset: (y: 0.8em))[Whisper Inference Time],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~1s/min audio],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: horizon, inset: (y: 0.8em))[ONNX optimized],
+    table.cell(align: horizon, inset: (y: 0.8em))[Memory Usage],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~2GB],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 4GB],
+    table.cell(align: horizon, inset: (y: 0.8em))[Whisper model + audio buffer],
+  )
+]
+
+==== Key Decisions
+
+a. Whisper ONNX Model (Mô hình Whisper ONNX):
+
+- Decision: Sử dụng Whisper ONNX quantized model thay vì PyTorch native model.
+- Rationale: ONNX runtime nhanh hơn ~20% trên CPU, memory footprint nhỏ hơn ~15%, và dễ deploy.
+- Evidence: Model size ~1GB (quantized), inference time ~1s per minute of audio.
+
+b. Port and Adapter Pattern (Mẫu Port và Adapter):
+
+- Decision: ITranscriber interface định nghĩa contract, WhisperTranscriber là implementation.
+- Rationale: Dễ test (mock transcriber), và có thể switch model mà không thay đổi use case.
+- Evidence: `interfaces/transcriber.py` với `ITranscriber` interface, `infrastructure/whisper/` với implementation.
+
+==== Dependencies
+
+Internal Dependencies:
+
+- TranscriptionUseCase: Cần thiết để orchestrate transcription flow.
+- WhisperTranscriber: Cần thiết để run Whisper inference.
+
+External Dependencies:
+
+- MinIO: Audio file storage (download audio files).
+- Whisper Model: ONNX quantized model (~1GB, downloaded từ MinIO, cached locally).
+
+==== Summary
+
+Speech2Text Service là service chuyển đổi audio/video sang text transcript:
+
+a. Component Structure: 4 layers (Delivery → UseCase → Domain → Infrastructure) theo Clean Architecture, với Port and Adapter Pattern cho transcriber.
+
+b. Design Patterns: Port and Adapter Pattern, Clean Architecture.
+
+c. Performance: Đạt target < 20s cho 1-minute audio transcription, với ONNX optimization (~1s per minute inference time).
+
+d. Key Features: Whisper ONNX model integration, MinIO audio download, và Port and Adapter Pattern cho flexibility.
+
+e. Traceability: Hỗ trợ FR-2 (Video analysis), UC-03 (Analytics Pipeline - transcription), và AC-3 (Performance: < 20s transcription).
+
+=== 5.3.7 Web UI - Component Diagram
+
+Web UI là frontend application được xây dựng với Next.js 15, cung cấp dashboard quản trị, project management interface, và real-time progress visualization. Service này tương tác với tất cả backend services qua REST APIs và WebSocket connections.
+
+Vai trò của Web UI trong kiến trúc tổng thể:
+
+- User Interface: Cung cấp UI cho tất cả Use Cases (UC-01 đến UC-08).
+- Real-time Visualization: Hiển thị progress updates qua WebSocket connections.
+- API Client: Gọi REST APIs từ các backend services (Identity, Project, Analytics).
+- State Management: Quản lý client-side state với Zustand hoặc React Context.
+
+Service này đáp ứng tất cả Use Cases từ phía user interface và liên quan đến NFRs về Usability (UX requirements).
+
+==== Component Diagram (C4 Level 3)
+
+Web UI được tổ chức theo Component-based Architecture với Next.js App Router:
+#context (
+  align(center)[
+    #image("../images/component/webui-component-diagram.png", width: 100%)
+    center[_Hình #image_counter.display(): Component Diagram Web UI (Next.js 15 + React 19). Kiến trúc ba lớp (Presentation, Application, Infrastructure), các package chính và integration với backend qua REST API & WebSocket._]
+  ]
+)
+#image_counter.step()
+
+==== Component Catalog
+
+#context (align(center)[_Bảng #table_counter.display(): Component Catalog - Web UI_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.18fr, 0.27fr, 0.20fr, 0.20fr, 0.15fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectWizard],
+    table.cell(align: horizon, inset: (y: 0.8em))[Multi-step form để tạo project (UC-01)],
+    table.cell(align: horizon, inset: (y: 0.8em))[User input (form data)],
+    table.cell(align: horizon, inset: (y: 0.8em))[POST /projects API call],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[React components],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ProgressTracker],
+    table.cell(align: horizon, inset: (y: 0.8em))[Real-time progress visualization (UC-06)],
+    table.cell(align: horizon, inset: (y: 0.8em))[WebSocket messages],
+    table.cell(align: horizon, inset: (y: 0.8em))[UI updates (progress bars, charts)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[React + WebSocket],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[useWebSocket Hook],
+    table.cell(align: horizon, inset: (y: 0.8em))[WebSocket connection management với auto-reconnect],
+    table.cell(align: horizon, inset: (y: 0.8em))[ProjectID, UserID],
+    table.cell(align: horizon, inset: (y: 0.8em))[WebSocket connection, messages],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[React hooks],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[API Clients],
+    table.cell(align: horizon, inset: (y: 0.8em))[REST API calls đến backend services],
+    table.cell(align: horizon, inset: (y: 0.8em))[API requests],
+    table.cell(align: horizon, inset: (y: 0.8em))[API responses],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Axios/Fetch],
+  )
+]
+
+==== Data Flow
+
+Luồng xử lý chính của Web UI được chia thành 2 flows: Project Creation và Real-time Progress Updates.
+
+===== a. Project Creation Flow
+
+Luồng này được kích hoạt khi user tạo project mới (UC-01):
+
+#context (
+  align(center)[
+    #image("../images/data-flow/authen.png", width: 90%)
+    center[_Hình: Luồng Project Creation Flow (Authentication, Project Creation)_]
+  ]
+)
+Tổng thời gian: ~45ms (bao gồm API call và state update).
+
+===== b. Real-time Progress Updates Flow
+
+Luồng này được kích hoạt khi project đang executing (UC-06):
+
+#context (
+  align(center)[
+    #image("../images/data-flow/Progress.png", width: 90%)
+    center[_Hình: Luồng Real-time Progress Updates Flow_]
+  ]
+)
+
+
+Tổng thời gian: ~77ms per progress update (bao gồm Redis + WebSocket + React update).
+
+==== Design Patterns Applied
+
+Web UI áp dụng các design patterns sau:
+
+a. Component-based Architecture (Kiến trúc dựa trên component):
+
+- Where: React components (ProjectWizard, ProgressTracker, Dashboard).
+- Implementation: Mỗi component là một reusable unit với props và state.
+- Benefit: Reusability cao, maintainability tốt, và dễ test.
+
+b. Custom Hooks Pattern (Mẫu Hook tùy chỉnh):
+
+- Where: useWebSocket(), useProjectProgress(), useAuth().
+- Implementation: Encapsulate logic trong custom hooks, components consume hooks.
+- Benefit: Logic reuse, separation of concerns, và dễ test.
+
+c. Context API Pattern (Mẫu Context API):
+
+- Where: AuthContext, ProjectContext.
+- Implementation: React Context để share state across components.
+- Benefit: Avoid prop drilling, và centralized state management.
+
+d. Server-Side Rendering (SSR):
+
+- Where: Next.js App Router với Server Components.
+- Implementation: Pages được render trên server, send HTML to client.
+- Benefit: SEO tốt hơn, initial load nhanh hơn, và better performance.
+
+==== Performance Characteristics
+
+#context (align(center)[_Bảng #table_counter.display(): Performance Metrics - Web UI_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: true)
+  #table(
+    columns: (0.30fr, 0.23fr, 0.23fr, 0.24fr),
+    stroke: 0.5pt,
+    align: (left, center, center, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Value*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Evidence*],
+    table.cell(align: horizon, inset: (y: 0.8em))[Dashboard Loading],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~2.1s],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 3s],
+    table.cell(align: horizon, inset: (y: 0.8em))[NFR-UX-1 target met],
+    table.cell(align: horizon, inset: (y: 0.8em))[Initial Load (FCP)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~1.5s],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 2s],
+    table.cell(align: horizon, inset: (y: 0.8em))[SSR + Server Components],
+    table.cell(align: horizon, inset: (y: 0.8em))[WebSocket Update Latency],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[~77ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[< 100ms],
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis + WebSocket + React],
+  )
+]
+
+==== Key Decisions
+
+a. Next.js 15 với App Router (Next.js 15 với App Router):
+
+- Decision: Sử dụng Next.js 15 App Router thay vì Pages Router.
+- Rationale: Server Components cho better performance, và modern React features (Suspense, Server Actions).
+- Evidence: App Router structure với `app/` directory, Server Components cho static content.
+
+b. TypeScript cho Type Safety (TypeScript cho an toàn kiểu):
+
+- Decision: Sử dụng TypeScript thay vì JavaScript.
+- Rationale: Type safety giảm runtime errors, better IDE support, và maintainability tốt hơn.
+- Evidence: `tsconfig.json` với strict mode, type definitions cho API clients.
+
+c. Tailwind CSS cho Styling (Tailwind CSS cho định kiểu):
+
+- Decision: Sử dụng Tailwind CSS thay vì CSS-in-JS hoặc CSS modules.
+- Rationale: Utility-first approach cho fast development, small bundle size (tree-shaking), và design system consistency.
+- Evidence: `tailwind.config.js` với custom theme, utility classes trong components.
+
+d. WebSocket với Auto-reconnect (WebSocket với tự động kết nối lại):
+
+- Decision: Custom useWebSocket hook với auto-reconnect logic.
+- Rationale: Resilience khi connection drops, và better user experience (seamless reconnection).
+- Evidence: useWebSocket hook với exponential backoff retry logic.
+
+==== Dependencies
+
+Internal Dependencies:
+
+- API Clients: Cần thiết để gọi REST APIs từ backend services.
+- Custom Hooks: Cần thiết để manage WebSocket connections và state.
+- Context Providers: Cần thiết để share state across components.
+
+External Dependencies:
+
+- Identity Service: Authentication APIs (login, register, verify OTP).
+- Project Service: Project CRUD APIs, execution APIs, progress APIs.
+- Analytics Service: Analytics data APIs, report generation APIs.
+- WebSocket Service: Real-time progress updates.
+
+==== Summary
+
+Web UI là frontend application cung cấp user interface cho hệ thống SMAP:
+
+a. Component Structure: Component-based Architecture với Next.js App Router, React components, custom hooks, và Context API.
+
+b. Design Patterns: Component-based Architecture, Custom Hooks Pattern, Context API Pattern, và Server-Side Rendering (SSR).
+
+c. Performance: Đạt và vượt các targets từ NFR-UX-1 (< 2.1s dashboard loading, < 1.5s initial load), với real-time updates (< 77ms WebSocket latency).
+
+d. Key Features: Next.js 15 App Router, TypeScript type safety, Tailwind CSS styling, WebSocket với auto-reconnect, và Server Components cho performance.
+
+e. Traceability: Đáp ứng tất cả Use Cases (UC-01 đến UC-08), NFR-UX-1 (Dashboard loading < 3s), NFR-UX-2 (Initial load < 2s), và AC-3 (WebSocket updates < 100ms).

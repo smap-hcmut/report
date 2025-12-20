@@ -1,0 +1,96 @@
+@startuml
+
+title Component Diagram for Web UI (Next.js 15 + React 19)
+
+' Cấu hình giao diện
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #A80036
+
+' External Services (Backend)
+package "Backend Services" as backend {
+    [Identity Service] as identity_svc <<System>>
+    [Project Service] as project_svc <<System>>
+    [Analytics Service] as analytics_svc <<System>>
+    [WebSocket Service] as ws_svc <<System>>
+}
+
+' Web UI Boundary
+package "Web UI (Next.js App)" as webui {
+
+    ' Presentation Layer
+    package "Presentation Layer" as presentation {
+        package "Pages" {
+            [Login Page] as p_login <<component>>
+            [Project Detail] as p_detail <<component>>
+            [Dashboard] as p_dash <<component>>
+        }
+        package "Components" {
+            [ProjectWizard] as c_wizard <<component>>
+            [ProgressTracker] as c_progress <<component>>
+            [Charts/Report] as c_report <<component>>
+        }
+    }
+
+    ' Application Layer
+    package "Application Layer" as application {
+        package "Custom Hooks" {
+            [useAuth] as h_auth <<component>>
+            [useProjectProgress] as h_progress <<component>>
+            [useWebSocket] as h_ws <<component>>
+        }
+        package "API Clients" {
+            [IdentityClient] as s_identity <<component>>
+            [ProjectClient] as s_project <<component>>
+            [AnalyticsClient] as s_analytics <<component>>
+        }
+        package "State (Contexts)" {
+            [AuthContext] as ctx_auth <<component>>
+            [ProjectContext] as ctx_project <<component>>
+        }
+    }
+
+    ' Infrastructure Layer
+    package "Infrastructure Layer" as infra {
+        [HTTP Client] as lib_http <<component>>
+        [WebSocket Client] as lib_ws <<component>>
+    }
+}
+
+' Relationships (Mối quan hệ)
+
+' UI uses Hooks & State
+p_login --> h_auth
+p_detail --> h_progress
+p_dash --> c_report
+c_progress <-- h_progress
+
+' Hooks use Clients & State
+h_auth --> s_identity
+h_auth --> ctx_auth
+h_progress --> s_project
+h_progress --> h_ws
+h_ws --> lib_ws
+
+' Clients use Infrastructure
+s_identity --> lib_http
+s_project --> lib_http
+s_analytics --> lib_http
+
+' Infrastructure to Backend
+lib_http -[#green]> identity_svc : REST
+lib_http -[#green]> project_svc : REST
+lib_ws -[#orange]> ws_svc : WSS
+
+' Legend
+legend right
+  |= Color |= Protocol |
+  | <#green> | HTTPS/JSON (REST API) |
+  | <#orange> | WebSocket (WSS) |
+  | <#black> | Internal Call |
+endlegend
+
+@enduml

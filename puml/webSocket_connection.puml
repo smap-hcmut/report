@@ -1,0 +1,33 @@
+@startuml
+title Dataflow: WebSocket Connection & Subscription
+
+autonumber
+skinparam Style strictuml
+
+actor "Web Client" as client
+participant "WebSocketHandler" as handler
+participant "WebSocketUpgrader" as upgrader
+participant "ConnectionManager" as conn_mgr
+participant "MessageHandler" as msg_handler
+database "Redis Pub/Sub" as redis #LightPink
+
+client -> handler : HTTP GET /ws (Upgrade Request)
+activate handler
+    handler -> upgrader : Upgrade HTTP to WebSocket (~10ms)
+    return WS Connection
+    
+    handler -> handler : Extract userID, projectID\nBuild topic: project:{id}:{uid}
+    
+    handler -> conn_mgr : RegisterConnection(conn, metadata) (~1ms)
+    note right: Store mapping: Topic <-> Connections
+    
+    handler -> msg_handler : HandleSubscribe(topic)
+    activate msg_handler
+        msg_handler -> redis : Subscribe(topic) (~5ms)
+        msg_handler -> msg_handler : Start Receive Goroutine
+        return Subscribed
+    deactivate msg_handler
+    
+    handler --> client : Connection Established (101 Switching Protocols)
+deactivate handler
+@enduml

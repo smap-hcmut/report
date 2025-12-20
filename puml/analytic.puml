@@ -1,0 +1,98 @@
+@startuml
+
+title Component Diagram for Analytics Service (Python 3.12)
+
+' Cấu hình giao diện
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #A80036
+
+' External Systems (Hệ thống bên ngoài)
+cloud "RabbitMQ Broker" as rmq <<System>>
+database "MinIO Storage" as minio <<System>>
+database "PostgreSQL" as postgres <<System>>
+file "PhoBERT Model\n(ONNX Cached)" as phobert_file <<Local Cache>>
+
+' Analytics Service Boundary
+package "Analytics Service" as analytics_svc {
+
+    ' Presentation Layer
+    package "Presentation Layer (Delivery)" as delivery {
+        [Event Consumer] as consumer <<component>>
+        note bottom of consumer: Consume: data.collected
+        
+        [API Endpoints] as api <<component>>
+        note bottom of api: Health & Metrics
+    }
+
+    ' Application Layer
+    package "Application Layer (Orchestrator)" as application {
+        [Analytics Orchestrator] as orchestrator <<UseCase>>
+        note bottom of orchestrator: Coordinate 5-step pipeline
+    }
+
+    ' Domain Layer (Pipeline Modules)
+    package "Domain Layer (Pipeline)" as domain {
+        [Text Preprocessor] as mod1 <<DomainModel>>
+        [Intent Classifier] as mod2 <<DomainModel>>
+        [Keyword Extractor] as mod3 <<DomainModel>>
+        [Sentiment Analyzer] as mod4 <<DomainModel>>
+        [Impact Calculator] as mod5 <<DomainModel>>
+        
+        ' Pipeline Flow (Internal)
+        mod1 -[#gray]-> mod2
+        mod2 -[#gray]-> mod3
+        mod3 -[#gray]-> mod4
+        mod4 -[#gray]-> mod5
+    }
+
+    ' Infrastructure Layer
+    package "Infrastructure Layer" as infra {
+        [AI Model Manager] as ai_mgr <<Repository>>
+        [Storage Client] as storage <<component>>
+        [Messaging Client] as messaging <<component>>
+        [Database Repository] as repo <<Repository>>
+    }
+}
+
+' Relationships (Mối quan hệ)
+
+' External to Presentation
+rmq -[#blue]> messaging : data.collected
+messaging --> consumer
+
+' Presentation to Application
+consumer --> orchestrator
+consumer --> storage
+
+' Storage operations
+storage -[#orange]> minio : Download batch
+
+' Application to Domain
+orchestrator --> mod1
+
+' Domain to Infrastructure (AI Model)
+mod4 --> ai_mgr
+ai_mgr ..> phobert_file : Load/Cache
+
+' Domain to Infrastructure (Persistence)
+mod5 --> repo
+repo -[#red]> postgres : Save PostAnalytics
+
+' API monitoring
+api ..> orchestrator : Monitor
+
+' Legend
+legend right
+  |= Color |= Protocol |
+  | <#blue> | AMQP (Message Queue) |
+  | <#orange> | S3 API (Object Storage) |
+  | <#red> | TCP (Database) |
+  | <#gray> | Pipeline Flow |
+  | <#black> | Internal Call |
+endlegend
+
+@enduml

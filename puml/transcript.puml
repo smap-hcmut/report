@@ -1,0 +1,44 @@
+@startuml
+title Dataflow: Speech-to-Text Transcription (Sync API)
+
+autonumber
+skinparam Style strictuml
+skinparam MaxMessageSize 200
+
+actor "Client\n(Crawler/Service)" as client
+participant "TranscriptionHandler" as handler
+participant "TranscriptionUseCase" as uc
+participant "MinIOAdapter" as minio_infra
+database "MinIO" as minio #LightYellow
+participant "WhisperTranscriber" as domain
+participant "Whisper ONNX Impl" as whisper_engine #LightGrey
+
+client -> handler : HTTP POST /transcribe\n(audio_file_path)
+activate handler
+    handler -> uc : Transcribe(path) (~5ms)
+    activate uc
+        
+        uc -> minio_infra : download(path)
+        activate minio_infra
+            minio_infra -> minio : Stream audio file
+            return Audio bytes (~1-5s)
+        deactivate minio_infra
+        
+        uc -> domain : transcribe(audio_bytes)
+        activate domain
+            domain -> domain : **a.** Preprocess audio\n(WAV, 16kHz, normalize)
+            
+            domain -> whisper_engine : **b.** Run Inference (ONNX)
+            note right: **Latency:** ~1s per minute of audio\nTotal: 3-10s
+            return Raw Inference Result
+            
+            domain -> domain : **c.** Extract transcript\nwith timestamps
+            return TranscriptionResult
+        deactivate domain
+        
+        uc --> handler : Return Result (~5ms)
+    deactivate uc
+    handler --> client : HTTP 200 OK (JSON Transcript)
+deactivate handler
+
+@enduml

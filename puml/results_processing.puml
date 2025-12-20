@@ -1,0 +1,22 @@
+@startuml
+title Dataflow: Crawler Results Processing
+
+autonumber
+participant "RabbitMQ\n(results.inbound.data)" as rmq
+participant "ResultsConsumer" as consumer
+participant "ResultsUseCase" as results
+participant "StateUseCase" as state
+participant "Redis" as redis
+participant "WebhookUseCase" as webhook
+participant "Project Service" as project_svc
+
+rmq -> consumer : CrawlerResult
+consumer -> results : HandleCrawlerResult()
+results -> results : Extract projectID from jobID
+results -> state : Update Redis state
+state -> redis : Increment tasks_done/items_actual
+results -> results : Check completion status\n(DONE or FAILED)
+results -> webhook : NotifyProgress()
+webhook -> project_svc : POST Progress Update
+results -> rmq : Publish "data.collected" (for Analytics)
+@enduml

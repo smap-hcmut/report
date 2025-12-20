@@ -1,0 +1,78 @@
+@startuml
+
+title Component Diagram for Speech2Text Service (Python 3.12)
+
+' Cấu hình giao diện
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #A80036
+
+' External Systems (Hệ thống bên ngoài)
+database "MinIO Storage" as minio <<System>>
+cloud "RabbitMQ Broker" as rmq <<System>>
+file "Whisper Model\n(ONNX Cached)" as whisper_model <<Local Cache>>
+
+' Speech2Text Service Boundary
+package "Speech2Text Service" as stt_svc {
+
+    ' Presentation Layer
+    package "Presentation Layer (Delivery)" as delivery {
+        [API Endpoints] as api <<component>>
+        note bottom of api: POST /transcribe\nGET /health
+        
+        [Event Consumer] as consumer <<component>>
+    }
+
+    ' Application Layer
+    package "Application Layer (UseCase)" as usecase {
+        [Transcription Manager] as trans_uc <<UseCase>>
+    }
+
+    ' Domain Layer
+    package "Domain Layer (Services)" as domain {
+        [Whisper Transcriber] as domain_trans <<DomainModel>>
+    }
+
+    ' Infrastructure Layer
+    package "Infrastructure Layer" as infra {
+        interface "ITranscriber" as i_trans <<interface>>
+        [Whisper ONNX] as whisper_impl <<Repository>>
+        [Storage Client] as minio_client <<component>>
+    }
+}
+
+' Relationships (Mối quan hệ)
+
+' External to Presentation
+rmq -[#blue]> consumer : transcribe.request
+
+' Presentation to Application
+api --> trans_uc
+consumer --> trans_uc
+
+' Application to Domain
+trans_uc --> domain_trans
+
+' Domain to Infrastructure (Port & Adapter)
+domain_trans --> i_trans
+i_trans <|.. whisper_impl : implements
+
+' Application to Storage
+trans_uc --> minio_client
+minio_client -[#orange]> minio : Download
+
+' Inference
+whisper_impl ..> whisper_model : Load/Inference
+
+' Legend
+legend right
+  |= Color |= Protocol |
+  | <#blue> | AMQP (Message Queue) |
+  | <#orange> | S3 API (Object Storage) |
+  | <#black> | Internal Call |
+endlegend
+
+@enduml

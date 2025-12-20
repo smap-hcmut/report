@@ -1,0 +1,25 @@
+@startuml
+title Dataflow: Auth Middleware (JWT Verification)
+
+autonumber
+skinparam Style strictuml
+
+participant "Client" as client
+participant "AuthMiddleware" as mw
+participant "JWTManager" as jwt
+participant "Next Handler" as next
+
+client -> mw : Request to protected endpoint\n(Cookie: smap_auth_token)
+activate mw
+    mw -> mw : Extract JWT from Cookie
+    
+    mw -> jwt : Verify(token) (~10ms)
+    activate jwt
+        jwt -> jwt : Check Signature & Expiry
+        return payload (userID, role)
+    
+    mw -> mw : SetPayloadToContext()\nSetScopeToContext()
+    
+    mw -> next : Next() (Request continue with Scope)
+deactivate mw
+@enduml

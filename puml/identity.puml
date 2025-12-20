@@ -1,0 +1,85 @@
+@startuml
+
+title Component Diagram for Identity Service (Golang 1.25)
+
+' Cấu hình giao diện
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #A80036
+
+' External Systems (Hệ thống bên ngoài)
+database "PostgreSQL" as postgres <<System>>
+cloud "RabbitMQ Broker" as rmq <<System>>
+node "Email Service" as email_svc <<System>>
+
+' Identity Service Boundary
+package "Identity Service" as identity_svc {
+
+    ' Presentation Layer
+    package "Presentation Layer (Delivery)" as delivery {
+        [Auth Handlers] as auth_http <<component>>
+        note bottom of auth_http: Login, Register,\nSendOTP, VerifyOTP
+        
+        [User Handlers] as user_http <<component>>
+        [Auth Middleware] as middleware <<component>>
+        note bottom of middleware: JWT validation
+    }
+
+    ' Application Layer
+    package "Application Layer (UseCase)" as usecase {
+        [Auth Manager] as auth_uc <<UseCase>>
+        [User Manager] as user_uc <<UseCase>>
+    }
+
+    ' Domain Layer
+    package "Domain Layer (Models)" as domain {
+        [Domain Models] as models <<DomainModel>>
+    }
+
+    ' Infrastructure Layer
+    package "Infrastructure Layer" as infra {
+        [User Repository] as user_repo <<Repository>>
+        [Password Encrypter] as encrypter <<component>>
+        [JWT Manager] as jwt_mgr <<component>>
+        [Event Producer] as rmq_producer <<component>>
+    }
+}
+
+' Relationships (Mối quan hệ)
+
+' Presentation to Application
+auth_http --> auth_uc
+user_http --> user_uc
+user_http ..> middleware : Protected
+
+' Authentication flow
+auth_uc --> user_repo
+auth_uc --> encrypter
+auth_uc --> jwt_mgr
+auth_uc --> rmq_producer
+
+' User management flow
+user_uc --> user_repo
+user_uc --> encrypter
+
+' Infrastructure to External
+user_repo -[#green]> postgres : CRUD
+rmq_producer -[#blue]> rmq : email.send
+rmq ..> email_svc : Async
+
+' Domain dependencies
+usecase ..> models
+infra ..> models
+
+' Legend
+legend right
+  |= Color |= Protocol |
+  | <#blue> | AMQP (Message Queue) |
+  | <#green> | TCP (PostgreSQL) |
+  | <#black> | Internal Call |
+endlegend
+
+@enduml

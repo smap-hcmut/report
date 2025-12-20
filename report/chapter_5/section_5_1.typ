@@ -67,15 +67,15 @@ Phân tích phân bố NFRs:
 
 Cách phân loại NFRs:
 
-- Scalability (7 NFRs) bao gồm cả Throughput (3 NFRs) và Resource Utilization (3 NFRs) từ mục 4.3.2.1, vì khả năng tối ưu tài nguyên và xử lý throughput cao là nền tảng để scale hệ thống. Đây là lý do Microservices được chọn (xem mục 5.2.1).
+- Scalability bao gồm cả Throughput và Resource Utilization từ mục 4.3.2.1, vì khả năng tối ưu tài nguyên và xử lý throughput cao là nền tảng để scale hệ thống. Đây là lý do Microservices được chọn (xem mục 5.2.1).
 
-- Performance (4 NFRs) chỉ tập trung vào Response Time - yêu cầu về độ trễ thấp cho trải nghiệm người dùng, khác với Scalability (throughput/capacity).
+- Performance chỉ tập trung vào Response Time - yêu cầu về độ trễ thấp cho trải nghiệm người dùng, khác với Scalability (throughput/capacity).
 
-- Architecture Quality (4 NFRs) gộp AC-4, AC-5, AC-6, AC-7 vì đều liên quan đến khả năng bảo trì và vận hành dài hạn của hệ thống.
+- Architecture Quality gộp AC-4, AC-5, AC-6, AC-7 vì đều liên quan đến khả năng bảo trì và vận hành dài hạn của hệ thống.
 
 Primary Architecture Characteristics:
 
-- AC-1 (Modularity) là Primary AC nhưng KHÔNG xuất hiện như một "nhóm NFRs" riêng vì đây là một đặc tính kiến trúc cấu trúc (structural characteristic) thay vì yêu cầu đo lường được (measurable requirements). Modularity được thể hiện qua quyết định kiến trúc - việc chọn Microservices architecture (mục 5.2.1) với 7 services độc lập CHÍNH LÀ cách đáp ứng AC-1. Metrics của AC-1 (Coupling index I ≈ 0, Ce < 5) sẽ được đo tại mức architecture, không phải mức NFR.
+- AC-1 (Modularity) là Primary AC nhưng không xuất hiện như một "nhóm NFRs" riêng vì đây là một đặc tính kiến trúc cấu trúc thay vì yêu cầu đo lường được. Modularity được thể hiện qua quyết định kiến trúc - việc chọn Microservices architecture (mục 5.2.1) với 7 services độc lập chính là cách đáp ứng AC-1. Metrics của AC-1 (Coupling index I ≈ 0, Ce < 5) sẽ được đo tại mức architecture, không phải mức NFR.
 
 - Modularity đóng vai trò tiên quyết: chỉ khi có Modularity (microservices) thì mới có thể đạt được Scalability (scale từng service độc lập) và Performance (tối ưu từng service riêng).
 
@@ -164,7 +164,7 @@ Hệ thống SMAP được chia thành 5 Bounded Contexts dựa trên phân tíc
     align(center + horizon)[Data Collection],
     table.cell(align: center + horizon)[Core Domain],
     table.cell(align: horizon, inset: (y: 0.6em))[
-      Giao tiếp platforms bên ngoài (TikTok, YouTube) để thu thập dữ liệu thô.\
+      Giao tiếp platforms bên ngoài (TikTok, YouTube, Facebook) để thu thập dữ liệu thô.\
     ],
 
     align(center + horizon)[Content Analysis],
@@ -182,7 +182,7 @@ Hệ thống SMAP được chia thành 5 Bounded Contexts dựa trên phân tíc
   )
 ]
 
-*Tài liệu tham khảo:* E. Evans, "Domain-Driven Design: Tackling Complexity in the Heart of Software", 2003.
+// *Tài liệu tham khảo:* E. Evans, "Domain-Driven Design: Tackling Complexity in the Heart of Software", 2003.
 
 ===== 5.1.1.2 Microservices Architecture
 
@@ -192,11 +192,11 @@ Kiến trúc Monolithic truyền thống gặp 3 vấn đề chính khi xử lý
 - Crawler (IO-bound) và Analytics (CPU-bound) có yêu cầu tài nguyên khác nhau nhưng phải chạy cùng một instance, không thể tối ưu riêng.
 - Không thể scale từng phần độc lập - phải scale toàn bộ monolith, dẫn đến lãng phí tài nguyên, tính chất Scalability bị giới hạn.
 
-Vấn đề này liên quan trực tiếp đến AC-2 (Scalability) - yêu cầu scale 2-20 workers trong < 5 phút và xử lý 1,000 items/phút (mục 4.3.1), và AC-3 (Performance) - tối ưu response time cho từng service riêng.
+Vấn đề này liên quan trực tiếp đến AC-2 (Scalability) - yêu cầu scale 2-20 workers dưới vòng 5 phút và xử lý 1,000 items/phút (mục 4.3.1), và AC-3 (Performance) - tối ưu response time cho từng service riêng.
 
 Microservices Architecture chia hệ thống thành các services nhỏ, độc lập, mỗi service:
 - Có database riêng (Decentralized Data Management)
-- Có thể deploy độc lập với minimal downtime (đáp ứng AC-5 - Deployability: deploy < 5 phút, rollback < 5 phút, downtime < 30s)
+- Có thể deploy độc lập với minimal downtime (đáp ứng AC-5 - Deployability: deploy dưới 5 phút, rollback dưới 5 phút, downtime dưới 30s)
 - Có thể scale độc lập dựa trên workload
 - Có thể chọn technology stack phù hợp (polyglot)
 
@@ -205,7 +205,7 @@ Các services giao tiếp qua well-defined APIs (REST) hoặc events (Event-Driv
 #context (align(center)[_Bảng #table_counter.display(): Danh sách các Microservices của hệ thống SMAP_])
 #table_counter.step()
 #block(width: 100%)[
-  #set par(justify: true)
+  #set par(justify: false)
   #table(
     columns: (0.1fr, 0.25fr, 0.35fr, 0.3fr),
     stroke: 0.5pt,
@@ -230,7 +230,7 @@ Các services giao tiếp qua well-defined APIs (REST) hoặc events (Event-Driv
     table.cell(align: center + horizon, inset: (y: 0.8em))[3],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Collector Service],
     table.cell(align: horizon, inset: (y: 0.8em))[Dispatch job thu thập dữ liệu & tracking tiến độ],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Golang, PostgreSQL, \ Redis],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Golang, MongoDB, \ Redis],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[4],
     table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket Service],
@@ -278,7 +278,7 @@ Lợi ích đạt được:
 - Go cho high-concurrency APIs, Python cho ML/AI workloads
 - Tối ưu CPU cho Analytics, Memory cho Crawler riêng biệt
 
-Tài liệu tham khảo: M. Fowler, "Microservices: a definition of this new architectural term", 2014.
+// Tài liệu tham khảo: M. Fowler, "Microservices: a definition of this new architectural term", 2014.
 
 ===== 5.1.1.3 Event-Driven Architecture
 
@@ -533,3 +533,5 @@ Bẳng cách sử dụng C4 Model (Context, Containers, Components, Code) [S. Br
     table.cell(align: center + horizon, inset: (y: 0.8em))[Developers, DBAs],
   )
 ]
+
+#pagebreak()
