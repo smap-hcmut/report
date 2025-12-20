@@ -1,7 +1,7 @@
 // Import counter dùng chung
 #import "../counters.typ": table_counter, image_counter
 
-== 4.9 Sơ đồ cơ sở dữ liệu (Database Schema)
+== 5.4 Sơ đồ cơ sở dữ liệu (Database Schema)
 
 === Tổng quan kiến trúc Database
 

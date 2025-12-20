@@ -1,8 +1,14 @@
 // Import counter dùng chung
-#import "../counters.typ": table_counter, image_counter
+#import "../counters.typ": image_counter, table_counter
 
 == 4.3 Yêu cầu phi chức năng (Non-Functional Requirements)
-#context (align(center)[_Bảng #table_counter.display(): Non-Functional Requirements_])
+Dựa trên đặc thù xử lý dữ liệu lớn từ mạng xã hội với luồng thông tin phát sinh liên tục, nhóm tác giả thiết lập bộ tiêu chí phi chức năng (NFRs) làm rào chắn kỹ thuật cho dự án. Các yêu cầu này không tồn tại độc lập mà hỗ trợ lẫn nhau, được chia làm hai trụ cột chính: Đặc tính kiến trúc (tập trung vào cấu trúc nội tại) và Thuộc tính chất lượng (tập trung vào trải nghiệm người dùng)
+
+// === PHẦN 1: ĐẶC TÍNH KIẾN TRÚC ===
+== 4.3.1 Đặc tính kiến trúc
+Phần này xác định các đặc tính kiến trúc (Architecture Characteristics) nhằm đảm bảo hiệu quả vận hành và cấu trúc của hệ thống. Đây là các tiêu chí kỹ thuật dùng để đánh giá và định hướng thiết kế, giúp hệ thống đáp ứng các ràng buộc về công nghệ và bảo trì.
+=== 4.3.1.1 Đặc tính kiến trúc chính (Primary ACs)
+#context (align(center)[_Bảng #table_counter.display(): Đặc tính kiến trúc chính_])
 #table_counter.step()
 #text()[
   #set par(justify: false)
@@ -10,58 +16,254 @@
     columns: (auto, 1fr),
     stroke: 0.5pt,
     align: (left + top, left + top),
-    [*ID*], [*Mô tả*],
-    
-    // NFR-1: Hiệu năng
-    [NFR-1.1], [Thời gian xử lý Project tối đa 2 giờ (BR-TIMEOUT-01); quá hạn → status=Failed, failure_reason=Timeout, is_partial_result=true, giữ dữ liệu đã thu thập trong retention.],
-    [NFR-1.2], [Hiển thị tiến độ real-time trong quá trình thực thi.],
-    [NFR-1.3], [Xử lý rate-limit từ platform (retry, backoff, thông báo phù hợp).],
-    [NFR-1.4], [Sinh báo cáo trong giới hạn thời gian hợp lý; nếu vượt → timeout/summary-only (BR-EXPORT-TIMEOUT-01).],
-    
-    // NFR-2: Khả năng mở rộng
-    [NFR-2.1], [Mỗi user tối đa 10 projects trong retention window (Running + Completed + Failed/Cancelled nếu has_result=true; Draft không tính).],
-    [NFR-2.2], [Hỗ trợ thu thập: ≤1000 bài viết/từ khóa/platform; ≤100 comments/bài viết.],
-    [NFR-2.3], [Hỗ trợ đa nền tảng: YouTube, TikTok (hiện tại); Facebook, Instagram, Twitter/X (tương lai).],
-    
-    // NFR-3: Bảo mật & Quyền riêng tư
-    [NFR-3.1], [Dữ liệu chỉ hiển thị cho chủ sở hữu (BR-VISIBILITY-01).],
-    [NFR-3.2], [Chỉ thu thập nội dung công khai.],
-    [NFR-3.3], [Không thu thập PII nhạy cảm.],
-    [NFR-3.4], [Yêu cầu xác thực cho mọi thao tác.],
-    [NFR-3.5], [Kiểm tra quyền sở hữu trước khi cho phép thao tác trên Project.],
-    
-    // NFR-4: Quản lý dữ liệu
-    [NFR-4.1], [Thời gian lưu trữ 90 ngày (BR-RETENTION-01); sau đó archive hoặc xóa tùy gói.],
-    [NFR-4.2], [Giữ partial results khi lỗi/timeout.],
-    [NFR-4.3], [Quản lý phiên bản phân tích (analysis_version); hỗ trợ re-run với model mới.],
-    [NFR-4.4], [Soft-delete giữ lịch sử, cho phép khả năng khôi phục trong retention.],
-    [NFR-4.5], [Cho phép export dữ liệu bất cứ lúc nào (theo gói).],
-    
-    // NFR-5: Độ tin cậy
-    [NFR-5.1], [Xử lý lỗi nền tảng: rate-limit, captcha, lỗi kết nối.],
-    [NFR-5.2], [Bảo toàn dữ liệu đã thu thập khi có lỗi.],
-    [NFR-5.3], [Cung cấp thông báo lỗi rõ ràng kèm failure_reason.],
-    [NFR-5.4], [Hỗ trợ retry cho Project Failed.],
-    [NFR-5.5], [Hỗ trợ re-run phân tích AI độc lập với thu thập dữ liệu.],
-    
-    // NFR-6: Khả dụng (Usability)
-    [NFR-6.1], [Cho phép dry-run trước khi chạy thật.],
-    [NFR-6.2], [Hiển thị thời gian xử lý ước tính trước khi khởi chạy.],
-    [NFR-6.3], [Hiển thị tiến độ real-time khi thực thi.],
-    [NFR-6.4], [Gửi cảnh báo khủng hoảng trong quá trình chạy.],
-    [NFR-6.5], [Hiển thị rõ partial results bằng visual indicator/badge.],
-    [NFR-6.6], [Xác nhận thao tác huỷ/xóa (destructive actions).],
-    [NFR-6.7], [Điều hướng rõ ràng giữa các trạng thái Project.],
-    
-    // NFR-7: Khả trì
-    [NFR-7.1], [Dễ dàng thêm platform mới mà không refactor lớn.],
-    [NFR-7.2], [Phân tách rõ: thu thập (crawl) / phân tích (AI) / trình bày (dashboard).],
-    [NFR-7.3], [Phiên bản hóa kết quả AI để hỗ trợ cập nhật model.],
-    
-    // NFR-8: Tuân thủ
-    [NFR-8.1], [Tôn trọng rate-limit và chính sách truy cập công khai của nền tảng (BR-RATE-LIMIT-01, BR-COMPLIANCE-01).],
-    [NFR-8.2], [Chỉ thu thập dữ liệu công khai (BR-COMPLIANCE-01).],
-    [NFR-8.3], [Thực thi chính sách retention (BR-RETENTION-01).],
-    [NFR-8.4], [Cung cấp khả năng export dữ liệu theo quyền sở hữu.],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*AC*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Định nghĩa & Tầm quan trọng*],
+
+    align(center + horizon)[AC-1],
+    [
+      *Modularity*: Phân rã hệ thống thành các microservices độc lập với low coupling, high cohesion. Mỗi service có trách nhiệm rõ ràng (thu thập, phân tích, quản lý project, authentication). \
+      Tầm quan trọng: Cho phép triển khai và mở rộng từng service độc lập, hỗ trợ thay đổi các AI/ML models (NLP models, ASR models) mà không ảnh hưởng đến các service khác.
+    ],
+
+    align(center + horizon)[AC-2],
+    [
+      *Scalability*: Khả năng mở rộng hệ thống theo chiều ngang (horizontal scaling) để xử lý tăng tải. Hỗ trợ multiple workers cho crawling và analytics processing. \
+      Tầm quan trọng: Cần thiết cho các tác vụ xử lý khối lượng lớn dữ liệu từ nhiều platform đồng thời, bằng cách scale riêng biệt các service theo nhu cầu (ví dụ: scale crawling workers khi có nhiều projects chạy).
+    ],
+
+    align(center + horizon)[AC-3],
+    [
+      *Performance*: Đáp ứng yêu cầu nhanh để đảm bảo trải nghiệm người dùng mượt mà và xử lý dữ liệu hiệu quả. \
+      Tầm quan trọng: Cần thiết cho việc cập nhật tiến độ thời gian thực và sự tuỳ biến của dashboard. Thời gian phản hồi của các modules NLP phải tối ưu để không làm chậm analytics pipeline.
+    ],
+
+    align(center + horizon)[AC-4],
+    [
+      *Testability*: Hệ thống dễ dàng kiểm thử ở mọi cấp độ (unit, integration, e2e) với khả năng mock dependencies và cô lập các components. \
+      Tầm quan trọng: Đảm bảo chất lượng code, contract gửi/nhận khi có nhiều services phức tạp, cho phép tái cấu trúc an toàn và phát triển nhanh với độ tin cậy cao.
+    ],
+  )
+]
+
+#context (align(center)[_Bảng #table_counter.display(): Metrics & Mục tiêu - Đặc tính kiến trúc chính_])
+#table_counter.step()
+#text()[
+  #set par(justify: false)
+  #table(
+    columns: (auto, 1fr),
+    stroke: 0.5pt,
+    align: (left + top, left + top),
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*AC*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Metrics & Mục tiêu*],
+
+    align(center + horizon)[AC-1],
+    [
+      Metrics: Coupling index (I), Efferent coupling (Ce) \
+      Mục tiêu: I ≈ 0, Ce < 5. Mỗi service core có ≤ 3 dependencies trực tiếp.
+    ],
+
+    align(center + horizon)[AC-2],
+    [
+      Metrics: Số lượng concurrent workers, throughput (items/phút), response time dưới tải \
+      Mục tiêu: Scale từ 2 → 20 workers trong < 5 phút (do AI Docker images nặng >1GB). Xử lý 1,000 items/phút với 10 workers. .
+    ],
+
+    align(center + horizon)[AC-3],
+    [
+      Metrics: Response time percentiles (p95), throughput, NLP response time \
+      Mục tiêu: NLP response time < 300ms (p95) trên CPU. API response < 500ms (p95), dashboard load < 2 giây, WebSocket message delivery < 100ms.
+    ],
+
+    align(center + horizon)[AC-4],
+    [
+      Metrics: Code coverage, số lượng tests, thời gian chạy test suite \
+      Mục tiêu: Code coverage ≥ 80%, ≥ 100 unit tests/service, test suite chạy < 5 phút.
+    ],
+  )
+]
+#pagebreak()
+=== 4.3.1.2 Đặc tính kiến trúc bổ trợ (Secondary ACs)
+
+#context (align(center)[_Bảng #table_counter.display(): Đặc tính kiến trúc bổ trợ_])
+#table_counter.step()
+#text()[
+  #set par(justify: false)
+  #table(
+    columns: (auto, 1fr),
+    stroke: 0.5pt,
+    align: (left + top, left + top),
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*AC*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Định nghĩa & Tầm quan trọng*],
+
+    align(center + horizon)[AC-5],
+    [
+      *Deployability*: Khả năng triển khai hệ thống một cách nhanh chóng và an toàn với minimal downtime. \
+      Tầm quan trọng: Cho phép cập nhật thường xuyên các AI models và features mới mà không gián đoạn dịch vụ cho người dùng.
+    ],
+
+    align(center + horizon)[AC-6],
+    [
+      *Maintainability*: Dễ dàng bảo trì, cập nhật và mở rộng hệ thống theo thời gian với chi phí thấp. \
+      Tầm quan trọng: Cho phép thêm platform mới (Facebook, Instagram) và cập nhật AI models mà không cần tái cấu trúc lớn.
+    ],
+
+    align(center + horizon)[AC-7],
+    [
+      *Observability*: Khả năng theo dõi, giám sát và debug hệ thống thông qua metrics, logs và traces. \
+      Tầm quan trọng: Critical cho việc phát hiện sớm các vấn đề (rate limiting, model errors, queue backlog) và tối ưu hóa hiệu năng.
+    ],
+  )
+]
+
+#context (align(center)[_Bảng #table_counter.display(): Metrics & Mục tiêu - Đặc tính kiến trúc bổ trợ_])
+#table_counter.step()
+#text()[
+  #set par(justify: false)
+  #table(
+    columns: (auto, 1fr),
+    stroke: 0.5pt,
+    align: (left + top, left + top),
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*AC*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Metrics & Mục tiêu*],
+    align(center + horizon)[AC-5],
+    [
+      Metrics: Deployment time, deployment frequency, rollback time \
+      Mục tiêu: Deployment time < 5 phút, rollback < 5 phút. Downtime < 30 giây với rolling deployment.
+    ],
+
+    align(center + horizon)[AC-6],
+    [
+      Metrics: Số lượng breaking changes, plugin/adapter isolation, backward compatibility \
+      Mục tiêu: Zero breaking changes khi thêm platform mới, architecture hỗ trợ plugin pattern, 100% backward compatibility với API v1.
+    ],
+
+    align(center + horizon)[AC-7],
+    [
+      Metrics: Log coverage, metrics coverage, trace coverage, alert response time \
+      Mục tiêu: 100% errors được log, metrics coverage cho tất cả critical paths, alert response time < 5 phút.
+    ],
+  )
+]
+
+// === PHẦN 2: THUỘC TÍNH CHẤT LƯỢNG ===
+== 4.3.2 Thuộc tính chất lượng
+Mục này xác định các thuộc tính chất lượng nhằm mô tả hành vi và hiệu quả sử dụng của hệ thống từ góc độ người dùng cuối. Các tiêu chí này được thiết lập làm cơ sở để đánh giá mức độ đáp ứng của hệ thống đối với các nhu cầu thực tế trong quá trình vận hành. Các thuộc tính được nhóm thành 3 nhóm lớn dựa trên bản chất: (1) Hiệu năng & Vận hành, (2) An toàn & Tuân thủ, (3) Trải nghiệm & Hỗ trợ.
+
+\
+
+=== 4.3.2.1 Hiệu năng & Vận hành
+#context (align(center)[_Bảng #table_counter.display(): Hiệu năng & Vận hành_])
+#table_counter.step()
+#text()[
+  #set par(justify: false)
+  #table(
+    columns: (0.35fr, 0.45fr, 0.9fr),
+    // Điều chỉnh lại cột đầu nhỏ hơn xíu cho cân
+    stroke: 0.5pt,
+    align: (left + top, left + top, left + top),
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Khía cạnh*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Hạng mục*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Yêu cầu/Mục tiêu*],
+
+    // === PERFORMANCE ===
+    // Response Time (4 rows)
+    table.cell(rowspan: 4, align(center + horizon)[*Performance:* \ Response Time]),
+    align(center + horizon)[API Endpoints], [Response time < 500ms (p95) và < 1 giây (p99)],
+    align(center + horizon)[Dashboard Loading], [Dashboard initial load < 3 giây],
+    align(center + horizon)[WebSocket Updates], [WebSocket message delivery < 100ms (p95)],
+    align(center + horizon)[Report Generation], [Report generation < 10 phút],
+
+    // Throughput (3 rows)
+    table.cell(rowspan: 3, align(center + horizon)[*Performance:* \ Throughput]),
+    align(center + horizon)[Crawling],
+    [Hệ thống tận dụng tối đa rate-limit của từng platform. Hỗ trợ parallel crawling.],
+    align(center + horizon)[Analytics Processing],
+    [Xử lý \~70 items/phút với 1 worker, batch processing 20-50 items/batch],
+    align(center + horizon)[WebSocket Connections], [Hỗ trợ 1,000 concurrent WebSocket connections],
+
+    // Resource Utilization (3 rows)
+    table.cell(rowspan: 3, align(center + horizon)[*Performance:* \ Resource Utilization]),
+    align(center + horizon)[CPU], [CPU usage < 60% dưới normal load, < 90% dưới hard load],
+    align(center + horizon)[Memory], [Memory usage < 1GB/service instance, NLP model loading < 2GB RAM],
+    align(center + horizon)[Network], [Network latency < 50ms giữa services trong cùng namespace trong cụm clusters.],
+  )
+]
+
+=== 4.3.2.2 An toàn & Tuân thủ
+
+#context (align(center)[_Bảng #table_counter.display(): An toàn & Tuân thủ_])
+#table_counter.step()
+#text()[
+  #set par(justify: false)
+  #table(
+    columns: (0.35fr, 0.45fr, 0.9fr),
+    // Điều chỉnh lại cột đầu nhỏ hơn xíu cho cân
+    stroke: 0.5pt,
+    // Căn giữa dọc + ngang cho 2 cột đầu, cột cuối căn trái + trên cùng
+    align: (center + horizon, center + horizon, left + top),
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Khía cạnh*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Hạng mục*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Yêu cầu/Mục tiêu*],
+
+    // === SECURITY ===
+    // Auth & Authorization (3 rows)
+    table.cell(rowspan: 2, [*Security:* \ Auth & Authorization]),
+    [User Authentication], [JWT với HttpOnly cookies, session timeout 2 giờ (normal) hoặc 30 ngày (remember me)],
+    [Authorization], [Verify ownership trước mọi thao tác trên Project, role-based access control (RBAC)],
+
+    // Data Protection (3 rows)
+    table.cell(rowspan: 2, [*Security:* \ Data Protection]),
+    [Data Encryption], [TLS 1.3 cho tất cả communications, AES-256 cho data at rest],
+    [Password Security], [bcrypt hashing với salt, minimum 8 characters, complexity requirements],
+
+    // Application Security (3 rows)
+    table.cell(rowspan: 2, [*Security:* \ Application Security]),
+    [Input Validation], [Validate tất cả inputs, sanitize user inputs, prevent SQL injection],
+    [CORS Policy], [CORS chỉ cho phép production domains, localhost cho development],
+
+    // === COMPLIANCE ===
+    // Data Governance (4 rows)
+    table.cell(rowspan: 2, [*Compliance:* \ Data Governance]),
+    [Right to Access], [User có thể export dữ liệu của mình trong format JSON, CSV, Excel],
+    [Right to Delete],
+    [Soft-delete với retention 30-60 ngày, hard-delete hoặc anonymize sau đó. PII không giữ > 60 ngày],
+
+    // Platform Compliance (3 rows)
+    table.cell(rowspan: 2, [*Compliance:* \ Platform Compliance]),
+    [Rate Limit Compliance], [Tôn trọng rate limits của YouTube, TikTok, không bypass captcha],
+    [Terms of Service], [Tuân thủ Terms of Service của các platforms, chỉ crawl dữ liệu được phép],
+  )
+]
+
+=== 4.3.2.3 Trải nghiệm & Hỗ trợ
+#context (align(center)[_Bảng #table_counter.display(): Trải nghiệm & Hỗ trợ_])
+#table_counter.step()
+#text()[
+  #set par(justify: false)
+  #table(
+    columns: (0.35fr, 0.45fr, 0.9fr),
+    // Điều chỉnh lại cột đầu nhỏ hơn xíu cho cân
+    stroke: 0.5pt,
+    // Căn giữa dọc + ngang cho 2 cột đầu, cột cuối căn trái + trên cùng
+    align: (center + horizon, center + horizon, left + top),
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Khía cạnh*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Hạng mục*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Yêu cầu/Mục tiêu*],
+
+    // === USABILITY ===
+    // User Experience (5 rows)
+    table.cell(rowspan: 6, [*Usability:* \ User Experience]),
+    [Internationalization], [Đa ngôn ngữ (Tiếng Việt, Tiếng Anh)],
+    [Loading States], [Hiển thị loading indicators cho mọi async operations, skeleton screens],
+    [Error Messages], [Error messages rõ ràng, actionable, với error codes để support],
+    [Confirmation Dialogs], [Xác nhận cho destructive actions, có thể undo trong 30 giây],
+    [Progress Indicators], [Real-time progress với percentage, time remaining, items processed],
+    [Onboarding], [Tutorial cho first-time users, tooltips cho complex features],
+
+    // Logging (3 rows)
+    table.cell(rowspan: 3, [*Monitoring:* \ Logging]),
+    [Application Metrics], [Prometheus cho application metrics, dashboard với KPI],
+    [Log Levels], [Structured logging: DEBUG, INFO, WARNING, ERROR, CRITICAL],
+    [Log Format], [JSON format (timestamp, level, service, trace_id, message)],
   )
 ]

@@ -1,68 +1,73 @@
-// Chapter 6: Tài liệu tham khảo
+// Chapter 6: Tổng kết
 
-= CHƯƠNG 6: TÀI LIỆU THAM KHẢO
+= CHƯƠNG 6: TỔNG KẾT
 
-== Sách và giáo trình
+// == 5.1 Kết quả đạt được
 
-+ Sommerville, I. (2015). _Software Engineering_ (10th ed.). Pearson Education.
+// Đề tài đã hoàn thành việc phân tích, thiết kế hệ thống SMAP (Social Media Analytics Platform) với các kết quả chính:
 
-+ Pressman, R. S., & Maxim, B. R. (2014). _Software Engineering: A Practitioner's Approach_ (8th ed.). McGraw-Hill Education.
+// *Về phân tích yêu cầu:*
+// - Xác định được 2 actors chính: Brand Manager và Social Media Platforms
+// - Phân tích 7 use cases cấp user-goal bao gồm cấu hình project, dry-run từ khóa, khởi chạy và theo dõi, xem kết quả, quản lý projects, xuất báo cáo và phát hiện trend tự động
+// - Định nghĩa 47 yêu cầu chức năng (FR) và 31 yêu cầu phi chức năng (NFR)
+// - Thiết lập 7 business rules toàn cục đảm bảo tính nhất quán của hệ thống
 
-+ Cockburn, A. (2000). _Writing Effective Use Cases_. Addison-Wesley Professional.
+// *Về thiết kế kiến trúc:*
+// - Thiết kế kiến trúc microservices với 5 services chính: Identity, Project, Collector, AI/ML và WebSocket
+// - Thiết kế database schema với 2 PostgreSQL databases độc lập cho Identity và Project services
+// - Thiết kế message flow sử dụng RabbitMQ cho asynchronous processing và Redis Pub/Sub cho real-time notifications
+// - Thiết kế data pipeline từ crawling, analyzing, aggregating đến finalizing
 
-+ Newman, S. (2021). _Building Microservices: Designing Fine-Grained Systems_ (2nd ed.). O'Reilly Media.
+// *Về mô hình hóa:*
+// - Xây dựng 7 activity diagrams mô tả luồng nghiệp vụ chi tiết
+// - Xây dựng 7 sequence diagrams mô tả tương tác giữa các components
+// - Xây dựng ERD diagram mô tả cấu trúc database và relationships
+// - Đặc tả đầy đủ 7 use cases theo template Cockburn với main flow và extensions
 
-+ Richardson, C. (2018). _Microservices Patterns: With Examples in Java_. Manning Publications.
+// == 5.2 Hạn chế
 
-== Tài liệu kỹ thuật và chuẩn
+// Đề tài còn một số hạn chế cần khắc phục:
 
-+ IEEE. (1998). _IEEE Recommended Practice for Software Requirements Specifications_. IEEE Std 830-1998.
+// *Về phạm vi:*
+// - Chưa triển khai đầy đủ tất cả các use cases, tập trung chủ yếu vào phân tích và thiết kế
+// - Chưa có implementation cho AI/ML Service (sentiment analysis, aspect extraction, trend detection)
+// - Chưa hỗ trợ đầy đủ các nền tảng mạng xã hội (hiện tại chỉ YouTube và TikTok)
 
-+ Object Management Group. (2017). _Unified Modeling Language (UML) Specification Version 2.5.1_.
+// *Về kỹ thuật:*
+// - Chưa có giải pháp cụ thể cho việc xử lý rate-limit và captcha từ các platforms
+// - Chưa có cơ chế backup và disaster recovery chi tiết
+// - Chưa có performance testing và load testing để xác định giới hạn hệ thống
 
-+ INCOSE. (2015). _Systems Engineering Handbook: A Guide for System Life Cycle Processes and Activities_ (4th ed.).
+// *Về tài liệu:*
+// - Chưa có user manual và deployment guide chi tiết
+// - Chưa có API documentation đầy đủ cho tất cả endpoints
+// - Chưa có runbook cho operations và troubleshooting
 
-+ ISO/IEC/IEEE. (2011). _Systems and Software Engineering - Architecture Description_. ISO/IEC/IEEE 42010:2011.
+// == 5.3 Hướng phát triển
 
-== Tài liệu trực tuyến
+// Các hướng phát triển tiếp theo cho hệ thống:
 
-+ RabbitMQ Documentation. (2024). _RabbitMQ Tutorials_. Retrieved from https://www.rabbitmq.com/tutorials
+// *Ngắn hạn (3-6 tháng):*
+// - Hoàn thiện implementation các use cases còn lại
+// - Triển khai AI/ML Service với các models phân tích sentiment và aspect extraction
+// - Xây dựng dashboard visualization với các charts và metrics real-time
+// - Implement export report functionality với các formats PDF, PPTX, Excel
 
-+ Redis Documentation. (2024). _Redis Pub/Sub_. Retrieved from https://redis.io/docs/interact/pubsub/
+// *Trung hạn (6-12 tháng):*
+// - Mở rộng hỗ trợ thêm các platforms: Facebook, Instagram, Twitter/X
+// - Phát triển tính năng competitor benchmarking nâng cao
+// - Xây dựng recommendation system đề xuất keywords và strategies
+// - Implement advanced analytics với predictive models
 
-+ PostgreSQL Documentation. (2024). _PostgreSQL 16 Documentation_. Retrieved from https://www.postgresql.org/docs/16/
+// *Dài hạn (> 12 tháng):*
+// - Phát triển mobile app cho iOS và Android
+// - Tích hợp với các công cụ marketing automation
+// - Xây dựng marketplace cho AI models và templates
+// - Mở rộng sang các thị trường quốc tế với multi-language support
 
-+ Go Documentation. (2024). _The Go Programming Language Documentation_. Retrieved from https://go.dev/doc/
+// == 5.4 Kết luận
 
-+ Docker Documentation. (2024). _Docker Documentation_. Retrieved from https://docs.docker.com/
+// Đề tài đã hoàn thành mục tiêu phân tích và thiết kế hệ thống SMAP, một nền tảng phân tích mạng xã hội toàn diện đáp ứng nhu cầu thực tế của doanh nghiệp trong việc theo dõi danh tiếng thương hiệu và phát hiện sớm khủng hoảng. Kiến trúc microservices được thiết kế cho phép hệ thống dễ dàng mở rộng và bảo trì. Các use cases được phân tích chi tiết với đầy đủ main flow và exception handling. Database schema được thiết kế tối ưu với indexes và soft delete pattern. Message flow được thiết kế rõ ràng với RabbitMQ và Redis Pub/Sub đảm bảo xử lý bất đồng bộ và real-time notifications.
 
-+ Kubernetes Documentation. (2024). _Kubernetes Documentation_. Retrieved from https://kubernetes.io/docs/
-
-== Bài báo và nghiên cứu
-
-+ Liu, B. (2012). Sentiment Analysis and Opinion Mining. _Synthesis Lectures on Human Language Technologies_, 5(1), 1-167.
-
-+ Pang, B., & Lee, L. (2008). Opinion Mining and Sentiment Analysis. _Foundations and Trends in Information Retrieval_, 2(1-2), 1-135.
-
-+ Blei, D. M., Ng, A. Y., & Jordan, M. I. (2003). Latent Dirichlet Allocation. _Journal of Machine Learning Research_, 3, 993-1022.
-
-+ Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient Estimation of Word Representations in Vector Space. _arXiv preprint arXiv:1301.3781_.
-
-== API Documentation
-
-+ TikTok for Developers. (2024). _TikTok API Documentation_. Retrieved from https://developers.tiktok.com/
-
-+ YouTube Data API. (2024). _YouTube Data API v3 Documentation_. Retrieved from https://developers.google.com/youtube/v3
-
-+ Facebook Graph API. (2024). _Graph API Documentation_. Retrieved from https://developers.facebook.com/docs/graph-api
-
-== Công cụ và thư viện
-
-+ SQLBoiler. (2024). _SQLBoiler - A Go ORM Generator_. Retrieved from https://github.com/volatiletech/sqlboiler
-
-+ Gin Web Framework. (2024). _Gin Web Framework Documentation_. Retrieved from https://gin-gonic.com/docs/
-
-+ WebSocket Protocol. (2011). _RFC 6455 - The WebSocket Protocol_. Retrieved from https://tools.ietf.org/html/rfc6455
-
-+ MinIO. (2024). _MinIO Object Storage Documentation_. Retrieved from https://min.io/docs/
+// Hệ thống có tiềm năng phát triển thành một sản phẩm thương mại với khả năng cạnh tranh cao trên thị trường social media analytics. Các hướng phát triển tiếp theo đã được xác định rõ ràng, tạo nền tảng vững chắc cho việc triển khai và mở rộng hệ thống trong tương lai.
 
