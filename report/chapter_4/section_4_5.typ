@@ -1,5 +1,5 @@
 // Import counter dùng chung
-#import "../counters.typ": table_counter, image_counter
+#import "../counters.typ": image_counter, table_counter
 
 == 4.5 Sơ đồ hoạt động (Activity Diagram)
 
