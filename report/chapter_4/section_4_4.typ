@@ -1,7 +1,6 @@
 // Import counter dùng chung
 #import "../counters.typ": image_counter, table_counter
 
-\
 
 == 4.4 Use Case
 #context (align(center)[_Bảng #table_counter.display(): Danh sách Use Case_])

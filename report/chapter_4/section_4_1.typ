@@ -13,8 +13,8 @@ Dựa trên kết quả khảo sát về thị hiếu người dùng và phân t
     stroke: 0.5pt,
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Actor ID*],
-    table.cell(align: center + horizon)[*Actor (Tác nhân)*],
-    table.cell(align: center + horizon)[*Vai trò chính (Role)*],
+    table.cell(align: center + horizon)[*Actor*],
+    table.cell(align: center + horizon)[*Vai trò chính*],
 
     align(center + horizon)[A-01],
     align(center + horizon)[Marketing Analyst],
@@ -37,7 +37,7 @@ Dựa trên kết quả khảo sát về thị hiếu người dùng và phân t
     align(center + horizon)[A-02],
     align(center + horizon)[Social Media Platforms \ (Nền tảng mạng xã hội)],
     table.cell(align: horizon, inset: (y: 0.6em))[
-      Hệ thống bên ngoài (External Actor). \
+      Hệ thống bên ngoài. \
 
       Đặc điểm:
       - Nằm ngoài boundary SMAP.

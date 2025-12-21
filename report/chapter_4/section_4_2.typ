@@ -1,7 +1,7 @@
 // Import counter dùng chung
 #import "../counters.typ": image_counter, table_counter
 
-== 4.2 Yêu cầu chức năng (Functional Requirements)
+== 4.2 Functional Requirements
 Căn cứ vào các mục tiêu nghiệp vụ của Marketing Analyst (A-01) và các ràng buộc kỹ thuật từ các nền tảng mạng xã hội (A-02) đã phân tích tại mục 4.1, nhóm tác giả xác định các yêu cầu chức năng (FR) cần thiết để hiện thực hóa hệ thống. Các chức năng này được chia thành 3 nhóm chính: thu thập dữ liệu, phân tích dữ liệu và báo cáo trực quan.
 
 #context (align(center)[_Bảng #table_counter.display(): Functional Requirements_])
