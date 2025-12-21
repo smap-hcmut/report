@@ -1,0 +1,99 @@
+@startuml AD-06_Trend_Detection_v2
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+skinparam activity {
+    FontSize 11
+    RoundCorner 8
+}
+
+skinparam decision {
+    FontSize 10
+}
+
+skinparam swimlane {
+    TitleFontSize 12
+    TitleFontStyle bold
+}
+
+skinparam note {
+    FontSize 9
+}
+
+title AD-06 – Activity Diagram: Phát hiện Trend tự động (UC-07)
+
+|System|
+start
+note right: Cron Schedule: 2:00 AM UTC+7
+
+if (Các nền tảng khả dụng?) then (Không)
+    :Ghi log lỗi;
+    :Chờ chu kỳ tiếp theo;
+    stop
+endif
+
+:Thu thập dữ liệu trending;
+note right
+  Nguồn dữ liệu:
+  - YouTube: Trending videos
+  - TikTok: Viral content
+  - Facebook: Popular posts
+end note
+
+if (Thu thập thành công?) then (Không)
+    :Tạo TrendRun (Status: Failed);
+   
+    stop
+endif
+
+:Chuẩn hóa dữ liệu;
+:Tính toán metrics;
+note right
+  Metrics:
+  - Trend Score
+  - Velocity
+  - Reach
+end note
+:Xếp hạng & lọc top trends;
+:Lưu kết quả vào Database;
+:Tạo TrendRun (Status: Completed);
+:Cập nhật Trend Dashboard;
+:Gửi thông báo đến Marketing Analysts;
+
+|Marketing Analyst|
+:Nhận thông báo;
+
+if (Xem danh sách trends?) then (Không)
+    stop
+endif
+
+:Truy cập Trend Dashboard;
+:Sử dụng bộ lọc tìm kiếm;
+note right
+  Bộ lọc:
+  - Nền tảng
+  - Loại nội dung
+  - Khoảng thời gian
+  - Phạm vi Score
+end note
+
+if (Xem chi tiết trend?) then (Có)
+    :Mở chi tiết trend item;
+    :Phân tích & đưa ra insight;
+    stop
+else (Không)
+    :Tiếp tục duyệt danh sách;
+    stop
+endif
+
+legend right
+  Metrics tính toán:
+  | Trend Score | Engagement + Growth |
+  | Velocity | Tốc độ tăng trưởng |
+  | Reach | Phạm vi tiếp cận |
+endlegend
+
+@enduml

@@ -1,0 +1,95 @@
+@startuml AD-04_Project_Execution_v2
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+skinparam activity {
+    FontSize 11
+    RoundCorner 8
+}
+
+skinparam decision {
+    FontSize 10
+}
+
+skinparam swimlane {
+    TitleFontSize 12
+    TitleFontStyle bold
+}
+
+skinparam note {
+    FontSize 9
+}
+
+title AD-04 – Activity Diagram: Khởi chạy Project (UC-03)
+
+|Marketing Analyst|
+start
+:Chọn Project từ danh sách;
+:Nhấn "Khởi chạy";
+
+|System|
+:Xác thực quyền truy cập;
+
+if (Có quyền sở hữu?) then (Không)
+    :Từ chối truy cập;
+    stop
+endif
+
+if (Trạng thái hợp lệ?) then (Không)
+    :Thông báo Project đang xử lý;
+    stop
+endif
+
+:Cập nhật trạng thái → Processing;
+:Khởi tạo Pipeline xử lý;
+
+fork
+    :1. Crawling - Thu thập dữ liệu;
+    :2. Analyzing - Phân tích NLP;
+    :3. Aggregating - Tổng hợp metrics;
+    :4. Finalizing - Hoàn tất & dọn dẹp;
+fork again
+    |Marketing Analyst|
+    :Theo dõi tiến độ real-time;
+    note right
+      Hiển thị:
+      - Giai đoạn hiện tại
+      - % hoàn thành
+      - Thời gian còn lại
+    end note
+end fork
+
+|System|
+if (Xử lý thành công?) then (Có)
+    :Cập nhật trạng thái → Completed;
+    :Lưu kết quả vào Database;
+    :Gửi thông báo hoàn tất;
+    
+    |Marketing Analyst|
+    :Nhận thông báo;
+    :Truy cập Dashboard xem kết quả;
+    stop
+else (Không)
+    :Cập nhật trạng thái → Failed;
+    :Gửi thông báo thất bại;
+    
+    |Marketing Analyst|
+    if (Thử lại?) then (Có)
+        :Nhấn "Retry";
+        detach
+    else (Không)
+        stop
+    endif
+endif
+
+legend right
+  Thông số kỹ thuật:
+  | Thời gian xử lý | 35-50 phút |
+  | Timeout | 2 giờ |
+  | Pipeline | 4 giai đoạn |
+endlegend
+
+@enduml
