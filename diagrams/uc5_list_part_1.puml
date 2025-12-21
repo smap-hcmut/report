@@ -1,0 +1,85 @@
+@startuml uc5_list_part_1
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title UC-05 Part 1: Projects List View và Filtering
+
+actor "Marketing\nAnalyst" as User
+participant "Web UI\n(Next.js)" as UI
+participant "Project Service\n(Golang)" as ProjectSvc
+database "PostgreSQL\n(projects table)" as DB
+
+== Initial Page Load ==
+
+User -> UI: Navigate to "/projects"\n(from menu or after login)
+activate UI
+
+UI -> ProjectSvc: GET /api/v1/projects\nAuthorization: Bearer <JWT>
+activate ProjectSvc
+
+ProjectSvc -> ProjectSvc: Verify JWT\nExtract user_id
+
+ProjectSvc -> DB: SELECT * FROM projects\nWHERE created_by = :user_id\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 20 OFFSET 0
+activate DB
+
+DB --> ProjectSvc: Return projects list:\n[\n  {id, name, status, created_at,\n   brand_keywords_preview: [...3 keywords]}\n]
+deactivate DB
+
+ProjectSvc --> UI: 200 OK\n{\n  "projects": [...],\n  "total": 45,\n  "page": 1\n}
+deactivate ProjectSvc
+
+UI -> UI: Render Projects List:\n- Cards với name, status badge\n- Created date, last updated\n- Brand keywords preview
+
+UI --> User: Display Projects page\nwith filter controls
+deactivate UI
+
+== Apply Filters ==
+
+User -> UI: Apply filters:\n- Status: "completed"\n- Search: "brand A"\n- Sort: "created_at DESC"
+activate UI
+
+UI -> ProjectSvc: GET /api/v1/projects?\nstatus=completed&\nsearch=brand%20A&\nsort=created_at&\norder=desc
+activate ProjectSvc
+
+ProjectSvc -> DB: SELECT * FROM projects\nWHERE created_by = :user_id\n  AND deleted_at IS NULL\n  AND status = 'completed'\n  AND name ILIKE '%brand A%'\nORDER BY created_at DESC\nLIMIT 20
+activate DB
+
+DB --> ProjectSvc: Return filtered list:\n[...12 matching projects]
+deactivate DB
+
+ProjectSvc --> UI: 200 OK\n{\n  "projects": [...12],\n  "total": 12,\n  "filters_applied": {...}\n}
+deactivate ProjectSvc
+
+UI -> UI: Update display:\n"Showing 12 of 45 projects"
+
+UI --> User: Display filtered results
+deactivate UI
+
+== Pagination (Optional) ==
+
+note over User, DB
+  If user has > 50 projects,\n  pagination activates with\n  20 items/page + infinite scroll
+end note
+
+User -> UI: Scroll to bottom
+activate UI
+
+UI -> ProjectSvc: GET /api/v1/projects?\npage=2&limit=20
+activate ProjectSvc
+
+ProjectSvc -> DB: SELECT ... OFFSET 20 LIMIT 20
+activate DB
+DB --> ProjectSvc: Next 20 items
+deactivate DB
+
+ProjectSvc --> UI: 200 OK with next page
+deactivate ProjectSvc
+
+UI -> UI: Append to list\n(infinite scroll)
+
+UI --> User: Load more projects
+deactivate UI
+
+@enduml

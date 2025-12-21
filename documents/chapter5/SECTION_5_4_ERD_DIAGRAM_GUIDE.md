@@ -35,9 +35,9 @@ Section 5.4 cần 3 ERD diagrams:
 - `id` (UUID, PK) - Primary Key, bold
 - `username` (VARCHAR(255), UK) - Unique Key, italic
 - `full_name` (VARCHAR(100))
-- `password_hash` (TEXT) - Note: "bcrypt, cost 10"
+- `password_hash` (VARCHAR(255)) - Note: "bcrypt, cost 10"
 - `role_hash` (TEXT) - Note: "Encrypted role (USER/ADMIN)"
-- `avatar_url` (TEXT)
+- `avatar_url` (VARCHAR(255))
 - `is_active` (BOOLEAN) - Note: "Account verified"
 - `otp` (VARCHAR(6)) - Note: "6-digit OTP"
 - `otp_expired_at` (TIMESTAMP)

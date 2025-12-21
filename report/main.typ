@@ -42,13 +42,12 @@
 #pagebreak()
 // Chương 5: Thiết kế hệ thống
 #include "chapter_5/index.typ"
-// Chương 6: Tổng kết
+#pagebreak()
+// Chương 6: Chi tiết Hiện thực (NEW)
 #include "chapter_6/index.typ"
 #pagebreak()
-// Chương 7: tài liệu tham khảo 
+// Chương 7: Tổng kết (moved from 6)
 #include "chapter_7/index.typ"
-// Chương 8: Phụ lục
+#pagebreak()
+// Chương 8: Tài liệu tham khảo (moved from 7)
 #include "chapter_8/index.typ"
-// ==== Các hướng dẫn thêm chương mới ====
-// #import "chapter_x_typ" as cx
-// #cx

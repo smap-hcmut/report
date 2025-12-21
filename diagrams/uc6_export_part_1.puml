@@ -1,0 +1,82 @@
+@startuml uc6_export_part_1
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title UC-06 Part 1: Export Configuration và Request Submission
+
+actor "Marketing\nAnalyst" as User
+participant "Web UI\n(Next.js)" as UI
+participant "Project Service\n(Golang)" as ProjectSvc
+database "PostgreSQL\n(export_requests)" as DB
+participant "RabbitMQ\n(export.jobs)" as MQ
+
+== User Initiates Export ==
+
+User -> UI: Click "Xuất báo cáo" button\n(on Dashboard UC-04)
+activate UI
+
+UI -> UI: Show Export Configuration Dialog
+
+note over UI
+  Dialog options:
+  - Format: PDF / Excel / CSV
+  - Date range: Full / Custom
+  - Sections: Overview, Sentiment,
+    Competitor, Crisis Posts
+end note
+
+UI --> User: Display configuration form
+deactivate UI
+
+== Configuration và Submission ==
+
+User -> UI: Select options:\n- Format: PDF\n- Date: Full project range\n- Sections: All
+activate UI
+
+User -> UI: Click "Xuất báo cáo"
+
+UI -> UI: Validate input:\n- Format selected\n- Date range valid
+
+UI -> ProjectSvc: POST /api/v1/projects/:id/export\nAuthorization: Bearer <JWT>\n{\n  "format": "pdf",\n  "date_range": "full",\n  "sections": ["overview", "sentiment", "competitor", "crisis"]\n}
+activate ProjectSvc
+
+ProjectSvc -> ProjectSvc: Verify JWT\nExtract user_id
+
+ProjectSvc -> ProjectSvc: Verify ownership:\nproject.created_by == user_id
+
+ProjectSvc -> ProjectSvc: Validate export config:\n- Format in [pdf, excel, csv]\n- Sections valid
+
+== Enqueue Export Job ==
+
+ProjectSvc -> DB: INSERT INTO export_requests\n  (id, project_id, user_id,\n   format, config, status)\nVALUES\n  (:id, :project_id, :user_id,\n   'pdf', :config, 'pending')
+activate DB
+
+DB --> ProjectSvc: 1 row inserted\nexport_request_id
+deactivate DB
+
+ProjectSvc -> MQ: PUBLISH to exchange: smap.events\nRouting key: export.requested\nPayload:\n{\n  "event_id": "uuid",\n  "event_type": "export.requested",\n  "payload": {\n    "export_request_id": "uuid",\n    "project_id": "uuid",\n    "user_id": "uuid",\n    "format": "pdf",\n    "config": {...}\n  }\n}
+activate MQ
+
+MQ --> ProjectSvc: ACK (published)
+deactivate MQ
+
+ProjectSvc --> UI: 202 Accepted\n{\n  "export_request_id": "uuid",\n  "status": "pending",\n  "message": "Export job queued"\n}
+deactivate ProjectSvc
+
+== User Feedback ==
+
+UI -> UI: Close dialog
+
+UI -> UI: Show toast notification:\n"Báo cáo đang được tạo,\nbạn sẽ nhận thông báo khi hoàn tất"
+
+UI --> User: Continue using dashboard\n(non-blocking)
+deactivate UI
+
+note over User, MQ
+  User can continue using the system
+  while export job processes in background
+end note
+
+@enduml

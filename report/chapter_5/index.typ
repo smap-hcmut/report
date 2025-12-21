@@ -14,8 +14,11 @@
 #import "section_5_4.typ" as database_strategy
 #database_strategy
 
-#import "section-extra.typ" as sequence
-#sequence
+#import "section_5_5.typ" as sequence_diagram
+#sequence_diagram
 
-#import "section_textra-2.typ" as erd
-#erd
+#import "section_5_6.typ" as communication_patterns
+#communication_patterns
+
+#import "section_5_7.typ" as traceability_validation
+#traceability_validation

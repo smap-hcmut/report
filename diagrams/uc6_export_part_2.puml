@@ -1,0 +1,99 @@
+@startuml uc6_export_part_2
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title UC-06 Part 2: Report Generation Pipeline
+
+participant "RabbitMQ\n(export.jobs)" as MQ
+participant "Export Worker\n(Python)" as Worker
+database "PostgreSQL\n(analytics data)" as DB
+participant "MinIO\n(Object Storage)" as MinIO
+database "PostgreSQL\n(export_requests)" as ExportDB
+participant "RabbitMQ\n(notifications)" as NotifyMQ
+
+== Consume Export Request ==
+
+MQ -> Worker: CONSUME export.requested event\n{\n  "export_request_id": "uuid",\n  "project_id": "uuid",\n  "format": "pdf",\n  "config": {...}\n}
+activate Worker
+
+Worker -> Worker: Parse event payload\nExtract: export_request_id,\n  project_id, format, config
+
+== Query Analytics Data ==
+
+Worker -> DB: SELECT * FROM posts\nWHERE project_id = :project_id\n  AND created_at BETWEEN :start AND :end
+activate DB
+
+DB --> Worker: Return analytics data:\n- Posts with sentiment\n- Aspect analysis\n- Competitor comparison\n- Crisis posts\n- Aggregated metrics
+deactivate DB
+
+Worker -> Worker: Transform data for report:\n- Group by sentiment\n- Calculate statistics\n- Prepare charts data
+
+== Generate Report File ==
+
+alt Format = PDF
+
+    Worker -> Worker: Use WeasyPrint library:\n1. Render HTML template\n2. Embed charts (matplotlib)\n3. Format tables\n4. Generate PDF binary
+
+else Format = Excel
+
+    Worker -> Worker: Use openpyxl library:\n1. Create workbook\n2. Add sheets: Overview,\n   Sentiment, Competitor, Crisis\n3. Insert data và charts\n4. Generate .xlsx binary
+
+else Format = CSV
+
+    Worker -> Worker: Use csv library:\n1. Flatten data structure\n2. Write comma-separated rows\n3. Generate .csv text file
+
+end
+
+Worker -> Worker: File generated:\nSize: 2.5 MB\nFilename: {project_name}_report_{date}.{format}
+
+== Upload to MinIO ==
+
+Worker -> MinIO: PUT object\nBucket: reports\nKey: projects/{project_id}/exports/{export_request_id}.{format}\nContent-Type: application/{format}
+activate MinIO
+
+MinIO --> Worker: 200 OK\nObject uploaded successfully
+deactivate MinIO
+
+Worker -> MinIO: Generate pre-signed URL\nExpiry: 7 days (604800 seconds)
+activate MinIO
+
+MinIO --> Worker: Pre-signed download URL:\nhttps://minio.smap.local/reports/...\n?X-Amz-Expires=604800&...
+deactivate MinIO
+
+== Update Export Request Status ==
+
+Worker -> ExportDB: UPDATE export_requests\nSET status = 'completed',\n    download_url = :url,\n    file_size = :size,\n    completed_at = NOW()\nWHERE id = :export_request_id
+activate ExportDB
+
+ExportDB --> Worker: 1 row updated
+deactivate ExportDB
+
+== Publish Completion Event ==
+
+Worker -> NotifyMQ: PUBLISH to exchange: smap.events\nRouting key: export.completed\nPayload:\n{\n  "event_type": "export.completed",\n  "payload": {\n    "export_request_id": "uuid",\n    "project_id": "uuid",\n    "user_id": "uuid",\n    "download_url": "...",\n    "file_size": 2621440,\n    "format": "pdf"\n  }\n}
+activate NotifyMQ
+
+NotifyMQ --> Worker: ACK (published)
+deactivate NotifyMQ
+
+Worker -> MQ: ACK original message\n(export.requested consumed)
+deactivate Worker
+
+note over Worker, NotifyMQ
+  Export job completed successfully.
+  Notification sent to WebSocket service
+  for real-time user notification.
+end note
+
+== Exception Handling ==
+
+note over Worker, ExportDB
+  If export fails (timeout > 10 min, DB error, OOM):
+  1. Update status = 'failed', reason = error_message
+  2. Publish export.failed event
+  3. NACK message (retry or DLQ)
+end note
+
+@enduml

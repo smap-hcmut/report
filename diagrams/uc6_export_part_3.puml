@@ -1,0 +1,134 @@
+@startuml uc6_export_part_3
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title UC-06 Part 3: User Notification và File Download
+
+participant "RabbitMQ\n(notifications)" as MQ
+participant "WebSocket Service\n(Golang)" as WS
+participant "Redis Pub/Sub" as Redis
+actor "Marketing\nAnalyst" as User
+participant "Web UI\n(Next.js)" as UI
+participant "Project Service\n(Golang)" as ProjectSvc
+database "PostgreSQL\n(export_requests)" as DB
+participant "MinIO\n(Object Storage)" as MinIO
+
+== Real-time Notification (User Online) ==
+
+MQ -> WS: CONSUME export.completed event\n{\n  "export_request_id": "uuid",\n  "project_id": "uuid",\n  "user_id": "uuid",\n  "download_url": "...",\n  "format": "pdf"\n}
+activate WS
+
+WS -> Redis: PUBLISH to channel: user:{user_id}\nMessage:\n{\n  "type": "export_completed",\n  "export_request_id": "uuid",\n  "project_id": "uuid",\n  "format": "pdf"\n}
+activate Redis
+
+Redis --> WS: Broadcast to subscribers
+deactivate Redis
+
+WS -> WS: Check if user connected\nvia WebSocket
+
+alt User is online (WebSocket connected)
+
+    WS -> UI: Send WebSocket message:\n{\n  "type": "export_completed",\n  "message": "Báo cáo của bạn đã sẵn sàng",\n  "export_request_id": "uuid",\n  "project_id": "uuid"\n}
+    activate UI
+
+    UI -> UI: Show notification banner:\n"Báo cáo của bạn đã sẵn sàng"\nwith "Download" button
+
+    UI --> User: Display notification
+    deactivate UI
+
+else User is offline
+
+    note over WS, UI
+      Notification stored in database
+      for later retrieval when user logs in
+    end note
+
+end
+
+deactivate WS
+
+== User Downloads File ==
+
+User -> UI: Click "Download" button\n(or navigate to Export History)
+activate UI
+
+UI -> ProjectSvc: GET /api/v1/projects/:project_id/exports/:export_id\nAuthorization: Bearer <JWT>
+activate ProjectSvc
+
+ProjectSvc -> ProjectSvc: Verify JWT\nExtract user_id
+
+ProjectSvc -> DB: SELECT * FROM export_requests\nWHERE id = :export_id\n  AND project_id = :project_id
+activate DB
+
+DB --> ProjectSvc: Return export_request:\n{\n  "id": "uuid",\n  "status": "completed",\n  "download_url": "...",\n  "file_size": 2621440,\n  "format": "pdf",\n  "completed_at": "2025-12-21T11:00:00Z"\n}
+deactivate DB
+
+ProjectSvc -> ProjectSvc: Verify ownership:\nproject.created_by == user_id
+
+ProjectSvc -> ProjectSvc: Check URL not expired:\nNOW() < completed_at + 7 days
+
+ProjectSvc --> UI: 200 OK\n{\n  "download_url": "https://minio.../...",\n  "filename": "Brand_A_Analysis_2025-12-21.pdf",\n  "file_size": 2621440,\n  "expires_at": "2025-12-28T11:00:00Z"\n}
+deactivate ProjectSvc
+
+== Browser Download ==
+
+UI -> UI: Trigger browser download:\nwindow.location.href = download_url
+
+UI -> MinIO: GET download_url\n(Pre-signed URL with auth params)
+activate MinIO
+
+MinIO -> MinIO: Validate signature\nCheck expiry
+
+MinIO --> UI: 200 OK\nContent-Type: application/pdf\nContent-Disposition: attachment;\n  filename="Brand_A_Analysis_2025-12-21.pdf"\n\n[Binary file content: 2.5 MB]
+deactivate MinIO
+
+UI -> UI: Browser saves file to\nuser's Downloads folder
+
+UI --> User: File downloaded:\nBrand_A_Analysis_2025-12-21.pdf
+deactivate UI
+
+note over User
+  User can now open the report
+  with PDF viewer, Excel, or text editor
+  depending on selected format
+end note
+
+== Alternative: Export History Page ==
+
+User -> UI: Navigate to "/exports"\n(Export History page)
+activate UI
+
+UI -> ProjectSvc: GET /api/v1/projects/:project_id/exports
+activate ProjectSvc
+
+ProjectSvc -> DB: SELECT * FROM export_requests\nWHERE project_id = :project_id\n  AND user_id = :user_id\nORDER BY created_at DESC\nLIMIT 20
+activate DB
+
+DB --> ProjectSvc: Return list of exports
+deactivate DB
+
+ProjectSvc --> UI: 200 OK\n[\n  {id, format, status, file_size,\n   created_at, download_url},\n  ...\n]
+deactivate ProjectSvc
+
+UI --> User: Display exports table:\n- Format | Status | Date | Size | Actions
+deactivate UI
+
+User -> UI: Click "Download" on specific export
+
+note over UI
+  Same download flow as above
+end note
+
+== Exception: URL Expired ==
+
+alt Download URL expired (> 7 days)
+
+    ProjectSvc --> UI: 410 Gone\n{\n  "error": "Download URL expired",\n  "message": "Please generate a new export"\n}
+
+    UI --> User: Show error message:\n"Link đã hết hạn, vui lòng xuất báo cáo mới"
+
+end
+
+@enduml

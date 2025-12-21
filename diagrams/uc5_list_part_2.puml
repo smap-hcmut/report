@@ -1,0 +1,98 @@
+@startuml uc5_list_part_2
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title UC-05 Part 2: Status-based Navigation và Actions
+
+actor "Marketing\nAnalyst" as User
+participant "Web UI\n(Next.js)" as UI
+participant "Project Service\n(Golang)" as ProjectSvc
+database "PostgreSQL" as DB
+
+== Navigation Based on Status ==
+
+User -> UI: Click Project card\n(or action button)
+activate UI
+
+UI -> UI: Check project.status
+
+alt Status = "draft"
+    UI -> UI: Show actions:\n- "Edit" (UC-01)\n- "Execute" (UC-03)\n- "Delete"
+
+    User -> UI: Click "Execute"
+    UI --> User: Navigate to UC-03\n(Execute & Monitor)
+
+else Status = "process" (Running)
+    UI -> UI: Show actions:\n- "View Progress" (UC-03)\n- Delete button DISABLED
+
+    User -> UI: Click "View Progress"
+    UI --> User: Navigate to UC-03\n(Monitor page)
+
+else Status = "completed"
+    UI -> UI: Show actions:\n- "View Results" (UC-04)\n- "Export Report" (UC-06)\n- "Delete"
+
+    User -> UI: Click "View Results"
+    UI --> User: Navigate to UC-04\n(Dashboard)
+
+else Status = "failed"
+    UI -> UI: Show actions:\n- "Retry" (UC-03)\n- "Delete"
+
+    User -> UI: Click "Retry"
+    UI --> User: Navigate to UC-03\n(with same config)
+end
+
+deactivate UI
+
+== Soft Delete Project ==
+
+User -> UI: Click "Delete" button\n(on Completed project)
+activate UI
+
+UI -> UI: Show confirmation dialog:\n"Delete project 'Brand A Analysis'?\nThis cannot be undone."
+
+User -> UI: Click "Confirm"
+
+UI -> ProjectSvc: DELETE /api/v1/projects/:id\nAuthorization: Bearer <JWT>
+activate ProjectSvc
+
+ProjectSvc -> ProjectSvc: Verify ownership:\nproject.created_by == user_id
+
+ProjectSvc -> ProjectSvc: Check business rules:\n- Cannot delete if status = "process"
+
+ProjectSvc -> DB: UPDATE projects\nSET deleted_at = NOW(),\n    updated_at = NOW()\nWHERE id = :id\n  AND created_by = :user_id\n  AND status != 'process'
+activate DB
+
+DB --> ProjectSvc: 1 row affected
+deactivate DB
+
+ProjectSvc --> UI: 200 OK\n{\n  "message": "Project deleted",\n  "deleted_at": "2025-12-21T10:30:00Z"\n}
+deactivate ProjectSvc
+
+UI -> UI: Remove project from list\n(fade out animation)
+
+UI -> UI: Show toast notification:\n"Project deleted successfully"
+
+UI --> User: Display updated list\n(without deleted project)
+deactivate UI
+
+== Exception: Try to Delete Running Project ==
+
+User -> UI: Click "Delete"\n(on Running project)
+activate UI
+
+UI -> UI: Check status = "process"
+
+UI -> UI: Delete button is DISABLED\n(grayed out, unclickable)
+
+note over UI
+  Business rule enforced at UI level:
+  Running projects cannot be deleted
+  to prevent data loss
+end note
+
+UI --> User: Button disabled,\ntooltip: "Cannot delete\nrunning projects"
+deactivate UI
+
+@enduml

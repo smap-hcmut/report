@@ -14,12 +14,11 @@ Chúng em xin cam đoan luận văn tốt nghiệp với đề tài "Xây dựng
   #grid(
     columns: 1,
     row-gutter: 1em,
-    [_Thành phố Hồ Chí Minh, ngày ... tháng ... năm 2025_],
+    [_Thành phố Hồ Chí Minh, ngày 21 tháng 12 năm 2025_],
     [_Sinh viên thực hiện_],
-    [],
-    [],
-    [],
-    [_(Ký và ghi rõ họ tên)_]
+    [Nguyễn Tấn Tài],
+    [Đặng Quốc Phong],
+    [Nguyễn Chánh Tín],
   )
 ]
 
@@ -44,4 +43,11 @@ Em xin chân thành cảm ơn!
 #align(center)[
   *TÓM TẮT ĐỀ TÀI*
 ]
-*Trong bối cảnh mạng xã hội phát triển mạnh mẽ, việc theo dõi và phân tích danh tiếng thương hiệu trên các nền tảng mạng xã hội như YouTube, TikTok, Facebook,... trở thành nhu cầu thiết yếu của doanh nghiệp. Hệ thống SMAP (Social Media Analytics Platform) được phát triển nhằm cung cấp giải pháp cho việc thu thập, phân tích và trực quan hóa dữ liệu mạng xã hội. Đề tài xây dựng hệ thống có khả năng thu thập dữ liệu tự động, phân tích cảm xúc và trích xuất khía cạnh từ nội dung, so sánh với đối thủ cạnh tranh, phát hiện sớm khủng hoảng truyền thông, phát hiện xu hướng nội dung, và cung cấp dashboard trực quan với khả năng xuất báo cáo. Hệ thống được thiết kế theo kiến trúc microservices, sử dụng RabbitMQ, MinIO và các công nghệ AI/ML hiện đại. Báo cáo tập trung vào việc phân tích yêu cầu, thiết kế kiến trúc và đề xuất giải pháp kỹ thuật cho các chức năng cốt lõi của hệ thống nhằm đáp ứng nhu cầu thực tế trong việc theo dõi danh tiếng thương hiệu và phát hiện sớm khủng hoảng.*
+
+Sự phổ biến của các nền tảng mạng xã hội đã tạo ra một khối lượng lớn dữ liệu phi cấu trúc, phản ánh hành vi người dùng và xu hướng thị trường. Việc khai thác hiệu quả nguồn dữ liệu này đặt ra nhiều thách thức, đặc biệt trong việc tổ chức, xử lý và chuyển đổi dữ liệu thô thành thông tin có ý nghĩa phục vụ cho hoạt động ra quyết định.
+
+Xuất phát từ nhu cầu đó, đề tài tập trung nghiên cứu và xây dựng một hệ thống hỗ trợ phân tích dữ liệu mạng xã hội, nhằm thu thập, xử lý và tổng hợp thông tin từ các nền tảng trực tuyến. Hệ thống hướng tới việc cung cấp các phân tích tổng quan, hỗ trợ so sánh, đánh giá và theo dõi các biến động trong môi trường truyền thông số.
+
+Hệ thống được thiết kế theo hướng phân tán, chú trọng đến khả năng mở rộng, tính linh hoạt và khả năng đáp ứng trong môi trường có khối lượng dữ liệu lớn và thay đổi liên tục. Các cơ chế xử lý bất đồng bộ và cập nhật thông tin theo thời gian gần thực được xem xét nhằm nâng cao hiệu quả vận hành của hệ thống.
+
+Báo cáo trình bày quá trình phân tích yêu cầu, thiết kế kiến trúc và đề xuất giải pháp tổng thể cho hệ thống. Kết quả của đề tài góp phần xây dựng một nền tảng định hướng cho việc phát triển các hệ thống phân tích mạng xã hội, đáp ứng nhu cầu ứng dụng trong thực tiễn và có khả năng mở rộng trong tương lai.

@@ -1,6 +1,6 @@
 #import "../counters.typ": image_counter, table_counter
 
-== 4.1 Nhu cầu người dùng hệ thống (User Story)
+== 4.1 Nhu cầu người dùng hệ thống
 Dựa trên kết quả khảo sát về thị hiếu người dùng và phân tích quy trình nghiệp vụ Marketing trong thực tế, nhóm tác giả đã xác định các tác nhân chính tương tác với hệ thống, qua đó làm rõ phạm vi, vai trò và trách nhiệm của từng đối tượng trong quá trình vận hành SMAP.
 
 #context (align(center)[_Bảng #table_counter.display(): Danh sách Tác nhân_])

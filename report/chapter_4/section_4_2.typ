@@ -28,7 +28,7 @@ Căn cứ vào các mục tiêu nghiệp vụ của Marketing Analyst (A-01) và
       (6) Hệ thống validate tất cả thông tin trước khi lưu và hiển thị thời gian xử lý ước tính dựa trên số lượng từ khóa, platform và bài viết mong muốn.\
       (7) Ghi nhận bản ghi Project vào cơ sở dữ liệu, Project chỉ chạy khi user thực hiện khởi chạy.],
 
-    // FR-2: Thực thi & Giám sát Project (UC-02)
+    // FR-2: Thực thi & Giám sát Project (UC-03)
     align(center + horizon)[FR-2],
     table.cell(align: horizon, inset: (
       y: 0.6em,
@@ -40,7 +40,7 @@ Căn cứ vào các mục tiêu nghiệp vụ của Marketing Analyst (A-01) và
 
       Khi hoàn tất, hệ thống tự động cập nhật trạng thái và thông báo người dùng qua nhiều kênh (thông báo trong ứng dụng, email tùy chọn).],
 
-    // FR-3: Quản lý danh sách Projects (UC-03)
+    // FR-3: Quản lý danh sách Projects (UC-05)
     align(center + horizon)[FR-3],
     table.cell(align: horizon, inset: (
       y: 0.6em,
@@ -69,7 +69,7 @@ Căn cứ vào các mục tiêu nghiệp vụ của Marketing Analyst (A-01) và
 
       Người dùng có thể lọc kết quả theo platform, sentiment, khoảng thời gian, và khía cạnh. Hệ thống hỗ trợ drilldown: click vào khía cạnh để xem các bài viết liên quan, click vào bài viết để xem nội dung đầy đủ và comments.],
 
-    // FR-5: Xuất báo cáo (UC-05)
+    // FR-5: Xuất báo cáo (UC-06)
     align(center + horizon)[FR-5],
     table.cell(align: horizon, inset: (
       y: 0.6em,
@@ -77,7 +77,7 @@ Căn cứ vào các mục tiêu nghiệp vụ của Marketing Analyst (A-01) và
 
       Báo cáo được gắn metadata bao gồm: phiên bản phân tích, thời điểm xuất, bộ lọc đã áp dụng, khoảng thời gian, và định dạng. Hệ thống xử lý báo cáo bất đồng bộ và cung cấp link tải khi hoàn tất.],
 
-    // FR-6: Phát hiện trend tự động (UC-06)
+    // FR-6: Phát hiện trend tự động (UC-07)
     align(center + horizon)[FR-6],
     table.cell(align: horizon, inset: (
       y: 0.6em,
@@ -91,7 +91,7 @@ Căn cứ vào các mục tiêu nghiệp vụ của Marketing Analyst (A-01) và
       (2) Sắp xếp theo điểm số (giảm dần) hoặc thời gian phát hiện (mới nhất); \
       (3) Xem chi tiết từng trend bao gồm metadata đầy đủ và các bài viết liên quan.],
 
-    // FR-7: Phát hiện khủng hoảng (UC-07)
+    // FR-7: Phát hiện khủng hoảng (UC-08)
     align(center + horizon)[FR-7],
     table.cell(align: horizon, inset: (
       y: 0.6em,

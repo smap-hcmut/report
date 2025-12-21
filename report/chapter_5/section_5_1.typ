@@ -7,24 +7,24 @@ Dựa trên các yêu cầu đã phân tích ở Chương 4: Functional Requirem
 Áp dụng phương pháp phân tích yêu cầu phi chức năng (NFR-driven analysis) để thiết kế kiến trúc tuân thủ các ràng buộc vận hành của hệ thống. Kiến trúc được thiết kế tập trung vào 6 nhóm yêu cầu phi chức năng chính được phân tích chi tiết ở mục 4.3. Các nhóm này được xác định để phản ánh đúng trọng tâm thiết kế: vừa dựa trên tầm quan trọng đối với SMAP, vừa dựa trên quy mô yêu cầu của mỗi nhóm:
 
 #align(center)[
-  #image("../images/NFRs_rada_chart.png", width: 50%)
+  #image("../images/NFRs_rada_chart.png", width: 45%)
   #context (align(center)[_Hình #image_counter.display(): Phân bố NFRs theo 6 nhóm chính_])
   #image_counter.step()
 ]
 
 Phân tích phân bố NFRs:
 
-1. Scalability - 7 NFRs: Là architectural driver số 1 (40% trọng số) cho việc chọn Microservices. Bao gồm: AC-2 (Scale workers), 3 Throughput requirements (Crawling, Analytics, WebSocket), và 3 Resource Utilization targets (CPU, Memory, Network). Đây là yêu cầu quan trọng nhất vì đặc thù xử lý dữ liệu lớn từ nhiều platforms đồng thời.
+1. Scalability - 7 NFRs: Là architectural driver quan trọng nhất cho việc chọn Microservices. Bao gồm AC-2 về scale workers, 3 yêu cầu về throughput, và 3 yêu cầu về resource utilization. Đây là yêu cầu quan trọng nhất vì đặc thù xử lý dữ liệu lớn từ nhiều platforms đồng thời.
 
-2. Usability – 9 NFRs: Gồm 6 yêu cầu về UX (i18n, loading states, error messages, confirmations, progress indicators, onboarding) và 3 yêu cầu về Monitoring (metrics, log levels, log format). Tập trung vào trải nghiệm người dùng cuối và khả năng vận hành.
+2. Usability – 9 NFRs: Gồm 6 yêu cầu về UX như i18n, loading states, error messages, confirmations, progress indicators và onboarding; cùng 3 yêu cầu về monitoring. Tập trung vào trải nghiệm người dùng cuối và khả năng vận hành.
 
-3. Security (Bảo mật) – 7 NFRs: Bao gồm Authentication & Authorization (2 NFRs), Data Protection (2 NFRs), và Application Security (3 NFRs). Đảm bảo an toàn dữ liệu người dùng.
+3. Security – 7 NFRs: Bao gồm 2 NFRs về Authentication & Authorization, 2 NFRs về Data Protection, và 3 NFRs về Application Security. Đảm bảo an toàn dữ liệu người dùng.
 
-4. Performance (Hiệu năng phản hồi) – 4 NFRs: Tập trung vào Response Time cho API endpoints, Dashboard loading, WebSocket updates, và Report generation. Đây là yêu cầu về độ trễ (latency), khác với Scalability (yêu cầu về throughput).
+4. Performance – 4 NFRs: Tập trung vào Response Time cho API endpoints, Dashboard loading, WebSocket updates, và Report generation. Đây là yêu cầu về độ trễ, khác với Scalability là yêu cầu về throughput.
 
-5. Compliance (Tuân thủ) – 4 NFRs: Gồm Data Governance (2 NFRs: Right to Access, Right to Delete) và Platform Compliance (2 NFRs: Rate limit compliance, Terms of Service). Đảm bảo hệ thống tuân thủ quy định và chính sách của các platforms.
+5. Compliance – 4 NFRs: Gồm 2 NFRs về Data Governance và 2 NFRs về Platform Compliance. Đảm bảo hệ thống tuân thủ quy định và chính sách của các platforms.
 
-6. Architecture Quality (Chất lượng kiến trúc) – 4 NFRs: Gồm AC-6 (Maintainability), AC-5 (Deployability), AC-4 (Testability), và AC-7 (Observability). Đây là các yêu cầu về khả năng bảo trì và vận hành lâu dài của hệ thống.
+6. Architecture Quality – 4 NFRs: Gồm các yêu cầu về Maintainability, Deployability, Testability, và Observability. Đây là các yêu cầu về khả năng bảo trì và vận hành lâu dài của hệ thống.
 
 #context (align(center)[_Bảng #table_counter.display(): Architecture Characteristics (7 ACs chính)_])
 #table_counter.step()
@@ -67,15 +67,15 @@ Phân tích phân bố NFRs:
 
 Cách phân loại NFRs:
 
-- Scalability bao gồm cả Throughput và Resource Utilization từ mục 4.3.2.1, vì khả năng tối ưu tài nguyên và xử lý throughput cao là nền tảng để scale hệ thống. Đây là lý do Microservices được chọn (xem mục 5.2.1).
+- Scalability bao gồm cả Throughput và Resource Utilization từ mục 4.3.2.1, vì khả năng tối ưu tài nguyên và xử lý throughput cao là nền tảng để scale hệ thống. Đây là lý do Microservices được chọn như phân tích ở mục 5.2.1.
 
-- Performance chỉ tập trung vào Response Time - yêu cầu về độ trễ thấp cho trải nghiệm người dùng, khác với Scalability (throughput/capacity).
+- Performance chỉ tập trung vào Response Time - yêu cầu về độ trễ thấp cho trải nghiệm người dùng, khác với Scalability là yêu cầu về throughput và capacity.
 
 - Architecture Quality gộp AC-4, AC-5, AC-6, AC-7 vì đều liên quan đến khả năng bảo trì và vận hành dài hạn của hệ thống.
 
 Primary Architecture Characteristics:
 
-- AC-1 (Modularity) là Primary AC nhưng không xuất hiện như một "nhóm NFRs" riêng vì đây là một đặc tính kiến trúc cấu trúc thay vì yêu cầu đo lường được. Modularity được thể hiện qua quyết định kiến trúc - việc chọn Microservices architecture (mục 5.2.1) với 7 services độc lập chính là cách đáp ứng AC-1. Metrics của AC-1 (Coupling index I ≈ 0, Ce < 5) sẽ được đo tại mức architecture, không phải mức NFR.
+- AC-1 (Modularity) là Primary AC nhưng không xuất hiện như một "nhóm NFRs" riêng vì đây là một đặc tính kiến trúc cấu trúc thay vì yêu cầu đo lường được. Modularity được thể hiện qua quyết định kiến trúc - việc chọn Microservices architecture với các services độc lập chính là cách đáp ứng AC-1. Metrics của AC-1 như Coupling index I ≈ 0 và Ce < 5 sẽ được đo tại mức architecture.
 
 - Modularity đóng vai trò tiên quyết: chỉ khi có Modularity (microservices) thì mới có thể đạt được Scalability (scale từng service độc lập) và Performance (tối ưu từng service riêng).
 
@@ -92,40 +92,40 @@ Các Architecture Characteristics sẽ được phân tích đánh đổi về c
   table.cell(align: center + horizon, inset: (y: 0.8em))[*Nhóm*],
   table.cell(align: center + horizon, inset: (y: 0.8em))[*Nguyên tắc thiết kế*],
 
-  table.cell(align: center + horizon, inset: (y: 0.8em))[Core Principles \ (Strategic Design)],
+  table.cell(align: center + horizon, inset: (y: 0.8em))[Core Principles],
   table.cell(align: horizon, inset: (y: 0.8em))[
     (1) Domain-Driven Design (DDD) \
     (2) Microservices Architecture \
     (3) Event-Driven Architecture
   ],
 
-  table.cell(align: center + horizon, inset: (y: 0.8em))[Data Patterns \ (Tactical Patterns)],
+  table.cell(align: center + horizon, inset: (y: 0.8em))[Data Patterns],
   table.cell(align: horizon, inset: (y: 0.8em))[
     (4) Claim Check Pattern \
     (5) Distributed State Management
   ],
 
-  table.cell(align: center + horizon, inset: (y: 0.8em))[Code Quality \ (Implementation Patterns)],
+  table.cell(align: center + horizon, inset: (y: 0.8em))[Code Quality],
   table.cell(align: horizon, inset: (y: 0.8em))[
     (6) SOLID Principles \
     (7) Port and Adapter Pattern
   ],
 
-  table.cell(align: center + horizon, inset: (y: 0.8em))[Observability \ (Monitoring & Debugging)],
+  table.cell(align: center + horizon, inset: (y: 0.8em))[Observability],
   table.cell(align: horizon, inset: (y: 0.8em))[
     (8) Observability-Driven Development
   ],
 )
 
-===== 5.1.1.1 Domain-Driven Design
+==== 5.1.1.1 Domain-Driven Design
 
-Hệ thống phân tích mạng xã hội SMAP là một domain phức tạp với nhiều khái niệm nghiệp vụ chồng chéo: "User" có thể là tài khoản đăng nhập (Identity) hoặc tác giả bài viết (Analytics), "Project" có thể là cấu hình theo dõi hoặc job xử lý, quản lý data pipeline. Nếu thiết kế theo hướng database-first - xuất phát từ cấu trúc database, hệ thống sẽ gặp 3 vấn đề chính:
+Hệ thống phân tích mạng xã hội SMAP là một domain phức tạp với nhiều khái niệm nghiệp vụ chồng chéo: "User" có thể là tài khoản đăng nhập trong Identity hoặc tác giả bài viết trong Analytics, "Project" có thể là cấu hình theo dõi hoặc job xử lý dữ liệu. Nếu thiết kế theo hướng database-first, hệ thống sẽ gặp 3 vấn đề chính:
 
-1. Cùng một thuật ngữ, nhưng có ý nghĩa khác nhau giữa các module, dẫn đến confusion trong development và maintenance (Ambiguous Terminology).
-2. Logic nghiệp vụ bị ràng buộc chặt với cấu trúc database, khó thay đổi khi requirements thay đổi (Tight Coupling).
-3. Không thể scale độc lập các phần khác nhau của hệ thống vì chúng phụ thuộc lẫn nhau (Poor Scalability).
+- Cùng một thuật ngữ, nhưng có ý nghĩa khác nhau giữa các module, dẫn đến confusion trong development và maintenance.
+- Logic nghiệp vụ bị ràng buộc chặt với cấu trúc database, khó thay đổi khi requirements thay đổi.
+- Không thể scale độc lập các phần khác nhau của hệ thống vì chúng phụ thuộc lẫn nhau.
 
-Các vấn đề này liên quan trực tiếp đến AC-1 (Modularity) - yêu cầu về tính mô-đun hóa, và AC-6 (Maintainability) - khả năng bảo trì dài hạn của hệ thống.
+Các vấn đề này liên quan trực tiếp đến AC-1 về tính mô-đun hóa và AC-6 về khả năng bảo trì dài hạn của hệ thống.
 
 Domain-Driven Design (DDD) - Thiết kế hướng miền nghiệp vụ, là một phương pháp tiếp cận thiết kế phần mềm tập trung vào việc mô hình hóa nghiệp vụ thay vì phụ thuộc vào kỹ thuật. DDD chia hệ thống thành các Bounded Context - Ngữ cảnh giới hạn - mỗi context là một phạm vi trong đó các thuật ngữ nghiệp vụ được mô tả, sử dụng một cách nhất quán. Các Bounded Context được phân loại thành 3 loại:
 
@@ -184,23 +184,23 @@ Hệ thống SMAP được chia thành 5 Bounded Contexts dựa trên phân tíc
 
 // *Tài liệu tham khảo:* E. Evans, "Domain-Driven Design: Tackling Complexity in the Heart of Software", 2003.
 
-===== 5.1.1.2 Microservices Architecture
+==== 5.1.1.2 Microservices Architecture
 
 Kiến trúc Monolithic truyền thống gặp 3 vấn đề chính khi xử lý workload lớn và đa dạng như SMAP:
 
 - Tight Coupling: Tất cả modules trong cùng một process, lỗi ở một module có thể crash toàn bộ hệ thống.
-- Crawler (IO-bound) và Analytics (CPU-bound) có yêu cầu tài nguyên khác nhau nhưng phải chạy cùng một instance, không thể tối ưu riêng.
-- Không thể scale từng phần độc lập - phải scale toàn bộ monolith, dẫn đến lãng phí tài nguyên, tính chất Scalability bị giới hạn.
+- Crawler là IO-bound và Analytics là CPU-bound có yêu cầu tài nguyên khác nhau nhưng phải chạy cùng một instance, không thể tối ưu riêng.
+- Không thể scale từng phần độc lập - phải scale toàn bộ monolith, dẫn đến lãng phí tài nguyên.
 
-Vấn đề này liên quan trực tiếp đến AC-2 (Scalability) - yêu cầu scale 2-20 workers dưới vòng 5 phút và xử lý 1,000 items/phút (mục 4.3.1), và AC-3 (Performance) - tối ưu response time cho từng service riêng.
+Vấn đề này liên quan trực tiếp đến AC-2 về Scalability - yêu cầu scale 2-20 workers trong vòng 5 phút và xử lý 1,000 items/phút, cùng AC-3 về Performance - tối ưu response time cho từng service riêng.
 
 Microservices Architecture chia hệ thống thành các services nhỏ, độc lập, mỗi service:
-- Có database riêng (Decentralized Data Management)
-- Có thể deploy độc lập với minimal downtime (đáp ứng AC-5 - Deployability: deploy dưới 5 phút, rollback dưới 5 phút, downtime dưới 30s)
+- Có database riêng theo nguyên tắc Decentralized Data Management
+- Có thể deploy độc lập với minimal downtime, đáp ứng AC-5 về Deployability
 - Có thể scale độc lập dựa trên workload
-- Có thể chọn technology stack phù hợp (polyglot)
+- Có thể chọn technology stack phù hợp theo đặc thù công việc
 
-Các services giao tiếp qua well-defined APIs (REST) hoặc events (Event-Driven), đảm bảo loose coupling.
+Các services giao tiếp qua well-defined APIs hoặc events, đảm bảo loose coupling.
 
 #context (align(center)[_Bảng #table_counter.display(): Danh sách các Microservices của hệ thống SMAP_])
 #table_counter.step()
@@ -261,7 +261,7 @@ Các services giao tiếp qua well-defined APIs (REST) hoặc events (Event-Driv
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[9],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Speech2Text Service],
-    table.cell(align: horizon, inset: (y: 0.8em))[Transtip đổi audio sang transcript (Whisper)],
+    table.cell(align: horizon, inset: (y: 0.8em))[Chuyển đổi audio sang transcript (Whisper)],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Python, MinIO],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[10],
@@ -273,47 +273,47 @@ Các services giao tiếp qua well-defined APIs (REST) hoặc events (Event-Driv
 
 Lợi ích đạt được:
 
-- Crawler (IO-bound) scale 2-20 workers, Analytics (CPU-bound) scale 1-10 workers độc lập, xử lý 1,000 items/phút với 10 workers (đáp ứng AC-2)
+- Crawler là IO-bound scale 2-20 workers, Analytics là CPU-bound scale 1-10 workers độc lập, xử lý 1,000 items/phút với 10 workers, đáp ứng AC-2
 - Lỗi ở Analytics không ảnh hưởng đến Identity hoặc Project
 - Go cho high-concurrency APIs, Python cho ML/AI workloads
 - Tối ưu CPU cho Analytics, Memory cho Crawler riêng biệt
 
 // Tài liệu tham khảo: M. Fowler, "Microservices: a definition of this new architectural term", 2014.
 
-===== 5.1.1.3 Event-Driven Architecture
+==== 5.1.1.3 Event-Driven Architecture
 
 Trong kiến trúc Microservices, nếu sử dụng synchronous communication - tức là giao tiếp qua REST API calls, hệ thống gặp 3 vấn đề:
 
-- Back-pressure: Khi Analytics Service xử lý chậm, Collector Service phải đợi response, dẫn đến blocking và giảm throughput, vô tình đẩy network latency lên cao.
-- Tight Coupling: Services phải biết địa chỉ và trạng thái của nhau, có các cơ chế như polling để biết trạng thái của nhau, dẫn tới khó scale và maintain.
-- Availability Issues: Nếu Analytics Service down, Collector Service không thể gửi dữ liệu, dẫn đến data loss và phải buộc có boiler code để handle retry logic.
+- Back-pressure - khi Analytics Service xử lý chậm, Collector Service phải đợi response, dẫn đến blocking và giảm throughput, vô tình đẩy network latency lên cao.
+- Services phải biết địa chỉ và trạng thái của nhau, có các cơ chế như polling để biết trạng thái của nhau, dẫn tới khó scale và maintain, dẫn đến Tight Coupling.
+- Availability Issues - nếu Analytics Service down, Collector Service không thể gửi dữ liệu, dẫn đến data loss và phải buộc có boiler code để handle retry logic.
 
 Vấn đề này đặc biệt nghiêm trọng với SMAP vì:
-- Crawler thu thập dữ liệu liên tục (high throughput)
-- Analytics xử lý chậm (NLP pipeline ~700ms/item) - chức năng phân tích dữ liệu thô qua NLP pipeline (Intent, Sentiment, Impact)
+- Crawler thu thập dữ liệu liên tục với high throughput
+- Analytics xử lý chậm với NLP pipeline ~700ms/item - chức năng phân tích Intent, Sentiment, Impact
 - Cần xử lý bất đồng bộ để đảm bảo không mất dữ liệu
 
-Vấn đề liên quan đến AC-3 (Performance) - yêu cầu xử lý bất đồng bộ để đạt throughput cao, và AC-2 (Scalability) - scale consumers độc lập.
+Vấn đề liên quan đến AC-3 về Performance - yêu cầu xử lý bất đồng bộ để đạt throughput cao, và AC-2 về Scalability - scale consumers độc lập.
 
 Event-Driven Architecture sử dụng Message Broker làm trung gian, cho phép:
-- Producer gửi event và không cần đợi consumer xử lý xong (bất đồng bộ).
+- Producer gửi event và không cần đợi consumer xử lý xong, hoạt động bất đồng bộ.
 - Decoupling - Services không cần biết địa chỉ của nhau, chỉ cần biết routing key.
 - Resilience - Events được lưu trong queue, consumer có thể xử lý sau khi recover.
 - Scalability - Nhiều consumers có thể xử lý cùng một event type, tự động load balancing.
 
-Tài liệu tham khảo: G. Hohpe & B. Woolf, "Enterprise Integration Patterns", 2003.
+// Tài liệu tham khảo: G. Hohpe & B. Woolf, "Enterprise Integration Patterns", 2003.
 
-===== 5.1.1.4 Claim Check Pattern
+==== 5.1.1.4 Claim Check Pattern
 
 Khi Scrapper Service gửi dữ liệu crawled tới Analytics Service qua RabbitMQ, nếu gửi toàn bộ payload (50 posts × ~10KB mỗi post = ~500KB per message), hệ thống gặp 3 vấn đề:
 
 - Message Queue Overload - RabbitMQ phải xử lý messages lớn, làm chậm broker và giảm throughput.
 - Network Bandwidth Waste - Dữ liệu được transfer nhiều lần (Producer → Queue → Consumer), lãng phí bandwidth.
-- Message Size Limits - RabbitMQ có giới hạn message size (default 128MB), nhưng messages lớn làm chậm broker đáng kể.
+- Message Size Limits - RabbitMQ có giới hạn message size (mặc định 128MB), nhưng messages lớn làm chậm broker đáng kể.
 
-Tuy nhiên nếu gửi individual messages (1 message/item), thì queue sẽ bị quá tải và latency tăng cao, không đáp ứng AC-3 (Performance) - yêu cầu tối ưu throughput và giảm latency cho message processing.
+Tuy nhiên nếu gửi message đơn lẻ (1 message/item), thì queue sẽ bị quá tải và độ trễ tăng cao, không đáp ứng AC-3 (Performance) - yêu cầu tối ưu throughput và giảm độ trễ cho message processing.
 
-Vấn đề này liên quan đến AC-3 (Performance) - yêu cầu tối ưu throughput và giảm latency cho message processing.
+Vấn đề này liên quan đến AC-3 (Performance) - yêu cầu tối ưu throughput và giảm độ trễ cho message processing.
 
 Claim Check Pattern tách payload lớn khỏi message:
 - Payload Storage: Dữ liệu thô được lưu vào Object Storage (MinIO/S3) với unique path
@@ -321,19 +321,19 @@ Claim Check Pattern tách payload lớn khỏi message:
 - Retrieval: Consumer đọc claim check từ message, sau đó fetch payload từ Object Storage
 
 Lợi ích đạt được:
-- Queue load reduction - Từ 50,000 individual messages → 1,000 batch references (50 items/batch)
-- Message size reduction
-- Throughput improvement - Queue processing nhanh hơn 50x (messages nhỏ hơn)
+- Giảm tải cho hàng đợi - Từ 50,000 messages đơn lẻ giảm xuống còn 1,000 batch references (50 items/batch)
+- Kích thước mỗi message được giảm nhỏ
+- Throughput tăng đáng kể, Queue processing nhanh hơn 50x (vì messages nhỏ hơn)
 
-===== 5.1.1.5 Distributed State Management
+==== 5.1.1.5 Distributed State Management
 
 Trong kiến trúc Microservices phân tán, không có orchestrator trung tâm để theo dõi tiến độ xử lý của một project qua nhiều services (Collector, Analytics, Scrapper). Mỗi service chỉ biết về phần việc của mình, dẫn đến 3 vấn đề chính:
 
-1. Dashboard không thể hiển thị tiến độ real-time chính xác vì mỗi service có state riêng, không có nguồn dữ liệu tập trung.
-2. Duplicate Work - Khi service restart, không biết đã xử lý tới đâu → có thể xử lý lại (wasted resources, ~30% duplicate work theo logs thực tế).
-3. No Progress Tracking - User không biết project đang ở stage nào, % hoàn thành bao nhiêu, dẫn đến poor UX và không đáp ứng NFR-UX-6 (Real-time progress indicators).
+- Dashboard không thể hiển thị tiến độ real-time chính xác vì mỗi service có state riêng, không có nguồn dữ liệu tập trung.
+- Duplicate work - Khi service restart, không biết đã xử lý tới đâu, dẫn đến có thể xử lý lại.
+- No progress tracking - user không biết project đang ở stage nào, phần trăm hoàn thành bao nhiêu, dẫn đến poor UX và không đáp ứng NFR-UX-6 (Real-time progress indicators).
 
-Vấn đề này liên quan trực tiếp đến AC-3 (Performance) - Response time for WebSocket updates < 100ms (p95) theo mục 4.3.2.1, và NFR-UX-6 - Real-time progress indicators (mục 4.3.2.3). Với Redis SSOT, WebSocket Service có thể đọc state và broadcast updates trong < 100ms, đáp ứng yêu cầu AC-3.
+Vấn đề này liên quan trực tiếp đến AC-3 về Performance - yêu cầu response time cho WebSocket updates < 100ms (p95), và NFR-UX-6 về Real-time progress indicators. Với Redis làm Single Source of Truth, WebSocket Service có thể đọc state và broadcast updates < 100ms, đáp ứng yêu cầu AC-3.
 
 Distributed State Management sử dụng Redis làm "Single Source of Truth" (SSOT) để tập trung hóa trạng thái project. Tất cả services đều read/write vào cùng một Redis instance, đảm bảo:
 
@@ -342,107 +342,101 @@ Distributed State Management sử dụng Redis làm "Single Source of Truth" (SS
 
 Lợi ích đạt được:
 
-- Resource efficiency - Tránh 30% duplicate work khi service restart (measured from production logs)
-- Memory footprint - ~2KB per project state (measured với 1000 concurrent projects)
+- Resource efficiency - Tránh duplicate work khi service restart
 
-===== 5.1.1.6 SOLID Principles
+==== 5.1.1.6 SOLID Principles
 
 Ở cấp độ implementation, code không tuân thủ SOLID principles dẫn đến 3 vấn đề:
 
-1. Tight Coupling - Classes phụ thuộc chặt vào concrete implementations, khó thay đổi và test.
-2. Low Testability - Không thể mock dependencies, phải test với real database/APIs, chậm và không reliable.
-3. Poor Maintainability - Thay đổi một phần code ảnh hưởng đến nhiều phần khác, dễ introduce bugs.
+- Tight Coupling - Classes phụ thuộc chặt vào concrete implementations, khó thay đổi và test.
+- Low Testability - Không thể mock dependencies, phải test với real database/APIs, chậm và không reliable.
+- Poor Maintainability - Thay đổi một phần code ảnh hưởng đến nhiều phần khác, dễ introduce bugs.
 
 Vấn đề này liên quan đến AC-4 (Testability) - yêu cầu coverage ≥ 80%, ≥ 100 tests/service (mục 4.3.1), và AC-6 (Maintainability) - zero breaking changes, 100% backward compatibility.
 
 SOLID principles là 5 nguyên tắc thiết kế hướng đối tượng:
-- S - Single Responsibility - Mỗi class chỉ có một lý do để thay đổi
-- O - Open/Closed - Mở rộng thông qua inheritance/interface, đóng với modification
-- L - Liskov Substitution - Subtypes phải thay thế được base types
-- I - Interface Segregation - Interfaces nhỏ, focused, không force clients implement unused methods
-- D - Dependency Inversion - Depend on abstractions (interfaces), not concretions
+- S - Single Responsibility: Mỗi class chỉ có một lý do để thay đổi
+- O - Open/Closed: Mở rộng thông qua inheritance/interface, đóng với modification
+- L - Liskov Substitution: Subtypes phải thay thế được base types
+- I - Interface Segregation: Interfaces nhỏ, focused, không yêu cầu thực thi các hàm không sử dụng
+- D - Dependency Inversion: Phụ thuộc vào abstractions, không phải implementations
 
 Kết hợp với Clean Architecture (3-layer pattern: Delivery → UseCase → Repository), SOLID đảm bảo code dễ test, dễ maintain, dễ extend.
 
 Lợi ích đạt được:
 
-- Testability - Coverage ≥ 80% với unit tests (mock interfaces)
-- Maintainability - Zero breaking changes trong 6 tháng (verified từ git history)
-- Code quality - Cyclomatic complexity < 10 per function (measured với static analysis)
+- Testability - Có thể viết unit test bao phủ phần lớn logic nghiệp vụ và sử dụng mock cho các interface phụ thuộc.
+- Maintainability - hạn chế tối đa các thay đổi phá vỡ tương thích, đảm bảo hệ thống ổn định và dễ dàng mở rộng trong quá trình vận hành.
 
-===== 5.1.1.7 Port and Adapter Pattern
+==== 5.1.1.7 Port and Adapter Pattern
 
-Khi business logic bị coupled trực tiếp với infrastructure (database, external APIs, message broker), hệ thống gặp 3 vấn đề:
+Khi business logic bị gắn chặt với infrastructure (database, external APIs, message broker), hệ thống gặp 3 vấn đề:
 
-1. Technology Lock-in - Khó thay đổi technology (ví dụ: PostgreSQL → MongoDB) vì business logic phụ thuộc vào SQL queries.
-2. Testing Difficulty - Không thể test business logic độc lập, phải setup real database/APIs, chậm và không reliable.
-3. Vendor Dependency - Thay đổi vendor (ví dụ: Whisper → Google Speech-to-Text) yêu cầu refactor toàn bộ code.
+- Technology Lock-in, tức là khó thay đổi công nghệ (ví dụ: PostgreSQL sang MongoDB) vì business logic phụ thuộc vào SQL queries.
+- Không thể test business logic độc lập, phải setup database/APIs, chậm và không tin cậy.
+- Thay đổi vendor (ví dụ: Whisper sang Google Speech-to-Text) yêu cầu tái cấu trúc toàn bộ code.
 
-Vấn đề này liên quan đến AC-4 (Testability) - yêu cầu coverage ≥ 80% với unit tests, và AC-6 (Maintainability) - flexibility để thay đổi technology stack.
+Vấn đề này liên quan đến AC-4 (Testability) - yêu cầu coverage ≥ 80% với unit tests, và AC-6 (Maintainability) - linh hoạt để thay đổi technology stack.
 
 Port and Adapter Pattern (Hexagonal Architecture) tách biệt business logic khỏi infrastructure:
 
-- Ports (Interfaces): Định nghĩa "giao diện giao tiếp" mà business logic cần (ví dụ: `ITranscriber`, `IRepository`)
-- Adapters (Implementations): Cung cấp triển khai cụ thể cho từng technology (ví dụ: `WhisperTranscriber`, `PostgreSQLRepository`)
+- Ports (Interfaces): Định nghĩa "giao diện giao tiếp" mà business logic cần
+- Adapters (Implementations): Cung cấp triển khai cụ thể cho từng technology
 
 Business logic chỉ phụ thuộc vào Ports (abstractions), không phụ thuộc vào Adapters (concretions). Điều này cho phép:
-- Swap technology mà không thay đổi business logic
+- Thay đổi công nghệ mà không thay đổi business logic
 - Mock Ports trong unit tests
 - Test business logic độc lập với infrastructure
 
 Lợi ích đạt được:
 
-- Testability - Unit tests với mock Ports, coverage ≥ 80% (đáp ứng AC-4)
-- Flexibility - Swap technology trong < 1 day (chỉ implement Adapter mới)
-- Code quality - Business logic không có infrastructure dependencies (verified với static analysis)
+- Testability - Unit tests với mock Ports
+- Flexibility - Thay đổi công nghệ nhanh, chỉ implement Adapter mới
+- Code quality - Business logic không có infrastructure dependencies
 
-===== 5.1.1.8 Observability-Driven Development
+==== 5.1.1.8 Observability-Driven Development
 
 Trong hệ thống phân tán (Microservices), nếu không có observability từ đầu, việc debug và monitor gặp 3 vấn đề nghiêm trọng:
 
-1. Debugging Difficulty - Khi lỗi xảy ra, không biết request đi qua services nào, mất bao lâu, fail ở đâu. Phải check logs của nhiều services, mất hàng giờ để tìm root cause.
-2. No Performance Visibility - Không biết service nào là bottleneck, không có metrics để optimize. Response time chậm nhưng không biết nguyên nhân.
-3. Reactive Monitoring - Chỉ phát hiện vấn đề khi users report, không có proactive alerting. System có thể down hàng giờ mà không biết.
+- Khó khăn trong việc debug - khi lỗi xảy ra, không biết request đi qua services nào, mất bao lâu, fail ở đâu. Phải check logs của nhiều services, mất hàng giờ để tìm root cause.
+- Không có công cụ giám sát hiệu năng - không biết service nào là bottleneck, không có metrics để optimize. Response time chậm nhưng không biết nguyên nhân.
+- Giám sát bị động - chỉ phát hiện vấn đề khi users report, có thể dẫn tới system có thể down hàng giờ mà không biết.
 
 Vấn đề này đặc biệt nghiêm trọng với SMAP vì:
-- 7 services phân tán, request đi qua nhiều services
-- Async processing (RabbitMQ), khó trace flow
-- High throughput (1,000 items/phút), cần monitor performance
+- Nhiều services phân tán, request đi qua nhiều services
+- Async processing qua RabbitMQ, khó truy vết flow
 
 Vấn đề liên quan đến AC-7 (Observability) - yêu cầu 100% errors logged, alert < 5 min (mục 4.3.1), và NFR-MON-1 - Metrics cho tất cả critical operations (mục 4.3.2.3).
 
-Observability-Driven Development đặt observability lên hàng đầu ngay từ thiết kế, không phải "afterthought". Mọi service phải xuất ra 3 loại telemetry data:
+Observability-Driven Development đặt observability lên hàng đầu ngay từ thiết kế. Mọi service phải xuất ra 3 loại telemetry data:
 
-1. Logs (Structured Logging): Ghi lại events, errors với structured format (JSON), bao gồm trace_id, user_id, context.
-2. Metrics (Prometheus): Đo lường performance (latency, throughput, error rate) với counters, histograms, gauges.
-3. Traces (Distributed Tracing): Theo dõi request flow qua nhiều services với trace_id propagation.
+- Logs: ghi lại events, errors với structured format (JSON), bao gồm user_id, context.
+- Metrics: đo lường performance (latency, throughput, error rate) với counters, histograms, gauges.
 
 Kết hợp với Health Checks (liveness + readiness), hệ thống có thể:
-- Debug nhanh chóng với trace_id
 - Monitor performance real-time với metrics
 - Proactive alerting khi có issues
-- Optimize bottlenecks dựa trên data
+- Tối ưu bottlenecks dựa trên data
 
 Lợi ích đạt được:
 
-- Debug time reduction - Từ hàng giờ → < 5 phút với trace_id (measured từ production incidents)
-- Alert latency - < 5 phút từ error → alert (đáp ứng AC-7)
-- Error coverage - 100% errors logged với context (verified từ log analysis)
-- Metrics coverage - 10+ metrics per service (Analytics Service)
+- Debug time giảm - từ không thể dự đoán xuống còn dưới 5 phút
+- Error coverage - 100% errors logged với context
 
 Lưu ý về Security và Compliance:
 
 Các yêu cầu về Security (7 NFRs) và Compliance (4 NFRs) được thống nhất, mô tả thông qua các quyết định kiến trúc cụ thể ở các mục sau:
 
-- Security: Authentication & Authorization được implement trong Identity Service với JWT và HttpOnly cookies (xem mục 5.2.2 - API Design). Data Protection với TLS 1.3 và AES-256 encryption được áp dụng ở infrastructure level (xem mục 5.2.4 - Container Diagram).
-- Compliance: Data Governance (Right to Access, Right to Delete) được implement qua API endpoints trong Project Service và Identity Service. Platform Compliance (Rate limit, Terms of Service) được enforce trong Collector Service và Scrapper Services (xem mục 5.3 - Component Diagrams).
+- Security: Authentication & Authorization được thực thi trong Identity Service với JWT và HttpOnly cookies. Data Protection với TLS 1.3 và AES-256 encryption được áp dụng ở infrastructure level.
 
-Bảng dưới đây thể hiện mối liên hệ giữa từng nguyên tắc:
+- Compliance: Data Governance (Right to Access, Right to Delete) được thực thi qua API endpoints trong Project Service và Identity Service. Platform Compliance (Rate limit, Terms of Service) được áp dụng trong Collector Service và Scrapper Services.
+
+Bảng dưới đây thể hiện mối liên hệ giữa từng nguyên tắc, ảnh hưởng của từng nguyên tắc tới việc kiến tạo, kiến thiết kiến trúc cho hệ thống SMAP:
 
 #context (align(center)[_Bảng #table_counter.display(): Liên hệ nguyên tắc thiết kế_])
 #table_counter.step()
 #block(width: 100%)[
-  #set par(justify: true)
+  #set par(justify: false)
   #table(
     columns: (0.2fr, 0.20fr, 0.25fr, 0.40fr),
     stroke: 0.5pt,
@@ -490,9 +484,9 @@ Bảng dưới đây thể hiện mối liên hệ giữa từng nguyên tắc:
   )
 ]
 
-===== 5.1.2 C4 Model
+=== 5.1.2 C4 Model
 
-Bẳng cách sử dụng C4 Model (Context, Containers, Components, Code) [S. Brown, 2018], nội dung chương mô tả kiến trúc hệ thống SMAP theo bốn cấp độ chi tiết tăng dần, từ tổng quan (System Context) đến chi tiết triển khai (Code level).
+Bằng cách sử dụng C4 Model, nội dung sau của chương mô tả kiến trúc hệ thống SMAP theo bốn cấp độ chi tiết tăng dần, từ tổng quan đến chi tiết triển khai.
 
 #context (align(center)[_Bảng #table_counter.display(): Tóm tắt phạm vi biểu đồ C4_])
 #table_counter.step()
@@ -533,5 +527,3 @@ Bẳng cách sử dụng C4 Model (Context, Containers, Components, Code) [S. Br
     table.cell(align: center + horizon, inset: (y: 0.8em))[Developers, DBAs],
   )
 ]
-
-#pagebreak()

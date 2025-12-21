@@ -301,8 +301,7 @@
       3. Hệ thống verify ownership và status.
       4. Hệ thống cập nhật status thành "process".\
 
-      // 5. Hệ thống thực thi pipeline 4 giai đoạn: (1)Crawling - thu thập posts/comments, (2)Analyzing - chạy NLP pipeline 5 bước, (3)Aggregating, (4)Finalizing - cleanup và notify.
-      5. Hệ thống thực hiện các bước xử lý dữ liệu.
+      5. Hệ thống thực thi pipeline 4 giai đoạn: (1)Crawling - thu thập posts/comments, (2)Analyzing - chạy NLP pipeline 5 bước, (3)Aggregating, (4)Finalizing - cleanup và notify.
       6. User mở trang chi tiết Project để theo dõi tiến độ.
       7. Hệ thống hiển thị real-time: giai đoạn hiện tại, phần trăm, thời gian đã chạy, items đã xử lý, ETA.
       9. Khi hoàn tất: gửi notification, hiển thị "Project hoàn tất! Xem kết quả".
@@ -592,11 +591,9 @@
       2. Hệ thống hiển thị hộp thoại cấu hình.
       3. User chọn options và nhấn "Xuất báo cáo".
       4. Hệ thống validate thông tin hợp lệ.
-      // --- SỬA ĐỔI TẠI ĐÂY ---
       5. Hệ thống ghi nhận yêu cầu thành công và hiển thị thông báo: "Hệ thống đang tạo báo cáo, bạn sẽ nhận được thông báo khi hoàn tất".
       6. Hệ thống đóng hộp thoại và cho phép User tiếp tục sử dụng các chức năng khác (không block màn hình).
       7. Sau khi xử lý xong, Hệ thống gửi một thông báo (Notification) "Báo cáo của bạn đã sẵn sàng".
-      // -----------------------
       8. User nhấn vào thông báo.
       9. Hệ thống chuyển hướng đến trang tải xuống.
       10. User nhấn "Tải xuống" để lưu file về máy.
@@ -742,7 +739,7 @@
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
     align(center + horizon)[Nguyễn Tấn Tài],
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Date created*],
-    align(center + horizon)[20/10/2024],
+    align(center + horizon)[20/10/2025],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated by*],
     align(center + horizon)[Nguyễn Thành Tín],

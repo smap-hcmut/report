@@ -4,32 +4,32 @@
 = CHƯƠNG 2: CÁC HỆ THỐNG LIÊN QUAN
 
 == 2.1 Tổng quan thị trường
-Thị trường Social Listening tại Việt Nam hiện nay có mức độ cạnh tranh cao, với sự phân chia rõ rệt giữa hai mô hình hoạt động chính: các đơn vị tư vấn chuyên sâu cung cấp báo cáo nghiên cứu (tiêu biểu như Buzzmetrics) và các nền tảng công nghệ tự phục vụ (SaaS) (như SocialHeat của YouNet Media). Trong bối cảnh hiện tại, lợi thế cạnh tranh không còn chỉ nằm ở khả năng thu thập dữ liệu thô, mà đã chuyển dịch sang độ tinh vi của các công nghệ AI được tích hợp, bao gồm:
+Thị trường Social Listening tại Việt Nam hiện nay có mức độ cạnh tranh cao, với sự phân chia rõ rệt giữa hai mô hình hoạt động chính: các đơn vị tư vấn chuyên sâu cung cấp báo cáo nghiên cứu tiêu biểu như Buzzmetrics và các nền tảng SaaS như SocialHeat của YouNet Media. Trong bối cảnh hiện tại, lợi thế cạnh tranh không còn chỉ nằm ở khả năng thu thập dữ liệu thô, mà đã chuyển dịch sang độ tinh vi của các công nghệ AI được tích hợp, bao gồm:
 
-- **Xử lý ngôn ngữ tự nhiên (NLP)**: Trọng tâm là khả năng phân tích cảm xúc theo khía cạnh (Aspect-Based Sentiment Analysis - ABSA) một cách chính xác cho tiếng Việt, ngôn ngữ vốn có độ phức tạp cao về ngữ nghĩa và ngữ cảnh.
-- **Thị giác máy tính (Computer Vision)**: Công nghệ Lắng nghe bằng hình ảnh (Visual Listening) cho phép nhận dạng logo, vật thể và bối cảnh xuất hiện trong hệ sinh thái đa phương tiện. Đây được xem là tính năng cao cấp giúp thu thập các đề cập thương hiệu bị bỏ sót nếu chỉ dựa vào phân tích văn bản thuần túy.
-- **Phát hiện bất thường (Anomaly Detection)**: Khả năng tự động phát hiện các đợt thảo luận tăng đột biến (spike detection) là giá trị cốt lõi hỗ trợ doanh nghiệp trong việc quản trị và xử lý khủng hoảng truyền thông.
+- Xử lý ngôn ngữ tự nhiên: Trọng tâm là khả năng phân tích cảm xúc theo khía cạnh một cách chính xác cho tiếng Việt, ngôn ngữ vốn có độ phức tạp cao về ngữ nghĩa và ngữ cảnh.
+- Thị giác máy tính: Công nghệ Lắng nghe bằng hình ảnh cho phép nhận dạng logo, vật thể và bối cảnh xuất hiện trong hệ sinh thái đa phương tiện. Đây được xem là tính năng cao cấp giúp thu thập các đề cập thương hiệu bị bỏ sót nếu chỉ dựa vào phân tích văn bản thuần túy.
+- Phát hiện bất thường: Khả năng tự động phát hiện các đợt thảo luận tăng đột biến là giá trị cốt lõi hỗ trợ doanh nghiệp trong việc quản trị và xử lý khủng hoảng truyền thông.
 
 
 == 2.2 Các hệ thống, dịch vụ tại Việt Nam
 
-=== 2.2.1 YouNet Group (Buzzmetrics & YouNet Media)
+=== 2.2.1 YouNet Group
 Là đơn vị thống trị thị trường Việt Nam, YouNet Group vận hành một chiến lược hai gọng kìm thông minh. Họ tách biệt mô hình kinh doanh thành hai thương hiệu riêng biệt: Buzzmetrics, một đơn vị tư vấn chuyên sâu, và YouNet Media, nhà cung cấp nền tảng công nghệ SaaS SocialHeat.
 
-==== a) Buzzmetrics
+==== 2.2.1.1 Buzzmetrics
 Buzzmetrics định vị mình là một công ty nghiên cứu thị trường tiên phong, áp dụng các phương pháp luận nghiên cứu vào dữ liệu mạng xã hội và thương mại điện tử từ năm 2013. Thay vì bản phần mềm, họ cung cấp các báo cáo phân tích chuyên sâu và tư vấn chiến lược cho các thương hiệu lớn.
 
 Ưu điểm:
 - Chất lượng insight vượt trội: Cung cấp các báo cáo phân tích sâu sắc bởi đội ngũ chuyên gia thay vì chỉ là dữ liệu thô.
-- Phương pháp luận độc quyền: Chỉ số BSI (Buzzmetrics Social Index) đã trở thành một tiêu chuẩn ngành để đo lường độ lan truyền và hiệu quả chiến dịch.
-- Độ tin cậy dữ liệu cao: Tiên phong áp dụng bộ lọc "Qualified Users" để loại bỏ các tương tác không chân thực (seeding, bots), đảm bảo tính chính xác của insight.
+- Phương pháp luận độc quyền: Chỉ số BSI đã trở thành một tiêu chuẩn ngành để đo lường độ lan truyền và hiệu quả chiến dịch.
+- Độ tin cậy dữ liệu cao: Tiên phong áp dụng bộ lọc "Qualified Users" để loại bỏ các tương tác không chân thực, như seeding và bots, đảm bảo tính chính xác của insight.
 
 Nhược điểm:
 - Mô hình dịch vụ: Khách hàng không có quyền truy cập trực tiếp vào nền tảng để tự khai thác dữ liệu và xử lý.
 - Chi phí cao: Mô hình tư vấn chuyên sâu thường đi kèm với chi phí cao hơn so với các nền tảng SaaS tự phục vụ.
 - Phụ thuộc vào đội ngũ chuyên gia: Chất lượng và tốc độ của báo cáo phụ thuộc vào năng lực và lịch làm việc của đội ngũ phân tích.
 
-==== b) YouNet Media (Social Heat)
+==== 2.2.1.2 YouNet Media
 YouNet Media cung cấp SocialHeat, nền tảng Social Listening dạng SaaS hàng đầu tại Việt Nam, cho phép các doanh nghiệp tự theo dõi và phân tích dữ liệu mạng xã hội theo thời gian thực.
 
 Ưu điểm:
@@ -50,11 +50,11 @@ Reputa là một hệ thống giám sát và phân tích thông tin trên môi t
 - Giá cả cạnh tranh: Cung cấp các gói dịch vụ theo tháng với mức giá rõ ràng, dễ tiếp cận cho nhiều quy mô doanh nghiệp.
 
 Nhược điểm:
-- Thông tin kỹ thuật hạn chế: Ít thông tin công khai về các công nghệ AI lõi (như ABSA, phát hiện bất thường) so với các đối thủ khác.
+- Thông tin kỹ thuật hạn chế: Ít thông tin công khai về các công nghệ AI, như ABSA, phát hiện bất thường, so với các đối thủ khác.
 - Thị trường ngách: Việc tập trung vào khách hàng doanh nghiệp lớn và chính phủ có thể khiến sản phẩm kém linh hoạt cho các doanh nghiệp nhỏ và vừa hoặc các agency.
 
 === 2.2.3 Kompa
-Kompa tự định vị là một công ty công nghệ dữ liệu có nguồn gốc từ thung lũng Silicon. Công ty nhấn mạnh vào năng lực Big Data và xử lý ngôn ngữ tự nhiên (NLP) để cung cấp các giải pháp vượt ra ngoài phạm vi Social Listening truyền thống.
+Kompa tự định vị là một công ty công nghệ dữ liệu có nguồn gốc từ thung lũng Silicon. Công ty nhấn mạnh vào năng lực Big Data và xử lý ngôn ngữ tự nhiên để cung cấp các giải pháp vượt ra ngoài phạm vi Social Listening truyền thống.
 
 Ưu điểm:
 - Định vị công nghệ dữ liệu: Nhấn mạnh vào năng lực Big Data và NLP, cho thấy tham vọng cung cấp các giải pháp dữ liệu đa ngành.
@@ -120,91 +120,339 @@ Nhược điểm:
 #table_counter.step()
 // Đặt kích thước phông chữ cơ bản cho bảng
 #text(size: 9pt)[
-  // Cài đặt không căn đều lề phải
   #set par(justify: false)
-  
-  // Định nghĩa bảng
   #table(
-    // Tỷ lệ các cột
-    columns: (1.6fr, 1.1fr, 1.1fr, 1fr, 1fr, 1.1fr, 1fr, 1fr),
-    // Đường viền mỏng
+    columns: (1.5fr, 1.1fr, 1.2fr, 1fr, 1fr, 1.1fr, 1fr, 1fr),
     stroke: 0.5pt,
-    // Căn lề: Cột 1 (trái), các cột còn lại (giữa)
     align: (left, center, center, center, center, center, center, center),
-
-    // HÀM TÔ MÀU CHO CÁC HÀNG TIÊU ĐỀ MỤC
     fill: (col, row) => {
-      // Typst đếm hàng từ 0 (hàng tiêu đề chính).
-      // Danh sách các hàng là tiêu đề mục cần tô xám.
       let grey-rows = (1, 7, 13, 17, 21, 24, 26, 30, 34, 38)
       if row in grey-rows {
-        luma(230) // Màu xám nhạt
+        luma(230)
       } else {
-        white // Nền trắng
+        white
       }
     },
 
     // --- HÀNG TIÊU ĐỀ CHÍNH ---
-    [*Tiêu chí*], [*YouNet Media*], [*Buzzmetrics*], [*Reputa*], [*Kompa*], [*Talkwalker*], [*YouScan*], [*Meltwater*],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em))[*Tiêu chí*],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em))[*YouNet Media*],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em))[*Buzzmetrics*],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em))[*Reputa*],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em))[*Kompa*],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em))[*Talkwalker*],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em))[*YouScan*],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em))[*Meltwater*],
 
     // --- MỤC 1: PHẠM VI & NGUỒN DỮ LIỆU ---
-    [1. Phạm vi & Nguồn Dữ liệu], [], [], [], [], [], [], [],
-    
-    [Phạm vi thị trường], [Tập trung VN], [Tập trung VN], [Tập trung VN], [Tập trung VN], [Toàn cầu], [Toàn cầu], [Toàn cầu],
-    [Nguồn (MXH, Báo, Diễn đàn)], [Rộng (VN)], [Rộng (VN)], [Rộng (VN)], [Rộng (VN)], [Rất rộng], [Rất rộng], [Rất rộng],
-    [Nguồn (TMĐT VN)], [Mạnh (TikTok)], [✓], [✓], [✓], [X], [X], [X],
-    [Nguồn (TV, Radio, In)], [X], [X], [X], [X], [✓], [Audio/Video], [✓ (Podcast)],
-    [Dữ liệu thời gian thực], [Rất mạnh], [X (Dịch vụ)], [✓], [✓], [Rất mạnh], [✓], [✓],
+    table.cell(align: left + horizon, inset: (x: 0.3em, y: 0.5em), fill: luma(240))[
+      1. Phạm vi & Nguồn Dữ liệu
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Phạm vi thị trường],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Tập trung VN],
+    table.cell(align: center + horizon)[Tập trung VN],
+    table.cell(align: center + horizon)[Tập trung VN],
+    table.cell(align: center + horizon)[Tập trung VN],
+    table.cell(align: center + horizon)[Toàn cầu],
+    table.cell(align: center + horizon)[Toàn cầu],
+    table.cell(align: center + horizon)[Toàn cầu],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Nguồn (MXH, Báo, Diễn đàn)],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Rộng (VN)],
+    table.cell(align: center + horizon)[Rộng (VN)],
+    table.cell(align: center + horizon)[Rộng (VN)],
+    table.cell(align: center + horizon)[Rộng (VN)],
+    table.cell(align: center + horizon)[Rất rộng],
+    table.cell(align: center + horizon)[Rất rộng],
+    table.cell(align: center + horizon)[Rất rộng],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Nguồn (TMĐT VN)],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Mạnh (TikTok)],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Nguồn (TV, Radio, In)],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[Audio/Video],
+    table.cell(align: center + horizon)[✓ (Podcast)],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Dữ liệu thời gian thực],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Rất mạnh],
+    table.cell(align: center + horizon)[X (Dịch vụ)],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[Rất mạnh],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
 
     // --- MỤC 2: NĂNG LỰC PHÂN TÍCH & AI ---
-    [2. Năng lực Phân tích & AI], [], [], [], [], [], [], [],
-    
-    [Sentiment & Emotion], [✓], [✓ (Chuyên sâu)], [✓], [✓], [✓ (AI)], [✓ (AI)], [✓ (AI)],
-    [Phân cụm chủ đề & Xu hướng], [✓], [✓ (Chuyên sâu)], [✓], [✓], [✓ (AI)], [✓ (AI)], [✓ (AI)],
-    [Phân tích hình ảnh/video], [X], [X], [X], [X], [✓ (AI)], [✓ (AI)], [✓ (AI)],
-    [So sánh đối thủ], [✓], [✓ (Chuyên sâu)], [✓], [✓], [✓], [✓], [✓],
-    [Phân tích Influencer], [✓], [✓], [✓], [✓], [✓], [✓], [✓],
+    table.cell(
+      align: left + horizon,
+      inset: (x: 0.3em, y: 0.5em),
+      fill: luma(240),
+    )[
+      2. Năng lực Phân tích & AI
+    ],
+    [], [], [], [], [], [], [],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Sentiment & Emotion],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓ (AI)],
+    table.cell(align: center + horizon)[✓ (AI)],
+    table.cell(align: center + horizon)[✓ (AI)],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Phân cụm chủ đề & Xu hướng],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓ (AI)],
+    table.cell(align: center + horizon)[✓ (AI)],
+    table.cell(align: center + horizon)[✓ (AI)],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Phân tích hình ảnh/video],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[✓ (AI)],
+    table.cell(align: center + horizon)[✓ (AI)],
+    table.cell(align: center + horizon)[✓ (AI)],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[So sánh đối thủ],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Phân tích Influencer],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
 
     // --- MỤC 3: BÁO CÁO & TRỰC QUAN HÓA ---
-    [3. Báo cáo & Trực quan hóa], [], [], [], [], [], [], [],
-    
-    [Dashboard tùy chỉnh], [Rất linh hoạt], [X (Dịch vụ)], [✓], [✓], [Rất linh hoạt], [Rất linh hoạt], [Đa dạng],
-    [Báo cáo tự động / Xuất file], [✓ (PPTX, Excel)], [X (Dịch vụ)], [✓ (PDF, Excel)], [✓ (PDF, Excel)], [Đa dạng], [Đa dạng], [Đa dạng],
-    [Biểu đồ & Word Cloud], [Đa dạng], [Tùy chỉnh (Dịch vụ)], [Cơ bản], [Cơ bản], [Nâng cao], [Nâng cao], [Nâng cao],
+    table.cell(
+      align: left + horizon,
+      inset: (x: 0.3em, y: 0.5em),
+      fill: luma(240),
+    )[
+      3. Báo cáo & Trực quan hóa
+    ],
+    [], [], [], [], [], [], [],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Dashboard tùy chỉnh],
+    table.cell(align: center + horizon)[Rất linh hoạt],
+    table.cell(align: center + horizon)[X (Dịch vụ)],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[Rất linh hoạt],
+    table.cell(align: center + horizon)[Rất linh hoạt],
+    table.cell(align: center + horizon)[Đa dạng],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Báo cáo tự động / Xuất file],
+    table.cell(align: center + horizon)[✓ (PPTX, Excel)],
+    table.cell(align: center + horizon)[X (Dịch vụ)],
+    table.cell(align: center + horizon)[✓ (PDF, Excel)],
+    table.cell(align: center + horizon)[✓ (PDF, Excel)],
+    table.cell(align: center + horizon)[Đa dạng],
+    table.cell(align: center + horizon)[Đa dạng],
+    table.cell(align: center + horizon)[Đa dạng],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Biểu đồ & Word Cloud],
+    table.cell(align: center + horizon)[Đa dạng],
+    table.cell(align: center + horizon)[Tùy chỉnh (Dịch vụ)],
+    table.cell(align: center + horizon)[Cơ bản],
+    table.cell(align: center + horizon)[Cơ bản],
+    table.cell(align: center + horizon)[Nâng cao],
+    table.cell(align: center + horizon)[Nâng cao],
+    table.cell(align: center + horizon)[Nâng cao],
 
     // --- MỤC 4: TÍCH HỢP & TỰ ĐỘNG HÓA ---
-    [4. Tích hợp & Tự động hóa], [], [], [], [], [], [], [],
-    
-    [API / Tích hợp BI], [Hạn chế], [X], [?], [✓ (Tài chính)], [Mạnh], [Mạnh], [Mạnh],
-    [Cảnh báo tự động], [✓ (Crisis)], [X (Dịch vụ)], [✓ (Email)], [✓ (Email/SMS)], [✓ (Spike)], [✓ (Tùy chỉnh)], [✓ (Spike)],
-    [Quản lý tương tác (Reply)], [X], [X], [X], [X], [X], [X], [X],
+    table.cell(
+      align: left + horizon,
+      inset: (x: 0.3em, y: 0.5em),
+      fill: luma(240),
+    )[
+      4. Tích hợp & Tự động hóa
+    ],
+    [], [], [], [], [], [], [],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[API / Tích hợp BI],
+    table.cell(align: center + horizon)[Hạn chế],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[?],
+    table.cell(align: center + horizon)[✓ (Tài chính)],
+    table.cell(align: center + horizon)[Mạnh],
+    table.cell(align: center + horizon)[Mạnh],
+    table.cell(align: center + horizon)[Mạnh],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Cảnh báo tự động],
+    table.cell(align: center + horizon)[✓ (Crisis)],
+    table.cell(align: center + horizon)[X (Dịch vụ)],
+    table.cell(align: center + horizon)[✓ (Email)],
+    table.cell(align: center + horizon)[✓ (Email/SMS)],
+    table.cell(align: center + horizon)[✓ (Spike)],
+    table.cell(align: center + horizon)[✓ (Tùy chỉnh)],
+    table.cell(align: center + horizon)[✓ (Spike)],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Quản lý tương tác (Reply)],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
 
     // --- MỤC 5: TRẢI NGHIỆM NGƯỜI DÙNG ---
-    [5. Trải nghiệm Người dùng], [], [], [], [], [], [], [],
-    
-    [Giao diện dễ dùng], [✓], [N/A (Dịch vụ)], [?], [?], [✓✓], [✓✓], [✓],
-    [Ngôn ngữ hỗ trợ], [Việt, Anh], [Việt, Anh], [Việt], [Việt, Anh], [Đa ngôn ngữ], [Đa ngôn ngữ], [Đa ngôn ngữ],
+    table.cell(
+      align: left + horizon,
+      inset: (x: 0.3em, y: 0.5em),
+      fill: luma(240),
+    )[
+      5. Trải nghiệm Người dùng
+    ],
+    [], [], [], [], [], [], [],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Giao diện dễ dùng],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[N/A (Dịch vụ)],
+    table.cell(align: center + horizon)[?],
+    table.cell(align: center + horizon)[?],
+    table.cell(align: center + horizon)[✓✓],
+    table.cell(align: center + horizon)[✓✓],
+    table.cell(align: center + horizon)[✓],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Ngôn ngữ hỗ trợ],
+    table.cell(align: center + horizon)[Việt, Anh],
+    table.cell(align: center + horizon)[Việt, Anh],
+    table.cell(align: center + horizon)[Việt],
+    table.cell(align: center + horizon)[Việt, Anh],
+    table.cell(align: center + horizon)[Đa ngôn ngữ],
+    table.cell(align: center + horizon)[Đa ngôn ngữ],
+    table.cell(align: center + horizon)[Đa ngôn ngữ],
 
     // --- MỤC 6: BẢO MẬT & TUÂN THỦ ---
-    [6. Bảo mật & Tuân thủ], [], [], [], [], [], [], [],
-    
-    [Tuân thủ GDPR / PDPA], [?], [?], [?], [✓], [✓], [✓], [✓],
-    
+    table.cell(
+      align: left + horizon,
+      inset: (x: 0.3em, y: 0.5em),
+      fill: luma(240),
+    )[
+      6. Bảo mật & Tuân thủ
+    ],
+    [], [], [], [], [], [], [],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Tuân thủ GDPR / PDPA],
+    table.cell(align: center + horizon)[?],
+    table.cell(align: center + horizon)[?],
+    table.cell(align: center + horizon)[?],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+
     // --- MỤC 7: CHI PHÍ & GÓI DỊCH VỤ ---
-    [7. Chi phí & Gói dịch vụ], [], [], [], [], [], [], [],
-    
-    [Mô hình tính phí], [Hybrid], [Dịch vụ], [Theo gói], [Theo gói], [Theo gói], [Theo gói], [Theo gói],
-    [Giá khởi điểm (Ước tính)\*], [Theo gói], [Theo dự án], [~5 triệu/tháng], [~10 triệu/tháng], [~\$9,600/năm], [~\$299/tháng], [~\$15,000/năm],
-    [Dùng thử / Demo], [Demo], [X], [X], [X], [Demo], [Demo/Trial], [Demo],
+    table.cell(
+      align: left + horizon,
+      inset: (x: 0.3em, y: 0.5em),
+      fill: luma(240),
+    )[
+      7. Chi phí & Gói dịch vụ
+    ],
+    [], [], [], [], [], [], [],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Mô hình tính phí],
+    table.cell(align: center + horizon)[Hybrid],
+    table.cell(align: center + horizon)[Dịch vụ],
+    table.cell(align: center + horizon)[Theo gói],
+    table.cell(align: center + horizon)[Theo gói],
+    table.cell(align: center + horizon)[Theo gói],
+    table.cell(align: center + horizon)[Theo gói],
+    table.cell(align: center + horizon)[Theo gói],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Giá khởi điểm (Ước tính)\*],
+    table.cell(align: center + horizon)[Theo gói],
+    table.cell(align: center + horizon)[Theo dự án],
+    table.cell(align: center + horizon)[~5 triệu/tháng],
+    table.cell(align: center + horizon)[~10 triệu/tháng],
+    table.cell(align: center + horizon)[~\$9,600/năm],
+    table.cell(align: center + horizon)[~\$299/tháng],
+    table.cell(align: center + horizon)[~\$15,000/năm],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Dùng thử / Demo],
+    table.cell(align: center + horizon)[Demo],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[Demo],
+    table.cell(align: center + horizon)[Demo/Trial],
+    table.cell(align: center + horizon)[Demo],
 
     // --- MỤC 8: HỖ TRỢ KHÁCH HÀNG ---
-    [8. Hỗ trợ Khách hàng], [], [], [], [], [], [], [],
-    
-    [Hình thức hỗ trợ], [Chuyên viên], [Chuyên gia], [Email/Tel], [Email/Tel], [Chuyên viên], [Chuyên viên], [Chuyên viên],
-    [Tài liệu & Training], [✓], [✓], [?], [✓], [✓], [✓], [✓],
-    [Cộng đồng người dùng], [X], [X], [X], [X], [✓], [✓], [X],
+    table.cell(
+      align: left + horizon,
+      inset: (x: 0.3em, y: 0.5em),
+      fill: luma(240),
+    )[
+      8. Hỗ trợ Khách hàng
+    ],
+    [], [], [], [], [], [], [],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Hình thức hỗ trợ],
+    table.cell(align: center + horizon)[Chuyên viên],
+    table.cell(align: center + horizon)[Chuyên gia],
+    table.cell(align: center + horizon)[Email/Tel],
+    table.cell(align: center + horizon)[Email/Tel],
+    table.cell(align: center + horizon)[Chuyên viên],
+    table.cell(align: center + horizon)[Chuyên viên],
+    table.cell(align: center + horizon)[Chuyên viên],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Tài liệu & Training],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[?],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Cộng đồng người dùng],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[X],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[✓],
+    table.cell(align: center + horizon)[X],
   )
 ]
+
 #text(size: 9pt, style: "italic")[
   *Chú thích:* (✓): Có tính năng; (✓✓): Tính năng mạnh/nổi bật; (X): Không có hoặc không hỗ trợ; (?): Không có thông tin công khai; (N/A): Không áp dụng.
   \ (\*): Mức giá ước tính dựa trên thông tin thị trường và báo giá tham khảo, có thể thay đổi tùy thời điểm.

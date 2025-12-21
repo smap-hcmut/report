@@ -3,7 +3,7 @@
 
 \
 
-== 4.3 Yêu cầu phi chức năng (Non-Functional Requirements)
+== 4.3 Yêu cầu phi chức năng
 Dựa trên đặc thù xử lý dữ liệu lớn từ mạng xã hội với luồng thông tin phát sinh liên tục, nhóm tác giả thiết lập bộ tiêu chí phi chức năng (NFRs) làm rào chắn kỹ thuật cho dự án. Các yêu cầu này không tồn tại độc lập mà hỗ trợ lẫn nhau, được chia làm hai trụ cột chính: Đặc tính kiến trúc (tập trung vào cấu trúc nội tại) và Thuộc tính chất lượng (tập trung vào trải nghiệm người dùng)
 
 === 4.3.1 Đặc tính kiến trúc
