@@ -1,0 +1,96 @@
+@startuml AD-07_Crisis_Monitor_v2
+!pragma useNewActivityDiagram
+
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+skinparam activity {
+    FontSize 11
+    RoundCorner 8
+}
+
+skinparam decision {
+    FontSize 10
+}
+
+skinparam swimlane {
+    TitleFontSize 12
+    TitleFontStyle bold
+}
+
+skinparam note {
+    FontSize 9
+}
+
+title AD-07 - Activity Diagram: Crisis Monitor (UC-08)
+
+|Marketing Analyst|
+start
+:Truy cập Crisis Monitor;
+:Nhan "Tao Monitor moi";
+:Thiet lap cau hinh giam sat;
+note right
+  Cau hinh:
+  - Tu khoa: include / exclude
+  - Nen tang theo doi
+  - Nguong canh bao
+  - Kenh thong bao
+end note
+:Xac nhan cau hinh;
+
+|System|
+:Kiem tra tinh hop le cau hinh;
+
+if (Cau hinh hop le?) then (Khong)
+    :Tra ve thong bao loi;
+    
+    |Marketing Analyst|
+    :Sua cau hinh;
+    stop
+else (Co)
+    :Luu cau hinh Monitor;
+    :Kich hoat Monitor;
+endif
+
+|System|
+repeat
+    :Quet du lieu tu cac nen tang;
+    :Ap dung bo loc tu khoa;
+    :Tinh toan diem risk / sentiment;
+    
+    if (Phat hien du lieu moi?) then (Co)
+        if (Vuot nguong canh bao?) then (Co)
+            :Tao canh bao khung hoang;
+            :Gui thong bao tuc thi;
+            note right
+              Kenh thong bao:
+              - Email
+              - SMS
+              - In-app
+              - Webhook
+            end note
+            :Luu case vao Database;
+            :Cap nhat Crisis Dashboard;
+            :Gui canh bao den Marketing Analyst;
+        else (Khong)
+            :Luu du lieu binh thuong;
+        endif
+    else (Khong)
+        :Cho chu ky tiep theo;
+    endif
+repeat while (Monitor dang hoat dong?) is (Co)
+
+stop
+
+legend right
+  Dac diem he thong:
+  | Giam sat | Near real-time |
+  | Luu tru | Chi case hit |
+  | Thong bao | Da kenh |
+  | Vong doi | Lien tuc |
+endlegend
+
+@enduml

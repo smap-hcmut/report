@@ -1,0 +1,151 @@
+@startuml AD-01_Project_Lifecycle_v2
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+skinparam activity {
+    FontSize 11
+    RoundCorner 8
+}
+
+skinparam decision {
+    FontSize 10
+}
+
+skinparam swimlane {
+    TitleFontSize 12
+    TitleFontStyle bold
+}
+
+skinparam note {
+    FontSize 9
+}
+
+title AD-01 – Activity Diagram: Vòng đời Project
+
+|Marketing Analyst|
+start
+:Nhấn "Tạo Project mới";
+
+|System|
+:Hiển thị Wizard cấu hình;
+
+|Marketing Analyst|
+:Nhập thông tin cơ bản;
+:Nhập thương hiệu & từ khóa;
+:Thêm đối thủ cạnh tranh;
+:Chọn nền tảng theo dõi;
+
+label overview
+|System|
+:Hiển thị Tổng quan cấu hình;
+
+|Marketing Analyst|
+if (Hành động tiếp theo?) then (Dry-run)
+    :Nhấn "Dry-run";
+    
+    |System|
+    :Crawl mẫu (3 posts/keyword);
+    
+    if (Tìm thấy kết quả?) then (Có)
+        :Trả về kết quả mẫu;
+    else (Không)
+        :Thông báo không tìm thấy;
+    endif
+    
+    |Marketing Analyst|
+    :Đánh giá chất lượng từ khóa;
+    
+    if (Chấp nhận kết quả?) then (Có)
+        goto overview
+    else (Không)
+        :Điều chỉnh từ khóa;
+        stop
+    endif
+else (Lưu Project)
+    :Nhấn "Lưu Project";
+    
+    |System|
+    :Kiểm tra tính hợp lệ dữ liệu;
+    
+    if (Dữ liệu hợp lệ?) then (Không)
+        :Đánh dấu trường lỗi;
+        
+        |Marketing Analyst|
+        :Sửa dữ liệu;
+        stop
+    endif
+    
+    :Lưu Project (Status: Draft);
+    :Chuyển về Danh sách Project;
+endif
+
+|Marketing Analyst|
+:Chọn Project từ danh sách;
+:Nhấn "Khởi chạy";
+
+|System|
+:Xác thực quyền & cập nhật Processing;
+
+fork
+    :Crawling → Analyzing → Aggregating → Finalizing;
+fork again
+    |Marketing Analyst|
+    :Theo dõi tiến độ real-time;
+end fork
+
+|System|
+if (Xử lý thành công?) then (Có)
+    :Cập nhật trạng thái → Completed;
+    :Gửi thông báo hoàn tất;
+    
+    |Marketing Analyst|
+    :Truy cập Dashboard;
+    :Xem KPI & Sentiment Analysis;
+    :Xem Aspect Analysis;
+    :Xem Competitor Comparison;
+    
+    if (Xuất báo cáo?) then (Có)
+        :Nhấn "Xuất báo cáo";
+        :Cấu hình tùy chọn xuất;
+        
+        |System|
+        :Tạo Export Job;
+        
+        fork
+            :Xử lý bất đồng bộ;
+            :Upload file lên MinIO;
+            :Gửi thông báo sẵn sàng;
+        fork again
+            |Marketing Analyst|
+            :Tiếp tục sử dụng hệ thống;
+        end fork
+        
+        |Marketing Analyst|
+        :Tải file về máy;
+    endif
+else (Không)
+    :Cập nhật trạng thái → Failed;
+    :Gửi thông báo thất bại;
+    
+    |Marketing Analyst|
+    if (Thử lại?) then (Có)
+        :Nhấn "Retry";
+        detach
+    endif
+endif
+
+stop
+
+legend right
+  Vòng đời Project:
+  | UC-01 | Cấu hình |
+  | UC-02 | Dry-run |
+  | UC-03 | Khởi chạy |
+  | UC-04 | Dashboard |
+  | UC-06 | Export |
+endlegend
+
+@enduml

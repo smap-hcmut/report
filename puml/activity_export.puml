@@ -1,0 +1,98 @@
+@startuml AD-05_Export_Report_v2
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+skinparam activity {
+    FontSize 11
+    RoundCorner 8
+}
+
+skinparam decision {
+    FontSize 10
+}
+
+skinparam swimlane {
+    TitleFontSize 12
+    TitleFontStyle bold
+}
+
+skinparam note {
+    FontSize 9
+}
+
+title AD-05 – Activity Diagram: Xuất báo cáo (UC-06)
+
+|Marketing Analyst|
+start
+:Nhấn "Xuất báo cáo";
+:Cấu hình tùy chọn xuất;
+note right
+  Tùy chọn:
+  - Format: PDF / Excel / CSV
+  - Phạm vi: Thời gian
+  - Loại: Summary / Detail
+  - Bao gồm: Charts / Graphs
+end note
+:Xác nhận xuất báo cáo;
+
+|System|
+:Kiểm tra tính hợp lệ cấu hình;
+
+if (Cấu hình hợp lệ?) then (Không)
+    :Trả về thông báo lỗi;
+    
+    |Marketing Analyst|
+    :Sửa cấu hình;
+    detach
+endif
+
+:Tạo Export Job;
+:Đưa Job vào hàng đợi;
+:Gửi thông báo đang xử lý;
+
+fork
+    |Marketing Analyst|
+    :Tiếp tục sử dụng hệ thống;
+fork again
+    |System|
+    :Worker xử lý Job;
+    
+    if (Loại báo cáo?) then (Summary)
+        :Xử lý nhanh (< 30s);
+    else (Detail)
+        :Xử lý chi tiết;
+        
+        if (Vượt quá timeout?) then (Có)
+            :Hủy Job;
+            :Gửi thông báo thất bại;
+            stop
+        endif
+    endif
+    
+    if (Xử lý thành công?) then (Có)
+        :Upload file lên MinIO;
+        :Tạo link tải (hết hạn 7 ngày);
+        :Gửi thông báo sẵn sàng;
+    else (Không)
+        :Gửi thông báo thất bại;
+        stop
+    endif
+end fork
+
+|Marketing Analyst|
+:Nhận thông báo;
+:Tải file về máy;
+stop
+
+legend right
+  Thông số kỹ thuật:
+  | Summary | < 30 giây |
+  | Timeout | 10 phút |
+  | Link hết hạn | 7 ngày |
+  | Storage | MinIO |
+endlegend
+
+@enduml

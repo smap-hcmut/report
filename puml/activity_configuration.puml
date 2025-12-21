@@ -1,0 +1,80 @@
+@startuml AD-02_Configuration_Wizard_v2
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+skinparam activity {
+    FontSize 11
+    RoundCorner 8
+}
+
+skinparam decision {
+    FontSize 10
+}
+
+skinparam swimlane {
+    TitleFontSize 12
+    TitleFontStyle bold
+}
+
+skinparam note {
+    FontSize 9
+}
+
+title AD-02 – Activity Diagram: Cấu hình Project (UC-01)
+
+|Marketing Analyst|
+start
+:Nhấn "Tạo Project mới";
+
+|System|
+:Hiển thị Form cấu hình;
+
+|Marketing Analyst|
+:Nhập thông tin cơ bản;
+:Nhập thương hiệu & từ khóa;
+:Thêm đối thủ cạnh tranh;
+:Chọn nền tảng theo dõi;
+
+if (Thực hiện Dry-run?) then (Có)
+    :Nhấn "Dry-run";
+    
+    |System|
+    :Xử lý yêu cầu Dry-run;
+    
+    if (Kết nối thành công?) then (Có)
+        :Lấy mẫu dữ liệu (3 posts/keyword);
+        :Trả về kết quả mẫu;
+    else (Không)
+        :Trả về lỗi kết nối;
+    endif
+    
+    |Marketing Analyst|
+    :Đánh giá chất lượng từ khóa;
+endif
+
+:Nhấn "Lưu Project";
+
+|System|
+:Kiểm tra tính hợp lệ dữ liệu;
+note right
+  Validation Rules:
+  - Tên Project: unique
+  - Ngày: from_date < to_date
+  - Từ khóa: 2-50 ký tự
+end note
+
+if (Dữ liệu hợp lệ?) then (Không)
+    :Trả về thông báo lỗi;
+    :Đánh dấu trường không hợp lệ;
+    stop
+else (Có)
+    :Lưu Project (Status: Draft);
+    :Trả về thông báo thành công;
+    :Chuyển hướng về Danh sách Project;
+    stop
+endif
+
+@enduml

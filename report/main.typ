@@ -20,7 +20,7 @@
 #set page(numbering: none)
 #outline(
   title: [Mục lục],
-  depth: 5
+  depth: 4
 )
 #pagebreak()
 
@@ -42,12 +42,13 @@
 #pagebreak()
 // Chương 5: Thiết kế hệ thống
 #include "chapter_5/index.typ"
-#pagebreak()
-// Chương 6: Chi tiết Hiện thực (NEW)
+// Chương 6: Tổng kết
 #include "chapter_6/index.typ"
 #pagebreak()
-// Chương 7: Tổng kết (moved from 6)
+// Chương 7: tài liệu tham khảo 
 #include "chapter_7/index.typ"
-#pagebreak()
-// Chương 8: Tài liệu tham khảo (moved from 7)
+// Chương 8: Phụ lục
 #include "chapter_8/index.typ"
+// ==== Các hướng dẫn thêm chương mới ====
+// #import "chapter_x_typ" as cx
+// #cx

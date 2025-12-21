@@ -2,7 +2,6 @@
 
 = CHƯƠNG 7: TÀI LIỆU THAM KHẢO
 
-== Sách và giáo trình
 
 + Sommerville, I. (2015). _Software Engineering_ (10th ed.). Pearson Education.
 
@@ -24,7 +23,6 @@
 
 + Kleppmann, M. (2017). _Designing Data-Intensive Applications_. O'Reilly Media.
 
-== Tài liệu kỹ thuật và chuẩn
 
 + IEEE. (1998). _IEEE Recommended Practice for Software Requirements Specifications_. IEEE Std 830-1998.
 
@@ -38,7 +36,6 @@
 
 + OASIS. (2012). _Advanced Message Queuing Protocol (AMQP) Version 1.0_. OASIS Standard.
 
-== Tài liệu trực tuyến
 
 + RabbitMQ Documentation. (2024). _RabbitMQ Tutorials_. Retrieved from https://www.rabbitmq.com/tutorials
 
@@ -62,7 +59,6 @@
 
 + Fowler, M. (2014). _Microservices: A Definition of This New Architectural Term_. Retrieved from https://martinfowler.com/articles/microservices.html
 
-== Bài báo và nghiên cứu
 
 + Liu, B. (2012). Sentiment Analysis and Opinion Mining. _Synthesis Lectures on Human Language Technologies_, 5(1), 1-167.
 
@@ -80,7 +76,6 @@
 
 + Pontiki, M., Galanis, D., Pavlopoulos, J., Papageorgiou, H., Androutsopoulos, I., & Manandhar, S. (2014). SemEval-2014 Task 4: Aspect Based Sentiment Analysis. _Proceedings of the 8th International Workshop on Semantic Evaluation_, 27-35.
 
-== API Documentation
 
 + TikTok for Developers. (2024). _TikTok API Documentation_. Retrieved from https://developers.tiktok.com/
 
@@ -88,7 +83,6 @@
 
 + Facebook Graph API. (2024). _Graph API Documentation_. Retrieved from https://developers.facebook.com/docs/graph-api
 
-== Công cụ và thư viện
 
 + SQLBoiler. (2024). _SQLBoiler - A Go ORM Generator_. Retrieved from https://github.com/volatiletech/sqlboiler
 
@@ -104,7 +98,6 @@
 
 + VnCoreNLP. (2024). _VnCoreNLP: A Vietnamese Natural Language Processing Toolkit_. Retrieved from https://github.com/vncorenlp/VnCoreNLP
 
-== Hệ thống Social Listening tham khảo
 
 + YouNet Media. (2024). _SocialHeat - Social Listening Platform_. Retrieved from https://younetmedia.com/
 

@@ -1,14 +1,13 @@
 // Import counter dùng chung
 #import "../counters.typ": image_counter, table_counter
 
-\
 
-== 4.3 Yêu cầu phi chức năng
-Dựa trên đặc thù xử lý dữ liệu lớn từ mạng xã hội với luồng thông tin phát sinh liên tục, nhóm tác giả thiết lập bộ tiêu chí phi chức năng (NFRs) làm rào chắn kỹ thuật cho dự án. Các yêu cầu này không tồn tại độc lập mà hỗ trợ lẫn nhau, được chia làm hai trụ cột chính: Đặc tính kiến trúc (tập trung vào cấu trúc nội tại) và Thuộc tính chất lượng (tập trung vào trải nghiệm người dùng)
+== 4.3 Non-Functional Requirements
+Dựa trên đặc thù xử lý dữ liệu lớn từ mạng xã hội với luồng thông tin phát sinh liên tục, nhóm tác giả thiết lập bộ tiêu chí phi chức năng  làm rào chắn kỹ thuật cho dự án. Các yêu cầu này không tồn tại độc lập mà hỗ trợ lẫn nhau, được chia làm hai trụ cột chính là đặc tính kiến trúc và thuộc tính chất lượng
 
 === 4.3.1 Đặc tính kiến trúc
 Phần này xác định các đặc tính kiến trúc (Architecture Characteristics) nhằm đảm bảo hiệu quả vận hành và cấu trúc của hệ thống. Đây là các tiêu chí kỹ thuật dùng để đánh giá và định hướng thiết kế, giúp hệ thống đáp ứng các ràng buộc về công nghệ và bảo trì.
-==== 4.3.1.1 Đặc tính kiến trúc chính (Primary ACs)
+==== 4.3.1.1 Đặc tính kiến trúc chính
 #context (align(center)[_Bảng #table_counter.display(): Đặc tính kiến trúc chính_])
 #table_counter.step()
 #text()[
@@ -18,7 +17,7 @@ Phần này xác định các đặc tính kiến trúc (Architecture Characteri
     stroke: 0.5pt,
     align: (left + top, left + top),
     table.cell(align: center + horizon, inset: (y: 0.6em))[*AC*],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Định nghĩa & Tầm quan trọng*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Định nghĩa & tầm quan trọng*],
 
     align(center + horizon)[AC-1],
     [
@@ -82,7 +81,6 @@ Phần này xác định các đặc tính kiến trúc (Architecture Characteri
     ],
   )
 ]
-\
 
 ==== 4.3.1.2 Đặc tính kiến trúc bổ trợ (Secondary ACs)
 

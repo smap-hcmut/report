@@ -1,0 +1,92 @@
+@startuml AD-03_Dryrun_v2
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+skinparam activity {
+    FontSize 11
+    RoundCorner 8
+}
+
+skinparam decision {
+    FontSize 10
+}
+
+skinparam swimlane {
+    TitleFontSize 12
+    TitleFontStyle bold
+}
+
+skinparam note {
+    FontSize 9
+}
+
+title AD-03 – Activity Diagram: Dry-run từ khóa (UC-02)
+
+|Marketing Analyst|
+label retry_dryrun
+start
+:Nhấn "Dry-run";
+
+|System|
+:Tiếp nhận yêu cầu;
+:Hiển thị loading "Đang thu thập mẫu...";
+note right
+  Cấu hình Crawl:
+  - Max: 3 posts/từ khóa
+  - Timeout: 90 giây
+end note
+
+if (Vượt quá timeout?) then (Có)
+    :Trả về lỗi timeout;
+    
+    |Marketing Analyst|
+    if (Hành động?) then (Thử lại)
+        goto retry_dryrun
+    else (Điều chỉnh)
+        :Quay lại UC-01 bước 4 (Nhập từ khóa);
+        stop
+    endif
+endif
+
+:Crawl song song từ các nền tảng;
+
+partition "For each Platform" {
+    if (Platform bị rate-limit?) then (Có)
+        :Thông báo giới hạn [platform];
+        :Bỏ qua platform này;
+    else (Không)
+        :Lấy mẫu dữ liệu (3 posts/keyword);
+    endif
+    :Tiếp tục platform khác;
+}
+
+:Tổng hợp kết quả mẫu;
+
+if (Có kết quả?) then (Có)
+    :Trả về kết quả mẫu;
+else (Không)
+    :Thông báo không tìm thấy dữ liệu;
+endif
+
+|Marketing Analyst|
+:Đánh giá chất lượng từ khóa;
+
+if (Chấp nhận kết quả?) then (Có)
+    :Quay lại UC-01 bước 7 (Tổng quan);
+    stop
+else (Không)
+    :Quay lại UC-01 bước 4 (Nhập từ khóa);
+    stop
+endif
+
+legend right
+  Thông số kỹ thuật:
+  | Thời gian TB | 30-60 giây |
+  | Timeout | 90 giây |
+  | Xử lý | Song song |
+endlegend
+
+@enduml
