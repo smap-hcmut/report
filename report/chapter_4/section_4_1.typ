@@ -22,7 +22,7 @@ Dựa trên kết quả khảo sát về thị hiếu người dùng và phân t
       Người sử dụng chính. \
 
       Đặc điểm:
-      - Chuyên gia 2-5 năm kinh nghiệm.
+      // - Chuyên gia 2-5 năm kinh nghiệm.
       - Làm việc tại Agency/FMCG.
 
       Pain points:
@@ -53,4 +53,3 @@ Dựa trên kết quả khảo sát về thị hiếu người dùng và phân t
   )
 ]
 
-#pagebreak()

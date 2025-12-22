@@ -15,15 +15,12 @@ Mục đích của mục này là:
 
 - Cung cấp traceability đến requirements: Liên kết với NFRs và Acceptance Criteria ở Chapter 4.
 
-Lưu ý về Data Flow:
 
-Mỗi service trong mục này bao gồm phần Data Flow mô tả luồng xử lý nội bộ hay component-to-component flow bên trong service đó. Đây khác với Sequence Diagrams trong mục 5.5, nơi mô tả tương tác giữa các services hay service-to-service flow. Data Flow trong mục này tập trung vào logic xử lý bên trong một service, trong khi Sequence Diagrams trong mục 5.5 mô tả cách các services giao tiếp với nhau theo thời gian cho các Use Cases cụ thể.
+Mục này được tổ chức theo thứ tự ưu tiên, bắt đầu với các services phức tạp và quan trọng nhất là Collector Service và Analytics Service, sau đó đến các services hỗ trợ gồm Project, Identity, WebSocket và Web UI.
 
-Mục này được tổ chức theo thứ tự ưu tiên, bắt đầu với các services phức tạp và quan trọng nhất là Collector Service và Analytics Service, sau đó đến các services hỗ trợ gồm Project, Identity, WebSocket, Speech2Text và Web UI.
+=== 5.3.1 Collector Service
 
-=== 5.3.1 Collector Service - Component Diagram
-
-Collector Service hay còn gọi là Dispatcher Service là service trung tâm trong hệ thống SMAP data collection, đóng vai trò Master node trong mô hình Master-Worker pattern. Service này nhận các crawl requests từ Project Service qua message queue, validate và phân phối các task chi tiết đến các platform-specific workers.
+Collector Service là service trung tâm trong hệ thống SMAP data collection, đóng vai trò Master node trong mô hình Master-Worker pattern. Service này nhận các crawl requests từ Project Service qua message queue, validate và phân phối các task chi tiết đến các platform-specific workers.
 
 Vai trò của Collector Service trong kiến trúc tổng thể:
 
@@ -143,7 +140,7 @@ Luồng này xử lý kết quả từ crawler workers:
   #image_counter.step()
 ]
 
-==== 5.3.1.4 Design Patterns Applied
+==== 5.3.1.4 Design Patterns áp dụng
 
 Collector Service áp dụng các design patterns sau:
 
@@ -213,12 +210,9 @@ External Dependencies:
 - Project Service: Progress webhook callbacks.
 - Scrapper Services: Workers consume tasks và publish results.
 
-==== 5.3.1.8 Summary
-
-Collector Service là service trung tâm trong hệ thống SMAP data collection, đóng vai trò Master trong Master-Worker pattern. Service được tổ chức theo Clean Architecture với 4 layers và 4 UseCases chính: Dispatcher, Results, State, Webhook. Các design patterns chính bao gồm Master-Worker, Event-Driven Architecture, Strategy Pattern và Repository Pattern. Service đáp ứng FR-2 về Thực thi và Giám sát Project, UC-02 về Dry-run, UC-03 về Execution.
 
 
-=== 5.3.2 Analytics Service - Component Diagram
+=== 5.3.2 Analytics Service
 
 Analytics Service là service phức tạp nhất trong hệ thống SMAP về mặt AI/ML, chịu trách nhiệm xử lý NLP pipeline để phân tích sentiment, intent, keywords, và impact của social media content. Service này consume events từ Crawler Services, fetch raw data từ object storage, chạy qua pipeline 5 bước, và persist kết quả vào database.
 
@@ -345,7 +339,7 @@ Luồng này được kích hoạt khi Crawler Services publish data collection 
   #image_counter.step()
 ]
 
-==== 5.3.2.4 Design Patterns Applied
+==== 5.3.2.4 Design Patterns áp dụng
 
 Analytics Service áp dụng các design patterns sau:
 
@@ -417,12 +411,9 @@ External Dependencies:
 - Relational Database (PostgreSQL): Result persistence.
 - AI Model: Pre-trained Vietnamese sentiment model.
 
-==== 5.3.2.8 Summary
-
-Analytics Service là service phức tạp nhất về AI/ML trong hệ thống SMAP. Service được tổ chức theo Clean Architecture với 5 layers và 5 NLP modules: Preprocessing, Intent, Keyword, Sentiment, Impact. Các design patterns chính bao gồm Pipeline Pattern, Strategy Pattern, Skip Logic Pattern và Port and Adapter Pattern. Service đáp ứng FR-2 về Analyzing phase và UC-03 về Analytics Pipeline.
 
 
-=== 5.3.3 Project Service - Component Diagram
+=== 5.3.3 Project Service
 
 Project Service là service quản lý vòng đời của các dự án phân tích thương hiệu và đối thủ cạnh tranh trong hệ thống SMAP. Service này đóng vai trò Aggregator trong kiến trúc tổng thể, quản lý project metadata, orchestrate execution flow, và publish events để trigger các services khác.
 
@@ -542,7 +533,7 @@ Luồng này xử lý progress callbacks từ Collector Service:
   #image_counter.step()
 ]
 
-==== 5.3.3.4 Design Patterns Applied
+==== 5.3.3.4 Design Patterns áp dụng
 
 Project Service áp dụng các design patterns sau:
 
@@ -609,12 +600,8 @@ External Dependencies:
 - Message Queue (RabbitMQ): Event publishing.
 - Identity Service: User authentication (JWT validation).
 
-==== 5.3.3.8 Summary
 
-Project Service là service quản lý vòng đời của projects trong hệ thống SMAP. Service được tổ chức theo Clean Architecture với 4 layers và 4 UseCases chính: Project, State, Webhook, Sampling. Các design patterns chính bao gồm Clean Architecture, Repository Pattern, Event-Driven Architecture và Distributed State Management. Service đáp ứng FR-1 về Cấu hình Project, FR-2 về Thực thi và Giám sát Project, UC-01 về Cấu hình Project và UC-03 về Execution.
-
-
-=== 5.3.4 Identity Service - Component Diagram
+=== 5.3.4 Identity Service
 
 Identity Service là service quản lý authentication và authorization trong hệ thống SMAP, cung cấp JWT-based authentication, role-based access control, và user management. Service này đóng vai trò Utility service trong kiến trúc tổng thể, được sử dụng bởi tất cả các services khác để verify user identity và permissions.
 
@@ -737,7 +724,7 @@ Luồng này được kích hoạt cho mỗi authenticated request:
   #image_counter.step()
 ]
 
-==== 5.3.4.4 Design Patterns Applied
+==== 5.3.4.4 Design Patterns áp dụng
 
 Identity Service áp dụng các design patterns sau:
 
@@ -803,12 +790,8 @@ External Dependencies:
 - Message Queue (RabbitMQ): Email event publishing (async email sending).
 - Consumer Service: Process email events (OTP sending via SMTP).
 
-==== 5.3.4.8 Summary
 
-Identity Service là service quản lý authentication và authorization trong hệ thống SMAP. Service được tổ chức theo Clean Architecture với 4 layers và 2 UseCases chính: Authentication và User. Các design patterns chính bao gồm Clean Architecture, Repository Pattern, Strategy Pattern, HttpOnly Cookie Pattern và Role-Based Access Control. Service đáp ứng Security NFRs về Authentication và Authorization.
-
-
-=== 5.3.5 WebSocket Service - Component Diagram
+=== 5.3.5 WebSocket Service
 
 WebSocket Service là service cung cấp real-time communication giữa hệ thống và clients (Web UI), cho phép push progress updates, notifications, và system status đến users mà không cần polling. Service này consume messages từ Pub/Sub và deliver đến WebSocket clients.
 
@@ -899,7 +882,7 @@ Luồng này được kích hoạt khi client connect WebSocket:
   #image_counter.step()
 ]
 
-==== 5.3.5.4 Design Patterns Applied
+==== 5.3.5.4 Design Patterns áp dụng
 
 WebSocket Service áp dụng các design patterns sau:
 
@@ -962,141 +945,7 @@ External Dependencies:
 - Project Service: Publish messages to Pub/Sub (progress callbacks).
 - Web UI: WebSocket clients connect và receive messages.
 
-==== 5.3.5.8 Summary
-
-WebSocket Service là service cung cấp real-time communication trong hệ thống SMAP. Service được tổ chức theo Clean Architecture với 3 layers và 2 main components: ConnectionManager và MessageHandler. Các design patterns chính bao gồm Observer Pattern, Connection Pooling, Graceful Shutdown và Health Check Pattern. Service đáp ứng FR-2 về Real-time progress tracking và UC-06 về Progress updates.
-
-
-=== 5.3.6 Speech2Text Service - Component Diagram
-
-Speech2Text Service là service chuyển đổi audio/video content sang text transcript sử dụng speech recognition model. Service này consume audio files từ object storage, chạy inference, và persist transcripts vào database hoặc publish events.
-
-Vai trò của Speech2Text Service trong kiến trúc tổng thể:
-
-- Audio Transcription Provider: Chuyển đổi audio/video sang text transcript.
-- Model Integration: Sử dụng optimized speech recognition model cho Vietnamese và English transcription.
-- Media Processing: Download audio từ object storage, process với model, và store results.
-
-Service này hỗ trợ FR-2 (Video analysis) và liên quan đến UC-03 (Analytics Pipeline - transcription step).
-
-==== 5.3.6.1 Component Diagram - C4 Level 3
-
-Speech2Text Service được tổ chức theo Clean Architecture với 4 layers chính:
-
-#align(center)[
-  #image("../images/component/speech2text-component-diagram.png", width: 90%)
-  #context (align(center)[_Hình #image_counter.display(): Component Diagram của Speech2Text Service_])
-  #image_counter.step()
-]
-
-==== 5.3.6.2 Component Catalog
-
-#context (align(center)[_Bảng #table_counter.display(): Component Catalog - Speech2Text Service_])
-#table_counter.step()
-#block(width: 100%)[
-  #set par(justify: false)
-  #table(
-    columns: (0.18fr, 0.32fr, 0.20fr, 0.20fr, 0.18fr),
-    stroke: 0.5pt,
-    align: (left, left, left, left, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Transcription \ Handler],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP request handlers cho transcription operations],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP POST /transcribe],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP responses (JSON)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP Framework (Python)],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Transcription \ UseCase],
-    table.cell(align: center + horizon, inset: (
-      y: 0.8em,
-    ))[Business logic: download audio, run model, return transcript],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Audio file path],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[TranscriptionResult],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Python logic],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Speech \ Transcriber],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Run speech recognition inference để transcribe audio],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Audio file (WAV, MP3)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Transcript với timestamps],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Speech Model],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Storage \ Adapter],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Download audio files từ object storage],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Object key],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Audio file (local temp)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[S3 Client],
-  )
-]
-
-==== 5.3.6.3 Data Flow
-
-Luồng xử lý chính của Speech2Text Service:
-
-#align(center)[
-  #image("../images/data-flow/transcript.png", width: 90%)
-  #context (align(center)[_Hình #image_counter.display(): Data Flow của Speech2Text Service_])
-  #image_counter.step()
-]
-
-==== 5.3.6.4 Design Patterns Applied
-
-Speech2Text Service áp dụng các design patterns sau:
-
-- Port and Adapter Pattern: ITranscriber interface định nghĩa contract, concrete implementation cho specific model. UseCase depends on interface, không phụ thuộc model cụ thể. Dễ test và có thể switch model mà không thay đổi use case.
-
-- Clean Architecture: 4 layers Delivery → UseCase → Domain → Infrastructure với dependency inversion. Testability cao, maintainability tốt.
-
-==== 5.3.6.5 Performance Targets
-
-#context (align(center)[_Bảng #table_counter.display(): Performance Targets - Speech2Text Service_])
-#table_counter.step()
-#block(width: 100%)[
-  #set par(justify: true)
-  #table(
-    columns: (0.45fr, 0.25fr, 0.30fr),
-    stroke: 0.5pt,
-    align: (left, center, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*NFR Traceability*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Transcription Latency (1-min audio)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 20s],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-P2],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Memory Usage],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 4GB],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-R1],
-  )
-]
-
-==== 5.3.6.6 Key Decisions
-
-- Optimized Model Runtime: Sử dụng optimized model thay vì native framework. Runtime nhanh hơn trên CPU, memory footprint nhỏ hơn, và dễ deploy.
-
-- Port and Adapter Pattern: ITranscriber interface định nghĩa contract, implementation có thể thay đổi. Dễ test và có thể switch model mà không thay đổi use case.
-
-==== 5.3.6.7 Dependencies
-
-Internal Dependencies:
-
-- TranscriptionUseCase: Orchestrate transcription flow.
-- SpeechTranscriber: Run speech recognition inference.
-
-External Dependencies:
-
-- Object Storage (MinIO): Audio file storage (download audio files).
-- Speech Model: Optimized model downloaded từ storage, cached locally.
-
-==== 5.3.6.8 Summary
-
-Speech2Text Service là service chuyển đổi audio/video sang text transcript. Service được tổ chức theo Clean Architecture với 4 layers và Port and Adapter Pattern cho transcriber. Service hỗ trợ FR-2 về Video analysis và UC-03 về Analytics Pipeline.
-
-
-=== 5.3.7 Web UI - Component Diagram
+=== 5.3.6 Web UI
 
 Web UI là frontend application cung cấp dashboard quản trị, project management interface, và real-time progress visualization. Service này tương tác với tất cả backend services qua REST APIs và WebSocket connections.
 
@@ -1109,7 +958,7 @@ Vai trò của Web UI trong kiến trúc tổng thể:
 
 Service này đáp ứng tất cả Use Cases từ phía user interface và liên quan đến NFRs về Usability (UX requirements).
 
-==== 5.3.7.1 Component Diagram - C4 Level 3
+==== 5.3.6.1 Component Diagram - C4 Level 3
 
 Web UI được tổ chức theo Component-based Architecture:
 
@@ -1119,7 +968,7 @@ Web UI được tổ chức theo Component-based Architecture:
   #image_counter.step()
 ]
 
-==== 5.3.7.2 Component Catalog
+==== 5.3.6.2 Component Catalog
 
 #context (align(center)[_Bảng #table_counter.display(): Component Catalog - Web UI_])
 #table_counter.step()
@@ -1161,7 +1010,7 @@ Web UI được tổ chức theo Component-based Architecture:
   )
 ]
 
-==== 5.3.7.3 Data Flow
+==== 5.3.6.3 Data Flow
 
 Luồng xử lý chính của Web UI được chia thành 2 flows: Project Creation và Real-time Progress Updates.
 
@@ -1188,7 +1037,7 @@ Luồng này được kích hoạt khi project đang executing theo UC-06:
 #image_counter.step()
 
 
-==== 5.3.7.4 Design Patterns Applied
+==== 5.3.6.4 Design Patterns áp dụng
 
 Web UI áp dụng các design patterns sau:
 
@@ -1200,7 +1049,7 @@ Web UI áp dụng các design patterns sau:
 
 - Server-Side Rendering: Pages được render trên server, send HTML to client. SEO tốt hơn và initial load nhanh hơn.
 
-==== 5.3.7.5 Performance Targets
+==== 5.3.6.5 Performance Targets
 
 #context (align(center)[_Bảng #table_counter.display(): Performance Targets - Web UI_])
 #table_counter.step()
@@ -1225,33 +1074,144 @@ Web UI áp dụng các design patterns sau:
   )
 ]
 
-==== 5.3.7.6 Key Decisions
+==== 5.3.6.6 Thiết kế giao diện
 
-- Modern React Framework: Sử dụng modern React framework với Server Components. Better performance và modern React features.
+Phần này trình bày thiết kế giao diện người dùng của hệ thống SMAP, bao gồm các màn hình chính phục vụ cho các Use Cases đã định nghĩa trong Chương 4. Giao diện được thiết kế theo nguyên tắc đơn giản, trực quan và tập trung vào trải nghiệm người dùng.
 
-- TypeScript cho Type Safety: Sử dụng TypeScript thay vì JavaScript. Type safety giảm runtime errors, better IDE support.
+===== a. Màn hình Landing Page
 
-- Utility-First CSS: Sử dụng utility-first CSS approach. Fast development, small bundle size.
+Màn hình Landing Page là điểm tiếp xúc đầu tiên của người dùng với hệ thống SMAP. Giao diện được thiết kế với phong cách hiện đại, tối giản và chuyên nghiệp nhằm tạo ấn tượng ban đầu tích cực cho Marketing Analyst.
 
-- WebSocket với Auto-reconnect: Custom useWebSocket hook với auto-reconnect logic. Resilience khi connection drops và better user experience.
+#align(center)[
+  #image("../images/UI/landing.png", width: 100%)
+  #context (align(center)[_Hình #image_counter.display(): Màn hình Landing Page của hệ thống SMAP_])
+  #image_counter.step()
+]
 
-==== 5.3.7.7 Dependencies
+Màn hình Landing Page bao gồm các thành phần chính sau:
 
-Internal Dependencies:
+- Header Navigation: Thanh điều hướng phía trên với logo SMAP, các liên kết đến trang Features, Pricing, About và nút đăng nhập hoặc đăng ký.
 
-- API Clients: Gọi REST APIs từ backend services.
-- Custom Hooks: Manage WebSocket connections và state.
-- Context Providers: Share state across components.
+- Hero Section: Khu vực giới thiệu chính với tiêu đề nổi bật, mô tả ngắn gọn về giá trị của hệ thống và nút Call-to-Action để bắt đầu sử dụng.
 
-External Dependencies:
+- Feature Highlights: Phần trình bày các tính năng nổi bật của hệ thống như phân tích sentiment, theo dõi đối thủ cạnh tranh và phát hiện xu hướng.
 
-- Identity Service: Authentication APIs (login, register, verify OTP).
-- Project Service: Project CRUD APIs, execution APIs, progress APIs.
-- Analytics Service: Analytics data APIs, report generation APIs.
-- WebSocket Service: Real-time progress updates.
+===== b. Màn hình Quản lý danh sách Projects
 
-==== 5.3.7.8 Summary
+Màn hình này phục vụ cho UC-05 về Quản lý danh sách Projects, cho phép Marketing Analyst xem, lọc, tìm kiếm và điều hướng đến các chức năng tương ứng với trạng thái của từng project.
 
-Web UI là frontend application cung cấp user interface cho hệ thống SMAP. Application được xây dựng với modern React framework, React components, custom hooks và Context API. Các design patterns chính bao gồm Component-based Architecture, Custom Hooks Pattern, Context API Pattern và Server-Side Rendering. Web UI đáp ứng tất cả Use Cases từ UC-01 đến UC-08.
+#align(center)[
+  #image("../images/UI/cacprojects.png", width: 100%)
+  #context (align(center)[_Hình #image_counter.display(): Màn hình Quản lý danh sách Projects_])
+  #image_counter.step()
+]
 
+Giao diện màn hình Quản lý danh sách Projects được tổ chức với các thành phần sau:
+
+- Thanh công cụ phía trên: Bao gồm ô tìm kiếm theo tên project, bộ lọc theo trạng thái và nút tạo project mới.
+
+- Danh sách Projects: Hiển thị dưới dạng bảng hoặc lưới với các thông tin tên project, trạng thái hiển thị bằng badge màu sắc khác nhau, ngày tạo, lần cập nhật cuối và preview từ khóa thương hiệu.
+
+- Actions theo trạng thái: Mỗi project hiển thị các hành động phù hợp với trạng thái hiện tại. Project ở trạng thái Draft cho phép Khởi chạy hoặc Xóa. Project đang Running cho phép Xem tiến độ. Project Completed cho phép Xem kết quả, Xuất báo cáo hoặc Xóa. Project Failed cho phép Thử lại hoặc Xóa.
+
+- Phân trang: Hỗ trợ infinite scroll hoặc pagination khi số lượng projects vượt quá 20 items mỗi trang.
+
+===== c. Màn hình Dry-run kiểm tra từ khóa
+
+Màn hình này phục vụ cho UC-02 về Kiểm tra từ khóa, cho phép Marketing Analyst xác thực chất lượng từ khóa trước khi lưu project bằng cách xem mẫu kết quả thu thập được.
+
+#align(center)[
+  #image("../images/UI/dryrun.png", width: 100%)
+  #context (align(center)[_Hình #image_counter.display(): Màn hình Dry-run kiểm tra từ khóa_])
+  #image_counter.step()
+]
+
+Giao diện màn hình Dry-run bao gồm các thành phần chính:
+
+- Thông tin từ khóa: Hiển thị danh sách các từ khóa đang được kiểm tra cùng với platform tương ứng.
+
+- Kết quả mẫu: Hiển thị tối đa 3 posts mỗi từ khóa với các thông tin tiêu đề, preview nội dung, platform nguồn, số lượt xem, lượt thích, bình luận và chia sẻ.
+
+- Trạng thái loading: Hiển thị indicator khi đang thu thập mẫu với thông báo tiến độ.
+
+- Nút điều hướng: Cho phép người dùng quay lại chỉnh sửa từ khóa hoặc tiếp tục lưu project.
+
+===== d. Màn hình Dashboard phân tích
+
+Màn hình Dashboard phục vụ cho UC-04 về Xem kết quả phân tích, cung cấp cái nhìn tổng quan về sentiment trends, aspect analysis và competitor comparison cho Marketing Analyst.
+
+#align(center)[
+  #image("../images/UI/char1.png", width: 100%)
+  #context (align(center)[_Hình #image_counter.display(): Màn hình Dashboard phân tích tổng quan_])
+  #image_counter.step()
+]
+
+Giao diện Dashboard được chia thành 4 phần chính theo đặc tả UC-04:
+
+- Biểu đồ Line hoặc Area Chart: Hiển thị số lượng mentions theo thời gian với hỗ trợ radio button chọn khoảng thời gian và tooltip hiển thị chi tiết khi hover.
+
+- Biểu đồ Bar Chart so sánh: Thể hiện share of voice giữa thương hiệu và các đối thủ cạnh tranh, giúp Marketing Analyst đánh giá vị thế thương hiệu trên thị trường.
+
+- Keyword Cloud: Hiển thị top 20 từ khóa được nhắc đến nhiều nhất với kích thước font tỷ lệ thuận với tần suất xuất hiện. Vị trí từ khóa của thương hiệu được highlight để dễ nhận biết.
+
+#align(center)[
+  #image("../images/UI/char2.png", width: 100%)
+  #context (align(center)[_Hình #image_counter.display(): Biểu đồ so sánh Share of Voice giữa thương hiệu và đối thủ_])
+  #image_counter.step()
+]
+
+#align(center)[
+  #image("../images/UI/char3.png", width: 100%)
+  #context (align(center)[_Hình #image_counter.display(): Hiển thị chi tiết một từ khoá_])
+  #image_counter.step()
+]
+
+
+#align(center)[
+  #image("../images/UI/char4.png", width: 100%)
+  #context (align(center)[_Hình #image_counter.display(): Bảng dữ liệu về bài viết thịnh hành_])
+  #image_counter.step()
+]
+
+Dashboard hỗ trợ các tính năng tương tác sau:
+
+- Bộ lọc: Cho phép lọc theo platform, sentiment, khoảng thời gian và aspect.
+
+- Drilldown: Nhấn vào aspect để xem danh sách posts liên quan, nhấn vào post để xem chi tiết đầy đủ bao gồm cả comments.
+
+- Xuất báo cáo: Nút điều hướng đến UC-06 để tạo và tải file báo cáo.
+
+===== e. Màn hình Trend Dashboard
+
+Màn hình này phục vụ cho UC-07 về Phát hiện trend tự động, hiển thị danh sách các xu hướng nổi bật được hệ thống thu thập và xếp hạng từ các nền tảng mạng xã hội.
+
+#align(center)[
+  #image("../images/UI/trend.png", width: 100%)
+  #context (align(center)[_Hình #image_counter.display(): Màn hình Trend Dashboard_])
+  #image_counter.step()
+]
+
+Giao diện Trend Dashboard bao gồm các thành phần:
+
+- Trends Grid: Hiển thị lưới các xu hướng với thông tin tiêu đề, nền tảng nguồn, điểm xu hướng và chỉ số tăng trưởng.
+
+- Bộ lọc: Cho phép lọc theo nền tảng, loại nội dung và khoảng thời gian.
+
+- Thông tin chi tiết: Mỗi trend card hiển thị preview nội dung, số liệu engagement và velocity score.
+
+- Cảnh báo trạng thái: Hiển thị thông báo khi dữ liệu từ một nền tảng gặp sự cố hoặc chưa được cập nhật.
+
+===== f. Nguyên tắc thiết kế giao diện
+
+Giao diện hệ thống SMAP được thiết kế tuân theo các nguyên tắc sau:
+
+- Consistency: Sử dụng hệ thống design tokens thống nhất cho màu sắc, typography, spacing và components trên toàn bộ ứng dụng.
+
+- Responsive Design: Giao diện tương thích với nhiều kích thước màn hình từ desktop đến tablet, đảm bảo trải nghiệm nhất quán.
+
+- Accessibility: Tuân thủ các tiêu chuẩn WCAG về contrast ratio, keyboard navigation và screen reader support.
+
+- Performance: Tối ưu hóa loading time với lazy loading cho images và code splitting cho các components lớn.
+
+- Feedback: Cung cấp phản hồi trực quan cho mọi hành động của người dùng thông qua loading states, success messages và error notifications.
 

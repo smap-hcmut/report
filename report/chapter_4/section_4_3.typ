@@ -3,7 +3,7 @@
 
 
 == 4.3 Non-Functional Requirements
-Dựa trên đặc thù xử lý dữ liệu lớn từ mạng xã hội với luồng thông tin phát sinh liên tục, nhóm tác giả thiết lập bộ tiêu chí phi chức năng  làm rào chắn kỹ thuật cho dự án. Các yêu cầu này không tồn tại độc lập mà hỗ trợ lẫn nhau, được chia làm hai trụ cột chính là đặc tính kiến trúc và thuộc tính chất lượng
+Dựa trên đặc thù xử lý dữ liệu lớn từ mạng xã hội với luồng thông tin phát sinh liên tục, nhóm đã thiết lập bộ tiêu chí phi chức năng  làm rào chắn kỹ thuật cho dự án. Các yêu cầu này không tồn tại độc lập mà hỗ trợ lẫn nhau, được chia làm hai trụ cột chính là đặc tính kiến trúc và thuộc tính chất lượng
 
 === 4.3.1 Đặc tính kiến trúc
 Phần này xác định các đặc tính kiến trúc (Architecture Characteristics) nhằm đảm bảo hiệu quả vận hành và cấu trúc của hệ thống. Đây là các tiêu chí kỹ thuật dùng để đánh giá và định hướng thiết kế, giúp hệ thống đáp ứng các ràng buộc về công nghệ và bảo trì.
@@ -82,7 +82,7 @@ Phần này xác định các đặc tính kiến trúc (Architecture Characteri
   )
 ]
 
-==== 4.3.1.2 Đặc tính kiến trúc bổ trợ (Secondary ACs)
+==== 4.3.1.2 Đặc tính kiến trúc bổ trợ
 
 #context (align(center)[_Bảng #table_counter.display(): Đặc tính kiến trúc bổ trợ_])
 #table_counter.step()
@@ -179,7 +179,7 @@ Mục này xác định các thuộc tính chất lượng nhằm mô tả hành
     align(center + horizon)[Crawling],
     [Hệ thống tận dụng tối đa rate-limit của từng platform. Hỗ trợ parallel crawling. Thu thập đồng thời cả posts và comments từ các nền tảng mạng xã hội.],
     align(center + horizon)[Analytics Processing],
-    [Xử lý \~70 items/phút với 1 worker (bao gồm cả posts và comments), batch processing 20-50 items/batch. Mỗi item được phân tích qua pipeline NLP đầy đủ (preprocessing, intent classification, keyword extraction, sentiment analysis, impact calculation).],
+    [Xử lý \~70 items/phút với 1 worker (bao gồm cả posts và comments), batch processing 20-50 items/batch. Mỗi item được phân tích qua pipeline NLP đầy đủ: preprocessing, intent classification, keyword extraction, sentiment analysis, impact calculation.],
     align(center + horizon)[WebSocket Connections], [Hỗ trợ 1,000 concurrent WebSocket connections],
 
     // Resource Utilization (3 rows)
@@ -209,7 +209,7 @@ Mục này xác định các thuộc tính chất lượng nhằm mô tả hành
     // === SECURITY ===
     // Auth & Authorization (3 rows)
     table.cell(rowspan: 2, [*Security:* \ Auth & Authorization]),
-    [User Authentication], [JWT với HttpOnly cookies, session timeout 2 giờ (normal) hoặc 30 ngày (remember me)],
+    [User Authentication], [JWT với HttpOnly cookies, session timeout 2 giờ hoặc 30 ngày với "remember me"],
     [Authorization], [Verify ownership trước mọi thao tác trên Project, role-based access control (RBAC)],
 
     // Data Protection (3 rows)
@@ -237,7 +237,6 @@ Mục này xác định các thuộc tính chất lượng nhằm mô tả hành
   )
 ]
 
-#pagebreak()
 
 ==== 4.3.2.3 Trải nghiệm & Hỗ trợ
 #context (align(center)[_Bảng #table_counter.display(): Trải nghiệm & Hỗ trợ_])
@@ -257,7 +256,7 @@ Mục này xác định các thuộc tính chất lượng nhằm mô tả hành
     // === USABILITY ===
     // User Experience (5 rows)
     table.cell(rowspan: 6, [*Usability:* \ User Experience]),
-    [Internationalization], table.cell(align: horizon, inset: (y: 0.8em))[Đa ngôn ngữ (Tiếng Việt, Tiếng Anh)],
+    [Internationalization], table.cell(align: horizon, inset: (y: 0.8em))[Đa ngôn ngữ (tiếng Việt, tiếng Anh)],
     [Loading States], [Hiển thị loading indicators cho mọi async operations, skeleton screens],
     [Error Messages], [Error messages rõ ràng, actionable, với error codes để support],
     [Confirmation Dialogs], [Xác nhận cho destructive actions, có thể undo trong 30 giây],

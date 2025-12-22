@@ -3,7 +3,7 @@
 
 == 5.4 Thiết kế cơ sở dữ liệu
 
-Section này mô tả thiết kế cơ sở dữ liệu của hệ thống SMAP, bao gồm chiến lược lựa chọn database, ERD cho từng service, và các patterns quản lý dữ liệu phân tán.
+Section này mô tả thiết kế cơ sở dữ liệu của hệ thống SMAP, bao gồm chiến lược lựa chọn database, Database Schema cho từng service, và các patterns quản lý dữ liệu phân tán.
 
 === 5.4.1 Chiến lược lựa chọn Database
 
@@ -19,6 +19,8 @@ Kiến trúc lưu trữ dữ liệu của hệ thống được thiết kế the
 
 - MinIO đóng vai trò là hệ thống object storage để lưu trữ các tệp dữ liệu theo batch phát sinh trong quá trình xử lý.
 
+- MongoDB được sử dụng như lớp lưu trữ tạm thời cho dữ liệu thu thập từ các nền tảng mạng xã hội, hỗ trợ ghi/đọc nhanh và linh hoạt đối với dữ liệu bán cấu trúc trước khi dữ liệu được chuẩn hóa và chuyển sang các tầng lưu trữ phục vụ phân tích.
+
 ==== 5.4.1.2 Lý do lựa chọn
 
 PostgreSQL được sử dụng nhờ khả năng ACID compliance, đáp ứng yêu cầu nghiêm ngặt của các cơ chế authentication và authorization. Hệ thống foreign keys và các constraints hỗ trợ duy trì data consistency giữa các thực thể dữ liệu. Đồng thời, việc hỗ trợ kiểu dữ liệu JSONB cho phép lưu trữ các dữ liệu linh hoạt như competitor_keywords_map và aspects_breakdown mà không làm ảnh hưởng đến cấu trúc schema tổng thể.
@@ -27,16 +29,16 @@ Redis được lựa chọn nhờ khả năng sub-millisecond latency, đáp ứ
 
 MinIO được sử dụng để lưu trữ các batch files có kích thước từ 50–500KB, vốn không phù hợp để truyền tải trực tiếp qua message queue. Cơ chế lifecycle policy cho phép tự động xóa các tệp sau 7 ngày, góp phần quản lý dung lượng lưu trữ hiệu quả. Đồng thời, việc hỗ trợ S3-compatible API mang lại tính flexibility, cho phép hệ thống dễ dàng mở rộng hoặc thay thế hạ tầng lưu trữ khi cần thiết.
 
-=== 5.4.2 ERD Identity Service
+=== 5.4.2 Identity Service
 
 Identity Service quản lý authentication, authorization, và subscription management với 3 tables: users, plans, và subscriptions.
 
-==== 5.4.2.1 ERD Diagram
+==== 5.4.2.1 Database Schema
 
 #align(center)[
   #image("../images/erd/identity-erd.png", width: 60%)
 ]
-#context (align(center)[_Hình #image_counter.display(): ERD - Identity Service_])
+#context (align(center)[_Hình #image_counter.display(): Database Schema - Identity Service_])
 #image_counter.step()
 
 ==== 5.4.2.2 Table Catalog
@@ -79,16 +81,16 @@ Identity Service quản lý authentication, authorization, và subscription mana
 - Role Encryption: Role được hash (SHA256) thành `role_hash` để enhance security.
 - OTP Storage: OTP 6-digit và `otp_expired_at` lưu trong `users` table, expire sau 10 phút.
 
-=== 5.4.3 ERD Project Service
+=== 5.4.3 Project Service
 
 Project Service quản lý project lifecycle với 1 table: `projects`. Bảng này sử dụng JSONB và array types nhằm hỗ trợ flexible data structure.
 
-==== 5.4.3.1 ERD Diagram
+==== 5.4.3.1 Database Schema
 
 #align(center)[
   #image("../images/erd/project-erd.png", width: 60%)
 ]
-#context (align(center)[_Hình #image_counter.display(): ERD - Project Service_])
+#context (align(center)[_Hình #image_counter.display(): Database Schema - Project Service_])
 #image_counter.step()
 
 ==== 5.4.3.2 Table Catalog
@@ -118,16 +120,16 @@ Project Service quản lý project lifecycle với 1 table: `projects`. Bảng n
 
 `projects.created_by` tham chiếu đến `users.id` nhưng không có FK constraint vì nằm ở 2 databases khác nhau. Validation qua JWT token ở application layer.
 
-=== 5.4.4 ERD Analytics Service
+=== 5.4.4 Analytics Service
 
 Analytics Service lưu kết quả phân tích NLP với 3 tables: `post_analytics`, `post_comments`, và `crawl_errors`.
 
-==== 5.4.4.1 ERD Diagram
+==== 5.4.4.1 Database Schema
 
 #align(center)[
   #image("../images/erd/analytic-erd.png", width: 60%)
 ]
-#context (align(center)[_Hình #image_counter.display(): ERD - Analytics Service_])
+#context (align(center)[_Hình #image_counter.display(): Database Schema - Analytics Service_])
 #image_counter.step()
 
 ==== 5.4.4.2 Table Catalog
@@ -219,7 +221,7 @@ PostgreSQL write, Redis read cho project state. Write side lưu project metadata
 Section này đã mô tả thiết kế cơ sở dữ liệu của hệ thống SMAP:
 
 - Chiến lược Database: PostgreSQL, Redis, MinIO phù hợp với từng use case.
-- ERD cho từng Service: Identity (3 tables), Project (1 table), Analytics (3 tables).
+- Database Schema cho từng Service: Identity (3 tables), Project (1 table), Analytics (3 tables).
 - Data Management Patterns: Database per Service, Distributed State Management, Claim Check Pattern.
 
 Các quyết định thiết kế đảm bảo Independent Scaling, Fault Isolation, và Real-time Performance.
