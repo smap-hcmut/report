@@ -20,5 +20,8 @@
 #import "section_5_6.typ" as communication_patterns
 #communication_patterns
 
-#import "section_5_7.typ" as traceability_validation
+#import "section_5_7.typ" as deployment_architecture
+#deployment_architecture
+
+#import "section_5_8.typ" as traceability_validation
 #traceability_validation

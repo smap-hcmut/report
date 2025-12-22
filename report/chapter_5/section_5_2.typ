@@ -250,7 +250,7 @@ Kết quả: Microservices Architecture đạt điểm cao nhất, vượt trộ
 
 ==== 5.2.1.4 Chứng cứ từ hệ thống thực tế
 
-Dựa trên source code đã triển khai, hệ thống SMAP hiện có 7 core microservices và 3 supporting services:
+Dựa trên source code đã triển khai, hệ thống SMAP hiện có 6 core microservices và 4 supporting services:
 
 #context (align(center)[_Bảng #table_counter.display(): Danh sách Core Microservices_])
 #table_counter.step()
@@ -286,18 +286,15 @@ Dựa trên source code đã triển khai, hệ thống SMAP hiện có 7 core m
       y: 0.8em,
     ))[Pipeline NLP: phân tích Intent, Sentiment, Impact, xử lý batch dữ liệu],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Python, PostgreSQL, \ MinIO],
+    
     table.cell(align: center + horizon, inset: (y: 0.8em))[6],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Speech2Text Service],
-    table.cell(align: horizon, inset: (y: 0.8em))[Chuyển đổi audio sang transcript bằng Whisper],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Python, MinIO],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[7],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Web UI],
     table.cell(align: horizon, inset: (y: 0.8em))[Dashboard quản trị, cấu hình dự án, realtime view],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Next.js Frontend],
   )
 ]
 
-Ngoài ra, hệ thống còn có 3 supporting services hỗ trợ cho các core services:
+Ngoài ra, hệ thống còn có 4 supporting services hỗ trợ cho các core services:
 
 #context (align(center)[_Bảng #table_counter.display(): Danh sách Supporting Services_])
 #table_counter.step()
@@ -325,6 +322,10 @@ Ngoài ra, hệ thống còn có 3 supporting services hỗ trợ cho các core 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Playwright Service],
     table.cell(align: horizon, inset: (y: 0.8em))[Tự động hóa browser, crawling nâng cao dữ liệu],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Python, Playwright],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[4],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Speech2Text Service],
+    table.cell(align: horizon, inset: (y: 0.8em))[Chuyển đổi audio sang transcript bằng Whisper],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Python, MinIO],
   )
 ]
 

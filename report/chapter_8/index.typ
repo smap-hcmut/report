@@ -2,7 +2,7 @@
 #pagebreak()
 = CHƯƠNG 8: PHỤ LỤC
 
-== Phụ lục A: Danh sách từ viết tắt
+===== Phụ lục A: Danh sách từ viết tắt
 #text()[
   #set par(justify: false)
   #table(
@@ -239,13 +239,12 @@
     table.cell(align: center + horizon, inset: (y: 0.6em))[Web Socket Protocol],
 
     // Y
-    table.cell(align: center + horizon, inset: (y: 0.6em))[YAGNI],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[You Aren't Gonna Need It],
+
   )
 ]
 
 
-== Phụ lục B: Bảng thuật ngữ
+===== Phụ lục B: Bảng thuật ngữ
 
 #text()[
   #set par(justify: false)
@@ -568,3 +567,142 @@
     ))[Instance xử lý tasks từ queue, có thể scale độc lập theo workload.],
   )
 ]
+
+===== Phụ lục C: Bảng quá trình làm việc
+#text()[
+  #set par(justify: false)
+  #table(
+    // Điều chỉnh độ rộng cột: 4 cột
+    columns: (0.08fr, 0.5fr, 0.2fr, 0.22fr),
+    stroke: 0.5pt,
+    // Điều chỉnh căn lề: 4 cột
+    align: (center + horizon, left + horizon, center + horizon, center + horizon),
+
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*STT*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Tên công việc*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Thời gian*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Người thực hiện*],
+
+    // Phase 1: Khảo sát và phân tích
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 1: Khảo sát và phân tích yêu cầu*],
+
+    [1], [Khảo sát nhu cầu và thị trường Social Listening tại Việt Nam], [15/08 - 22/08], [Cả nhóm],
+    [2], [Phân tích các hệ thống liên quan], [22/08 - 29/08], [Cả nhóm],
+    [3], [Xác định actors và stakeholders của hệ thống], [29/08 - 01/09], [Cả nhóm],
+    [4], [Thu thập và phân tích yêu cầu chức năng], [01/09 - 05/09], [Cả nhóm],
+    [5], [Thu thập và phân tích yêu cầu phi chức năng], [05/09 - 10/09], [Cả nhóm],
+    [6], [Đặc tả Use Cases], [10/09 - 15/09], [Cả nhóm],
+
+    // Phase 2: Thiết kế kiến trúc
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 2: Thiết kế kiến trúc hệ thống*],
+
+    [7], [Nghiên cứu và lựa chọn phong cách kiến trúc], [15/09 - 20/09], [Cả nhóm],
+    [8], [Thiết kế nguyên tắc và phương pháp tiếp cận], [20/09 - 23/09], [Cả nhóm],
+    [9], [Phân rã hệ thống theo Domain-Driven Design], [23/09 - 27/09], [Cả nhóm],
+    [10], [Thiết kế System Context Diagram], [27/09 - 30/09], [Cả nhóm],
+    [11], [Thiết kế Container Diagram], [30/09 - 03/10], [Cả nhóm],
+    [12], [Lựa chọn và đánh giá Technology Stack], [03/10 - 06/10], [Cả nhóm],
+
+    // Phase 2.5: Thiết kế Activity Diagrams
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 2.5: Thiết kế Activity Diagrams*],
+
+    [13], [Thiết kế Activity Diagram vòng đời Project], [06/10 - 07/10], [Nguyễn Chánh Tín],
+    [14], [Thiết kế Activity Diagram cho UC-01], [07/10 - 08/10], [Nguyễn Chánh Tín],
+    [15], [Thiết kế Activity Diagram cho UC-02], [08/10 - 09/10], [Nguyễn Chánh Tín],
+    [16], [Thiết kế Activity Diagram cho UC-03], [09/10 - 10/10], [Nguyễn Chánh Tín],
+    [17], [Thiết kế Activity Diagram cho UC-06], [10/10 - 11/10], [Nguyễn Chánh Tín],
+    [18], [Thiết kế Activity Diagram cho UC-07], [11/10 - 12/10], [Nguyễn Chánh Tín],
+    [19], [Thiết kế Activity Diagram cho UC-08], [12/10 - 13/10], [Nguyễn Chánh Tín],
+
+    // Phase 3: Thiết kế chi tiết services
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 3: Thiết kế chi tiết các dịch vụ*],
+
+    [20], [Thiết kế Component Diagram cho Collector Service], [13/10 - 16/10], [Đặng Quốc Phong],
+    [21], [Thiết kế Component Diagram cho Analytics Service], [16/10 - 19/10], [Nguyễn Tấn Tài],
+    [22], [Thiết kế Component Diagram cho Project Service], [19/10 - 21/10], [Đặng Quốc Phong],
+    [23], [Thiết kế Component Diagram cho Identity Service], [21/10 - 23/10], [Nguyễn Tấn Tài],
+    [24], [Thiết kế Component Diagram cho WebSocket Service], [23/10 - 25/10], [Đặng Quốc Phong],
+    [25], [Thiết kế Component Diagram cho Speech2Text Service], [25/10 - 27/10], [Nguyễn Tấn Tài],
+    [26], [Thiết kế Component Diagram cho Web UI], [27/10 - 30/10], [Nguyễn Chánh Tín],
+
+    // Phase 4: Thiết kế cơ sở dữ liệu
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 4: Thiết kế cơ sở dữ liệu*],
+
+    [27], [Thiết kế chiến lược Database], [30/10 - 01/11], [Nguyễn Tấn Tài],
+    [28], [Thiết kế ERD cho Identity Service], [01/11 - 02/11], [Nguyễn Tấn Tài],
+    [29], [Thiết kế ERD cho Project Service], [02/11 - 03/11], [Đặng Quốc Phong],
+    [30], [Thiết kế ERD cho Analytics Service], [03/11 - 04/11], [Nguyễn Tấn Tài],
+    [31], [Thiết kế Document Schema cho Collector Service], [04/11 - 05/11], [Đặng Quốc Phong],
+    [32], [Thiết kế Data Management Patterns], [05/11 - 06/11], [Nguyễn Tấn Tài],
+
+    // Phase 5: Thiết kế Sequence Diagrams
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 5: Thiết kế Sequence Diagrams*],
+
+    [33], [Thiết kế Sequence Diagram cho UC-01], [06/11 - 08/11], [Đặng Quốc Phong],
+    [34], [Thiết kế Sequence Diagram cho UC-02], [08/11 - 10/11], [Nguyễn Tấn Tài],
+    [35], [Thiết kế Sequence Diagram cho UC-03], [10/11 - 12/11], [Đặng Quốc Phong],
+    [36], [Thiết kế Sequence Diagram cho UC-04], [12/11 - 14/11], [Nguyễn Tấn Tài],
+    [37], [Thiết kế Sequence Diagram cho UC-06], [14/11 - 16/11], [Đặng Quốc Phong],
+    [38], [Thiết kế Sequence Diagram cho UC-07], [16/11 - 18/11], [Nguyễn Tấn Tài],
+    [39], [Thiết kế Sequence Diagram cho UC-08], [18/11 - 20/11], [Đặng Quốc Phong],
+
+    // Phase 6: Thiết kế Communication Patterns
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 6: Thiết kế Communication Patterns*],
+
+    [40], [Thiết kế RabbitMQ Topology], [20/11 - 22/11], [Nguyễn Tấn Tài],
+    [41], [Thiết kế Event Schemas và Event Catalog], [22/11 - 24/11], [Đặng Quốc Phong],
+    [42], [Thiết kế REST API Design Principles], [24/11 - 26/11], [Nguyễn Tấn Tài],
+    [43], [Thiết kế Real-time Communication], [26/11 - 28/11], [Đặng Quốc Phong],
+
+    // Phase 7: Traceability & Validation
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 7: Traceability và Validation*],
+
+    [44], [Xây dựng Traceability Matrix], [28/11 - 01/12], [Nguyễn Tấn Tài],
+    [45], [Viết Architecture Decision Records], [01/12 - 03/12], [Nguyễn Tấn Tài],
+    [46], [Phân tích Gaps và Mitigation Plans], [03/12 - 05/12], [Nguyễn Tấn Tài],
+
+    // Phase 8: Hiện thực hệ thống (song song với thiết kế)
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 8: Hiện thực hệ thống - song song với thiết kế*],
+
+    [47], [Hiện thực Identity Service], [15/09 - 30/09], [Nguyễn Tấn Tài],
+    [48], [Hiện thực Project Service], [01/10 - 15/10], [Đặng Quốc Phong],
+    [49], [Hiện thực Collector Service], [15/10 - 31/10], [Đặng Quốc Phong],
+    [50], [Hiện thực Analytics Service], [01/10 - 31/10], [Nguyễn Tấn Tài],
+    [51], [Hiện thực Scrapper Services], [15/09 - 31/10], [Đặng Quốc Phong],
+    [52], [Hiện thực Speech2Text Service], [01/11 - 15/11], [Nguyễn Tấn Tài],
+    [53], [Hiện thực WebSocket Service], [15/11 - 25/11], [Đặng Quốc Phong],
+    [54], [Hiện thực Web UI], [01/10 - 30/11], [Nguyễn Chánh Tín],
+    [55], [Tích hợp và chạy thử MVP], [01/12 - 10/12], [Cả nhóm],
+  )
+]
+
+// // ================= DANH SÁCH HÌNH ẢNH =================
+// #outline(
+//   title: [Danh sách hình ảnh],
+//   target: figure.where(kind: image),
+// )
+// #pagebreak()
+
+// // ================= DANH SÁCH BẢNG BIỂU =================
+// #outline(
+//   title: [Danh sách bảng biểu],
+//   target: figure.where(kind: table),
+// )

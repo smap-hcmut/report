@@ -3,6 +3,8 @@
 
 
 == 4.4 Use Case
+Sau khi xác định các yêu cầu chức năng và phi chức năng, phần này trình bày các Use Case nhằm mô tả tổng quát cách hệ thống được sử dụng trong thực tế. Các Use Case làm rõ các tương tác chính giữa người dùng và hệ thống, qua đó xác định phạm vi chức năng và hành vi cốt lõi phục vụ cho thiết kế và triển khai hệ thống.
+
 #context (align(center)[_Bảng #table_counter.display(): Danh sách Use Case_])
 #table_counter.step()
 #text()[
@@ -12,7 +14,7 @@
     stroke: 0.5pt,
     align: (center + horizon, center + horizon, center + horizon, center + horizon, center + horizon),
 
-    table.header([*ID*], [*Tên Use Case*], [*Primary Actor*], [*Secondary Actor*], [*Mục tiêu (Goal)*]),
+    table.header([*ID*], [*Tên Use Case*], [*Primary Actor*], [*Secondary Actor*], [*Mục tiêu*]),
 
     [UC-01], [Cấu hình Project],
     table.cell(rowspan: 8, [*Marketing Analyst*]),
@@ -43,7 +45,7 @@
 
 \
 
-=== UC-01: Cấu hình Project
+=== 4.4.1 UC-01: Cấu hình Project
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-01_])
 #table_counter.step()
 #text()[
@@ -96,7 +98,7 @@
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Normal Flows*],
     table.cell(colspan: 3, inset: (y: 0.6em))[
       1. User nhấn "Tạo Project mới".
-      2. Hệ thống hiển thị wizard cấu hình (4 bước).
+      2. Hệ thống hiển thị wizard cấu hình.
       3. User nhập thông tin cơ bản: tên (3-100 ký tự, unique), mô tả, khoảng thời gian (1 ngày - 1 năm).
       4. User nhập tên thương hiệu và từ khóa thương hiệu (1-10 từ khóa, mỗi từ 2-50 ký tự).
       5. User thêm đối thủ cạnh tranh (1-5 đối thủ với 1-5 từ khóa mỗi đối thủ).
@@ -143,12 +145,12 @@
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
-      Tạo project không trigger background processing
+      Tạo project không khởi chạy thu thập dữ liệu
     ],
   )
 ]
 
-=== UC-02: Kiểm tra từ khóa (Dry-run)
+=== 4.4.2 UC-02: Kiểm tra từ khóa (Dry-run)
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-02_])
 #table_counter.step()
 #text()[
@@ -242,7 +244,7 @@
 
 \
 
-=== UC-03: Khởi chạy và theo dõi Project
+=== 4.4.3 UC-03: Khởi chạy và theo dõi Project
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-03_])
 #table_counter.step()
 #text()[
@@ -274,7 +276,7 @@
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Description*],
     table.cell(
       colspan: 3,
-    )[Marketing Analyst khởi chạy Project để thực thi pipeline 4 giai đoạn: (1)Crawling, (2)Analyzing, (3)Aggregating, (4)Finalizing. User theo dõi tiến độ real-time.],
+    )[Marketing Analyst khởi chạy Project để thực thi pipeline xử lý dữ liệu. User theo dõi tiến độ real-time.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[User nhấn "Khởi chạy" từ danh sách Projects (UC-05).],
@@ -300,7 +302,7 @@
       3. Hệ thống verify ownership và status.
       4. Hệ thống cập nhật status thành "process".\
 
-      5. Hệ thống thực thi pipeline 4 giai đoạn: (1)Crawling - thu thập posts/comments, (2)Analyzing - chạy NLP pipeline 5 bước, (3)Aggregating, (4)Finalizing - cleanup và notify.
+      5. Hệ thống thực thi pipeline xử lý dữ liệu.
       6. User mở trang chi tiết Project để theo dõi tiến độ.
       7. Hệ thống hiển thị real-time: giai đoạn hiện tại, phần trăm, thời gian đã chạy, items đã xử lý, ETA.
       9. Khi hoàn tất: gửi notification, hiển thị "Project hoàn tất! Xem kết quả".
@@ -344,7 +346,7 @@
 
 \
 
-=== UC-04: Xem kết quả phân tích
+=== 4.4.4 UC-04: Xem kết quả phân tích
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-04_])
 #table_counter.step()
 #text()[
@@ -358,7 +360,7 @@
     table.cell(colspan: 3, align: center + horizon)[UC-04: Xem kết quả phân tích],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
-    align(center + horizon)[Nguyễn Tấn Tài],
+    align(center + horizon)[Đặng Quốc Phong],
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Date created*],
     align(center + horizon)[20/10/2025],
 
@@ -396,10 +398,10 @@
     table.cell(colspan: 3)[
       1. User mở "completed" Project từ danh sách.
       2. Hệ thống hiển thị Dashboard với 4 phần: \
-      (A) KPI Overview - tổng posts, pie chart sentiment, engagement rate, \
-      (B) Sentiment Trend - line chart theo timeline,\
-      (C) Aspect Analysis - bar chart với top aspects,\
-      (D) Competitor Comparison - so sánh sentiment và share of voice (nếu có cấu hình).
+    (A) Line/Area chart mentions theo thời gian, hỗ trợ radio và tooltip. \
+      (B) Bar chart so sánh share of voice giữa brand và đối thủ. \
+     (C) Keyword cloud hiển thị top 20 keyword và vị trí keyword của brand. \
+     (D) Bar chart theo giai đoạn thể hiện số lần keyword được nhắc đến.
       3. User áp dụng filters: platform, sentiment, khoảng thời gian, aspect.
       4. User drilldown: nhấn aspect để xem posts liên quan, nhấn post để xem chi tiết đầy đủ với comments.
     ],
@@ -427,7 +429,7 @@
 
 \
 
-=== UC-05: Quản lý danh sách Projects
+=== 4.4.5 UC-05: Quản lý danh sách Projects
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-05_])
 #table_counter.step()
 #text()[
@@ -495,7 +497,7 @@
     table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[
       *Multiple Filters* \
       Tại Bước 3 của luồng cơ bản:
-      - 3A.1. User áp dụng nhiều tiêu chí (ví dụ: Status "completed").
+      - 3A.1. User áp dụng nhiều tiêu chí, ví dụ: Status "completed".
       - 3A.2. Hệ thống áp dụng tất cả filters với logic AND.
       - 3A.3. Hiển thị count: "Hiển thị X trong tổng Y projects".
       - Tiếp tục tại bước 4. \
@@ -516,7 +518,7 @@
       - Tiếp tục tại bước 4.
 
       *Cần Pagination* \
-      Tại Bước 2 của luồng cơ bản, nếu user có > 50 projects:
+      Tại Bước 2 của luồng cơ bản, nếu user có nhiều hơn 50 projects:
       - 2.E.1. Triển khai pagination: 20 projects mỗi trang.
       - 2.E.2. Infinite scroll.
       - Tiếp tục tại bước 3.
@@ -524,15 +526,16 @@
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
     table.cell(colspan: 3)[
-      - User chỉ thấy projects của mình, soft delete.
-      - Tối ưu hiệu suất với composite index (created_by, deleted_at, status), pagination 20 items/trang.
+      - User chỉ thấy projects của mình
+      - Soft delete, không xoá hoàn toàn để user có thể hoàn tác.
+      - Tối ưu hiệu suất với phân trang và thêm index.
     ],
   )
 ]
 
 \
 
-=== UC-06: Xuất báo cáo
+=== 4.4.6 UC-06: Xuất báo cáo
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-06_])
 #table_counter.step()
 #text()[
@@ -545,7 +548,7 @@
     table.cell(colspan: 3, align: center + horizon)[UC-06: Xuất báo cáo],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
-    align(center + horizon)[Nguyễn Tấn Tài],
+    align(center + horizon)[Đặng Quốc Phong],
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Date created*],
     align(center + horizon)[20/10/2025],
 
@@ -573,7 +576,7 @@
     table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[
       1. User đang xem Dashboard của Project có dữ liệu (UC-04).
       2. Project có "completed" status.
-      3. User có quyền export (project owner).
+      3. User có quyền export, chủ project.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Postconditions*],
@@ -591,8 +594,8 @@
       3. User chọn options và nhấn "Xuất báo cáo".
       4. Hệ thống validate thông tin hợp lệ.
       5. Hệ thống ghi nhận yêu cầu thành công và hiển thị thông báo: "Hệ thống đang tạo báo cáo, bạn sẽ nhận được thông báo khi hoàn tất".
-      6. Hệ thống đóng hộp thoại và cho phép User tiếp tục sử dụng các chức năng khác (không block màn hình).
-      7. Sau khi xử lý xong, Hệ thống gửi một thông báo (Notification) "Báo cáo của bạn đã sẵn sàng".
+      6. Hệ thống đóng hộp thoại và cho phép User tiếp tục sử dụng các chức năng khác, không block màn hình.
+      7. Sau khi xử lý xong, Hệ thống gửi một thông báo "Báo cáo của bạn đã sẵn sàng".
       8. User nhấn vào thông báo.
       9. Hệ thống chuyển hướng đến trang tải xuống.
       10. User nhấn "Tải xuống" để lưu file về máy.
@@ -605,18 +608,18 @@
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Exceptions*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
-      *Xử lý thất bại / Timeout (Sau bước 6)* \
-      Nếu quá trình tạo báo cáo gặp lỗi kỹ thuật hoặc quá thời gian cho phép (> 10 phút):
+      *Xử lý thất bại / Timeout * \
+      Sau bước 6 nếu quá trình tạo báo cáo gặp lỗi kỹ thuật hoặc quá thời gian cho phép (> 10 phút):
       - 6.E.1. Hệ thống hủy tác vụ ngầm.
-      - 6.E.2. Hệ thống gửi một thông báo (Notification) cho User: "Tạo báo cáo thất bại do dữ liệu quá lớn. Vui lòng thử lại với khoảng thời gian ngắn hơn".
+      - 6.E.2. Hệ thống gửi một thông báo cho User: "Tạo báo cáo thất bại do dữ liệu quá lớn. Vui lòng thử lại với khoảng thời gian ngắn hơn".
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[
       *Notes and issues*],
     table.cell(colspan: 3, align: horizon)[
       *Validation Rules:*
-      - Frontend (FE): Validate UX cơ bản (disable nút, check ngày tháng).
-      - Backend (BE): Validate chặt chẽ dữ liệu đầu vào, trả về HTTP 400 nếu request không hợp lệ (để chống spam request tool).
+      - Frontend: Validate UX cơ bản, disable nút, check ngày tháng.
+      - Backend: Validate chặt chẽ dữ liệu đầu vào, trả về HTTP 400 nếu request không hợp lệ, để chống spam request tool.
 
       *Performance & Technical:*
       - Chế độ "Summary-only" dự kiến xử lý < 30s.
@@ -628,7 +631,7 @@
 
 \
 
-=== UC-07: Phát hiện trend tự động
+=== 4.4.7 UC-07: Phát hiện trend tự động
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-07_])
 #table_counter.step()
 #text()[
@@ -699,22 +702,22 @@
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Exceptions*],
     table.cell(colspan: 3)[
-      *Lỗi thu thập từ nguồn dữ liệu (Platform Error)* \
+      *Lỗi thu thập từ nguồn dữ liệu* \
       Tại Bước 2 của luồng hệ thống, nếu gặp sự cố kết nối với các platforms:
       - 2.E.1. Hệ thống tự động thử lại kết nối nhiều lần.
       - 2.E.2. Nếu vẫn thất bại: Hệ thống bỏ qua nền tảng bị lỗi và tiếp tục xử lý các nền tảng còn lại.
       - 2.E.3. Dashboard hiển thị dữ liệu từ các nền tảng thành công, kèm thông báo cảnh báo màu vàng: "Dữ liệu từ [Tên Platform] đang gặp sự cố".
       - 2.E.4. Trường hợp toàn bộ thất bại: Hệ thống hiển thị dữ liệu của ngày hôm trước kèm thông báo lỗi cập nhật.
 
-      *Xử lý quá thời gian (System Timeout)* \
-      Nếu quy trình cập nhật kéo dài quá giới hạn cho phép (> 2 giờ):
+      *Xử lý quá thời gian* \
+      Nếu quy trình cập nhật kéo dài quá giới hạn cho phép:
       - 8.E.1. Hệ thống dừng quy trình cập nhật hiện tại.
-      - 8.E.2. Dashboard hiển thị phần dữ liệu đã thu thập được tính đến thời điểm dừng (Partial Data) kèm cảnh báo dữ liệu chưa hoàn tất.
+      - 8.E.2. Dashboard hiển thị phần dữ liệu đã thu thập được tính đến thời điểm dừng kèm cảnh báo dữ liệu chưa hoàn tất.
     ],
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[
       - Áp dụng Exponential Backoff (thử lại 3 lần) trước khi đánh dấu platform failed.
-      - Lịch trình Daily 2:00 AM UTC+7 (low traffic, trends đã stabilize)
+      - Lịch trình hằng ngày lúc 2:00 AM UTC+7
       - Lưu trữ dữ liệu 30 ngày, trends cũ hơn được tự động archive
     ],
   )
@@ -736,7 +739,7 @@
     table.cell(colspan: 3, align: center + horizon)[UC-08: Cấu hình và Giám sát Khủng hoảng],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
-    align(center + horizon)[Nguyễn Tấn Tài],
+    align(center + horizon)[Đặng Quốc Phong],
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Date created*],
     align(center + horizon)[20/10/2025],
 
@@ -776,25 +779,25 @@
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Normal Flows*],
     table.cell(colspan: 3)[
-      *Giai đoạn 1: User cấu hình giám sát (Setup)*
+      *Giai đoạn 1: User cấu hình giám sát*
       1. User truy cập module "Crisis Management" và chọn "Tạo giám sát mới".
       2. User nhập thông tin cấu hình:
         - Tên thương hiệu/Chủ đề cần bảo vệ.
-        - Từ khóa bao gồm (Include Keywords) và Từ khóa loại trừ (Exclude Keywords).
+        - Từ khóa.
         - Chọn nền tảng theo dõi (Facebook, TikTok...).
         - Ngưỡng cảnh báo (Ví dụ: Chỉ báo khi độ tiêu cực > 80%).
         - Kênh nhận thông báo (Email, App, SMS).
       3. Hệ thống kiểm tra hợp lệ và lưu cấu hình "Crisis Monitor".
-      4. Hệ thống kích hoạt tác vụ chạy ngầm (Background Job) cho cấu hình này.
+      4. Hệ thống kích hoạt tác vụ chạy ngầm cho cấu hình này.
 
-      *Giai đoạn 2: Hệ thống thực thi và Cảnh báo (Automated)*
+      *Giai đoạn 2: Hệ thống thực thi và Cảnh báo*
       5. Theo chu kỳ định sẵn (ví dụ: mỗi 15 phút), Hệ thống tự động quét dữ liệu mới nhất trên các nền tảng dựa theo từ khóa đã cấu hình.
-      6. Nếu phát hiện nội dung vi phạm ngưỡng an toàn: Hệ thống tạo Cảnh báo (Alert).
+      6. Nếu phát hiện nội dung vi phạm ngưỡng an toàn: Hệ thống tạo cảnh báo.
       7. Hệ thống gửi thông báo tức thì đến User qua các kênh đã đăng ký.
 
       *Giai đoạn 3: User phản ứng*
       8. User nhận thông báo và bấm vào để xem chi tiết.
-      9. User xem danh sách các bài viết gây khủng hoảng và thực hiện hành động xử lý (Bỏ qua hoặc Báo cáo).
+      9. User xem danh sách các bài viết gây khủng hoảng và thực hiện hành động xử lý.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Alternative Flows*],
@@ -803,11 +806,11 @@
       *Tạm dừng giám sát* \
       Tại màn hình quản lý Crisis Monitor:
       - A.1. User chọn một Monitor đang chạy và nhấn "Tạm dừng".
-      - A.2. Hệ thống ngắt lịch chạy ngầm của Monitor đó (trạng thái Inactive).
+      - A.2. Hệ thống ngắt lịch chạy ngầm của Monitor đó, trạng thái Inactive).
       - A.3. Không có thông báo mới nào được gửi cho đến khi kích hoạt lại.
 
       *Điều chỉnh cấu hình* \
-      Nếu User nhận quá nhiều thông báo rác (False Positive):
+      Nếu User nhận quá nhiều thông báo rác:
       - B.1. User vào "Chỉnh sửa Monitor".
       - B.2. User thêm "Từ khóa loại trừ" hoặc nâng cao "Ngưỡng cảnh báo".
       - B.3. Hệ thống cập nhật luồng quét với tham số mới.
@@ -818,8 +821,8 @@
       *Lỗi hệ thống giám sát* \
       Nếu Service chạy ngầm bị gián đoạn (Server down, API lỗi):
       - E.1. Hệ thống ghi log lỗi.
-      - E.2. Gửi email cảnh báo cho Admin hệ thống: "Crisis Monitor Service is DOWN".
-      - E.3. Khi hệ thống phục hồi, tự động chạy bù (backfill) dữ liệu trong khoảng thời gian chết (nếu khả thi) hoặc bắt đầu quét từ thời điểm hiện tại.
+      - E.2. Gửi email cảnh báo cho Admin hệ thống: "Hệ thống cảnh báo khủng hoảng đang ngừng hoạt động".
+      - E.3. Khi hệ thống phục hồi, tự động chạy bù dữ liệu trong khoảng thời gian chết hoặc bắt đầu quét từ thời điểm hiện tại.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
@@ -829,7 +832,7 @@
       - Crisis Monitor (UC-08): Chạy liên tục trên dữ liệu thời gian thực (Real-time/Near real-time Data) để phân tích và phát hiện khủng hoảng.
 
       *Technical:*
-      - Cơ chế: Không lưu toàn bộ dữ liệu, chỉ lưu các bài viết vi phạm (Hit) để tối ưu storage.
+      - Cơ chế: Không lưu toàn bộ dữ liệu, chỉ lưu các bài viết vi phạm để tối ưu storage.
     ],
   )
 ]
