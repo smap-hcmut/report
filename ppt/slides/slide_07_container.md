@@ -23,17 +23,42 @@ CONTAINER DIAGRAM (C4 Level 2)
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                        5 SERVICES CHÍNH                         │
+│                   10 APPLICATION SERVICES                       │
+│                   (Polyglot Architecture)                       │
 │                                                                 │
-│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌────┐│
-│  │ Identity  │ │  Project  │ │ Collector │ │  AI/ML    │ │ WS ││
-│  │  Service  │ │  Service  │ │  Service  │ │  Service  │ │Svc ││
-│  │   (Go)    │ │   (Go)    │ │   (Go)    │ │ (Python)  │ │(Go)││
-│  │           │ │           │ │           │ │           │ │    ││
-│  │ • Auth    │ │ • CRUD    │ │ • Crawl   │ │ •Sentiment│ │Real││
-│  │ • JWT     │ │ • Config  │ │ • YouTube │ │ • Aspect  │ │time││
-│  │ • Users   │ │ • Execute │ │ • TikTok  │ │ • Trend   │ │    ││
-│  └───────────┘ └───────────┘ └───────────┘ └───────────┘ └────┘│
+│  ┌──────────────── GOLANG SERVICES (4) ──────────────────────┐  │
+│  │                                                            │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐     │  │
+│  │  │ Identity │ │ Project  │ │Collector │ │WebSocket │     │  │
+│  │  │ Service  │ │ Service  │ │ Service  │ │ Service  │     │  │
+│  │  │          │ │          │ │          │ │          │     │  │
+│  │  │• JWT Auth│ │• CRUD    │ │•Dispatch │ │•Real-time│     │  │
+│  │  │• Users   │ │• Config  │ │•Crawl Job│ │•Progress │     │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘     │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌──────────────── PYTHON SERVICES (6) ──────────────────────┐  │
+│  │                                                            │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐     │  │
+│  │  │Analytics │ │Speech2   │ │ YouTube  │ │  TikTok  │     │  │
+│  │  │ Service  │ │  Text    │ │ Scraper  │ │ Scraper  │     │  │
+│  │  │          │ │          │ │          │ │          │     │  │
+│  │  │•PhoBERT  │ │•Audio→   │ │•API Call │ │•Scraping │     │  │
+│  │  │•Sentiment│ │  Text    │ │•Metadata │ │•Playwright│    │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘     │  │
+│  │                                                            │  │
+│  │  ┌──────────┐ ┌──────────┐                                │  │
+│  │  │  FFmpeg  │ │Playwright│                                │  │
+│  │  │ Service  │ │ Service  │                                │  │
+│  │  │          │ │          │                                │  │
+│  │  │•Video    │ │•Browser  │                                │  │
+│  │  │  Process │ │  Automate│                                │  │
+│  │  └──────────┘ └──────────┘                                │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌──────────────── FRONTEND (1) ─────────────────────────────┐  │
+│  │  Web UI (Next.js/TypeScript) - Dashboard & Visualization  │  │
+│  └────────────────────────────────────────────────────────────┘  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -50,34 +75,41 @@ CONTAINER DIAGRAM (C4 Level 2)
 
 ## Văn nói (Script)
 
-> "Đi sâu hơn vào bên trong, đây là Container Diagram theo C4 Model, cho thấy các thành phần chính của hệ thống.
+> "Đi sâu hơn vào bên trong, đây là Container Diagram theo C4 Model. SMAP được thiết kế theo **Polyglot Architecture** với **10 application services**:
 >
-> SMAP được chia thành **5 services chính**:
+> **4 Golang Services** - Chọn Go vì performance cao:
+> - **Identity Service**: Xác thực JWT, quản lý users
+> - **Project Service**: CRUD projects, cấu hình keywords
+> - **Collector Service**: Điều phối crawling jobs
+> - **WebSocket Service**: Real-time progress notifications
 >
-> **Identity Service** viết bằng Go, chịu trách nhiệm xác thực người dùng, quản lý JWT tokens và thông tin users.
+> **6 Python Services** - Chọn Python vì ecosystem ML và scraping mạnh:
+> - **Analytics Service**: PhoBERT sentiment analysis, aspect extraction
+> - **Speech2Text Service**: Chuyển audio thành text (tiếng Việt)
+> - **YouTube Scraper**: Thu thập dữ liệu YouTube qua API
+> - **TikTok Scraper**: Scraping TikTok với Playwright
+> - **FFmpeg Service**: Video processing
+> - **Playwright Service**: Browser automation
 >
-> **Project Service** cũng viết bằng Go, quản lý CRUD các projects, cấu hình keywords, platforms và điều phối việc thực thi.
+> **Frontend**: Web UI viết bằng Next.js với TypeScript cho dashboard và visualization.
 >
-> **Collector Service** là service thu thập dữ liệu từ YouTube và TikTok, bao gồm videos, comments, và metadata.
->
-> **AI/ML Service** viết bằng Python, thực hiện phân tích sentiment, aspect extraction và trend detection.
->
-> **WebSocket Service** cung cấp real-time notifications cho frontend, cập nhật progress và kết quả.
->
-> Các services giao tiếp với nhau qua **RabbitMQ** cho async processing và **Redis Pub/Sub** cho real-time events."
+> Kiến trúc Polyglot này cho phép chúng em chọn đúng công nghệ cho đúng công việc, đồng thời các services giao tiếp qua **RabbitMQ** cho async processing và **Redis Pub/Sub** cho real-time events."
 
 ---
 
 ## Ghi chú kỹ thuật
 - Hình chính là `container-diagram.png` từ báo cáo
-- Bảng tóm tắt 5 services bên dưới
-- Nhấn mạnh: Go cho performance, Python cho ML
-- Không cần giải thích chi tiết từng service
+- Bảng tóm tắt 10 services với 3 nhóm: Go, Python, Frontend
+- Nhấn mạnh: **Polyglot Architecture** - chọn đúng công nghệ cho đúng mục đích
+- Go cho high-performance APIs, Python cho ML/AI và web scraping
+- Không cần giải thích chi tiết implementation từng service
 
 ---
 
 ## Key points
-1. 5 Services: Identity, Project, Collector, AI/ML, WebSocket
-2. Go (4 services) + Python (1 service)
-3. Giao tiếp: RabbitMQ + Redis Pub/Sub
+1. **10 Application Services** (Polyglot Architecture)
+2. **Golang Services (4)**: Identity, Project, Collector, WebSocket
+3. **Python Services (6)**: Analytics, Speech2Text, YouTube Scraper, TikTok Scraper, FFmpeg, Playwright
+4. **Frontend (1)**: Web UI (Next.js/TypeScript)
+5. Giao tiếp: RabbitMQ + Redis Pub/Sub
 

@@ -1,5 +1,5 @@
 # Slide 16: Demo / Screenshots
-**Thời lượng**: 30 giây - 1 phút
+**Thời lượng**: 30 giây
 
 ---
 

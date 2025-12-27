@@ -1,4 +1,5 @@
 # Slide 1: Trang bìa
+
 **Thời lượng**: 30 giây
 
 ---
@@ -26,7 +27,7 @@
 │  GVHD: ThS. Lê Đình Thuận                                      │
 │                                                                 │
 │  Sinh viên thực hiện:                                          │
-│    • Nguyễn Tấn Tài      - 2011493                             │
+│    • Nguyễn Tấn Tài      - 2212990                             │
 │    • Đặng Quốc Phong     - 2012049                             │
 │    • Nguyễn Chánh Tín    - 2014749                             │
 │                                                                 │
@@ -39,8 +40,8 @@
 
 ## Hình ảnh cần có
 
-| Hình | Đường dẫn | Mô tả |
-|------|-----------|-------|
+| Hình        | Đường dẫn                 | Mô tả                         |
+| ----------- | ------------------------- | ----------------------------- |
 | Logo trường | `report/images/hcmut.png` | Logo Đại học Bách Khoa TP.HCM |
 
 ---
@@ -56,8 +57,8 @@
 ---
 
 ## Ghi chú kỹ thuật
+
 - Slide này chỉ hiển thị trong 30 giây
 - Nên dùng template chính thức của trường nếu có
 - Font chữ: Tiêu đề lớn, tên sinh viên vừa phải
 - Màu sắc: Theo màu trường (xanh dương)
-

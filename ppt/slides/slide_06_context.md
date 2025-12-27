@@ -1,5 +1,5 @@
 # Slide 6: System Context (C4 Level 1)
-**Thời lượng**: 1 phút
+**Thời lượng**: 30 giây
 
 ---
 
@@ -44,23 +44,24 @@ Actors:
 
 ## Văn nói (Script)
 
-> "Bây giờ chúng em sẽ trình bày về kiến trúc hệ thống, bắt đầu với sơ đồ ngữ cảnh theo mô hình C4.
+> "Chuyển sang kiến trúc hệ thống. Đây là **System Context Diagram** theo mô hình C4 - mức cao nhất.
 >
-> Ở mức cao nhất, hệ thống SMAP tương tác với 2 actors chính:
+> SMAP tương tác với **2 actors chính**:
 >
-> **Marketing Analyst** - người dùng chính của hệ thống. Họ sử dụng SMAP để cấu hình project, theo dõi tiến trình thu thập, xem kết quả phân tích và xuất báo cáo.
+> **Marketing Analyst** - người dùng chính, sử dụng SMAP để cấu hình project, xem kết quả phân tích.
 >
-> **Social Media Platforms** - bao gồm YouTube và TikTok. Đây là nguồn dữ liệu mà hệ thống thu thập thông qua các API công khai hoặc web scraping.
+> **Social Media Platforms** - YouTube và TikTok, nguồn dữ liệu thu thập qua API và web scraping.
 >
-> Sơ đồ này cho thấy SMAP đóng vai trò trung gian, thu thập dữ liệu từ các platforms, xử lý và cung cấp insights cho người dùng."
+> SMAP đóng vai trò trung gian: Thu thập → Xử lý → Cung cấp insights."
 
 ---
 
 ## Ghi chú kỹ thuật
-- Đây là slide đầu tiên về kiến trúc
-- Dùng đúng hình từ báo cáo: `context-diagram.png`
-- Giải thích đơn giản, không đi sâu vào chi tiết
-- C4 Model: Context → Container → Component → Code
+- Slide đầu tiên về kiến trúc - giới thiệu RẤT NHANH
+- Dùng hình từ báo cáo: `context-diagram.png`
+- Giải thích cực ngắn gọn, chỉ 30 giây
+- C4 Model: Context (Level 1) → Container (Level 2) → Component (Level 3)
+- Chỉ giới thiệu 2 actors, không đi sâu chi tiết
 
 ---
 

@@ -1,4 +1,4 @@
-# Slide 18: Tổng kết & Q&A
+# Slide 19: Tổng kết & Q&A
 **Thời lượng**: 1 phút + Q&A
 
 ---

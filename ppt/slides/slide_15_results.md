@@ -24,10 +24,16 @@ KẾT QUẢ ĐẠT ĐƯỢC
 │  │                  🏗️ THIẾT KẾ KIẾN TRÚC                   │   │
 │  │                                                         │   │
 │  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐    │   │
-│  │  │    5    │  │    7    │  │    7    │  │    3    │    │   │
-│  │  │Services │  │Activity │  │Sequence │  │  ERDs   │    │   │
-│  │  │         │  │Diagrams │  │Diagrams │  │         │    │   │
+│  │  │   10    │  │    8    │  │   19    │  │    7    │    │   │
+│  │  │Services │  │Activity │  │Sequence │  │Component│    │   │
+│  │  │         │  │Diagrams │  │Diagrams │  │Diagrams │    │   │
 │  │  └─────────┘  └─────────┘  └─────────┘  └─────────┘    │   │
+│  │                                                         │   │
+│  │  ┌─────────┐  ┌─────────┐                              │   │
+│  │  │    3    │  │    7    │                              │   │
+│  │  │  ERDs   │  │   ACs   │                              │   │
+│  │  │         │  │         │                              │   │
+│  │  └─────────┘  └─────────┘                              │   │
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────┐   │
@@ -67,26 +73,29 @@ KẾT QUẢ ĐẠT ĐƯỢC
 > "Tổng kết lại các kết quả đạt được của đề tài:
 >
 > **Về phân tích yêu cầu**:
-> - 47 yêu cầu chức năng và 31 yêu cầu phi chức năng được định nghĩa chi tiết
-> - 7 business rules toàn cục
+> - **47 Functional Requirements** và **31 Non-Functional Requirements** được định nghĩa chi tiết
+> - **7 Business Rules** toàn cục
 > - 2 actors chính: Marketing Analyst và Social Media Platforms
 >
-> **Về thiết kế kiến trúc**:
-> - 5 microservices với đầy đủ component diagrams
-> - 7 activity diagrams mô tả luồng nghiệp vụ
-> - 7 sequence diagrams mô tả tương tác giữa services
-> - 3 ERD diagrams cho các databases
+> **Về thiết kế kiến trúc** - Đây là phần quan trọng nhất:
+> - **10 Microservices** với kiến trúc Polyglot (Go + Python + Next.js)
+> - **8 Activity Diagrams** mô tả luồng nghiệp vụ cho 8 use cases
+> - **19 Sequence Diagrams** mô tả chi tiết tương tác giữa services - bao gồm cả happy path và alternative flows
+> - **7 Component Diagrams** (C4 Level 3) cho các services chính
+> - **3 ERD Diagrams** cho Identity, Project và Analytics databases
+> - **7 Architecture Characteristics** định nghĩa rõ ràng với primary và secondary ACs
 >
 > **Về hạ tầng Kubernetes**:
-> - Deployment manifests cho tất cả services
-> - ConfigMaps, Secrets, Ingress configuration
+> - Deployment manifests đầy đủ cho tất cả 10 services
+> - ConfigMaps, Secrets cho configuration management
+> - Ingress configuration với routing rules
 > - Horizontal Pod Autoscaler cho auto-scaling
-> - Health checks và Readiness probes
+> - Health checks và Readiness probes đảm bảo reliability
 >
 > **Tài liệu bổ sung**:
-> - Ma trận truy xuất nguồn gốc đảm bảo mọi yêu cầu được ánh xạ đến thiết kế
-> - Hồ sơ quyết định kiến trúc ghi nhận các lựa chọn và trade-offs
-> - Phân tích khoảng trống nhận diện các limitations"
+> - Ma trận truy xuất nguồn gốc (Traceability Matrix) đảm bảo mọi requirement được ánh xạ đến thiết kế
+> - Architecture Decision Records ghi nhận các quyết định và trade-offs
+> - Gap Analysis nhận diện các limitations và hướng phát triển"
 
 ---
 
@@ -99,7 +108,8 @@ KẾT QUẢ ĐẠT ĐƯỢC
 ---
 
 ## Key numbers
-- 47 FRs + 31 NFRs + 7 Business Rules
-- 5 Services + 7 Activity + 7 Sequence + 3 ERDs
-- Full Kubernetes manifests
+- **47 FRs** + **31 NFRs** + **7 Business Rules** + **7 ACs**
+- **10 Services** + **8 Activity** + **19 Sequence** + **7 Component** + **3 ERDs**
+- Full Kubernetes manifests cho 10 services
+- Nhấn mạnh: 19 Sequence Diagrams (chi tiết tương tác), 7 Component Diagrams (C4 Level 3)
 
