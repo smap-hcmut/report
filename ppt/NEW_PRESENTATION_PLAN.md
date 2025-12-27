@@ -8,16 +8,16 @@
 
 ## TỔNG QUAN CẤU TRÚC THUYẾT TRÌNH
 
-| Phần | Nội dung                    | Thời gian | Slide |
-| ---- | --------------------------- | --------- | ----- |
-| 1    | Mở đầu & Giới thiệu         | 1.5 phút  | 1-2   |
-| 2    | Bối cảnh & Vấn đề           | 2 phút    | 3-4   |
-| 3    | Mục tiêu & Phạm vi          | 1.5 phút  | 5     |
-| 4    | Kiến trúc tổng quan         | 6 phút    | 6-10  |
-| 5    | Luồng xử lý chính           | 5 phút    | 11-14 |
-| 6    | Kết quả đạt được            | 1.5 phút  | 15-16 |
-| 7    | Kế hoạch phát triển 🆕      | 1 phút    | 17    |
-| 8    | Kết luận                    | 1.5 phút  | 18-19 |
+| Phần | Nội dung            | Thời gian | Slide |
+| ---- | ------------------- | --------- | ----- |
+| 1    | Mở đầu & Giới thiệu | 1.5 phút  | 1-2   |
+| 2    | Bối cảnh & Vấn đề   | 2 phút    | 3-4   |
+| 3    | Mục tiêu & Phạm vi  | 1.5 phút  | 5     |
+| 4    | Kiến trúc tổng quan | 6 phút    | 6-10  |
+| 5    | Luồng xử lý chính   | 5 phút    | 11-14 |
+| 6    | Kết quả đạt được    | 1.5 phút  | 15-16 |
+| 7    | Kế hoạch phát triển | 1 phút    | 17    |
+| 8    | Kết luận            | 1.5 phút  | 18-19 |
 
 > **Lưu ý**: Với 20 phút, chỉ nên có 15-18 slides. Mỗi slide ~1 phút, không nên nhồi nhét quá nhiều.
 
@@ -339,35 +339,40 @@ CRAWLING → ANALYZING → AGGREGATING → FINALIZING
 
 ---
 
-### PHẦN 7: KẾ HOẠCH PHÁT TRIỂN 🆕 (1 phút)
+### PHẦN 7: KẾ HOẠCH PHÁT TRIỂN(1 phút)
 
 **Slide 17: Kế hoạch phát triển - Hybrid Architecture - 1 phút**
 
 **Migration strategy**: Hybrid Architecture (On-premise + AWS Cloud)
 
 **On-premise (Core Services)**:
+
 - Identity, Project Services
 - PostgreSQL (dữ liệu nhạy cảm)
 - Tuân thủ GDPR và bảo mật
 
 **AWS Cloud (Scalable Services)**:
+
 - **Scrapers → AWS Lambda** (serverless, pay-per-use)
 - **FFmpeg/Playwright → ECS Fargate** (heavy tasks)
 - **Analytics Service → Lambda + SQS**
 
 **Shared Infrastructure Migration**:
+
 - MinIO → **S3** (object storage)
 - RabbitMQ → **EventBridge + SQS**
 - MongoDB → **DocumentDB**
 - Redis → **ElastiCache**
 
 **Lợi ích**:
+
 - ✅ Cost optimization (pay-per-use cho scrapers)
 - ✅ Auto-scaling (Lambda scale 0 → thousands)
 - ✅ Managed services (giảm operational overhead)
 - ✅ Security (core data vẫn on-premise)
 
 **Timeline**:
+
 - **Phase 1 (3-6 tháng)**: Migrate Scrapers, MinIO→S3, RabbitMQ→EventBridge
 - **Phase 2 (6-12 tháng)**: Analytics lên Lambda, MongoDB→DocumentDB
 - **Phase 3 (12+ tháng)**: Multi-region deployment, CloudFront CDN
@@ -575,27 +580,27 @@ Tất cả hình ảnh đã có sẵn trong `report/images/`:
 
 Mỗi slide đã được tạo file riêng với nội dung, hình ảnh cần có và văn nói:
 
-| Slide | File                                                                  | Nội dung                       | Trạng thái                     |
-| ----- | --------------------------------------------------------------------- | ------------------------------ | ------------------------------ |
-| 1     | [slide_01_title.md](slides/slide_01_title.md)                         | Trang bìa                      | ✅ Done                        |
-| 2     | [slide_02_summary.md](slides/slide_02_summary.md)                     | Tóm tắt đề tài                 | ✅ Done                        |
-| 3     | [slide_03_market.md](slides/slide_03_market.md)                       | Thị trường Social Listening    | ✅ Done                        |
-| 4     | [slide_04_problem.md](slides/slide_04_problem.md)                     | Bài toán cần giải quyết        | ✅ Done                        |
-| 5     | [slide_05_scope.md](slides/slide_05_scope.md)                         | Mục tiêu & Phạm vi             | ✅ Done                        |
-| 6     | [slide_06_context.md](slides/slide_06_context.md)                     | System Context (C4 Level 1)    | ✅ Done                        |
-| 7     | [slide_07_container.md](slides/slide_07_container.md)                 | Container Diagram - 10 services | ✅ Updated                     |
-| 8     | [slide_08_infrastructure.md](slides/slide_08_infrastructure.md)       | Infrastructure Components      | ✅ Done                        |
-| 9     | [slide_09_event_driven.md](slides/slide_09_event_driven.md)           | Event-Driven Architecture      | ✅ Done                        |
-| 10    | [slide_10_why_microservices.md](slides/slide_10_why_microservices.md) | Why Microservices + AHP matrix | ✅ Updated                     |
-| 11    | [slide_11_usecases.md](slides/slide_11_usecases.md)                   | Use Cases (8 UCs)              | ✅ Updated                     |
-| 12    | [slide_12_pipeline.md](slides/slide_12_pipeline.md)                   | Data Pipeline + thời gian      | ✅ Done                        |
-| 13    | [slide_13_sequence.md](slides/slide_13_sequence.md)                   | Sequence Diagram               | ✅ Done                        |
-| 14    | [slide_14_database.md](slides/slide_14_database.md)                   | Database Strategy              | ✅ Done                        |
-| 15    | [slide_15_results.md](slides/slide_15_results.md)                     | Deliverables (19 SD, 8 AD)     | ✅ Updated                     |
-| 16    | [slide_16_demo.md](slides/slide_16_demo.md)                           | Demo/Screenshots               | ✅ Done                        |
-| 17    | [slide_17_roadmap.md](slides/slide_17_roadmap.md) 🆕                  | **Kế hoạch phát triển - Hybrid** | ✅ **New**                   |
-| 18    | [slide_18_limitations.md](slides/slide_18_limitations.md)             | Hạn chế hiện tại               | ✅ Updated                     |
-| 19    | [slide_19_conclusion.md](slides/slide_19_conclusion.md)               | Tổng kết & Q&A                 | ✅ Done                        |
+| Slide | File                                                                  | Nội dung                         | Trạng thái |
+| ----- | --------------------------------------------------------------------- | -------------------------------- | ---------- |
+| 1     | [slide_01_title.md](slides/slide_01_title.md)                         | Trang bìa                        | ✅ Done    |
+| 2     | [slide_02_summary.md](slides/slide_02_summary.md)                     | Tóm tắt đề tài                   | ✅ Done    |
+| 3     | [slide_03_market.md](slides/slide_03_market.md)                       | Thị trường Social Listening      | ✅ Done    |
+| 4     | [slide_04_problem.md](slides/slide_04_problem.md)                     | Bài toán cần giải quyết          | ✅ Done    |
+| 5     | [slide_05_scope.md](slides/slide_05_scope.md)                         | Mục tiêu & Phạm vi               | ✅ Done    |
+| 6     | [slide_06_context.md](slides/slide_06_context.md)                     | System Context (C4 Level 1)      | ✅ Done    |
+| 7     | [slide_07_container.md](slides/slide_07_container.md)                 | Container Diagram - 10 services  | ✅ Updated |
+| 8     | [slide_08_infrastructure.md](slides/slide_08_infrastructure.md)       | Infrastructure Components        | ✅ Done    |
+| 9     | [slide_09_event_driven.md](slides/slide_09_event_driven.md)           | Event-Driven Architecture        | ✅ Done    |
+| 10    | [slide_10_why_microservices.md](slides/slide_10_why_microservices.md) | Why Microservices + AHP matrix   | ✅ Updated |
+| 11    | [slide_11_usecases.md](slides/slide_11_usecases.md)                   | Use Cases (8 UCs)                | ✅ Updated |
+| 12    | [slide_12_pipeline.md](slides/slide_12_pipeline.md)                   | Data Pipeline + thời gian        | ✅ Done    |
+| 13    | [slide_13_sequence.md](slides/slide_13_sequence.md)                   | Sequence Diagram                 | ✅ Done    |
+| 14    | [slide_14_database.md](slides/slide_14_database.md)                   | Database Strategy                | ✅ Done    |
+| 15    | [slide_15_results.md](slides/slide_15_results.md)                     | Deliverables (19 SD, 8 AD)       | ✅ Updated |
+| 16    | [slide_16_demo.md](slides/slide_16_demo.md)                           | Demo/Screenshots                 | ✅ Done    |
+| 17    | [slide_17_roadmap.md](slides/slide_17_roadmap.md)                     | **Kế hoạch phát triển - Hybrid** | ✅ **New** |
+| 18    | [slide_18_limitations.md](slides/slide_18_limitations.md)             | Hạn chế hiện tại                 | ✅ Updated |
+| 19    | [slide_19_conclusion.md](slides/slide_19_conclusion.md)               | Tổng kết & Q&A                   | ✅ Done    |
 
 ---
 
