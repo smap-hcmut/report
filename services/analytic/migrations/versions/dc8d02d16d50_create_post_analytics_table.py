@@ -1,4 +1,4 @@
-"""Create post_analytics table
+y"""Create post_analytics table
 
 Revision ID: dc8d02d16d50
 Revises:
