@@ -1030,7 +1030,7 @@ Luồng này được kích hoạt khi project đang executing theo UC-06:
 
 #context (
   align(center)[
-    #image("../images/data-flow/Progress.png", width: 90%)
+    #image("../images/data-flow/progress.png", width: 90%)
   ]
 )
 #context (align(center)[_Hình #image_counter.display(): Luồng Real-time Progress Updates Flow_])

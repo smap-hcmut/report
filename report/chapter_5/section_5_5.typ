@@ -46,7 +46,7 @@ Sequence diagram được chia thành 2 phần: Setup và crawling, Analytics v�
 ==== 5.5.2.1 Setup và Crawling
 
 #align(center)[
-  #image("../images/sequence/uc2_dryryn_part_1.png", width: 100%)
+  #image("../images/sequence/uc2_dryrun_part_1.png", width: 100%)
 ]
 #context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-02 Part 1: Dry-run Setup và Crawling_])
 #image_counter.step()
@@ -66,7 +66,7 @@ Luồng xử lý:
 ==== 5.5.2.2 Analytics và Results
 
 #align(center)[
-  #image("../images/sequence/uc2_dryryn_part_2.png", width: 100%)
+  #image("../images/sequence/uc2_dryrun_part_2.png", width: 100%)
 ]
 #context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-02 Part 2: Analytics Pipeline và Results_])
 #image_counter.step()

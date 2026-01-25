@@ -35,7 +35,7 @@
             dir: ltr,
             spacing: 10pt,
             // Lưu ý: Đảm bảo file ảnh nằm đúng đường dẫn tương đối so với main.typ
-            image("images/hcmut.png", height: 0.8cm), 
+            image("images/logos/hcmut.png", height: 0.8cm), 
             text(size: 8.5pt, weight: "bold")[
               Trường Đại Học Bách Khoa - Đại học Quốc gia TP.HCM \
               Khoa Khoa Học & Kỹ Thuật Máy Tính

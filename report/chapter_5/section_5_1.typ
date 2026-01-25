@@ -7,7 +7,7 @@ Dựa trên các yêu cầu đã phân tích ở Chương 4: Functional Requirem
 Áp dụng phương pháp phân tích yêu cầu phi chức năng để thiết kế kiến trúc tuân thủ các ràng buộc vận hành của hệ thống. Kiến trúc được thiết kế tập trung vào 6 nhóm yêu cầu phi chức năng chính được phân tích chi tiết ở mục 4.3. Các nhóm này được xác định để phản ánh đúng trọng tâm thiết kế: vừa dựa trên tầm quan trọng đối với SMAP, vừa dựa trên quy mô yêu cầu của mỗi nhóm:
 
 #align(center)[
-  #image("../images/NFRs_rada_chart.png", width: 45%)
+  #image("../images/charts/nfr_radar_chart.png", width: 45%)
   #context (align(center)[_Hình #image_counter.display(): Phân bố NFRs theo 6 nhóm chính_])
   #image_counter.step()
 ]

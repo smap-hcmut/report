@@ -10,7 +10,7 @@ Phần này trình bày thiết kế triển khai hệ thống SMAP lên môi tr
 Hệ thống SMAP được triển khai theo mô hình Kubernetes-based Microservices Architecture, trong đó các services được đóng gói thành containers và orchestrate bởi Kubernetes cluster. Mô hình này cho phép scale từng service độc lập, đảm bảo fault tolerance và hỗ trợ rolling updates không gây downtime.
 
 #align(center)[
-  #image("../images/deploy/Diagram-deployment-diagram.drawio.png", width: 100%)
+  #image("../images/deploy/deployment-diagram.drawio.png", width: 100%)
   #context (align(center)[_Hình #image_counter.display(): Sơ đồ triển khai hệ thống SMAP_])
   #image_counter.step()
 ]
