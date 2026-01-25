@@ -1,0 +1,2 @@
+Repository này đóng vai trò như là một nơi tập trung, chứa cả code mới nhất của từng service (được copy định kỳ manually bởi user và commit), các file markdown - nơi chứa các hướng dẫn, thậm chí là decision, mang cấp kiến trúc cho hệ thống smap này. 
+Đồng thời, nó cũng chứa các file ảnh được config chủ yếu bởi đinjh dạng puml. 
