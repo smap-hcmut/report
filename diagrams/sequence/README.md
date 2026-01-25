@@ -1,10 +1,21 @@
-# UC-06 Sequence Diagrams - Hướng dẫn render
+# Sequence Diagrams - Hướng dẫn render
 
-## Files
+## Overview
 
-- `uc6_export_part_1.puml` - Part 1: Export Configuration và Request Submission
-- `uc6_export_part_2.puml` - Part 2: Report Generation Pipeline
-- `uc6_export_part_3.puml` - Part 3: User Notification và File Download
+Folder này chứa các sequence diagrams cho các Use Cases của hệ thống SMAP. Mỗi Use Case có thể được chia thành nhiều parts để dễ quản lý và render.
+
+## Structure
+
+```
+sequence/
+  uc05_list/          # UC-05: List Projects
+    uc05_list_part_1.puml
+    uc05_list_part_2.puml
+  uc06_export/        # UC-06: Export Reports
+    uc06_export_part_1.puml
+    uc06_export_part_2.puml
+    uc06_export_part_3.puml
+```
 
 ## Cách render thành PNG
 
@@ -27,24 +38,19 @@ brew install plantuml
 
 **Render:**
 ```bash
-cd /Users/tantai/Workspaces/smap/report_SMAP/diagrams
+cd diagrams/sequence/uc05_list
+plantuml uc05_list_part_1.puml
+plantuml uc05_list_part_2.puml
 
-# Render single file
-plantuml uc6_export_part_1.puml
-plantuml uc6_export_part_2.puml
-plantuml uc6_export_part_3.puml
-
-# Hoặc render all
-plantuml uc6_*.puml
-
-# Output: uc6_export_part_1.png, uc6_export_part_2.png, uc6_export_part_3.png
+cd ../uc06_export
+plantuml uc06_export_part_*.puml
 ```
 
 **Move to correct folder:**
 ```bash
-mv uc6_export_part_1.png ../report/images/sequence/
-mv uc6_export_part_2.png ../report/images/sequence/
-mv uc6_export_part_3.png ../report/images/sequence/
+# Output files sẽ được tạo cùng thư mục với .puml files
+# Move vào report/images/sequence/ sau khi render
+mv *.png ../../../../report/images/sequence/
 ```
 
 ### Option 3: Sử dụng VS Code Extension
@@ -57,14 +63,63 @@ mv uc6_export_part_3.png ../report/images/sequence/
 ### Option 4: Sử dụng Docker
 
 ```bash
-docker run --rm -v $(pwd):/data plantuml/plantuml uc6_export_part_1.puml
-docker run --rm -v $(pwd):/data plantuml/plantuml uc6_export_part_2.puml
-docker run --rm -v $(pwd):/data plantuml/plantuml uc6_export_part_3.puml
+docker run --rm -v $(pwd):/data plantuml/plantuml uc05_list_part_1.puml
 ```
 
-## Chi tiết Diagrams
+## UC-05: List Projects
 
-### Part 1: Export Configuration và Request (uc6_export_part_1.png)
+### Files
+- `uc05_list/uc05_list_part_1.puml` - Part 1: List View và Filtering
+- `uc05_list/uc05_list_part_2.puml` - Part 2: Navigation và Actions
+
+### Part 1: List View và Filtering
+
+**Luồng chính:**
+1. **Initial Load:**
+   - User navigate to /projects
+   - GET /api/v1/projects với JWT auth
+   - Query PostgreSQL: WHERE created_by = user_id AND deleted_at IS NULL
+   - Return list với metadata (name, status, created_at, keywords preview)
+   - Render với filter controls
+
+2. **Apply Filters:**
+   - User select status + search + sort
+   - Query với WHERE clauses: status, ILIKE search, ORDER BY
+   - Update display với "Showing X of Y projects"
+
+3. **Pagination:**
+   - Infinite scroll khi > 50 projects
+   - Load more với OFFSET + LIMIT
+   - Append to existing list
+
+### Part 2: Navigation và Actions
+
+**Luồng chính:**
+1. **Status-based Navigation:**
+   - Draft → Edit (UC-01) hoặc Execute (UC-03)
+   - Running → Monitor Progress (UC-03)
+   - Completed → View Results (UC-04) hoặc Export (UC-06)
+   - Failed → Retry (UC-03)
+
+2. **Soft Delete:**
+   - Click Delete → Confirmation dialog
+   - DELETE /api/v1/projects/:id (soft delete)
+   - UPDATE deleted_at = NOW()
+   - Remove from list với animation
+   - Show toast notification
+
+3. **Exception:**
+   - Running projects: Delete button DISABLED
+   - Business rule: Cannot delete running projects
+
+## UC-06: Export Reports
+
+### Files
+- `uc06_export/uc06_export_part_1.puml` - Part 1: Export Configuration và Request Submission
+- `uc06_export/uc06_export_part_2.puml` - Part 2: Report Generation Pipeline
+- `uc06_export/uc06_export_part_3.puml` - Part 3: User Notification và File Download
+
+### Part 1: Export Configuration và Request
 
 **Luồng chính:**
 1. **User Initiates Export:**
@@ -94,7 +149,7 @@ docker run --rm -v $(pwd):/data plantuml/plantuml uc6_export_part_3.puml
    - Show toast notification: "Báo cáo đang được tạo, bạn sẽ nhận thông báo khi hoàn tất"
    - User tiếp tục sử dụng hệ thống (non-blocking)
 
-### Part 2: Report Generation Pipeline (uc6_export_part_2.png)
+### Part 2: Report Generation Pipeline
 
 **Luồng chính:**
 1. **Consume Event:**
@@ -132,7 +187,7 @@ docker run --rm -v $(pwd):/data plantuml/plantuml uc6_export_part_3.puml
      * PUBLISH export.failed event
      * NACK message → Retry or DLQ
 
-### Part 3: User Notification và Download (uc6_export_part_3.png)
+### Part 3: User Notification và Download
 
 **Luồng chính:**
 1. **Real-time Notification:**
@@ -170,25 +225,6 @@ docker run --rm -v $(pwd):/data plantuml/plantuml uc6_export_part_3.puml
    - If URL expired (> 7 days): Return 410 Gone
    - Show error: "Link đã hết hạn, vui lòng xuất báo cáo mới"
 
-## Key Features
-
-- **Async Processing**: Export không block UI, user tiếp tục làm việc
-- **Multiple Formats**: PDF (visual), Excel (data analysis), CSV (raw data)
-- **MinIO Storage**: Large files (2-5 MB) stored in object storage, not in database
-- **Pre-signed URLs**: Secure 7-day expiry links, no authentication needed for download
-- **Real-time Notification**: WebSocket + Redis Pub/Sub cho instant feedback
-- **Export History**: User có thể re-download trong 7 days
-- **Error Handling**: Timeout (10 min), retry mechanism, failure notifications
-
-## Technical Details
-
-- **Export Worker**: Python service với libraries: WeasyPrint, openpyxl, csv, matplotlib
-- **Queue**: RabbitMQ với routing key: export.requested, export.completed, export.failed
-- **Storage**: MinIO bucket: reports, object key pattern: projects/{id}/exports/{id}.{format}
-- **Database**: export_requests table với columns: id, project_id, user_id, format, config, status, download_url, file_size, created_at, completed_at
-- **Notification**: Multi-channel (WebSocket real-time + DB for offline users)
-- **Performance**: Target < 30s for summary-only, timeout 10 min for full export
-
 ## Customization
 
 Nếu muốn thay đổi style, edit trong file `.puml`:
@@ -202,9 +238,8 @@ skinparam sequenceMessageAlign center # Message alignment
 
 ## Notes
 
-- Diagrams match với UC-06 specification từ Chapter 4 section 4.4
-- Include ownership verification, format selection, async processing
-- MinIO pre-signed URLs với 7-day expiry
-- Real-time notification qua WebSocket + Redis Pub/Sub
-- Export history page cho re-download
-- Exception handling: timeout, errors, expired URLs
+- Diagrams match với UC specifications từ Chapter 4 section 4.4
+- Include ownership verification, soft delete, pagination
+- Status-based navigation links với các UC khác
+- Business rules được enforce trong diagrams
+- Performance considerations: Composite indexes, pagination
