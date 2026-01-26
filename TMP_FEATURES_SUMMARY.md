@@ -19,15 +19,18 @@ SMAP là hệ thống phân tích mạng xã hội giúp Marketing Analyst theo 
 SMAP cung cấp 8 use cases được chia thành 3 nhóm chức năng:
 
 ### Nhóm 1: Quản lý Project
+
 1. **UC-01: Cấu hình Project** - Tạo project theo dõi thương hiệu và đối thủ
 2. **UC-05: Quản lý danh sách Projects** - Xem, lọc, điều hướng projects
 
 ### Nhóm 2: Thực thi và Phân tích
+
 3. **UC-02: Kiểm tra từ khóa (Dry-run)** - Test keywords trước khi chạy thật
 4. **UC-03: Khởi chạy và theo dõi Project** - Execute pipeline và monitor real-time
 5. **UC-04: Xem kết quả phân tích** - Dashboard với KPIs và insights
 
 ### Nhóm 3: Báo cáo và Cảnh báo
+
 6. **UC-06: Xuất báo cáo** - Export báo cáo PDF/Excel/CSV
 7. **UC-07: Phát hiện trend tự động** - Cron job thu thập trends hàng ngày
 8. **UC-08: Phát hiện khủng hoảng** - Real-time crisis monitoring và alerting
@@ -37,6 +40,7 @@ SMAP cung cấp 8 use cases được chia thành 3 nhóm chức năng:
 ## UC-01: Cấu hình Project
 
 ### Mục đích
+
 Tạo cấu hình Project mới để theo dõi thương hiệu và đối thủ cạnh tranh trên các nền tảng mạng xã hội. Project được lưu ở trạng thái **Draft**, cho phép kiểm tra và chỉnh sửa trước khi khởi chạy thu thập dữ liệu.
 
 ### Cách SMAP giải quyết
@@ -44,28 +48,34 @@ Tạo cấu hình Project mới để theo dõi thương hiệu và đối thủ
 **Wizard 4 bước cấu hình:**
 
 **Bước 1: Thông tin cơ bản**
+
 - Tên Project (3-100 ký tự, unique)
 - Mô tả
 - Khoảng thời gian phân tích (1 ngày - 1 năm)
 
 **Bước 2: Cấu hình thương hiệu**
+
 - Tên thương hiệu
 - Từ khóa thương hiệu (1-10 từ khóa, mỗi từ 2-50 ký tự)
 
 **Bước 3: Cấu hình đối thủ**
+
 - Thêm đối thủ cạnh tranh (1-5 đối thủ)
 - Mỗi đối thủ có 1-5 từ khóa
 
 **Bước 4: Chọn platforms và xác nhận**
+
 - YouTube, TikTok, Facebook (ít nhất 1 bắt buộc)
 - Hiển thị tổng quan cấu hình
 - Thời gian xử lý ước tính
 
 **Lưu hoặc Dry-run:**
+
 - **Lưu Project**: Lưu với status "draft", không trigger thu thập dữ liệu
 - **Dry-run**: Chuyển sang UC-02 để test keywords trước
 
 ### Validation Rules
+
 - Tên Project unique cho mỗi user
 - Độ dài từ khóa: 2-50 ký tự
 - Tối đa 5 đối thủ
@@ -73,12 +83,14 @@ Tạo cấu hình Project mới để theo dõi thương hiệu và đối thủ
 - Ít nhất 1 platform được chọn
 
 ### Output
+
 - Project được lưu vào PostgreSQL với status "draft"
 - Project ID được tạo
 - User có thể thấy Project trong danh sách (UC-05)
 - Project sẵn sàng cho việc khởi chạy (UC-03)
 
 ### Lợi ích
+
 - ✅ Cấu hình linh hoạt với wizard trực quan
 - ✅ Validation ngay lập tức để tránh lỗi
 - ✅ Không tốn tài nguyên khi chưa sẵn sàng (explicit execution)
@@ -89,11 +101,13 @@ Tạo cấu hình Project mới để theo dõi thương hiệu và đối thủ
 ## UC-02: Kiểm tra từ khóa (Dry-run)
 
 ### Mục đích
+
 Xác thực chất lượng từ khóa trước khi lưu Project. Hệ thống thu thập mẫu nhỏ (3 posts/từ khóa) để đánh giá độ liên quan và điều chỉnh keywords nếu cần.
 
 ### Cách SMAP giải quyết
 
 **Sampling Strategy:**
+
 - Thu thập tối đa **3 posts mỗi từ khóa** từ platforms đã chọn
 - Thời gian xử lý: 30-60 giây (timeout 90 giây)
 - Không lưu vào database chính (ephemeral data)
@@ -111,6 +125,7 @@ Xác thực chất lượng từ khóa trước khi lưu Project. Hệ thống t
    - Engagement metrics (views, likes, comments, shares)
 
 **User xem xét:**
+
 - Chất lượng kết quả
 - Độ liên quan của từ khóa
 - Quyết định: Tiếp tục (quay lại UC-01 bước 7) hoặc Quay lại (điều chỉnh từ khóa)
@@ -118,19 +133,23 @@ Xác thực chất lượng từ khóa trước khi lưu Project. Hệ thống t
 ### Xử lý Exception
 
 **Không tìm thấy kết quả:**
+
 - Hiển thị "Không tìm thấy kết quả cho từ khóa: [tên]"
 - Các từ khóa khác vẫn hiển thị bình thường
 - User có thể điều chỉnh từ khóa
 
 **Rate-limit từ platform:**
+
 - Hiển thị "Không thể lấy mẫu do giới hạn từ [platform], vui lòng thử lại sau 5 phút"
 - Các platforms khác tiếp tục xử lý
 
 **Timeout:**
+
 - Nếu xử lý > 90 giây: hiển thị "Dry-run timeout"
 - User có thể thử lại hoặc điều chỉnh từ khóa
 
 ### Lợi ích
+
 - ✅ Tiết kiệm thời gian và chi phí (không chạy full pipeline)
 - ✅ Phát hiện từ khóa không hiệu quả sớm
 - ✅ Điều chỉnh keywords trước khi commit
@@ -141,6 +160,7 @@ Xác thực chất lượng từ khóa trước khi lưu Project. Hệ thống t
 ## UC-03: Khởi chạy và theo dõi Project
 
 ### Mục đích
+
 Khởi chạy Project để thực thi pipeline xử lý dữ liệu. User theo dõi tiến độ real-time qua WebSocket và nhận notification khi hoàn tất.
 
 ### Cách SMAP giải quyết
@@ -148,12 +168,14 @@ Khởi chạy Project để thực thi pipeline xử lý dữ liệu. User theo 
 **Pipeline 4 giai đoạn:**
 
 **1. Crawling Phase**
+
 - Thu thập posts và comments từ platforms
 - Batch processing: 20-50 items/batch
 - Upload batches vào MinIO (object storage)
 - Publish events qua RabbitMQ
 
 **2. Analyzing Phase**
+
 - Analytics Service consume events
 - Download batches từ MinIO
 - Chạy NLP pipeline 5 bước:
@@ -165,12 +187,14 @@ Khởi chạy Project để thực thi pipeline xử lý dữ liệu. User theo 
 - Batch INSERT kết quả vào PostgreSQL
 
 **3. Aggregating Phase**
+
 - Tính toán KPIs tổng hợp
 - Sentiment distribution
 - Aspect breakdown
 - Competitor comparison metrics
 
 **4. Finalizing Phase**
+
 - Cleanup temporary data
 - Update project status thành "completed"
 - Send notification qua WebSocket
@@ -178,6 +202,7 @@ Khởi chạy Project để thực thi pipeline xử lý dữ liệu. User theo 
 ### Real-time Progress Tracking
 
 **Redis State Management:**
+
 ```
 Key: smap:proj:{project_id}
 Fields:
@@ -190,6 +215,7 @@ Fields:
 ```
 
 **WebSocket Updates:**
+
 - User mở trang chi tiết Project
 - WebSocket connection established
 - Nhận updates real-time từ Redis Pub/Sub
@@ -198,25 +224,30 @@ Fields:
 ### Xử lý Exception
 
 **Truy cập không được phép:**
+
 - Verify ownership: project.created_by = user_id
 - Hiển thị "Bạn không có quyền truy cập project"
 
 **Status không hợp lệ:**
+
 - Chỉ cho phép execute nếu status = "draft" hoặc "failed"
 - Hiển thị "Project đã được khởi chạy hoặc đang thực thi"
 
 **Thực thi thất bại:**
+
 - Update status thành "failed"
 - Hiển thị "Project khởi chạy thất bại, vui lòng thử lại!"
 - User có thể retry với cùng config
 
 ### Performance Targets
+
 - Thời gian xử lý trung bình: 35-50 phút
 - Max timeout: 2 giờ
 - Throughput: ≥ 70 items/phút (per Analytics worker)
 - NLP Pipeline latency (p95): < 700ms
 
 ### Lợi ích
+
 - ✅ Tự động hóa hoàn toàn (không cần can thiệp thủ công)
 - ✅ Theo dõi tiến độ real-time với WebSocket
 - ✅ Xử lý song song với event-driven architecture
@@ -228,6 +259,7 @@ Fields:
 ## UC-04: Xem kết quả phân tích
 
 ### Mục đích
+
 Xem dashboard phân tích với sentiment trends, aspect analysis, và competitor comparison. Dashboard hỗ trợ filtering, sorting và drilldown vào chi tiết posts.
 
 ### Cách SMAP giải quyết
@@ -235,24 +267,28 @@ Xem dashboard phân tích với sentiment trends, aspect analysis, và competito
 **Dashboard 4 phần chính:**
 
 **A. Line/Area Chart - Mentions theo thời gian**
+
 - Hiển thị số lượng mentions của brand và đối thủ theo timeline
 - Hỗ trợ radio buttons để chuyển đổi giữa các metrics
 - Tooltip hiển thị chi tiết khi hover
 - Phát hiện trends tăng/giảm đột ngột
 
 **B. Bar Chart - Share of Voice**
+
 - So sánh thị phần giữa brand và đối thủ
 - Tính theo số lượng mentions
 - Hiển thị phần trăm và số tuyệt đối
 - Insight: Brand có visibility như thế nào so với đối thủ
 
 **C. Keyword Cloud - Top 20 Keywords**
+
 - Hiển thị keywords phổ biến nhất
 - Size tương ứng với frequency
 - Highlight vị trí keyword của brand
 - Click vào keyword để filter posts
 
 **D. Bar Chart theo Aspect - Sentiment Breakdown**
+
 - Phân tích sentiment theo từng aspect (DESIGN, PERFORMANCE, PRICE, SERVICE, GENERAL)
 - Stacked bar: Positive/Neutral/Negative
 - Xác định aspect nào đang được khen/chê nhiều nhất
@@ -261,12 +297,14 @@ Xem dashboard phân tích với sentiment trends, aspect analysis, và competito
 ### Filtering và Drilldown
 
 **Filters hỗ trợ:**
+
 - Platform (YouTube, TikTok, Facebook)
 - Sentiment (Positive, Neutral, Negative)
 - Khoảng thời gian (date range picker)
 - Aspect (DESIGN, PERFORMANCE, PRICE, SERVICE, GENERAL)
 
 **Drilldown workflow:**
+
 1. User click vào aspect trên bar chart
 2. Hiển thị danh sách posts liên quan đến aspect đó
 3. User click vào post cụ thể
@@ -278,11 +316,13 @@ Xem dashboard phân tích với sentiment trends, aspect analysis, và competito
    - Top comments với sentiment
 
 ### Performance
+
 - Dashboard load < 2s
 - Drilldown queries < 500ms
 - Aggregation queries optimized với indexes
 
 ### Lợi ích
+
 - ✅ Insights trực quan với charts và visualizations
 - ✅ So sánh brand vs đối thủ một cách rõ ràng
 - ✅ Phát hiện điểm mạnh/yếu theo aspect
@@ -294,11 +334,13 @@ Xem dashboard phân tích với sentiment trends, aspect analysis, và competito
 ## UC-05: Quản lý danh sách Projects
 
 ### Mục đích
+
 Quản lý danh sách Projects cá nhân: xem, lọc, tìm kiếm, và điều hướng đến các chức năng tùy theo status. Hệ thống đảm bảo ownership và status-based permissions.
 
 ### Cách SMAP giải quyết
 
 **List View:**
+
 - Hiển thị danh sách Projects của user (ownership: created_by = user_id)
 - Mỗi Project card hiển thị:
   - Tên Project
@@ -308,6 +350,7 @@ Quản lý danh sách Projects cá nhân: xem, lọc, tìm kiếm, và điều h
   - Preview từ khóa thương hiệu (3 keywords đầu)
 
 **Filtering và Sorting:**
+
 - Filter theo status (dropdown)
 - Search theo tên (search box)
 - Sort options (ngày tạo, tên, status)
@@ -316,23 +359,28 @@ Quản lý danh sách Projects cá nhân: xem, lọc, tìm kiếm, và điều h
 **Status-based Actions:**
 
 **Draft Projects:**
+
 - Actions: "Khởi chạy" (→ UC-03), "Xóa"
 - Click card: Navigate đến UC-01 (Edit configuration)
 
 **Running Projects:**
+
 - Actions: "Xem tiến độ" (→ UC-03)
 - Nút "Xóa" bị vô hiệu hóa (không cho phép xóa running project)
 - Click card: Navigate đến UC-03 (Monitor progress)
 
 **Completed Projects:**
+
 - Actions: "Xem kết quả" (→ UC-04), "Xuất báo cáo" (→ UC-06), "Xóa"
 - Click card: Navigate đến UC-04 (Dashboard)
 
 **Failed Projects:**
+
 - Actions: "Thử lại" (→ UC-03), "Xóa"
 - Click card: Navigate đến UC-03 (Retry)
 
 ### Soft Delete
+
 - Xóa Project: Hiển thị confirmation dialog
 - Nếu confirm: Set deleted_at = NOW() (soft delete)
 - Project biến mất khỏi danh sách
@@ -340,11 +388,13 @@ Quản lý danh sách Projects cá nhân: xem, lọc, tìm kiếm, và điều h
 - Có thể restore sau nếu cần (admin feature)
 
 ### Pagination
+
 - Nếu user có > 50 projects: Apply pagination
 - 20 projects mỗi trang
 - Infinite scroll support
 
 ### Lợi ích
+
 - ✅ Entry point chính sau khi login
 - ✅ Quản lý tập trung tất cả projects
 - ✅ Status-based navigation rõ ràng
@@ -356,6 +406,7 @@ Quản lý danh sách Projects cá nhân: xem, lọc, tìm kiếm, và điều h
 ## UC-06: Xuất báo cáo
 
 ### Mục đích
+
 Tạo và tải file báo cáo phân tích ở nhiều định dạng (PDF, Excel, CSV). Hệ thống hỗ trợ tuỳ chỉnh nội dung báo cáo và thời gian dữ liệu.
 
 ### Cách SMAP giải quyết
@@ -363,6 +414,7 @@ Tạo và tải file báo cáo phân tích ở nhiều định dạng (PDF, Exce
 **Export Configuration Dialog:**
 
 **Options:**
+
 - **Định dạng file**: PDF, Excel, CSV
 - **Khoảng thời gian**: Toàn bộ hoặc tùy chỉnh (date range)
 - **Sections cần export**:
@@ -407,6 +459,7 @@ Tạo và tải file báo cáo phân tích ở nhiều định dạng (PDF, Exce
 ### Exception Handling
 
 **Export thất bại:**
+
 - Timeout > 10 phút
 - Database error
 - Out of memory
@@ -415,12 +468,14 @@ Tạo và tải file báo cáo phân tích ở nhiều định dạng (PDF, Exce
 - User nhận notification "Tạo báo cáo thất bại, vui lòng thử lại"
 
 ### Performance
+
 - Summary-only mode: < 30s
 - Full report: < 10 phút
 - Timeout threshold: 10 phút
 - Queue & Worker pattern để xử lý tác vụ nặng
 
 ### Lợi ích
+
 - ✅ Async processing không block UI
 - ✅ Hỗ trợ nhiều định dạng (PDF, Excel, CSV)
 - ✅ Tuỳ chỉnh nội dung và thời gian
@@ -432,17 +487,20 @@ Tạo và tải file báo cáo phân tích ở nhiều định dạng (PDF, Exce
 ## UC-07: Phát hiện trend tự động
 
 ### Mục đích
+
 Hệ thống tự động thu thập và xếp hạng trending content (music, keywords, hashtags) từ YouTube và TikTok theo lịch định kỳ. Marketing Analysts nhận feed trends để nắm bắt xu hướng sớm.
 
 ### Cách SMAP giải quyết
 
 **Cron Schedule:**
+
 - Kubernetes CronJob trigger hàng ngày lúc 2:00 AM UTC+7
 - System Timer tự động kích hoạt Trend Service
 
 **Quy trình tự động:**
 
 **1. Trend Crawling**
+
 - Trend Service tạo trend_run record (status: running)
 - Initialize Redis state để track progress
 - Request trending data từ TikTok và YouTube Crawler Services
@@ -453,23 +511,28 @@ Hệ thống tự động thu thập và xếp hạng trending content (music, k
   - Trending keywords
 
 **2. Scoring và Ranking**
+
 - Normalize metadata từ các platforms thành unified schema
 - Calculate trend score:
+
   ```
   score = engagement_rate × velocity × 100
-  
+
   engagement_rate = (likes + comments + shares) / views
   velocity = growth_rate_24h
   ```
+
 - Rank và filter top 50 per platform
 - Deduplicate cross-platform (cùng content trên nhiều platform)
 
 **3. Storage và Caching**
+
 - Batch insert vào PostgreSQL table `trends`
 - Cache latest run_id trong Redis
 - Lưu trữ 30 ngày, trends cũ hơn được tự động archive
 
 **4. Notification**
+
 - Broadcast notification đến tất cả Marketing Analysts
 - WebSocket push notification real-time
 - Email digest (optional)
@@ -477,6 +540,7 @@ Hệ thống tự động thu thập và xếp hạng trending content (music, k
 ### Trend Dashboard
 
 **User Views Trends:**
+
 1. User navigate đến Trends page
 2. Trend Service fetch latest run_id từ Redis cache
 3. Query trends từ PostgreSQL
@@ -486,6 +550,7 @@ Hệ thống tự động thu thập và xếp hạng trending content (music, k
    - Filters: Platform, loại nội dung, thời gian
 
 **Drilldown:**
+
 - Click vào trend để xem details
 - Hiển thị related posts từ own projects (nếu có)
 - Gợi ý cách áp dụng trend cho brand
@@ -493,20 +558,24 @@ Hệ thống tự động thu thập và xếp hạng trending content (music, k
 ### Exception Handling
 
 **Lỗi thu thập từ platform:**
+
 - Exponential backoff (thử lại 3 lần)
 - Nếu vẫn fail: Bỏ qua platform bị lỗi, tiếp tục với platforms còn lại
 - Mark is_partial_result = true
 - Dashboard hiển thị cảnh báo "Dữ liệu từ [Platform] đang gặp sự cố"
 
 **Timeout:**
+
 - Nếu quy trình > giới hạn: Dừng và lưu partial data
 - Dashboard hiển thị dữ liệu đã thu thập + cảnh báo chưa hoàn tất
 
 **Toàn bộ thất bại:**
+
 - Hiển thị dữ liệu của ngày hôm trước
 - Thông báo lỗi cập nhật
 
 ### Lợi ích
+
 - ✅ Tự động hóa hoàn toàn (không cần can thiệp)
 - ✅ Nắm bắt trends sớm hơn 24-48 giờ
 - ✅ Cross-platform trending insights
@@ -518,6 +587,7 @@ Hệ thống tự động thu thập và xếp hạng trending content (music, k
 ## UC-08: Phát hiện khủng hoảng
 
 ### Mục đích
+
 Thiết lập các chủ đề giám sát (Crisis Monitors) với từ khóa và ngưỡng cảnh báo cụ thể. Hệ thống tự động quét liên tục và gửi thông báo khi phát hiện nguy cơ khủng hoảng thương hiệu.
 
 ### Cách SMAP giải quyết
@@ -525,6 +595,7 @@ Thiết lập các chủ đề giám sát (Crisis Monitors) với từ khóa và
 **Giai đoạn 1: User cấu hình giám sát**
 
 **Crisis Monitor Configuration:**
+
 1. User truy cập module "Crisis Management"
 2. Chọn "Tạo giám sát mới"
 3. Nhập thông tin:
@@ -543,7 +614,7 @@ Thiết lập các chủ đề giám sát (Crisis Monitors) với từ khóa và
 Trong UC-03 Analytics Pipeline, sau khi save kết quả vào PostgreSQL, hệ thống check:
 
 ```
-IF (Intent = CRISIS) 
+IF (Intent = CRISIS)
    AND (Sentiment = NEGATIVE hoặc VERY_NEGATIVE)
    AND (Risk Level = HIGH hoặc CRITICAL)
 THEN
@@ -599,6 +670,7 @@ THEN
 ### Continuous Monitoring
 
 **Background Scheduler:**
+
 - Chạy theo chu kỳ định sẵn (ví dụ: mỗi 15 phút)
 - Quét dữ liệu mới nhất trên các nền tảng
 - Chỉ lưu các bài viết vi phạm ngưỡng (tối ưu storage)
@@ -607,11 +679,13 @@ THEN
 ### Tạm dừng và Điều chỉnh
 
 **Tạm dừng giám sát:**
+
 - User chọn Monitor đang chạy và nhấn "Tạm dừng"
 - Hệ thống ngắt lịch chạy ngầm (status: Inactive)
 - Không có thông báo mới cho đến khi kích hoạt lại
 
 **Điều chỉnh cấu hình:**
+
 - Nếu nhận quá nhiều thông báo rác:
   - Thêm "Từ khóa loại trừ"
   - Nâng cao "Ngưỡng cảnh báo"
@@ -620,6 +694,7 @@ THEN
 ### Exception Handling
 
 **Lỗi hệ thống giám sát:**
+
 - Service chạy ngầm bị gián đoạn (Server down, API lỗi)
 - Ghi log lỗi
 - Gửi email cảnh báo cho Admin
@@ -628,18 +703,21 @@ THEN
 ### Sự khác biệt với Project
 
 **Project (UC-01, UC-03):**
+
 - Chạy 1 lần trên dữ liệu quá khứ
 - Phân tích sâu và toàn diện
 - Lưu toàn bộ dữ liệu
 - Thời gian xử lý: 35-50 phút
 
 **Crisis Monitor (UC-08):**
+
 - Chạy liên tục trên dữ liệu real-time/near real-time
 - Phát hiện nhanh và cảnh báo
 - Chỉ lưu posts vi phạm ngưỡng
 - Chu kỳ: Mỗi 15 phút
 
 ### Lợi ích
+
 - ✅ Phát hiện khủng hoảng sớm (6-12 giờ trước khi lan rộng)
 - ✅ Triple-check logic giảm false positives
 - ✅ Multi-channel alerting (WebSocket, Email, SMS)
@@ -656,6 +734,7 @@ THEN
 SMAP sử dụng kiến trúc Microservices với 7 core services và 4 supporting services:
 
 **Core Services:**
+
 1. **Identity Service** (Golang) - Authentication, JWT, user management
 2. **Project Service** (Golang) - Project CRUD, orchestration, state management
 3. **Collector Service** (Golang) - Master node, task dispatching, progress tracking
@@ -665,6 +744,7 @@ SMAP sử dụng kiến trúc Microservices với 7 core services và 4 supporti
 7. **Web UI** (Next.js) - Frontend dashboard, SSR support
 
 **Supporting Services:**
+
 1. **Scrapper Services** (Python) - Platform-specific crawlers (YouTube, TikTok, Facebook)
 2. **FFmpeg Service** (Python) - Media processing, audio/video conversion
 3. **Playwright Service** (Python) - Browser automation, advanced crawling
@@ -673,20 +753,24 @@ SMAP sử dụng kiến trúc Microservices với 7 core services và 4 supporti
 ### Technology Stack
 
 **Backend:**
+
 - Golang: Identity, Project, Collector, WebSocket
 - Python: Analytics, Speech2Text, Scrapper Services
 - Node.js: Web UI (Next.js)
 
 **Storage:**
+
 - PostgreSQL: Relational data (users, projects, analytics results)
 - Redis: Distributed cache, state management, Pub/Sub
 - MinIO: Object storage (batches, reports, media files)
 - MongoDB: Temporary raw data storage
 
 **Messaging:**
+
 - RabbitMQ: Event-driven architecture, async processing
 
 **AI/ML:**
+
 - PhoBERT: Vietnamese sentiment analysis
 - Whisper: Speech-to-text
 - Scikit-learn: Keyword extraction, classification
@@ -694,22 +778,27 @@ SMAP sử dụng kiến trúc Microservices với 7 core services và 4 supporti
 ### Design Patterns
 
 **Event-Driven Architecture:**
+
 - Services giao tiếp qua RabbitMQ events
 - Decoupling, async processing, resilience
 
 **Master-Worker Pattern:**
+
 - Collector Service (Master) dispatch tasks đến Scrapper Services (Workers)
 - Independent scaling, fault tolerance
 
 **Claim Check Pattern:**
+
 - Lưu payload lớn vào MinIO, chỉ gửi reference qua RabbitMQ
 - Message size reduction 99.96%, queue throughput 50x faster
 
 **Repository Pattern:**
+
 - Abstract data access qua interfaces
 - Business logic không phụ thuộc storage implementation
 
 **Clean Architecture:**
+
 - 4 layers: Delivery → UseCase → Domain → Infrastructure
 - Dependency inversion, testability cao
 
@@ -718,21 +807,25 @@ SMAP sử dụng kiến trúc Microservices với 7 core services và 4 supporti
 ## 📊 Performance Targets
 
 **API Response Time:**
+
 - Project Creation: < 500ms
 - Dashboard Load: < 2s
 - Drilldown Queries: < 500ms
 
 **Processing:**
+
 - NLP Pipeline (p95): < 700ms
 - Throughput: ≥ 70 items/phút (per worker)
 - Project Execution: 35-50 phút (trung bình)
 
 **Real-time:**
+
 - WebSocket Latency: < 100ms
 - Progress Update Frequency: Mỗi 5 giây
 - Crisis Alert Latency: < 2 giây
 
 **Scalability:**
+
 - Concurrent Projects: ≥ 20 projects
 - Concurrent Users: ≥ 50 users
 - Independent service scaling
