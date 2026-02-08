@@ -49,21 +49,21 @@ flowchart TD
 
     UI -->|REST| IA & PA & KA
     UI <-->|WebSocket| NH
-    
+
     IA --> MinIO
     IA --> IW
     IC --> IW
     IW --> Kafka
-    
+
     Kafka --> n8n
     n8n --> WS & WA
     n8n --> PG
     n8n --> Kafka
-    
+
     Kafka --> KI
     KI --> Qdrant
     KA --> Qdrant & PG
-    
+
     n8n --> Redis
     Redis --> NH
 ```
@@ -72,18 +72,18 @@ flowchart TD
 
 ## 2. ĐỊNH NGHĨA CÁC ĐƠN VỊ XỬ LÝ
 
-| Service | Unit | Loại | Nhiệm vụ |
-|---------|------|------|----------|
-| **Ingest** | `ingest-api` | HTTP Server | Nhận file upload, config từ UI |
-| | `ingest-worker` | Consumer | Parse file, gọi External API, transform UAP |
-| | `ingest-cron` | Scheduler | Trigger crawl định kỳ |
-| **Analytics** | `n8n-engine` | Orchestrator | Điều phối luồng, logic rẽ nhánh |
-| | `py-worker-sentiment` | Micro-service | Chạy PhoBERT Sentiment |
-| | `py-worker-aspect` | Micro-service | Chạy PhoBERT Aspect |
-| **Knowledge** | `know-api` | HTTP Server | Phục vụ Chat RAG |
-| | `know-indexer` | Consumer | Embed → Upsert Qdrant |
-| **Project** | `project-api` | HTTP Server | Dashboard aggregation |
-| **Notification** | `noti-hub` | WebSocket | Push realtime events |
+| Service          | Unit                  | Loại          | Nhiệm vụ                                    |
+| ---------------- | --------------------- | ------------- | ------------------------------------------- |
+| **Ingest**       | `ingest-api`          | HTTP Server   | Nhận file upload, config từ UI              |
+|                  | `ingest-worker`       | Consumer      | Parse file, gọi External API, transform UAP |
+|                  | `ingest-cron`         | Scheduler     | Trigger crawl định kỳ                       |
+| **Analytics**    | `n8n-engine`          | Orchestrator  | Điều phối luồng, logic rẽ nhánh             |
+|                  | `py-worker-sentiment` | Micro-service | Chạy PhoBERT Sentiment                      |
+|                  | `py-worker-aspect`    | Micro-service | Chạy PhoBERT Aspect                         |
+| **Knowledge**    | `know-api`            | HTTP Server   | Phục vụ Chat RAG                            |
+|                  | `know-indexer`        | Consumer      | Embed → Upsert Qdrant                       |
+| **Project**      | `project-api`         | HTTP Server   | Dashboard aggregation                       |
+| **Notification** | `noti-hub`            | WebSocket     | Push realtime events                        |
 
 ---
 
@@ -122,17 +122,18 @@ sequenceDiagram
 
 **Entity Type (gợi ý, không giới hạn):**
 
-| entity_type | Ví dụ | Mô tả |
-|-------------|-------|-------|
-| `product` | VF8, iPhone 16 | Monitor 1 sản phẩm cụ thể |
-| `campaign` | "VinFast Global Launch" | Monitor 1 chiến dịch marketing |
-| `service` | Hậu mãi, Bảo hành | Monitor 1 dịch vụ |
-| `competitor` | Hyundai Ioniq 5 | Monitor đối thủ |
-| `topic` | "EV Market Vietnam" | Monitor 1 chủ đề chung |
+| entity_type  | Ví dụ                   | Mô tả                          |
+| ------------ | ----------------------- | ------------------------------ |
+| `product`    | VF8, iPhone 16          | Monitor 1 sản phẩm cụ thể      |
+| `campaign`   | "VinFast Global Launch" | Monitor 1 chiến dịch marketing |
+| `service`    | Hậu mãi, Bảo hành       | Monitor 1 dịch vụ              |
+| `competitor` | Hyundai Ioniq 5         | Monitor đối thủ                |
+| `topic`      | "EV Market Vietnam"     | Monitor 1 chủ đề chung         |
 
 ### 3.2 Chọn & Cấu hình Data Source (Bước 2)
 
 > **Phân loại Source theo cơ chế xử lý:**
+>
 > - **Crawl Sources** (FB, TikTok, YouTube): Hệ thống chủ động crawl → cần **Dry Run** để test connection
 > - **Passive Sources** (Webhook, File Upload): Data được push/upload vào → cần **Data Onboarding** (AI Schema Mapping) thay vì Dry Run
 
@@ -146,10 +147,10 @@ sequenceDiagram
 
     UI->>UI: 1. Popup Step 2/5 - Chọn Data Source
     Note over UI: [FILE_UPLOAD, WEBHOOK, FACEBOOK, TIKTOK, YOUTUBE]
-    
+
     User->>UI: 2. Chọn source type
     UI->>UI: 3. Hiển thị form config tương ứng (trong Popup)
-    
+
     alt Source = FACEBOOK, TIKTOK, YOUTUBE (Crawl)
         UI->>UI: Hiển thị Form nhập API Key/Token
         Note over UI: Payload: {page_id, access_token, sync_interval}
@@ -173,16 +174,17 @@ sequenceDiagram
         Note over API: Lưu file_path vào config của Source
         API->>DB: INSERT source (type=FILE_UPLOAD, config={sample_file_path}, status=PENDING)
     end
-    
+
     API->>API: 4. Validate config theo type
     API->>DB: 5. INSERT/UPDATE source (project_id, type, config, status=PENDING)
     API-->>UI: 201 Created {source_id}
-    
+
     User->>UI: 6. Có thể thêm nhiều source khác (lặp lại trong Popup)
     UI->>UI: 7. Click "Tiếp tục" → Step 3
 ```
 
 > **Lưu ý:**
+>
 > - **FILE_UPLOAD**: User BẮT BUỘC upload file mẫu ngay tại bước này để Data Onboarding (AI Schema Mapping) ở Bước 3.4 có dữ liệu xử lý. File lưu tạm vào MinIO `/temp/{project_id}/`.
 > - **WEBHOOK**: User BẮT BUỘC define payload schema để AI có thể suggest mapping sang UAP.
 
@@ -197,12 +199,12 @@ sequenceDiagram
 
     UI->>UI: 1. Popup Step 3/4 - Analytics Config
     Note over UI: Default: Sentiment=ON, Aspect=ON, Keywords=ON
-    
+
     User->>UI: 2. Tùy chỉnh (nếu muốn)
     Note over User: - Bật/tắt từng loại analysis
     Note over User: - Custom aspect categories
     Note over User: - Alert thresholds
-    
+
     User->>UI: 3. Submit config
     UI->>API: 4. PUT /projects/{id}/analytics-config
     API->>DB: 5. UPDATE project (analytics_config)
@@ -213,7 +215,7 @@ sequenceDiagram
 ### 3.4 DATA ONBOARDING - AI Schema Mapping (Bước 4)
 
 > **Áp dụng cho:** FILE_UPLOAD và WEBHOOK. Mục đích: AI gợi ý cách map dữ liệu đầu vào sang định dạng UAP chuẩn, User review và confirm.
-> 
+>
 > **Bước này chỉ hiển thị khi project có ít nhất 1 source loại FILE_UPLOAD hoặc WEBHOOK.** Nếu project chỉ có Crawl sources (FB, TikTok, YouTube), wizard sẽ skip thẳng sang Bước 3.5 (Dry Run).
 
 ```mermaid
@@ -227,7 +229,7 @@ sequenceDiagram
 
     UI->>UI: 1. Popup Step 4 - Data Onboarding
     Note over UI: Hiển thị danh sách sources cần onboarding (FILE_UPLOAD + WEBHOOK)
-    
+
     par Parallel AI Mapping cho từng Source
         Note right of API: CASE A: FILE_UPLOAD
         UI->>API: 2a. POST /sources/{id}/schema/preview
@@ -236,7 +238,7 @@ sequenceDiagram
         API->>LLM: "Map các cột này sang UAP format"
         LLM-->>API: Suggested mapping {col_A: "content", col_B: "created_at"}
         API-->>UI: Return mapping preview + sample rows
-        
+
         Note right of API: CASE B: WEBHOOK
         UI->>API: 2b. POST /sources/{id}/schema/preview
         Note over API: Lấy payload_schema từ config (đã define ở Step 3.2)
@@ -244,30 +246,31 @@ sequenceDiagram
         LLM-->>API: Suggested mapping {message: "content", timestamp: "created_at"}
         API-->>UI: Return mapping preview
     end
-    
+
     UI->>UI: 3. Hiển thị bảng Mapping cho từng source
     Note over UI: User có thể chỉnh sửa mapping (drag-drop hoặc dropdown)
-    
+
     User->>UI: 4. Review + Chỉnh sửa mapping (nếu cần)
     User->>UI: 5. Click "Confirm Mapping"
-    
+
     loop For each source cần onboarding
         UI->>API: 6. POST /sources/{id}/schema/confirm {mapping_rules}
         API->>DB: UPDATE source (mapping_rules, onboarding_status=CONFIRMED)
     end
-    
+
     API-->>UI: 200 OK
     UI->>UI: 7. Click "Tiếp tục" → Step 5 (Dry Run / Activate)
 ```
 
 **Data Onboarding UX theo Source Type:**
 
-| Source Type | Input cho AI | AI Output | UI Display |
-|-------------|-------------|-----------|------------|
-| **FILE_UPLOAD** | Header + 5 rows từ file mẫu | Mapping cột → UAP fields | Bảng mapping: Cột A → `content`, Cột B → `created_at`. Kèm preview 5 rows đã transform |
-| **WEBHOOK** | Payload schema do User define | Mapping field → UAP fields | Bảng mapping: `message` → `content`, `timestamp` → `created_at`. Kèm ví dụ transform |
+| Source Type     | Input cho AI                  | AI Output                  | UI Display                                                                             |
+| --------------- | ----------------------------- | -------------------------- | -------------------------------------------------------------------------------------- |
+| **FILE_UPLOAD** | Header + 5 rows từ file mẫu   | Mapping cột → UAP fields   | Bảng mapping: Cột A → `content`, Cột B → `created_at`. Kèm preview 5 rows đã transform |
+| **WEBHOOK**     | Payload schema do User define | Mapping field → UAP fields | Bảng mapping: `message` → `content`, `timestamp` → `created_at`. Kèm ví dụ transform   |
 
 **Data Onboarding Output:**
+
 ```json
 {
   "source_id": "src_file_01",
@@ -279,7 +282,7 @@ sequenceDiagram
     "column_C": "author"
   },
   "sample_rows": [
-    {"content": "Sản phẩm ok", "created_at": "2026-02-01", "author": "User A"}
+    { "content": "Sản phẩm ok", "created_at": "2026-02-01", "author": "User A" }
   ]
 }
 ```
@@ -300,8 +303,16 @@ sequenceDiagram
     "timestamp": "content_created_at"
   },
   "sample_transform": {
-    "input": {"message": "Sản phẩm tốt", "user": "Nguyễn A", "timestamp": "2026-02-07T10:00:00Z"},
-    "output": {"content": "Sản phẩm tốt", "content_created_at": "2026-02-07T10:00:00Z", "metadata": {"author": "Nguyễn A"}}
+    "input": {
+      "message": "Sản phẩm tốt",
+      "user": "Nguyễn A",
+      "timestamp": "2026-02-07T10:00:00Z"
+    },
+    "output": {
+      "content": "Sản phẩm tốt",
+      "content_created_at": "2026-02-07T10:00:00Z",
+      "metadata": { "author": "Nguyễn A" }
+    }
   }
 }
 ```
@@ -324,36 +335,37 @@ sequenceDiagram
 
     User->>UI: 1. Click "Dry Run"
     UI->>Kafka: 2. Push job [project.dryrun.requested]
-    
+
     Note over Kafka, Worker: ASYNC PROCESSING
     Kafka->>Worker: 3. Consume job {project_id, crawl_sources[], mode=DRYRUN}
-    
+
     par Parallel Execution cho từng Crawl Source
         Note right of Worker: Facebook
         Worker->>Worker: Test Connection (Ping API)
         Worker->>Worker: Fetch 5 posts mới nhất
         Worker->>Worker: Transform → UAP (In-memory only, KHÔNG lưu DB)
-        
+
         Note right of Worker: TikTok
         Worker->>Worker: Test Connection
         Worker->>Worker: Fetch 5 comments mới nhất
         Worker->>Worker: Transform → UAP (In-memory only)
-        
+
         Note right of Worker: YouTube
         Worker->>Worker: Test Connection
         Worker->>Worker: Fetch 5 comments mới nhất
         Worker->>Worker: Transform → UAP (In-memory only)
     end
-    
+
     Worker->>Worker: 4. Sanitize all error messages (remove sensitive data)
     Worker->>DB: 5. UPDATE dryrun_result (status, sample_data, errors)
     Worker->>Kafka: 6. Publish [project.dryrun.completed]
-    
+
     Note over UI: UI polling nhận kết quả
     UI->>User: 7. Hiển thị kết quả (List posts/comments mẫu)
 ```
 
 **Dry Run Output:**
+
 ```json
 {
   "status": "SUCCESS | PARTIAL | FAILED",
@@ -364,7 +376,7 @@ sequenceDiagram
       "status": "OK",
       "sample_count": 5,
       "sample_data": [
-        {"content": "Sản phẩm tốt...", "created_at": "2026-02-06T10:00:00Z"}
+        { "content": "Sản phẩm tốt...", "created_at": "2026-02-06T10:00:00Z" }
       ]
     },
     {
@@ -373,7 +385,7 @@ sequenceDiagram
       "status": "OK",
       "sample_count": 5,
       "sample_data": [
-        {"content": "Video hay quá...", "created_at": "2026-02-05T15:00:00Z"}
+        { "content": "Video hay quá...", "created_at": "2026-02-05T15:00:00Z" }
       ]
     },
     {
@@ -392,6 +404,7 @@ sequenceDiagram
 ### 3.6 ACTIVATE PROJECT (Bước 6 - Final)
 
 > **Điều kiện Activate:**
+>
 > - Nếu có Crawl sources → Dry Run phải `SUCCESS` hoặc `WARNING`
 > - Nếu có Passive sources (FILE_UPLOAD/WEBHOOK) → Data Onboarding phải `CONFIRMED`
 > - Nếu project chỉ có Passive sources (không có Crawl) → Chỉ cần Onboarding CONFIRMED là đủ
@@ -408,7 +421,7 @@ sequenceDiagram
     Note over UI: - Onboarding results (nếu có FILE_UPLOAD/WEBHOOK)
     Note over UI: - Dry Run results (nếu có Crawl sources)
     User->>UI: 2. Review kết quả
-    
+
     alt Có lỗi nghiêm trọng (Dry Run FAILED hoặc Onboarding chưa confirm)
         UI->>UI: 3a. Disable nút Activate
         UI->>UI: Hiển thị "Vui lòng hoàn tất các bước trước"
@@ -417,20 +430,20 @@ sequenceDiagram
         User->>UI: 3b. Click "Activate Project"
         UI->>API: 4. POST /projects/{id}/activate
         API->>DB: 5. UPDATE project (status=ACTIVE)
-        
+
         loop For each source
             API->>DB: 6. UPDATE source (status=ACTIVE)
-            
+
             alt Source = Crawl (FB, TikTok, YouTube) có schedule
                 API->>DB: 7. INSERT scheduled_job (next_run_at)
             end
-            
+
             alt Source = WEBHOOK
                 API->>API: 8. Generate webhook_url + secret (Production URL)
                 API->>DB: 9. UPDATE source (webhook_url, secret)
             end
         end
-        
+
         API->>Kafka: 10. Push to [project.activated]
         API-->>UI: 200 OK {project_id, webhook_urls[], schedules[]}
         UI->>UI: 11. Hiển thị Success Screen trong Popup
@@ -445,6 +458,7 @@ sequenceDiagram
 ### 3.7 Tổng quan State Machine của Project
 
 > **Rule quan trọng:** Nút "Activate Project" ở Frontend sẽ bị **Disabled** cho đến khi:
+>
 > - Crawl sources: `dryrun_results.status == 'SUCCESS'` hoặc `WARNING`
 > - Passive sources: `onboarding_status == 'CONFIRMED'`
 
@@ -452,7 +466,7 @@ sequenceDiagram
 stateDiagram-v2
     direction LR
     [*] --> DRAFT
-    
+
     state DRAFT {
         [*] --> CONFIGURING
         CONFIGURING --> ONBOARDING: Có Passive source (File/Webhook)
@@ -466,7 +480,7 @@ stateDiagram-v2
         DRYRUN_FAILED --> CONFIGURING: Edit
         DRYRUN_SUCCESS --> CONFIGURING: Edit
     }
-    
+
     DRAFT --> ACTIVE: Click Activate (khi đủ điều kiện)
     ACTIVE --> PAUSED: Pause
     PAUSED --> ACTIVE: Resume
@@ -476,33 +490,33 @@ stateDiagram-v2
 
 **Điều kiện Activate theo tổ hợp Source:**
 
-| Tổ hợp Sources | Điều kiện Activate |
-|----------------|-------------------|
-| Chỉ có Crawl (FB, TikTok, YouTube) | Dry Run = SUCCESS/WARNING |
-| Chỉ có Passive (File, Webhook) | Onboarding = CONFIRMED |
-| Cả Crawl + Passive | Onboarding = CONFIRMED **VÀ** Dry Run = SUCCESS/WARNING |
+| Tổ hợp Sources                     | Điều kiện Activate                                      |
+| ---------------------------------- | ------------------------------------------------------- |
+| Chỉ có Crawl (FB, TikTok, YouTube) | Dry Run = SUCCESS/WARNING                               |
+| Chỉ có Passive (File, Webhook)     | Onboarding = CONFIRMED                                  |
+| Cả Crawl + Passive                 | Onboarding = CONFIRMED **VÀ** Dry Run = SUCCESS/WARNING |
 
 **Chi tiết config_status (cho Backend):**
 
-| Status | Mô tả | UI Action |
-|--------|-------|-----------|
-| `CONFIGURING` | Đang cấu hình source | Cho phép Edit |
-| `ONBOARDING` | Đang chờ AI Mapping confirm | Hiển thị bảng mapping |
-| `ONBOARDING_DONE` | Mapping đã confirmed | Enable Dry Run (nếu có Crawl) hoặc Enable Activate |
-| `DRYRUN_RUNNING` | Đang chạy Dry Run | Disable tất cả nút |
-| `DRYRUN_SUCCESS` | Dry Run thành công | Enable nút Activate |
-| `DRYRUN_FAILED` | Dry Run thất bại | Disable Activate, Enable Edit |
+| Status            | Mô tả                       | UI Action                                          |
+| ----------------- | --------------------------- | -------------------------------------------------- |
+| `CONFIGURING`     | Đang cấu hình source        | Cho phép Edit                                      |
+| `ONBOARDING`      | Đang chờ AI Mapping confirm | Hiển thị bảng mapping                              |
+| `ONBOARDING_DONE` | Mapping đã confirmed        | Enable Dry Run (nếu có Crawl) hoặc Enable Activate |
+| `DRYRUN_RUNNING`  | Đang chạy Dry Run           | Disable tất cả nút                                 |
+| `DRYRUN_SUCCESS`  | Dry Run thành công          | Enable nút Activate                                |
+| `DRYRUN_FAILED`   | Dry Run thất bại            | Disable Activate, Enable Edit                      |
 
 ### 3.8 Database Schema bổ sung cho Flow 0
 
 ```sql
 -- Thêm vào bảng business.projects
-ALTER TABLE business.projects 
+ALTER TABLE business.projects
 ADD COLUMN brand VARCHAR(100),                 -- Tên brand (text, dùng để nhóm hiển thị)
 ADD COLUMN entity_type VARCHAR(50),            -- product, campaign, service, competitor, topic
 ADD COLUMN entity_name VARCHAR(200),           -- Tên thực thể cụ thể (VD: "VF8")
-ADD COLUMN config_status VARCHAR(20) DEFAULT 'DRAFT'; 
--- Values: DRAFT, CONFIGURING, ONBOARDING, ONBOARDING_DONE, 
+ADD COLUMN config_status VARCHAR(20) DEFAULT 'DRAFT';
+-- Values: DRAFT, CONFIGURING, ONBOARDING, ONBOARDING_DONE,
 --         DRYRUN_RUNNING, DRYRUN_SUCCESS, DRYRUN_FAILED, ACTIVE, ERROR
 
 -- Thêm vào bảng ingest.data_sources
@@ -527,15 +541,16 @@ CREATE TABLE ingest.dryrun_results (
 
 ### 3.9 Source Type & Config Schema
 
-| Source Type | Loại | Required Config | Optional Config | Onboarding | Trigger |
-|-------------|------|-----------------|-----------------|------------|---------|
-| `FILE_UPLOAD` | Passive | sample_file_path (upload tại Step 3.2) | - | AI Schema Mapping | Manual upload |
-| `WEBHOOK` | Passive | name, payload_schema | description | AI Schema Mapping | External push |
-| `FACEBOOK` | Crawl | - | page_id, access_token, sync_interval | Dry Run | Scheduled poll |
-| `TIKTOK` | Crawl | - | video_url[] | Dry Run | One-time crawl |
-| `YOUTUBE` | Crawl | - | channel_id, api_key | Dry Run | Scheduled poll |
+| Source Type   | Loại    | Required Config                        | Optional Config                      | Onboarding        | Trigger        |
+| ------------- | ------- | -------------------------------------- | ------------------------------------ | ----------------- | -------------- |
+| `FILE_UPLOAD` | Passive | sample_file_path (upload tại Step 3.2) | -                                    | AI Schema Mapping | Manual upload  |
+| `WEBHOOK`     | Passive | name, payload_schema                   | description                          | AI Schema Mapping | External push  |
+| `FACEBOOK`    | Crawl   | -                                      | page_id, access_token, sync_interval | Dry Run           | Scheduled poll |
+| `TIKTOK`      | Crawl   | -                                      | video_url[]                          | Dry Run           | One-time crawl |
+| `YOUTUBE`     | Crawl   | -                                      | channel_id, api_key                  | Dry Run           | Scheduled poll |
 
 **Giải thích:**
+
 - **Crawl Sources** (FB, TikTok, YouTube): Hệ thống chủ động crawl data → cần Dry Run để test connection + fetch sample
 - **Passive Sources** (File Upload, Webhook): Data được push/upload vào → cần Data Onboarding (AI Schema Mapping) để map sang UAP
 - **DRAFT**: Project đang được cấu hình, chưa hoạt động
@@ -543,11 +558,11 @@ CREATE TABLE ingest.dryrun_results (
 
 ### 3.10 Tổng quan Wizard Steps theo tổ hợp Source
 
-| Tổ hợp Sources | Step 1 | Step 2 | Step 3 | Step 4 | Step 5 | Step 6 |
-|----------------|--------|--------|--------|--------|--------|--------|
-| Chỉ Crawl | Tạo Project | Chọn Source | Analytics | _(skip)_ | Dry Run | Activate |
-| Chỉ Passive | Tạo Project | Chọn Source | Analytics | Onboarding | _(skip)_ | Activate |
-| Crawl + Passive | Tạo Project | Chọn Source | Analytics | Onboarding | Dry Run | Activate |
+| Tổ hợp Sources  | Step 1      | Step 2      | Step 3    | Step 4     | Step 5   | Step 6   |
+| --------------- | ----------- | ----------- | --------- | ---------- | -------- | -------- |
+| Chỉ Crawl       | Tạo Project | Chọn Source | Analytics | _(skip)_   | Dry Run  | Activate |
+| Chỉ Passive     | Tạo Project | Chọn Source | Analytics | Onboarding | _(skip)_ | Activate |
+| Crawl + Passive | Tạo Project | Chọn Source | Analytics | Onboarding | Dry Run  | Activate |
 
 ---
 
@@ -581,6 +596,7 @@ sequenceDiagram
 ```
 
 **Lưu ý quan trọng:**
+
 - Bước 4: API đẩy job vào Kafka, KHÔNG gọi trực tiếp Worker
 - Bước 6: Worker STREAM file từ MinIO, không download toàn bộ vào memory
 - Flow này dừng ở đây, chờ User confirm mapping (xem Flow 1b)
@@ -608,19 +624,19 @@ sequenceDiagram
     Note over Kafka, Worker: ASYNC Processing
     Kafka->>Worker: 4. Consume job {file_id, mapping_rules}
     Worker->>MinIO: 5. Stream file
-    
+
     loop Batch Processing (1000 rows/batch)
         Worker->>Worker: 6. Apply mapping rules → UAP batch
         Worker->>Kafka: 7. Push to [ingest.uap.ready]
     end
-    
+
     Worker->>DB: 8. UPDATE file_record (status=COMPLETED, row_count)
 ```
 
 **Phân công:**
+
 - `ingest-api`: Gác cổng, validate, đẩy queue (nhanh)
 - `ingest-worker`: Cửu vạn, xử lý nặng, LUÔN nhận việc từ Queue
-
 
 ---
 
@@ -640,7 +656,7 @@ sequenceDiagram
     API->>API: 2. Generate unique webhook_path + secret
     API->>DB: 3. INSERT webhook_config (source_id, path, secret, status=ACTIVE)
     API-->>User: 200 OK {webhook_url, secret}
-    
+
     Note over User: User cấu hình URL này bên External Service
 ```
 
@@ -671,12 +687,12 @@ sequenceDiagram
 
     Note over Kafka, Worker: Worker subscribe topic [ingest.external.received]
     Kafka->>Worker: 1. Consume batch {source_id, items[]}
-    
+
     loop Dedup & Filter
         Worker->>DB: 2. Check duplicate (content_hash)
         Worker->>Worker: 3. Filter spam/invalid
     end
-    
+
     Worker->>Worker: 4. Transform → UAP
     Worker->>Kafka: 5. Push to [ingest.uap.ready]
     Worker->>DB: 6. UPDATE source stats (last_sync, total_items)
@@ -693,11 +709,12 @@ sequenceDiagram
     User->>API: 1. DELETE /sources/{source_id}/webhook
     API->>DB: 2. UPDATE webhook_config (status=INACTIVE)
     API-->>User: 200 OK
-    
+
     Note over API: Worker sẽ ignore message từ inactive source
 ```
 
 **Phân công:**
+
 - `ingest-api`: Nhận webhook, verify, đẩy queue
 - `ingest-worker`: Subscribe queue, dedup, transform
 - **External Service**: Chủ động push khi có data mới
@@ -719,22 +736,23 @@ sequenceDiagram
     Cron->>DB: 1. Scan sources (type=POLL, due_at < now)
     DB-->>Cron: [Source A, B]
     Cron->>Kafka: 2. Push to [ingest.crawl.scheduled]
-    
+
     Note over Kafka, Worker: Worker consume từ Queue
     Kafka->>Worker: 3. Consume job {source_id, last_cursor}
     Worker->>ExtAPI: 4. GET /data?since={last_cursor}
     ExtAPI-->>Worker: {items[], next_cursor}
-    
+
     loop Dedup
         Worker->>DB: 5. Check duplicate
     end
-    
+
     Worker->>Worker: 6. Transform → UAP
     Worker->>Kafka: 7. Push to [ingest.uap.ready]
     Worker->>DB: 8. UPDATE source (next_cursor, next_due_at)
 ```
 
 **Phân công:**
+
 - `ingest-cron`: Đồng hồ báo thức, đẩy job vào queue (KHÔNG gọi trực tiếp worker)
 - `ingest-worker`: Consume queue, gọi external API, transform
 
@@ -754,7 +772,7 @@ sequenceDiagram
     participant Redis as Redis
 
     Kafka->>n8n: 1. Consume UAP
-    
+
     n8n->>Sent: 2. POST /analyze
     Sent-->>n8n: {sentiment: NEGATIVE}
 
@@ -769,6 +787,7 @@ sequenceDiagram
 ```
 
 **Phân công:**
+
 - `n8n`: Nhạc trưởng (không chạy AI)
 - `py-worker-*`: Thợ chuyên môn (scale độc lập)
 
@@ -802,12 +821,12 @@ sequenceDiagram
     participant LLM as OpenAI/Gemini
 
     User->>API: 1. "Tại sao khách chê giá?"
-    
+
     par Parallel
         API->>Qdrant: 2. Hybrid search
         API->>DB: 2a. Get stats
     end
-    
+
     Qdrant-->>API: Relevant docs
     API->>LLM: 3. Build prompt
     LLM-->>API: Answer
@@ -837,16 +856,16 @@ sequenceDiagram
 
 ## 11. KAFKA TOPICS
 
-| Topic | Producer | Consumer |
-|-------|----------|----------|
-| `ingest.file.uploaded` | ingest-api | ingest-worker |
-| `ingest.file.confirmed` | ingest-api | ingest-worker |
+| Topic                      | Producer             | Consumer      |
+| -------------------------- | -------------------- | ------------- |
+| `ingest.file.uploaded`     | ingest-api           | ingest-worker |
+| `ingest.file.confirmed`    | ingest-api           | ingest-worker |
 | `ingest.external.received` | ingest-api (webhook) | ingest-worker |
-| `ingest.crawl.scheduled` | ingest-cron | ingest-worker |
-| `ingest.uap.ready` | ingest-worker | n8n |
-| `analytics.completed` | n8n | noti-hub |
-| `knowledge.index` | n8n | know-indexer |
-| `notification.alert` | Any | noti-hub |
+| `ingest.crawl.scheduled`   | ingest-cron          | ingest-worker |
+| `ingest.uap.ready`         | ingest-worker        | n8n           |
+| `analytics.completed`      | n8n                  | noti-hub      |
+| `knowledge.index`          | n8n                  | know-indexer  |
+| `notification.alert`       | Any                  | noti-hub      |
 
 ---
 
@@ -869,13 +888,12 @@ sequenceDiagram
 
 ## 13. TÓM TẮT PHÂN CÔNG
 
-| Loại Unit | Vai trò | Scale Strategy |
-|-----------|---------|----------------|
-| **API** | Nhận request, trả response nhanh | Horizontal (replicas) |
-| **Worker** | Xử lý nặng (parse, crawl, embed) | KEDA (auto-scale) |
-| **Scheduler** | Trigger định kỳ | Single instance |
-| **Orchestrator** | Điều phối luồng | n8n cluster |
-
+| Loại Unit        | Vai trò                          | Scale Strategy        |
+| ---------------- | -------------------------------- | --------------------- |
+| **API**          | Nhận request, trả response nhanh | Horizontal (replicas) |
+| **Worker**       | Xử lý nặng (parse, crawl, embed) | KEDA (auto-scale)     |
+| **Scheduler**    | Trigger định kỳ                  | Single instance       |
+| **Orchestrator** | Điều phối luồng                  | n8n cluster           |
 
 ---
 
@@ -889,6 +907,7 @@ sequenceDiagram
 Worker thực hiện "AI Schema Agent" → "User Confirm".
 
 **Tại sao sai?**
+
 - Worker là tiến trình chạy ngầm (Background Job). Nó không có giao diện (UI).
 - Nó không thể "dừng lại" để chờ User bấm nút "Confirm" trên trình duyệt được.
 - Nếu đẩy việc "Map cột Excel" xuống Worker, thì khi Worker chạy đến đó, nó sẽ tắc tịt vì không ai trả lời nó cả.
@@ -898,6 +917,7 @@ Worker thực hiện "AI Schema Agent" → "User Confirm".
 Đưa việc "Map Schema" lên tầng API (Synchronous), chỉ đẩy việc "Transform & Save" xuống Worker (Asynchronous).
 
 **Luồng mới:**
+
 1. **API:** Nhận file → Đọc Header + 5 dòng đầu → Gọi LLM đoán cột → Trả về JSON Mapping cho Frontend.
 2. **Frontend:** User sửa/chốt Mapping → Gửi `confirm_signal` (kèm `file_id` + `mapping_rule`) về API.
 3. **API:** Lúc này mới đẩy Job (kèm Mapping Rule) vào Kafka/Queue cho Worker.
@@ -908,6 +928,7 @@ Worker thực hiện "AI Schema Agent" → "User Confirm".
 ### 🔴 VẤN ĐỀ 2: "CÁI BẪY" TRUNG GIAN CỦA n8n (HIỆU NĂNG)
 
 **Hiện trạng:**
+
 ```
 Kafka → n8n → Python Worker → n8n → Postgres
 ```
@@ -1002,13 +1023,13 @@ sequenceDiagram
     Note right of Kafka: Batch Size: 50 records
     Kafka->>n8n: Consume Batch (50 items)
     n8n->>PyWorker: HTTP POST /analyze_batch (50 items)
-    
+
     Note right of PyWorker: Xử lý song song (Vectorization)
     PyWorker-->>n8n: Return Results [50 items]
-    
+
     Note over n8n: Logic Filter Rác
     n8n->>Postgres: BULK INSERT (1 transaction)
-    
+
     par Async Notification
         n8n->>Redis: Pub "BATCH_DONE"
     and Conditional Vector Index
@@ -1020,18 +1041,19 @@ sequenceDiagram
 
 ## 16. TÓM TẮT CÁC ĐIỂM CẦN SỬA TRONG CODE/CONFIG
 
-| Component | Thay đổi cần thiết |
-|-----------|-------------------|
-| **Ingest API** | Thêm endpoint `POST /schema/preview` (gọi LLM) và `POST /schema/confirm` (đẩy Kafka). Đừng để Worker làm việc này. |
-| **Python Worker** | Viết endpoint nhận `List[String]` thay vì `String`. Code xử lý phải dùng vòng lặp hoặc `batch_encode` của thư viện Transformers. |
-| **n8n** | Cấu hình node Kafka Trigger với `Batch Size > 1`. Dùng node Postgres với chế độ Execute Query (viết câu lệnh `INSERT INTO ... VALUES (...), (...), (...)`) thay vì node Insert thông thường (chậm). |
-| **All Workers** | **QUAN TRỌNG:** Tất cả Worker phải nhận message từ Queue (Kafka), không nhận trực tiếp từ nguồn nào khác. |
+| Component         | Thay đổi cần thiết                                                                                                                                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Ingest API**    | Thêm endpoint `POST /schema/preview` (gọi LLM) và `POST /schema/confirm` (đẩy Kafka). Đừng để Worker làm việc này.                                                                                  |
+| **Python Worker** | Viết endpoint nhận `List[String]` thay vì `String`. Code xử lý phải dùng vòng lặp hoặc `batch_encode` của thư viện Transformers.                                                                    |
+| **n8n**           | Cấu hình node Kafka Trigger với `Batch Size > 1`. Dùng node Postgres với chế độ Execute Query (viết câu lệnh `INSERT INTO ... VALUES (...), (...), (...)`) thay vì node Insert thông thường (chậm). |
+| **All Workers**   | **QUAN TRỌNG:** Tất cả Worker phải nhận message từ Queue (Kafka), không nhận trực tiếp từ nguồn nào khác.                                                                                           |
 
 ---
 
 ## 17. KẾT LUẬN
 
 Phương án tối ưu "Tách tầng Mapping" và "Xử lý Batch" sẽ giúp hệ thống:
+
 - Tránh deadlock khi cần user interaction
 - Giảm network overhead đáng kể
 - Tăng throughput xử lý lên nhiều lần
