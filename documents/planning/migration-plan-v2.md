@@ -3,7 +3,7 @@
 ## Từ Public SaaS → On-Premise Enterprise Solution
 
 **Ngày tạo:** 06/02/2026  
-**Cập nhật:** 07/02/2026 (v2.7 - Turnkey Deployment Strategy)  
+**Cập nhật:** 09/02/2026 (v2.9 - Enterprise Security Enhancements)  
 **Thời gian thực hiện:** 3 tháng (12 tuần)  
 **Người thực hiện:** Nguyễn Tấn Tài
 
@@ -20,6 +20,8 @@
 | v2.5 | 07/02/2026 | Real-time Engine & Intelligent Crawling |
 | v2.6 | 07/02/2026 | Artifact Editing: Inline Editor + Google Docs Integration |
 | v2.7 | 07/02/2026 | Turnkey Deployment Strategy (IaC): Ansible + K3s + Helm |
+| v2.8 | 09/02/2026 | Auth Service Deep Dive: JWT Middleware, Audit Log Strategy, Business Context |
+| v2.9 | 09/02/2026 | Enterprise Security: Token Blacklist, Multi-Provider, Key Rotation |
 
 ---
 
@@ -471,16 +473,56 @@ Message Queue    → Kafka
 
 ### 3.1 Auth Service (Simplified từ Identity)
 
+**Business Context trong SMAP:**
+
+Auth Service trong SMAP On-Premise có vai trò đặc biệt so với SaaS thông thường:
+
+1. **Single-Tenant per Customer:**
+   - Mỗi khách hàng có 1 instance riêng → Không cần multi-tenancy
+   - Chỉ cần quản lý users trong 1 organization (VD: VinFast)
+   - Đơn giản hóa được rất nhiều so với SaaS
+
+2. **Enterprise SSO Integration:**
+   - Khách hàng enterprise thường đã có Google Workspace hoặc Azure AD
+   - SMAP chỉ cần integrate với SSO của họ, không tự quản lý users
+   - Giảm bớt compliance burden (GDPR, password security)
+
+3. **Role-Based Access Control (RBAC):**
+   - **ADMIN:** IT team của khách hàng - quản lý config, users, alerts
+   - **ANALYST:** Marketing team - tạo projects, chạy analysis, xem insights
+   - **VIEWER:** Executives, stakeholders - chỉ xem dashboard (read-only)
+
+4. **Audit Trail cho Compliance:**
+   - Khách hàng enterprise cần audit log để compliance (ISO 27001, SOC 2)
+   - Track mọi hành động: ai tạo project, ai xóa data source, ai export data
+   - Retention 90 ngày (có thể extend theo yêu cầu khách hàng)
+
+5. **Domain-Based Access Control:**
+   - Chỉ cho phép email thuộc domain của khách hàng login
+   - VD: Chỉ `@vinfast.com` và `@agency-partner.com` được phép
+   - Tự động block external emails
+
+**Use Cases Cụ Thể:**
+
+| Use Case | Actor | Flow |
+|----------|-------|------|
+| **UC-AUTH-01: First-time Login** | Marketing Manager | 1. Click "Login with Google"<br>2. Redirect to Google OAuth<br>3. Google verify email = `manager@vinfast.com`<br>4. Auth Service check domain allowed → OK<br>5. Check Google Groups → `marketing-team@vinfast.com` → Role = ANALYST<br>6. Create user record in DB<br>7. Issue JWT token<br>8. Redirect to Dashboard |
+| **UC-AUTH-02: Subsequent Login** | Same user | 1. Click "Login with Google"<br>2. Auth Service check user exists → OK<br>3. Refresh Google Groups membership (from cache)<br>4. Issue new JWT<br>5. Redirect to Dashboard |
+| **UC-AUTH-03: Blocked User** | Ex-employee | 1. Click "Login with Google"<br>2. Email = `ex-employee@vinfast.com`<br>3. Auth Service check blocklist → BLOCKED<br>4. Show error page: "Account blocked. Contact admin." |
+| **UC-AUTH-04: Unauthorized Domain** | External user | 1. Click "Login with Google"<br>2. Email = `hacker@gmail.com`<br>3. Auth Service check domain → NOT ALLOWED<br>4. Show error page: "Domain not allowed." |
+| **UC-AUTH-05: API Request** | Web UI | 1. User đã login, có JWT token<br>2. UI gọi `GET /api/projects` với header `Authorization: Bearer <token>`<br>3. Project Service middleware verify JWT bằng public key<br>4. Extract user_id, role từ claims<br>5. Check permission → OK<br>6. Return data |
+
 ```yaml
 name: auth-service
 language: Go
 responsibility:
   - Google OAuth2/OIDC integration (SSO)
   - Domain-based access control
-  - Role mapping (từ config file)
-  - JWT issuing (internal tokens)
-  - Session management
+  - Role mapping (từ config file + Google Groups)
+  - JWT issuing & validation (RS256 asymmetric)
+  - Session management (Redis-backed)
   - User entity management (for audit log)
+  - Public key distribution (cho JWT self-validation)
 
 bỏ_hoàn_toàn:
   - User registration form (dùng SSO)
@@ -491,12 +533,130 @@ bỏ_hoàn_toàn:
 modules:
   - /oauth # Google OAuth2 callback
   - /session # Session management
-  - /validate # Token validation (cho other services)
+  - /jwks # Public key endpoint (JSON Web Key Set)
   - /users # User lookup (internal)
 
-database: PostgreSQL (auth_db) - Lưu user entity + audit log
+api_endpoints:
+  # Public endpoints
+  - GET /auth/login # Redirect to Google OAuth
+  - GET /auth/callback # OAuth callback handler
+  - POST /auth/logout # Logout & invalidate tokens
+  - GET /auth/me # Get current user info
+  - GET /.well-known/jwks.json # Public keys for JWT verification
+  
+  # Internal endpoints (service-to-service)
+  - POST /internal/validate # Fallback token validation (if needed)
+  - GET /internal/users/:id # User lookup
+
+database: PostgreSQL (auth.* schema) - Lưu user entity + audit log
+cache: Redis - Session store, Google Groups membership cache
 
 config_file: auth-config.yaml
+```
+
+**JWT Configuration:**
+
+```yaml
+jwt:
+  # Algorithm: RS256 (Asymmetric) - cho phép self-validation
+  algorithm: RS256
+  
+  # Key Management
+  private_key_path: /secrets/jwt-private.pem  # Chỉ Auth Service có
+  public_key_path: /secrets/jwt-public.pem    # Publish qua JWKS endpoint
+  
+  # Token TTL
+  access_token_ttl: 15m   # Short-lived cho security
+  refresh_token_ttl: 7d   # Long-lived cho UX
+  
+  # Claims Structure
+  claims:
+    issuer: "smap-auth-service"
+    audience: ["smap-api", "smap-ui"]
+    custom:
+      - user_id        # UUID
+      - email          # string
+      - role           # ADMIN | ANALYST | VIEWER
+      - groups         # string[] (Google Groups)
+      - jti            # JWT ID (unique per token, for blacklist)
+```
+
+**Token Validation Strategy:**
+
+Auth Service sử dụng **RS256 + Self-Validation** pattern:
+
+1. **Auth Service** ký JWT bằng private key
+2. **Publish public key** qua `/.well-known/jwks.json` endpoint
+3. **Các services khác** tự validate JWT bằng public key (không cần gọi Auth Service)
+4. **Fallback**: Nếu service không muốn implement JWT validation, có thể gọi `/internal/validate`
+
+**Lợi ích:**
+- Giảm load cho Auth Service (không phải validate mọi request)
+- Latency thấp (services tự validate local)
+- Scalability cao (stateless validation)
+
+**Google Groups Integration:**
+
+```yaml
+google_workspace:
+  # Directory API Configuration
+  service_account_key: /secrets/google-service-account.json
+  domain: vinfast.com
+  
+  # Groups Sync
+  sync:
+    enabled: true
+    interval: 5m  # Sync membership mỗi 5 phút
+    groups:
+      - marketing-team@vinfast.com  → ANALYST role
+      - it-admin@vinfast.com        → ADMIN role
+  
+  # Cache Strategy
+  cache:
+    backend: redis
+    ttl: 5m
+    key_pattern: "groups:{user_email}"
+```
+
+**Implementation Flow:**
+1. User login → Auth Service gọi Directory API để lấy group membership
+2. Cache kết quả vào Redis (TTL 5 phút)
+3. Embed groups vào JWT claims
+4. Background job sync groups mỗi 5 phút
+
+**OAuth Error Handling:**
+
+```yaml
+error_handling:
+  # User-friendly error pages
+  pages:
+    access_denied: /auth/error/access-denied
+    domain_not_allowed: /auth/error/domain-blocked
+    account_blocked: /auth/error/account-blocked
+    oauth_failed: /auth/error/oauth-failed
+  
+  # Error codes mapping
+  codes:
+    DOMAIN_NOT_ALLOWED:
+      http_status: 403
+      message: "Email domain not allowed. Contact admin."
+      redirect: /auth/error/domain-blocked
+    
+    ACCOUNT_BLOCKED:
+      http_status: 403
+      message: "Your account has been blocked."
+      redirect: /auth/error/account-blocked
+    
+    OAUTH_PROVIDER_ERROR:
+      http_status: 502
+      message: "Google authentication failed. Try again."
+      redirect: /auth/error/oauth-failed
+      retry: true
+    
+    INVALID_TOKEN:
+      http_status: 401
+      message: "Session expired. Please login again."
+      redirect: /auth/login
 ```
 
 **Database Schema (auth_db):**
@@ -515,7 +675,7 @@ CREATE TABLE users (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Audit log table
+-- Audit log table (with retention policy)
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES users(id),
@@ -525,7 +685,10 @@ CREATE TABLE audit_logs (
     metadata JSONB, -- Additional context
     ip_address INET,
     user_agent TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    -- Retention policy: Auto-delete after 90 days
+    expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '90 days')
 );
 
 -- Indexes
@@ -533,21 +696,82 @@ CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_audit_logs_user ON audit_logs(user_id);
 CREATE INDEX idx_audit_logs_action ON audit_logs(action);
 CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
+CREATE INDEX idx_audit_logs_expires ON audit_logs(expires_at); -- For cleanup job
+
+-- Retention cleanup job (run daily via cron/k8s CronJob)
+-- DELETE FROM audit_logs WHERE expires_at < NOW();
 ```
 
 **Auth Config File (auth-config.yaml):**
 
 ```yaml
-# OAuth Provider
-oauth:
-  provider: google
-  client_id: ${GOOGLE_CLIENT_ID}
-  client_secret: ${GOOGLE_CLIENT_SECRET}
-  redirect_uri: ${APP_URL}/auth/callback
+# Identity Provider Configuration (Pluggable - Security Enhancement #7)
+identity_provider:
+  type: google # google | azure | okta | ldap
+  
+  # Google Workspace
+  google:
+    client_id: ${GOOGLE_CLIENT_ID}
+    client_secret: ${GOOGLE_CLIENT_SECRET}
+    redirect_uri: ${APP_URL}/auth/callback
+    domain: vinfast.com
+    service_account_key: /secrets/google-service-account.json
+    sync:
+      enabled: true
+      interval: 5m
+      groups:
+        marketing-team@vinfast.com: ANALYST
+        it-admin@vinfast.com: ADMIN
+  
+  # Azure AD (Alternative)
+  azure:
+    tenant_id: ${AZURE_TENANT_ID}
+    client_id: ${AZURE_CLIENT_ID}
+    client_secret: ${AZURE_CLIENT_SECRET}
+    redirect_uri: ${APP_URL}/auth/callback
+    domain: vinfast.onmicrosoft.com
+  
+  # Okta (Alternative)
+  okta:
+    domain: vinfast.okta.com
+    client_id: ${OKTA_CLIENT_ID}
+    client_secret: ${OKTA_CLIENT_SECRET}
+    redirect_uri: ${APP_URL}/auth/callback
+
+# JWT Configuration (Enhanced with Key Rotation - Security Enhancement #8)
+jwt:
+  algorithm: RS256
+  
+  # Key Sources (Priority order)
+  key_sources:
+    - type: file
+      private_key_path: /secrets/jwt-private.pem
+      public_key_path: /secrets/jwt-public.pem
+    - type: env
+      private_key_env: JWT_PRIVATE_KEY
+      public_key_env: JWT_PUBLIC_KEY
+    - type: k8s_secret
+      secret_name: smap-jwt-keys
+      private_key_field: private.pem
+      public_key_field: public.pem
+  
+  # Token TTL
+  access_token_ttl: 15m
+  refresh_token_ttl: 7d
+  
+  # Key Rotation (Phase 2 - Long-term)
+  rotation:
+    enabled: false # Enable in Phase 3
+    interval: 30d  # Rotate every 30 days
+    grace_period: 15m # Old key valid for 15 min after rotation
+  
+  # Claims
+  issuer: "smap-auth-service"
+  audience: ["smap-api", "smap-ui"]
 
 # Access Control
 access:
-  # Domain restriction - chỉ email thuộc domain này được login
+  # Domain restriction
   allowed_domains:
     - vinfast.com
     - agency-partner.com
@@ -558,10 +782,10 @@ access:
       - cmo@vinfast.com
       - it-admin@vinfast.com
     ANALYST:
-      - marketing-team@vinfast.com # Google Group
+      - marketing-team@vinfast.com
       - analyst@agency-partner.com
     VIEWER:
-      - default # Tất cả còn lại
+      - default
 
   # Block list
   blocked:
@@ -571,6 +795,47 @@ access:
 session:
   ttl: 8h
   refresh_ttl: 7d
+  backend: redis
+
+# Token Blacklist (Security Enhancement #6)
+blacklist:
+  enabled: true
+  backend: redis
+  key_prefix: "blacklist:"
+
+# Rate Limiting
+rate_limit:
+  login_attempts: 5
+  window: 15m
+  block_duration: 1h
+
+# Error Handling
+error_handling:
+  pages:
+    access_denied: /auth/error/access-denied
+    domain_not_allowed: /auth/error/domain-blocked
+    account_blocked: /auth/error/account-blocked
+    oauth_failed: /auth/error/oauth-failed
+  
+  codes:
+    DOMAIN_NOT_ALLOWED:
+      http_status: 403
+      message: "Email domain not allowed. Contact admin."
+    ACCOUNT_BLOCKED:
+      http_status: 403
+      message: "Your account has been blocked."
+    TOKEN_REVOKED:
+      http_status: 401
+      message: "Your session has been revoked. Please login again."
+    OAUTH_PROVIDER_ERROR:
+      http_status: 502
+      message: "Authentication provider failed. Try again."
+      retry: true
+
+# Audit Log
+audit:
+  retention_days: 90
+  cleanup_schedule: "0 2 * * *"
 ```
 
 **Roles & Permissions:**
@@ -580,6 +845,806 @@ session:
 | ADMIN   | Full access, manage config, view all data, manage alerts  |
 | ANALYST | Create sources, run analysis, export reports, use chatbot |
 | VIEWER  | View dashboard, view reports (read-only)                  |
+
+**Implementation Notes:**
+
+1. **JWT Self-Validation Pattern:**
+   - Auth Service generates RSA key pair on startup (or load from secrets)
+   - Private key: Used to sign JWTs (keep secure, never expose)
+   - Public key: Published via `/.well-known/jwks.json` endpoint
+   - Other services: Download public key on startup, cache it, validate JWTs locally
+   - Benefits: No need to call Auth Service for every request, reduces latency & load
+
+2. **Google Groups Sync Strategy:**
+   - On user login: Call Directory API to get group membership
+   - Cache result in Redis with 5-minute TTL
+   - Background job: Sync groups every 5 minutes for active users
+   - Embed groups in JWT claims for authorization decisions
+   - Fallback: If Directory API fails, use cached data or default role
+
+3. **OAuth Error Handling Best Practices:**
+   - Never expose raw OAuth errors to users (security risk)
+   - Map technical errors to user-friendly messages
+   - Provide clear next steps (e.g., "Contact admin" for domain blocks)
+   - Log detailed errors server-side for debugging
+   - Implement retry logic for transient Google API failures
+
+4. **Audit Log Retention:**
+   - Default: 90 days retention (configurable)
+   - Cleanup job: K8s CronJob runs daily at 2 AM
+   - Query: `DELETE FROM audit_logs WHERE expires_at < NOW()`
+   - For compliance: Export logs to external storage before deletion
+   - Index on `expires_at` for efficient cleanup queries
+
+5. **Rate Limiting:**
+   - Protect login endpoint from brute force attacks
+   - Default: 5 attempts per 15 minutes per IP
+   - Block duration: 1 hour after exceeding limit
+   - Implementation: Redis with sliding window counter
+   - Whitelist: Allow internal IPs to bypass rate limit
+
+**Security Enhancements (Enterprise-Grade):**
+
+6. **Token Blacklist (Instant Revocation):**
+   
+   **Vấn đề:** JWT có TTL 15 phút. Nếu nhân viên bị sa thải hoặc mất laptop, Admin block account nhưng token cũ vẫn valid trong 15 phút → Lỗ hổng bảo mật.
+   
+   **Giải pháp:** Thêm Redis blacklist check vào JWT middleware.
+   
+   ```go
+   // Enhanced JWT Middleware with Blacklist Check
+   func (m *JWTMiddleware) Authenticate(next http.Handler) http.Handler {
+       return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+           // ... (existing JWT verification code)
+           
+           // Extract claims
+           claims, _ := token.Claims.(jwt.MapClaims)
+           userID := claims["user_id"].(string)
+           jti := claims["jti"].(string) // JWT ID (unique per token)
+           
+           // ✅ NEW: Check Redis blacklist
+           isBlacklisted, err := m.redis.Exists(ctx, 
+               fmt.Sprintf("blacklist:user:%s", userID)).Result()
+           if err == nil && isBlacklisted > 0 {
+               http.Error(w, "Token revoked", http.StatusUnauthorized)
+               return
+           }
+           
+           // Also check specific token blacklist
+           isTokenBlacklisted, err := m.redis.Exists(ctx,
+               fmt.Sprintf("blacklist:token:%s", jti)).Result()
+           if err == nil && isTokenBlacklisted > 0 {
+               http.Error(w, "Token revoked", http.StatusUnauthorized)
+               return
+           }
+           
+           // Continue to business logic...
+           next.ServeHTTP(w, r.WithContext(ctx))
+       })
+   }
+   ```
+   
+   **Admin revoke token flow:**
+   ```go
+   // Auth Service - Admin API
+   func (s *AuthService) RevokeUserAccess(userID string) error {
+       // Block all current tokens của user này
+       // TTL = thời gian còn lại của token dài nhất (15 phút)
+       return s.redis.Set(ctx, 
+           fmt.Sprintf("blacklist:user:%s", userID),
+           "1",
+           15 * time.Minute,
+       ).Err()
+   }
+   
+   func (s *AuthService) RevokeSpecificToken(jti string, remainingTTL time.Duration) error {
+       // Block 1 token cụ thể (VD: user báo mất laptop)
+       return s.redis.Set(ctx,
+           fmt.Sprintf("blacklist:token:%s", jti),
+           "1",
+           remainingTTL,
+       ).Err()
+   }
+   ```
+   
+   **Lợi ích:**
+   - Revoke quyền truy cập tức thì (< 100ms)
+   - Không cần đợi token expire
+   - Redis TTL tự động cleanup (không tốn storage)
+   - Performance impact minimal (Redis lookup rất nhanh)
+
+7. **Identity Provider Abstraction (Multi-Provider Support):**
+   
+   **Vấn đề:** Plan hiện tại hardcode Google Workspace. Khách hàng enterprise lớn thường dùng Microsoft Azure AD, Okta, hoặc custom LDAP.
+   
+   **Giải pháp:** Thiết kế theo Interface pattern, dễ dàng thêm provider mới.
+   
+   ```go
+   // pkg/auth/provider/interface.go
+   package provider
+   
+   type IdentityProvider interface {
+       // OAuth flow
+       GetAuthURL(state string) string
+       ExchangeCode(code string) (*TokenResponse, error)
+       
+       // User info
+       GetUserInfo(accessToken string) (*UserInfo, error)
+       
+       // Groups/Roles
+       GetUserGroups(accessToken string, userEmail string) ([]string, error)
+       
+       // Token validation
+       ValidateToken(accessToken string) error
+   }
+   
+   type UserInfo struct {
+       Email     string
+       Name      string
+       AvatarURL string
+   }
+   
+   type TokenResponse struct {
+       AccessToken  string
+       RefreshToken string
+       ExpiresIn    int
+   }
+   ```
+   
+   **Implementations:**
+   
+   ```go
+   // pkg/auth/provider/google.go
+   type GoogleProvider struct {
+       clientID     string
+       clientSecret string
+       redirectURI  string
+       oauth2Config *oauth2.Config
+   }
+   
+   func (p *GoogleProvider) GetUserInfo(token string) (*UserInfo, error) {
+       // Call Google UserInfo API
+       // ...
+   }
+   
+   func (p *GoogleProvider) GetUserGroups(token, email string) ([]string, error) {
+       // Call Google Directory API
+       // ...
+   }
+   
+   // pkg/auth/provider/azure.go
+   type AzureADProvider struct {
+       tenantID     string
+       clientID     string
+       clientSecret string
+   }
+   
+   func (p *AzureADProvider) GetUserInfo(token string) (*UserInfo, error) {
+       // Call Microsoft Graph API
+       // ...
+   }
+   
+   func (p *AzureADProvider) GetUserGroups(token, email string) ([]string, error) {
+       // Call Azure AD Groups API
+       // ...
+   }
+   
+   // pkg/auth/provider/okta.go
+   type OktaProvider struct {
+       domain       string
+       clientID     string
+       clientSecret string
+   }
+   // ... similar implementation
+   ```
+   
+   **Config file (auth-config.yaml):**
+   
+   ```yaml
+   # Identity Provider Configuration (Pluggable)
+   identity_provider:
+     type: google # google | azure | okta | ldap
+     
+     # Google Workspace
+     google:
+       client_id: ${GOOGLE_CLIENT_ID}
+       client_secret: ${GOOGLE_CLIENT_SECRET}
+       domain: vinfast.com
+       service_account_key: /secrets/google-sa.json
+     
+     # Azure AD (alternative)
+     azure:
+       tenant_id: ${AZURE_TENANT_ID}
+       client_id: ${AZURE_CLIENT_ID}
+       client_secret: ${AZURE_CLIENT_SECRET}
+       domain: vinfast.onmicrosoft.com
+     
+     # Okta (alternative)
+     okta:
+       domain: vinfast.okta.com
+       client_id: ${OKTA_CLIENT_ID}
+       client_secret: ${OKTA_CLIENT_SECRET}
+   ```
+   
+   **Auth Service initialization:**
+   
+   ```go
+   func (s *AuthService) initializeProvider(config Config) error {
+       var provider provider.IdentityProvider
+       
+       switch config.IdentityProvider.Type {
+       case "google":
+           provider = provider.NewGoogleProvider(config.IdentityProvider.Google)
+       case "azure":
+           provider = provider.NewAzureADProvider(config.IdentityProvider.Azure)
+       case "okta":
+           provider = provider.NewOktaProvider(config.IdentityProvider.Okta)
+       default:
+           return fmt.Errorf("unsupported provider: %s", config.IdentityProvider.Type)
+       }
+       
+       s.provider = provider
+       return nil
+   }
+   ```
+   
+   **Lợi ích:**
+   - Thêm provider mới không cần sửa core logic
+   - Dễ test (mock provider interface)
+   - Khách hàng chọn provider phù hợp với infrastructure của họ
+   - Future-proof (LDAP, SAML, custom SSO...)
+
+8. **Key Rotation Strategy (Security Best Practice):**
+   
+   **Vấn đề:** Hiện tại mount cứng file `.pem` vào container. Nếu private key bị lộ, phải redeploy toàn bộ hệ thống để thay key.
+   
+   **Giải pháp:** Thiết kế key rotation mechanism với multiple active keys.
+   
+   **Phase 1: Flexible Key Loading (Ngắn hạn - Tuần 1)**
+   
+   ```yaml
+   jwt:
+     algorithm: RS256
+     
+     # Multiple key sources (priority order)
+     key_sources:
+       - type: file
+         private_key_path: /secrets/jwt-private.pem
+         public_key_path: /secrets/jwt-public.pem
+       
+       - type: env
+         private_key_env: JWT_PRIVATE_KEY
+         public_key_env: JWT_PUBLIC_KEY
+       
+       - type: k8s_secret
+         secret_name: smap-jwt-keys
+         private_key_field: private.pem
+         public_key_field: public.pem
+   ```
+   
+   **Phase 2: Automatic Key Rotation (Dài hạn - Phase 3)**
+   
+   ```go
+   // pkg/auth/keymanager/rotation.go
+   type KeyManager struct {
+       activeKeys   map[string]*KeyPair // kid -> KeyPair
+       currentKeyID string
+       rotationInterval time.Duration
+       db           *sql.DB
+   }
+   
+   type KeyPair struct {
+       KeyID      string
+       PrivateKey *rsa.PrivateKey
+       PublicKey  *rsa.PublicKey
+       CreatedAt  time.Time
+       ExpiresAt  time.Time
+       Status     string // active | rotating | retired
+   }
+   
+   func (km *KeyManager) StartRotation() {
+       ticker := time.NewTicker(30 * 24 * time.Hour) // Rotate every 30 days
+       
+       for range ticker.C {
+           // 1. Generate new key pair
+           newKeyPair, err := km.generateKeyPair()
+           if err != nil {
+               log.Error("Failed to generate new key pair", err)
+               continue
+           }
+           
+           // 2. Save to database
+           km.db.Exec(`
+               INSERT INTO auth.jwt_keys (kid, private_key, public_key, status)
+               VALUES ($1, $2, $3, 'active')
+           `, newKeyPair.KeyID, newKeyPair.PrivateKey, newKeyPair.PublicKey)
+           
+           // 3. Add to active keys
+           km.activeKeys[newKeyPair.KeyID] = newKeyPair
+           
+           // 4. Update current key ID (new tokens will use this)
+           km.currentKeyID = newKeyPair.KeyID
+           
+           // 5. Mark old key as "rotating" (still valid for verification)
+           // Old tokens can still be verified for next 15 minutes
+           time.AfterFunc(15*time.Minute, func() {
+               km.retireOldKey(oldKeyID)
+           })
+       }
+   }
+   
+   func (km *KeyManager) SignToken(claims jwt.Claims) (string, error) {
+       // Always use current key to sign new tokens
+       currentKey := km.activeKeys[km.currentKeyID]
+       token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+       token.Header["kid"] = km.currentKeyID // Include Key ID in header
+       return token.SignedString(currentKey.PrivateKey)
+   }
+   
+   func (km *KeyManager) VerifyToken(tokenString string) (*jwt.Token, error) {
+       return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+           // Extract kid from token header
+           kid, ok := token.Header["kid"].(string)
+           if !ok {
+               return nil, fmt.Errorf("missing kid in token header")
+           }
+           
+           // Find corresponding public key
+           keyPair, exists := km.activeKeys[kid]
+           if !exists {
+               return nil, fmt.Errorf("unknown key id: %s", kid)
+           }
+           
+           return keyPair.PublicKey, nil
+       })
+   }
+   ```
+   
+   **JWKS endpoint with multiple keys:**
+   
+   ```go
+   func (s *AuthService) HandleJWKS(w http.ResponseWriter, r *http.Request) {
+       keys := []map[string]interface{}{}
+       
+       // Export all active public keys
+       for kid, keyPair := range s.keyManager.activeKeys {
+           if keyPair.Status == "active" || keyPair.Status == "rotating" {
+               keys = append(keys, map[string]interface{}{
+                   "kty": "RSA",
+                   "use": "sig",
+                   "kid": kid,
+                   "n":   base64.Encode(keyPair.PublicKey.N.Bytes()),
+                   "e":   base64.Encode(big.NewInt(int64(keyPair.PublicKey.E)).Bytes()),
+               })
+           }
+       }
+       
+       json.NewEncoder(w).Encode(map[string]interface{}{
+           "keys": keys,
+       })
+   }
+   ```
+   
+   **Database schema:**
+   
+   ```sql
+   CREATE TABLE auth.jwt_keys (
+       kid VARCHAR(50) PRIMARY KEY,
+       private_key TEXT NOT NULL, -- PEM encoded
+       public_key TEXT NOT NULL,  -- PEM encoded
+       status VARCHAR(20) NOT NULL, -- active | rotating | retired
+       created_at TIMESTAMPTZ DEFAULT NOW(),
+       expires_at TIMESTAMPTZ,
+       retired_at TIMESTAMPTZ
+   );
+   
+   CREATE INDEX idx_jwt_keys_status ON auth.jwt_keys(status);
+   ```
+   
+   **Lợi ích:**
+   - Zero-downtime key rotation
+   - Nếu key bị lộ, rotate ngay không cần redeploy
+   - Compliance với security standards (PCI-DSS, ISO 27001)
+   - Multiple active keys cho graceful transition
+   - Audit trail (track key usage history)
+
+**JWT Middleware Implementation (Các Services Khác):**
+
+Mỗi service (Project, Ingest, Knowledge, Notification) cần implement JWT verification middleware:
+
+```go
+// Shared middleware package: pkg/auth/middleware.go
+package auth
+
+import (
+    "context"
+    "crypto/rsa"
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "strings"
+    "time"
+    
+    "github.com/golang-jwt/jwt/v5"
+)
+
+type JWTMiddleware struct {
+    publicKey    *rsa.PublicKey
+    jwksURL      string
+    lastFetch    time.Time
+    refreshInterval time.Duration
+    redis        *redis.Client // NEW: Redis for blacklist check
+}
+
+// Initialize middleware - fetch public key from Auth Service
+func NewJWTMiddleware(authServiceURL string, redisClient *redis.Client) (*JWTMiddleware, error) {
+    m := &JWTMiddleware{
+        jwksURL: authServiceURL + "/.well-known/jwks.json",
+        refreshInterval: 1 * time.Hour, // Refresh public key mỗi giờ
+        redis: redisClient, // NEW: Redis client for blacklist
+    }
+    
+    // Fetch public key on startup
+    if err := m.fetchPublicKey(); err != nil {
+        return nil, fmt.Errorf("failed to fetch public key: %w", err)
+    }
+    
+    // Background goroutine to refresh key periodically
+    go m.refreshPublicKeyPeriodically()
+    
+    return m, nil
+}
+
+// Fetch public key from JWKS endpoint
+func (m *JWTMiddleware) fetchPublicKey() error {
+    resp, err := http.Get(m.jwksURL)
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+    
+    var jwks struct {
+        Keys []struct {
+            Kty string `json:"kty"`
+            N   string `json:"n"`
+            E   string `json:"e"`
+        } `json:"keys"`
+    }
+    
+    if err := json.NewDecoder(resp.Body).Decode(&jwks); err != nil {
+        return err
+    }
+    
+    // Parse RSA public key from JWKS
+    // ... (implementation details)
+    
+    m.lastFetch = time.Now()
+    return nil
+}
+
+// HTTP Middleware
+func (m *JWTMiddleware) Authenticate(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // 1. Extract token from Authorization header
+        authHeader := r.Header.Get("Authorization")
+        if authHeader == "" {
+            http.Error(w, "Missing authorization header", http.StatusUnauthorized)
+            return
+        }
+        
+        tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+        
+        // 2. Parse & validate JWT using public key
+        token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+            // Verify signing method
+            if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+                return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+            }
+            return m.publicKey, nil
+        })
+        
+        if err != nil || !token.Valid {
+            http.Error(w, "Invalid token", http.StatusUnauthorized)
+            return
+        }
+        
+        // 3. Extract claims
+        claims, ok := token.Claims.(jwt.MapClaims)
+        if !ok {
+            http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+            return
+        }
+        
+        // 4. Verify issuer & audience
+        if claims["iss"] != "smap-auth-service" {
+            http.Error(w, "Invalid token issuer", http.StatusUnauthorized)
+            return
+        }
+        
+        // 5. Check Redis blacklist (NEW - Security Enhancement #6)
+        userID := claims["user_id"].(string)
+        jti, _ := claims["jti"].(string) // JWT ID (unique per token)
+        
+        // Check if user is blacklisted
+        isUserBlacklisted, err := m.redis.Exists(r.Context(), 
+            fmt.Sprintf("blacklist:user:%s", userID)).Result()
+        if err == nil && isUserBlacklisted > 0 {
+            http.Error(w, "Token revoked", http.StatusUnauthorized)
+            return
+        }
+        
+        // Check if specific token is blacklisted
+        if jti != "" {
+            isTokenBlacklisted, err := m.redis.Exists(r.Context(),
+                fmt.Sprintf("blacklist:token:%s", jti)).Result()
+            if err == nil && isTokenBlacklisted > 0 {
+                http.Error(w, "Token revoked", http.StatusUnauthorized)
+                return
+            }
+        }
+        
+        // 6. Extract user info and inject into context
+        userID := claims["user_id"].(string)
+        email := claims["email"].(string)
+        role := claims["role"].(string)
+        groups := claims["groups"].([]interface{})
+        
+        ctx := context.WithValue(r.Context(), "user_id", userID)
+        ctx = context.WithValue(ctx, "email", email)
+        ctx = context.WithValue(ctx, "role", role)
+        ctx = context.WithValue(ctx, "groups", groups)
+        
+        // 7. Pass to next handler
+        next.ServeHTTP(w, r.WithContext(ctx))
+    })
+}
+
+// Authorization helper - check role
+func RequireRole(role string) func(http.Handler) http.Handler {
+    return func(next http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            userRole := r.Context().Value("role").(string)
+            
+            // Role hierarchy: ADMIN > ANALYST > VIEWER
+            if !hasPermission(userRole, role) {
+                http.Error(w, "Insufficient permissions", http.StatusForbidden)
+                return
+            }
+            
+            next.ServeHTTP(w, r)
+        })
+    }
+}
+```
+
+**Usage trong Project Service:**
+
+```go
+// cmd/project-service/main.go
+func main() {
+    // Initialize JWT middleware
+    authMiddleware, err := auth.NewJWTMiddleware("http://auth-service:8080")
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    // Setup routes
+    r := chi.NewRouter()
+    
+    // Public routes (no auth)
+    r.Get("/health", healthHandler)
+    
+    // Protected routes (require authentication)
+    r.Group(func(r chi.Router) {
+        r.Use(authMiddleware.Authenticate) // Apply JWT verification
+        
+        // All users can view
+        r.Get("/projects", listProjectsHandler)
+        r.Get("/projects/{id}", getProjectHandler)
+        
+        // Only ANALYST+ can create/update
+        r.With(auth.RequireRole("ANALYST")).Post("/projects", createProjectHandler)
+        r.With(auth.RequireRole("ANALYST")).Put("/projects/{id}", updateProjectHandler)
+        
+        // Only ADMIN can delete
+        r.With(auth.RequireRole("ADMIN")).Delete("/projects/{id}", deleteProjectHandler)
+    })
+    
+    http.ListenAndServe(":8080", r)
+}
+```
+
+**Audit Log Strategy:**
+
+**Quyết định:** Sử dụng **Async Queue Pattern** để tránh blocking business logic.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    AUDIT LOG FLOW                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  User Request                                                   │
+│       ↓                                                         │
+│  ┌─────────────────┐                                            │
+│  │ Project Service │                                            │
+│  │ (Business Logic)│                                            │
+│  └────────┬────────┘                                            │
+│           │                                                     │
+│           ├─► 1. Execute business logic (CREATE_PROJECT)       │
+│           │                                                     │
+│           ├─► 2. Push audit event to Kafka                     │
+│           │    Topic: audit.events                             │
+│           │    Payload: {                                      │
+│           │      user_id, action, resource_type,               │
+│           │      resource_id, metadata, ip, user_agent         │
+│           │    }                                               │
+│           │    → NON-BLOCKING (fire-and-forget)                │
+│           │                                                     │
+│           └─► 3. Return response to user                       │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │              Kafka Topic: audit.events                  │    │
+│  └─────────────────────────┬───────────────────────────────┘    │
+│                            ↓                                    │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │           Auth Service - Audit Consumer                 │    │
+│  │  • Consume audit events from Kafka                      │    │
+│  │  • Batch insert to auth.audit_logs (every 5s or 100 msgs)│   │
+│  │  • Retry on failure                                     │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Implementation:**
+
+```go
+// pkg/audit/publisher.go - Shared package cho tất cả services
+package audit
+
+import (
+    "context"
+    "encoding/json"
+    "github.com/segmentio/kafka-go"
+)
+
+type AuditPublisher struct {
+    writer *kafka.Writer
+}
+
+type AuditEvent struct {
+    UserID       string                 `json:"user_id"`
+    Action       string                 `json:"action"` // CREATE_PROJECT, DELETE_SOURCE, etc.
+    ResourceType string                 `json:"resource_type"`
+    ResourceID   string                 `json:"resource_id"`
+    Metadata     map[string]interface{} `json:"metadata"`
+    IPAddress    string                 `json:"ip_address"`
+    UserAgent    string                 `json:"user_agent"`
+}
+
+func NewAuditPublisher(kafkaBrokers []string) *AuditPublisher {
+    return &AuditPublisher{
+        writer: &kafka.Writer{
+            Addr:     kafka.TCP(kafkaBrokers...),
+            Topic:    "audit.events",
+            Balancer: &kafka.LeastBytes{},
+            Async:    true, // Non-blocking writes
+        },
+    }
+}
+
+func (p *AuditPublisher) Log(ctx context.Context, event AuditEvent) error {
+    data, _ := json.Marshal(event)
+    
+    // Fire-and-forget (non-blocking)
+    return p.writer.WriteMessages(ctx, kafka.Message{
+        Value: data,
+    })
+}
+```
+
+**Usage trong Project Service:**
+
+```go
+func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
+    // 1. Extract user from context (injected by JWT middleware)
+    userID := r.Context().Value("user_id").(string)
+    
+    // 2. Execute business logic
+    project, err := h.service.CreateProject(r.Context(), req)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    // 3. Log audit event (async, non-blocking)
+    h.auditPublisher.Log(r.Context(), audit.AuditEvent{
+        UserID:       userID,
+        Action:       "CREATE_PROJECT",
+        ResourceType: "project",
+        ResourceID:   project.ID,
+        Metadata: map[string]interface{}{
+            "project_name": project.Name,
+            "brand":        project.Brand,
+        },
+        IPAddress: r.RemoteAddr,
+        UserAgent: r.Header.Get("User-Agent"),
+    })
+    
+    // 4. Return response immediately (không đợi audit log ghi xong)
+    json.NewEncoder(w).Encode(project)
+}
+```
+
+**Auth Service - Audit Consumer:**
+
+```go
+// cmd/auth-service/audit_consumer.go
+func (s *AuthService) StartAuditConsumer() {
+    reader := kafka.NewReader(kafka.ReaderConfig{
+        Brokers: []string{"kafka:9092"},
+        Topic:   "audit.events",
+        GroupID: "auth-audit-consumer",
+    })
+    
+    batch := make([]AuditEvent, 0, 100)
+    ticker := time.NewTicker(5 * time.Second)
+    
+    for {
+        select {
+        case <-ticker.C:
+            // Flush batch every 5 seconds
+            if len(batch) > 0 {
+                s.batchInsertAuditLogs(batch)
+                batch = batch[:0]
+            }
+            
+        default:
+            // Read message
+            msg, err := reader.ReadMessage(context.Background())
+            if err != nil {
+                continue
+            }
+            
+            var event AuditEvent
+            json.Unmarshal(msg.Value, &event)
+            batch = append(batch, event)
+            
+            // Flush if batch is full
+            if len(batch) >= 100 {
+                s.batchInsertAuditLogs(batch)
+                batch = batch[:0]
+            }
+        }
+    }
+}
+
+func (s *AuthService) batchInsertAuditLogs(events []AuditEvent) error {
+    // Batch insert to PostgreSQL
+    query := `
+        INSERT INTO auth.audit_logs 
+        (user_id, action, resource_type, resource_id, metadata, ip_address, user_agent)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `
+    
+    tx, _ := s.db.Begin()
+    for _, event := range events {
+        tx.Exec(query, event.UserID, event.Action, event.ResourceType, 
+                event.ResourceID, event.Metadata, event.IPAddress, event.UserAgent)
+    }
+    return tx.Commit()
+}
+```
+
+**Lợi ích của Async Audit Log:**
+
+| Aspect          | Sync (gọi trực tiếp) | Async (Kafka Queue)     |
+| --------------- | -------------------- | ----------------------- |
+| Latency         | 🔴 Cao (+50-100ms)   | 🟢 Thấp (<5ms)          |
+| Reliability     | 🔴 Block nếu Auth down | 🟢 Queue buffer         |
+| Scalability     | 🔴 Auth Service bottleneck | 🟢 Consumer scale độc lập |
+| Batch Insert    | 🔴 Không              | 🟢 Có (hiệu suất cao)   |
+| Decoupling      | 🔴 Tight coupling     | 🟢 Loose coupling       |
 
 ### 3.2 Project Service (Extend - Entity Hierarchy Management)
 
@@ -1584,15 +2649,34 @@ frequency: ADAPTIVE (theo Runtime Mode)
 
 #### Tuần 1: Auth Service + Entity Hierarchy Setup
 
-| Task                                | Effort | Owner |
-| ----------------------------------- | ------ | ----- |
-| Setup Google OAuth2 integration     | 4h     | Dev   |
-| Implement domain restriction        | 2h     | Dev   |
-| Implement role mapping từ config    | 4h     | Dev   |
-| Create auth-config.yaml template    | 2h     | Dev   |
-| **Create campaigns table (Tầng 3)** | 2h     | Dev   |
-| **Create campaign_projects table**  | 1h     | Dev   |
-| Update Docker Compose               | 2h     | Dev   |
+| Task                                         | Effort | Owner |
+| -------------------------------------------- | ------ | ----- |
+| Setup Google OAuth2 integration              | 4h     | Dev   |
+| **Implement JWT RS256 signing & validation** | 4h     | Dev   |
+| **Setup JWKS endpoint for public key**       | 2h     | Dev   |
+| **Create shared JWT middleware package**     | 4h     | Dev   |
+| **Add Redis blacklist check to middleware**  | 2h     | Dev   |
+| **Google Groups integration (Directory API)**| 4h     | Dev   |
+| **Redis cache for Groups membership**        | 2h     | Dev   |
+| Implement domain restriction                 | 2h     | Dev   |
+| Implement role mapping từ config             | 4h     | Dev   |
+| **Identity Provider abstraction (Interface)**| 3h     | Dev   |
+| **Flexible key loading (file/env/k8s)**      | 2h     | Dev   |
+| **OAuth error handling & user-friendly pages**| 3h    | Dev   |
+| **Audit log Kafka publisher (shared pkg)**   | 3h     | Dev   |
+| **Audit log consumer in Auth Service**       | 3h     | Dev   |
+| **Audit log retention policy & cleanup job** | 2h     | Dev   |
+| Create auth-config.yaml template             | 2h     | Dev   |
+| **Create campaigns table (Tầng 3)**          | 2h     | Dev   |
+| **Create campaign_projects table**           | 1h     | Dev   |
+| Update Docker Compose                        | 2h     | Dev   |
+
+**Deliverables:**
+- Auth Service hoạt động với Google SSO
+- JWT middleware package với blacklist check
+- Identity Provider abstraction (dễ thêm Azure/Okta sau)
+- Flexible key loading (file/env/k8s secrets)
+- Audit log flow hoàn chỉnh (async via Kafka)
 
 #### Tuần 2: Project Service + Ingest Service Setup
 
@@ -1713,21 +2797,27 @@ frequency: ADAPTIVE (theo Runtime Mode)
 | Chat history                  | 4h     | Dev   |
 | End-to-end testing            | 4h     | Dev   |
 
-#### Tuần 12: Helm Charts + Documentation
+#### Tuần 12: Helm Charts + Documentation + Security Hardening
 
-| Task                               | Effort | Owner |
-| ---------------------------------- | ------ | ----- |
-| Helm chart cho mỗi service         | 1d     | Dev   |
-| values.yaml templates              | 4h     | Dev   |
-| **Entity Hierarchy documentation** | 4h     | Dev   |
-| **UAP schema documentation**       | 2h     | Dev   |
-| API documentation update           | 4h     | Dev   |
-| Demo preparation                   | 4h     | Dev   |
+| Task                                      | Effort | Owner |
+| ----------------------------------------- | ------ | ----- |
+| Helm chart cho mỗi service                | 1d     | Dev   |
+| values.yaml templates                     | 4h     | Dev   |
+| **JWT Key Rotation implementation**       | 1d     | Dev   |
+| **Multi-key JWKS endpoint**               | 2h     | Dev   |
+| **Azure AD provider implementation**      | 4h     | Dev   |
+| **Entity Hierarchy documentation**        | 4h     | Dev   |
+| **UAP schema documentation**              | 2h     | Dev   |
+| **Security enhancements documentation**   | 2h     | Dev   |
+| API documentation update                  | 4h     | Dev   |
+| Demo preparation                          | 4h     | Dev   |
 
 **Deliverable Phase 3:**
 
 - RAG Chatbot với Campaign scope (UC-03)
 - Cross-project comparison hoạt động
+- **JWT Key Rotation mechanism (automatic)**
+- **Multi-provider support (Google + Azure AD)**
 - Helm Charts ready
 
 ---
@@ -1744,6 +2834,9 @@ frequency: ADAPTIVE (theo Runtime Mode)
 | **AI Schema Agent sai**     | Medium      | Medium   | User confirmation step, manual fallback |
 | **Campaign scope phức tạp** | Low         | Medium   | Clear UI, validation rules              |
 | **UAP schema evolution**    | Low         | Medium   | Versioning, backward compatibility      |
+| **JWT key bị lộ**           | Low         | Critical | Key rotation, monitor access logs       |
+| **Redis blacklist down**    | Low         | High     | Fallback to short token TTL (15m)       |
+| **Identity provider down**  | Low         | Critical | Cache user info, graceful degradation   |
 
 ---
 
@@ -1758,6 +2851,9 @@ frequency: ADAPTIVE (theo Runtime Mode)
 | RAG answer relevance           | > 70% (user rating)    |
 | **Campaign query performance** | < 2s (cross-project)   |
 | Helm deployment time           | < 30 phút              |
+| **JWT verification latency**   | < 5ms (with blacklist) |
+| **Token revocation time**      | < 100ms (instant)      |
+| **Key rotation downtime**      | 0s (zero-downtime)     |
 
 ---
 
@@ -1766,9 +2862,10 @@ frequency: ADAPTIVE (theo Runtime Mode)
 ### A. Kafka Topics (Updated với Entity Hierarchy)
 
 ```
+# Auth Service
+audit.events # Audit log events từ tất cả services (NEW)
 
 # Project Service
-
 project.created
 project.updated
 project.deleted
@@ -1778,7 +2875,6 @@ campaign.project.added # NEW
 campaign.project.removed # NEW
 
 # Ingest Service
-
 ingest.source.created
 ingest.file.uploaded
 ingest.schema.suggested # AI Schema Agent output (FILE_UPLOAD + WEBHOOK)
@@ -1791,7 +2887,6 @@ ingest.dryrun.completed # Dry Run result (NEW)
 ingest.external.received # Webhook data received (NEW)
 
 # Analytics Service
-
 analytics.uap.received # NEW - UAP input
 analytics.sentiment.started
 analytics.sentiment.completed
@@ -1799,7 +2894,6 @@ analytics.batch.completed
 analytics.embedded # Vector ready for Qdrant
 
 # Knowledge Service
-
 knowledge.document.indexed
 knowledge.query.received
 knowledge.answer.generated
