@@ -3,7 +3,7 @@
 ## Từ Public SaaS → On-Premise Enterprise Solution
 
 **Ngày tạo:** 06/02/2026  
-**Cập nhật:** 09/02/2026 (v2.9 - Enterprise Security Enhancements)  
+**Cập nhật:** 09/02/2026 (v2.10 - Analytics Service Architecture Revision)  
 **Thời gian thực hiện:** 3 tháng (12 tuần)  
 **Người thực hiện:** Nguyễn Tấn Tài
 
@@ -22,6 +22,7 @@
 | v2.7 | 07/02/2026 | Turnkey Deployment Strategy (IaC): Ansible + K3s + Helm |
 | v2.8 | 09/02/2026 | Auth Service Deep Dive: JWT Middleware, Audit Log Strategy, Business Context |
 | v2.9 | 09/02/2026 | Enterprise Security: Token Blacklist, Multi-Provider, Key Rotation |
+| v2.10 | 09/02/2026 | **REVISION:** Analytics Service - Revert n8n, Keep Traditional Go Service |
 
 ---
 
@@ -241,38 +242,42 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 2. **Read-Only for Reporting:** JOIN cross-schema chỉ cho Dashboard/Reporting
 3. **Single Connection String:** Khách hàng chỉ cần 1 connection, hệ thống tự migrate schemas
 
-### 0.6 Hybrid Architecture - Tech Stack (FINALIZED)
+### 0.6 Hybrid Architecture - Tech Stack (FINALIZED v2.10)
 
-**Chiến lược:** Kết hợp **Golang** (Core Services) + **n8n** (Analytics Orchestration) + **Python** (AI Workers).
+**Chiến lược:** **Golang** (Core Services) + **Python** (AI Workers) - ~~n8n removed due to scalability issues~~
+
+**REVISION v2.10:** Sau khi đánh giá hiện trạng, quyết định **KHÔNG dùng n8n** cho Analytics vì:
+1. ❌ Không scale ngang được (single instance bottleneck)
+2. ❌ Tốc độ chậm (overhead của visual workflow engine)
+3. ❌ Khó debug production issues
+4. ❌ Vendor lock-in
+
+**Quyết định mới:** Giữ nguyên **analytics-service** (Go) với refactor structure.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    HYBRID ARCHITECTURE                          │
+│                    REVISED ARCHITECTURE                         │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  CORE SERVICES (Golang)                                         │
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐    │
-│  │  Auth   │ │ Project │ │ Ingest  │ │Knowledge│ │  Noti   │    │
+│  │  Auth   │ │ Project │ │ Ingest  │ │Analytics│ │Knowledge│    │
 │  │ Service │ │ Service │ │ Service │ │ Service │ │ Service │    │
-│  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘    │
-│                               │                                 │
-│                               ↓ UAP                             │
-│  PROCESSING LAYER                                               │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                      Kafka                              │    │
-│  └─────────────────────────┬───────────────────────────────┘    │
-│                            ↓                                    │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              n8n Workflow Engine                        │    │
-│  │  (Visual Orchestration, Observability, Flexibility)     │    │
-│  └─────────────────────────┬───────────────────────────────┘    │
-│                            ↓                                    │
+│  └─────────┘ └─────────┘ └─────────┘ └────┬────┘ └─────────┘    │
+│                                           │                     │
+│                                           ↓ HTTP/gRPC           │
 │  AI WORKERS (Python FastAPI)                                    │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐                │
 │  │  Sentiment  │ │   Aspect    │ │  Keyword    │                │
 │  │   Worker    │ │   Worker    │ │   Worker    │                │
-│  │ (PhoBERT)   │ │  (PhoBERT)  │ │  (Underthesea)│              │
+│  │ (PhoBERT)   │ │  (PhoBERT)  │ │(Underthesea)│                │
 │  └─────────────┘ └─────────────┘ └─────────────┘                │
+│                                                                 │
+│  NOTIFICATION SERVICE (Golang)                                  │
+│  ┌─────────────┐                                                │
+│  │    Noti     │                                                │
+│  │   Service   │                                                │
+│  └─────────────┘                                                │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -284,16 +289,17 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 | Auth Service       | Core Logic   | **Golang**         | High performance, concurrency, strict typing   |
 | Project Service    | Core Logic   | **Golang**         | Business logic chặt chẽ                        |
 | Ingest Service     | Core Logic   | **Golang**         | File parsing nhanh, OpenAI SDK Go cho AI Agent |
+| **Analytics Service** | **Core Logic** | **Golang**      | **Consumer + Orchestrator, scalable, fast**    |
 | Notification       | Real-time    | **Golang**         | Xử lý hàng ngàn WebSocket connections          |
 | Knowledge Service  | AI Logic     | **Golang**         | go-qdrant, go-openai - RAG pipeline tối ưu     |
-| Analytics Pipeline | Orchestrator | **n8n**            | Visual flow, observability, demo-friendly      |
-| AI Workers         | Micro-func   | **Python FastAPI** | PhoBERT/Whisper wrappers, được n8n gọi qua API |
+| AI Workers         | Micro-func   | **Python FastAPI** | PhoBERT/Whisper wrappers, stateless            |
 
-**Lợi ích của n8n cho Analytics:**
+**Lợi ích của Go Analytics Service:**
 
-- **Observability:** Visual debugging, nhìn thấy luồng chạy trực quan
-- **Flexibility:** Thêm/bớt bước xử lý bằng kéo thả, không cần redeploy
-- **Demo Effect:** Giao diện trực quan tăng tính thuyết phục khi bảo vệ đồ án
+- **Scalability:** Horizontal scaling với Kubernetes (multiple replicas)
+- **Performance:** Go concurrency xử lý hàng ngàn UAP records/sec
+- **Observability:** Standard logging, metrics, tracing
+- **Maintainability:** Code-based logic dễ debug hơn visual workflows
 
 ---
 
@@ -434,9 +440,9 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 | `identity`    | `auth-service`         | **Go**       | 🔄 SIMPLIFY          | SSO, user entity cho audit log       |
 | `project`     | `project-service`      | **Go**       | 🔄 EXTEND            | Thêm Campaign entity, Dashboard      |
 | `collector`   | `ingest-service`       | **Go**       | 🔄 RENAME + REFACTOR | AI Schema Agent, file parsing        |
-| `analytic`    | `analytics-pipeline`   | **n8n + Py** | 🔄 RESTRUCTURE       | n8n orchestrator + Python AI workers |
+| `analytic`    | `analytics-service`    | **Go**       | 🔄 REFACTOR          | Consumer + Orchestrator, UAP input   |
 | `websocket`   | `notification-service` | **Go**       | 🔄 RENAME            | Đổi tên cho rõ nghĩa hơn             |
-| `speech2text` | `analytics-pipeline`   | **Python**   | 🔀 MERGE             | Gộp thành AI worker                  |
+| `speech2text` | `ai-workers`           | **Python**   | 🔀 MERGE             | Gộp thành AI worker                  |
 | `scrapper`    | ❌ XOÁ                 | -            | 🗑️ REMOVE            | Outsource cho External Data Provider |
 | `web-ui`      | `web-ui`               | **Next.js**  | 🔄 REFACTOR          | Đổi UI flow theo Entity Hierarchy    |
 | (Mới)         | `knowledge-service`    | **Go**       | ➕ TẠO MỚI           | RAG Chatbot với Campaign scope       |
@@ -444,24 +450,22 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 ### 2.4 Kiến trúc Services mới (Hybrid Architecture)
 
 ```
-TRƯỚC (8 services):                    SAU (5 Core + n8n + Workers):
+TRƯỚC (8 services):                    SAU (6 Core + AI Workers):
 ─────────────────────                  ─────────────────────
 identity          ──────────────────►  auth-service (Go, simplified)
 project           ──────────────────►  project-service (Go, + Campaign)
 collector         ──────────────────►  ingest-service (Go, + AI Schema)
 scrapper          ──────────────────►  ❌ XOÁ (dùng External API)
-analytic          ─┐                   ┌─► n8n Workflow Engine
-speech2text       ─┴──────────────────►├─► sentiment-worker (Python)
-                                       ├─► aspect-worker (Python)
-                                       └─► keyword-worker (Python)
+analytic          ──────────────────►  analytics-service (Go, refactor)
+speech2text       ──────────────────►  ai-workers (Python FastAPI)
 websocket         ──────────────────►  notification-service (Go)
 (mới)             ──────────────────►  knowledge-service (Go, RAG)
 web-ui            ──────────────────►  web-ui (Next.js)
 
 Tech Stack Summary:
 ─────────────────────
-Core Services    → Golang (5 services)
-Analytics        → n8n (orchestrator) + Python (AI workers)
+Core Services    → Golang (6 services)
+AI Workers       → Python FastAPI (3 workers: sentiment, aspect, keyword)
 Frontend         → Next.js
 Database         → 1 PostgreSQL (4 schemas) + Qdrant + Redis
 Message Queue    → Kafka
@@ -1845,80 +1849,219 @@ message_queues:
 | Reliability    | 🔴 Dễ bị block                       | 🟢 Teammate có kinh nghiệm |
 | Time to market | 🔴 Chậm                              | 🟢 Nhanh                   |
 
-### 3.4 Analytics Pipeline (n8n + Python Workers)
+### 3.4 Analytics Service (Refactored - Go Consumer + Orchestrator)
 
-**Thay đổi lớn:** Chuyển từ monolithic Python service sang **n8n Orchestrator + Python Micro-workers**.
+**REVISION v2.10:** Giữ nguyên Go service, refactor structure để scalable và maintainable.
+
+**Lý do không dùng n8n:**
+1. ❌ Single instance bottleneck - không scale ngang
+2. ❌ Performance overhead của visual workflow engine
+3. ❌ Khó debug production issues (visual workflows không có stack trace)
+4. ❌ Vendor lock-in
 
 ```yaml
-name: analytics-pipeline
-architecture: Hybrid (n8n + Python Workers)
+name: analytics-service
+language: Go
+architecture: Consumer + Orchestrator + AI Workers
 
-components:
-  n8n_orchestrator:
-    role: Workflow orchestration, visual debugging
-    triggers:
-      - Kafka message (UAP ready)
-    responsibilities:
-      - Nhận UAP từ Message Queue
-      - Điều phối thứ tự gọi AI Workers
-      - Ghi kết quả vào analytics.* schema
-      - Error handling & retry logic
+responsibility:
+  - Consume UAP từ Kafka
+  - Orchestrate AI analysis pipeline
+  - Call AI Workers (HTTP/gRPC)
+  - Aggregate results
+  - Write to analytics.* schema
+  - Publish completion events
 
-  ai_workers:
-    - name: sentiment-worker
-      language: Python (FastAPI)
-      model: PhoBERT (ONNX, INT8 quantized)
-      endpoint: POST /analyze/sentiment
-      input: {content: string}
-      output: {sentiment: string, score: float}
+modules:
+  - /consumer # Kafka consumer (UAP messages)
+  - /orchestrator # Pipeline orchestration logic
+  - /workers # AI worker clients (HTTP)
+  - /repository # Database access (analytics.*)
+  - /api # Internal API (optional, for monitoring)
 
-    - name: aspect-worker
-      language: Python (FastAPI)
-      model: PhoBERT + Custom heads
-      endpoint: POST /analyze/aspects
-      input: {content: string, aspects: string[]}
-      output: [{aspect, sentiment, score, keywords}]
+entry_points:
+  - cmd/consumer/main.go # Kafka consumer process
+  - cmd/api/main.go # API server (optional, for health check)
 
-    - name: keyword-worker
-      language: Python (FastAPI)
-      library: Underthesea
-      endpoint: POST /extract/keywords
-      input: {content: string}
-      output: {keywords: string[]}
+ai_workers:
+  - name: sentiment-worker
+    language: Python (FastAPI)
+    endpoint: http://sentiment-worker:8000/analyze/sentiment
+    input: {content: string}
+    output: {sentiment: string, score: float}
+    
+  - name: aspect-worker
+    language: Python (FastAPI)
+    endpoint: http://aspect-worker:8000/analyze/aspects
+    input: {content: string, aspects: string[]}
+    output: [{aspect, sentiment, score, keywords}]
+    
+  - name: keyword-worker
+    language: Python (FastAPI)
+    endpoint: http://keyword-worker:8000/extract/keywords
+    input: {content: string}
+    output: {keywords: string[]}
 
 database: PostgreSQL (analytics.* schema)
 
 message_queues:
-  - analytics.uap.received
-  - analytics.sentiment.completed
-  - analytics.batch.completed
+  consume:
+    - analytics.uap.received
+  publish:
+    - analytics.sentiment.completed
+    - analytics.batch.completed
 ```
 
-**n8n Workflow Flow:**
+**Analytics Pipeline Flow (Go Orchestrator):**
 
+```go
+// internal/orchestrator/pipeline.go
+package orchestrator
+
+type Pipeline struct {
+    sentimentClient *workers.SentimentClient
+    aspectClient    *workers.AspectClient
+    keywordClient   *workers.KeywordClient
+    repo            *repository.AnalyticsRepo
+}
+
+func (p *Pipeline) ProcessUAP(ctx context.Context, uap *UAP) error {
+    // 1. Call Sentiment Worker
+    sentiment, err := p.sentimentClient.Analyze(ctx, uap.Content)
+    if err != nil {
+        return fmt.Errorf("sentiment analysis failed: %w", err)
+    }
+    
+    // 2. Call Aspect Worker (parallel with keyword)
+    var aspectResult *AspectResult
+    var keywordResult *KeywordResult
+    
+    g, ctx := errgroup.WithContext(ctx)
+    
+    g.Go(func() error {
+        var err error
+        aspectResult, err = p.aspectClient.Analyze(ctx, uap.Content, aspects)
+        return err
+    })
+    
+    g.Go(func() error {
+        var err error
+        keywordResult, err = p.keywordClient.Extract(ctx, uap.Content)
+        return err
+    })
+    
+    if err := g.Wait(); err != nil {
+        return fmt.Errorf("parallel analysis failed: %w", err)
+    }
+    
+    // 3. Aggregate results
+    analytics := &PostAnalytics{
+        ProjectID:           uap.ProjectID,
+        SourceID:            uap.SourceID,
+        Content:             uap.Content,
+        ContentCreatedAt:    uap.ContentCreatedAt,
+        IngestedAt:          uap.IngestedAt,
+        OverallSentiment:    sentiment.Sentiment,
+        OverallSentimentScore: sentiment.Score,
+        Aspects:             aspectResult.Aspects,
+        Keywords:            keywordResult.Keywords,
+    }
+    
+    // 4. Save to database
+    if err := p.repo.Insert(ctx, analytics); err != nil {
+        return fmt.Errorf("failed to save analytics: %w", err)
+    }
+    
+    return nil
+}
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    n8n ANALYTICS WORKFLOW                       │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  [Kafka Trigger] → [Parse UAP] → [Sentiment Worker]          │
-│                                            ↓                    │
-│                                     [Aspect Worker]             │
-│                                            ↓                    │
-│                                     [Keyword Worker]            │
-│                                            ↓                    │
-│                                     [Save to DB]                │
-│                                            ↓                    │
-│                                     [Publish Complete]          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+
+**Consumer Implementation:**
+
+```go
+// cmd/consumer/main.go
+package main
+
+func main() {
+    // Initialize Kafka consumer
+    consumer := kafka.NewConsumer(kafka.ConsumerConfig{
+        Brokers: []string{"kafka:9092"},
+        Topic:   "analytics.uap.received",
+        GroupID: "analytics-consumer",
+    })
+    
+    // Initialize pipeline
+    pipeline := orchestrator.NewPipeline(
+        workers.NewSentimentClient("http://sentiment-worker:8000"),
+        workers.NewAspectClient("http://aspect-worker:8000"),
+        workers.NewKeywordClient("http://keyword-worker:8000"),
+        repository.NewAnalyticsRepo(db),
+    )
+    
+    // Process messages
+    for {
+        msg, err := consumer.ReadMessage(ctx)
+        if err != nil {
+            log.Error("failed to read message", err)
+            continue
+        }
+        
+        var uap UAP
+        if err := json.Unmarshal(msg.Value, &uap); err != nil {
+            log.Error("failed to unmarshal UAP", err)
+            continue
+        }
+        
+        // Process in goroutine for concurrency
+        go func(uap UAP) {
+            if err := pipeline.ProcessUAP(ctx, &uap); err != nil {
+                log.Error("failed to process UAP", err)
+            }
+        }(uap)
+    }
+}
+```
+
+**Scalability Strategy:**
+
+```yaml
+# k8s/analytics-consumer-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-consumer
+spec:
+  replicas: 5  # Horizontal scaling
+  selector:
+    matchLabels:
+      app: analytics-consumer
+  template:
+    spec:
+      containers:
+      - name: consumer
+        image: analytics-service:latest
+        command: ["/app/consumer"]
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        env:
+        - name: KAFKA_BROKERS
+          value: "kafka:9092"
+        - name: KAFKA_GROUP_ID
+          value: "analytics-consumer"
 ```
 
 **Lợi ích:**
 
-- Visual debugging - nhìn thấy từng bước chạy
-- Dễ thêm/bớt bước xử lý (dịch thuật, lọc spam) bằng kéo thả
-- Demo-friendly cho bảo vệ đồ án
+- ✅ **Horizontal Scaling:** Deploy 5-10 consumer replicas
+- ✅ **Performance:** Go concurrency xử lý hàng ngàn UAP/sec
+- ✅ **Observability:** Standard logging, metrics (Prometheus), tracing (Jaeger)
+- ✅ **Maintainability:** Code-based logic, dễ debug, dễ test
+- ✅ **Reliability:** Kafka consumer group auto-rebalancing
 
 ### 3.5 Notification Service (Rename từ websocket)
 
