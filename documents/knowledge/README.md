@@ -29,7 +29,26 @@ Thư mục này chứa các tài liệu chi tiết về data models, API specifi
 
 ---
 
-### 2. **analytics_post_example.json**
+### 2. **KNOWLEDGE_SERVICE_DEPENDENCIES.md** ⭐ QUAN TRỌNG
+**Mục đích:** Chi tiết TẤT CẢ dependencies của Knowledge Service
+
+**Nội dung:**
+- ✅ 6 dependencies BẮT BUỘC (Qdrant, OpenAI, PostgreSQL, Redis, Project Service, MinIO)
+- ✅ 3 dependencies OPTIONAL (Kafka, Prometheus, Jaeger)
+- ✅ Vai trò từng dependency
+- ✅ Code examples kết nối
+- ✅ Config examples
+- ✅ Docker Compose setup
+- ✅ Health check implementation
+
+**Sử dụng cho:**
+- DevOps team setup infrastructure
+- Backend developers understand architecture
+- Troubleshooting dependency issues
+
+---
+
+### 3. **analytics_post_example.json**
 **Mục đích:** Ví dụ JSON data thực tế của analytics output
 
 **Nội dung:**

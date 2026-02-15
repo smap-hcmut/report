@@ -34,7 +34,24 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 1.2 Core Capabilities
+### 1.2 Dependencies
+
+**BẮT BUỘC (6):**
+1. ✅ Qdrant - Vector database
+2. ✅ OpenAI API - Embedding + LLM
+3. ✅ PostgreSQL - Metadata, conversation history
+4. ✅ Redis - Caching, rate limiting
+5. ✅ Project Service - Campaign info
+6. ✅ MinIO - Report storage
+
+**OPTIONAL (3):**
+7. ⭕ Kafka - Event publishing
+8. ⭕ Prometheus - Metrics
+9. ⭕ Jaeger - Tracing
+
+**Chi tiết:** Xem `documents/input-output/KNOWLEDGE_SERVICE_DEPENDENCIES.md`
+
+### 1.3 Core Capabilities
 
 - ✅ **Indexing:** Nhận analytics data → Generate embeddings → Store in Qdrant
 - ✅ **Search:** Semantic search với campaign scope filtering
