@@ -92,60 +92,108 @@ qdrant:
 
 ---
 
-### 2.2 OpenAI API ⭐ BẮT BUỘC
+### 2.2 AI APIs ⭐ BẮT BUỘC
 
 **Vai trò:** Generate embeddings + LLM responses
 
+#### A. Voyage AI (Embedding)
+
 **Kết nối:**
 ```go
-import openai "github.com/sashabaranov/go-openai"
+type VoyageClient struct {
+    apiKey string
+    client *http.Client
+}
 
-client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+func NewVoyageClient(apiKey string) *VoyageClient {
+    return &VoyageClient{
+        apiKey: apiKey,
+        client: &http.Client{Timeout: 30 * time.Second},
+    }
+}
 ```
 
-**Sử dụng cho:**
-
-**A. Embedding Generation (text → vector)**
+**Sử dụng cho Embedding Generation (text → vector):**
 ```go
-resp, err := client.CreateEmbeddings(ctx, openai.EmbeddingRequest{
-    Model: openai.SmallEmbedding3,  // text-embedding-3-small
-    Input: []string{content},
-})
-vector := resp.Data[0].Embedding  // 1536 floats
+func (c *VoyageClient) Embed(ctx context.Context, texts []string) ([][]float32, error) {
+    url := "https://api.voyageai.com/v1/embeddings"
+    
+    payload := map[string]interface{}{
+        "input": texts,
+        "model": "voyage-multilingual-2",
+    }
+    
+    // ... HTTP request ...
+    
+    return embeddings, nil  // 1024 floats per text
+}
 ```
 
-**B. Answer Generation (context + query → answer)**
+#### B. Google Gemini (LLM)
+
+**Kết nối:**
 ```go
-resp, err := client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
-    Model: openai.GPT4,
-    Messages: []openai.ChatCompletionMessage{
-        {Role: openai.ChatMessageRoleSystem, Content: systemPrompt},
-        {Role: openai.ChatMessageRoleUser, Content: userQuery},
-    },
-    Temperature: 0.7,
-})
-answer := resp.Choices[0].Message.Content
+import "github.com/google/generative-ai-go/genai"
+
+client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+model := client.GenerativeModel("gemini-1.5-pro")
+```
+
+**Sử dụng cho Answer Generation (context + query → answer):**
+```go
+func (c *GeminiClient) Generate(ctx context.Context, prompt string) (string, error) {
+    resp, err := c.model.GenerateContent(ctx, genai.Text(prompt))
+    if err != nil {
+        return "", err
+    }
+    
+    var text string
+    for _, part := range resp.Candidates[0].Content.Parts {
+        text += fmt.Sprintf("%v", part)
+    }
+    
+    return text, nil
+}
 ```
 
 **Config:**
 ```yaml
-openai:
-  api_key: "${OPENAI_API_KEY}"
-  embedding_model: "text-embedding-3-small"
-  llm_model: "gpt-4"
+embedding:
+  provider: "voyage"
+  api_key: "${VOYAGE_API_KEY}"
+  model: "voyage-multilingual-2"
+  dimensions: 1024
   max_retries: 3
+  timeout: 30s
+
+llm:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+  model: "gemini-1.5-pro"
+  temperature: 0.7
+  max_tokens: 2048
   timeout: 60s
 ```
 
 **Cost Estimation:**
 ```
-Embedding: $0.00002 / 1K tokens
-GPT-4: $0.03 / 1K tokens (input), $0.06 / 1K tokens (output)
+Voyage AI Embedding: $0.10 / 1M tokens (5x rẻ hơn OpenAI large)
+Gemini 1.5 Pro: FREE (free tier) hoặc Pay-as-you-go (rẻ hơn GPT-4)
 
 Example:
-- 1000 documents indexed: ~$0.20
-- 100 chat queries: ~$3-5
+- 1000 documents indexed: ~$5.00
+- 100 chat queries: ~$0 (free tier) hoặc ~$5-10 (pay-as-you-go)
+
+Total savings: 80-99% so với OpenAI!
 ```
+
+**Lý do chọn:**
+- ✅ Voyage AI: SOTA retrieval quality, multilingual
+- ✅ Gemini: Free tier, 2M context, excellent Vietnamese
+- ✅ Cost: 80-99% cheaper than OpenAI
+- ✅ Performance: Better or equal quality
+
+**Chi tiết:** Xem `MODEL_PROVIDERS_COMPARISON.md`
 
 ---
 
@@ -597,7 +645,8 @@ ChatRequest (5.2s)
 | Dependency | Bắt buộc? | Vai trò | Fallback nếu down |
 |------------|-----------|---------|-------------------|
 | **Qdrant** | ✅ YES | Vector search | ❌ Service unavailable |
-| **OpenAI API** | ✅ YES | Embedding + LLM | ❌ Service unavailable |
+| **Voyage AI** | ✅ YES | Embedding generation | ❌ Service unavailable |
+| **Gemini** | ✅ YES | LLM answer generation | ❌ Service unavailable |
 | **PostgreSQL** | ✅ YES | Metadata, history | ❌ Service unavailable |
 | **Redis** | ✅ YES | Caching, rate limit | ⚠️ Degraded (no cache) |
 | **Project Service** | ✅ YES | Campaign info | ❌ Cannot resolve campaign |
@@ -625,10 +674,13 @@ services:
       - QDRANT_URL=http://qdrant:6333
       - QDRANT_API_KEY=${QDRANT_API_KEY}
       
-      # OpenAI
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_EMBEDDING_MODEL=text-embedding-3-small
-      - OPENAI_LLM_MODEL=gpt-4
+      # Voyage AI (Embedding)
+      - VOYAGE_API_KEY=${VOYAGE_API_KEY}
+      - VOYAGE_EMBEDDING_MODEL=voyage-multilingual-2
+      
+      # Google Gemini (LLM)
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_LLM_MODEL=gemini-1.5-pro
       
       # PostgreSQL
       - POSTGRES_URL=postgresql://postgres:password@postgres:5432/smap
@@ -716,8 +768,11 @@ volumes:
 QDRANT_URL=http://qdrant:6333
 QDRANT_API_KEY=your-qdrant-api-key
 
-# OpenAI
-OPENAI_API_KEY=sk-your-openai-api-key
+# Voyage AI (Embedding)
+VOYAGE_API_KEY=pa-your-voyage-api-key
+
+# Google Gemini (LLM)
+GEMINI_API_KEY=AIza-your-gemini-api-key
 
 # PostgreSQL
 POSTGRES_URL=postgresql://postgres:password@postgres:5432/smap
