@@ -248,6 +248,7 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 **Chiến lược:** **Golang** (Core Services) + **Python** (AI Workers) - ~~n8n removed due to scalability issues~~
 
 **REVISION v2.10:** Sau khi đánh giá hiện trạng, quyết định **KHÔNG dùng n8n** cho Analytics vì:
+
 1. ❌ Không scale ngang được (single instance bottleneck)
 2. ❌ Tốc độ chậm (overhead của visual workflow engine)
 3. ❌ Khó debug production issues
@@ -285,15 +286,15 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 
 **Tech Stack Matrix:**
 
-| Service            | Type         | Language/Tool      | Lý do                                          |
-| ------------------ | ------------ | ------------------ | ---------------------------------------------- |
-| Auth Service       | Core Logic   | **Golang**         | High performance, concurrency, strict typing   |
-| Project Service    | Core Logic   | **Golang**         | Business logic chặt chẽ                        |
-| Ingest Service     | Core Logic   | **Golang**         | File parsing nhanh, OpenAI SDK Go cho AI Agent |
-| **Analytics Service** | **Core Logic** | **Golang**      | **Consumer + Orchestrator, scalable, fast**    |
-| Notification       | Real-time    | **Golang**         | Xử lý hàng ngàn WebSocket connections          |
-| Knowledge Service  | AI Logic     | **Golang**         | go-qdrant, go-openai - RAG pipeline tối ưu     |
-| AI Workers         | Micro-func   | **Python FastAPI** | PhoBERT/Whisper wrappers, stateless            |
+| Service               | Type           | Language/Tool      | Lý do                                          |
+| --------------------- | -------------- | ------------------ | ---------------------------------------------- |
+| Auth Service          | Core Logic     | **Golang**         | High performance, concurrency, strict typing   |
+| Project Service       | Core Logic     | **Golang**         | Business logic chặt chẽ                        |
+| Ingest Service        | Core Logic     | **Golang**         | File parsing nhanh, OpenAI SDK Go cho AI Agent |
+| **Analytics Service** | **Core Logic** | **Golang**         | **Consumer + Orchestrator, scalable, fast**    |
+| Notification          | Real-time      | **Golang**         | Xử lý hàng ngàn WebSocket connections          |
+| Knowledge Service     | AI Logic       | **Golang**         | go-qdrant, go-openai - RAG pipeline tối ưu     |
+| AI Workers            | Micro-func     | **Python FastAPI** | PhoBERT/Whisper wrappers, stateless            |
 
 **Lợi ích của Go Analytics Service:**
 
@@ -436,17 +437,17 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 
 ### 2.3 Service Mapping: Cũ → Mới
 
-| Service Cũ    | Service Mới            | Language     | Hành động            | Lý do                                |
-| ------------- | ---------------------- | ------------ | -------------------- | ------------------------------------ |
-| `identity`    | `auth-service`         | **Go**       | 🔄 SIMPLIFY          | SSO, user entity cho audit log       |
-| `project`     | `project-service`      | **Go**       | 🔄 EXTEND            | Thêm Campaign entity, Dashboard      |
-| `collector`   | `ingest-service`       | **Go**       | 🔄 RENAME + REFACTOR | AI Schema Agent, file parsing        |
-| `analytic`    | `analytics-service`    | **Go**       | 🔄 REFACTOR          | Consumer + Orchestrator, UAP input   |
-| `websocket`   | `notification-service` | **Go**       | 🔄 RENAME            | Đổi tên cho rõ nghĩa hơn             |
-| `speech2text` | `ai-workers`           | **Python**   | 🔀 MERGE             | Gộp thành AI worker                  |
-| `scrapper`    | ❌ XOÁ                 | -            | 🗑️ REMOVE            | Outsource cho External Data Provider |
-| `web-ui`      | `web-ui`               | **Next.js**  | 🔄 REFACTOR          | Đổi UI flow theo Entity Hierarchy    |
-| (Mới)         | `knowledge-service`    | **Go**       | ➕ TẠO MỚI           | RAG Chatbot với Campaign scope       |
+| Service Cũ    | Service Mới            | Language    | Hành động            | Lý do                                |
+| ------------- | ---------------------- | ----------- | -------------------- | ------------------------------------ |
+| `identity`    | `auth-service`         | **Go**      | 🔄 SIMPLIFY          | SSO, user entity cho audit log       |
+| `project`     | `project-service`      | **Go**      | 🔄 EXTEND            | Thêm Campaign entity, Dashboard      |
+| `collector`   | `ingest-service`       | **Go**      | 🔄 RENAME + REFACTOR | AI Schema Agent, file parsing        |
+| `analytic`    | `analytics-service`    | **Go**      | 🔄 REFACTOR          | Consumer + Orchestrator, UAP input   |
+| `websocket`   | `notification-service` | **Go**      | 🔄 RENAME            | Đổi tên cho rõ nghĩa hơn             |
+| `speech2text` | `ai-workers`           | **Python**  | 🔀 MERGE             | Gộp thành AI worker                  |
+| `scrapper`    | ❌ XOÁ                 | -           | 🗑️ REMOVE            | Outsource cho External Data Provider |
+| `web-ui`      | `web-ui`               | **Next.js** | 🔄 REFACTOR          | Đổi UI flow theo Entity Hierarchy    |
+| (Mới)         | `knowledge-service`    | **Go**      | ➕ TẠO MỚI           | RAG Chatbot với Campaign scope       |
 
 ### 2.4 Kiến trúc Services mới (Hybrid Architecture)
 
@@ -483,6 +484,7 @@ Message Queue    → Kafka
 **Current State Assessment:**
 
 ✅ **STRENGTHS (Already Working):**
+
 - OAuth2/OIDC integration với Google, Azure AD, Okta
 - Token blacklist (Redis-based) cho instant revocation
 - Session management (Redis DB 0)
@@ -492,6 +494,7 @@ Message Queue    → Kafka
 - 2 entry points: API server + Kafka consumer
 
 🟡 **GAPS (Need Refactoring):**
+
 - Database schema: `schema_identity.*` → `auth.*` (2-3h)
 - Folder name: `services/identity/` → `services/auth-service/` (2h)
 - Provider abstraction: Hardcoded logic → Interface pattern (1d)
@@ -526,10 +529,9 @@ Auth Service trong SMAP On-Premise có vai trò đặc biệt:
    - VD: Chỉ `@vinfast.com` và `@agency-partner.com`
    - Tự động block external emails
 
-
 **Service Specification:**
 
-```yaml
+````yaml
 name: auth-service
 current_name: identity # Will be renamed
 language: Go
@@ -564,7 +566,7 @@ api_endpoints:
   - POST /auth/logout # Logout & invalidate session
   - GET /auth/me # Get current user info
   - POST /auth/refresh # Refresh session (remember me)
-  
+
   # Internal endpoints (service-to-service)
   - POST /internal/validate # Token validation
   - GET /internal/users/:id # User lookup
@@ -597,10 +599,10 @@ jwt:
   # Algorithm: HS256 (Symmetric) - Simple & Fast
   algorithm: HS256
   secret_key: ${JWT_SECRET_KEY} # Minimum 32 characters
-  
+
   # Token TTL
   ttl: 28800 # 8 hours (balance security vs UX)
-  
+
   # Claims Structure
   claims:
     issuer: "smap-auth-service"
@@ -610,7 +612,7 @@ jwt:
       - email          # string
       - role           # ADMIN | ANALYST | VIEWER
       - jti            # JWT ID (unique per token, for blacklist)
-```
+````
 
 **Token Validation Strategy:**
 
@@ -622,18 +624,18 @@ Services validate JWT bằng shared secret:
 4. **Fallback**: Service có thể gọi `/internal/validate` nếu cần
 
 **Lợi ích:**
+
 - Simple implementation (1 secret key)
 - Fast validation (symmetric crypto)
 - No external dependencies
 - Sufficient cho on-premise deployment
-
-
 
 **Role Mapping (Current Implementation - Config-based):**
 
 > **DESIGN DECISION:** Giữ nguyên config-based role mapping thay vì Google Groups API
 
 **Rationale:**
+
 - ✅ **Simple:** Direct email-to-role mapping, no external API calls
 - ✅ **Fast:** No latency from Directory API
 - ✅ **Reliable:** No dependency on Google API availability
@@ -641,6 +643,7 @@ Services validate JWT bằng shared secret:
 - ✅ **Working:** Đã test kỹ, đáp ứng đủ requirements
 
 **Trade-offs:**
+
 - ❌ Manual updates (need config change + restart)
 - ❌ Not real-time (5-10 min delay for role changes)
 - ✅ Add Provider Abstraction để dễ extend sau này
@@ -651,29 +654,30 @@ access_control:
   allowed_domains:
     - vinfast.com
     - agency-partner.com
-  
+
   # Role mapping - email → role
   user_roles:
     # ADMIN users
     cmo@vinfast.com: ADMIN
     it-admin@vinfast.com: ADMIN
-    
+
     # ANALYST users
     analyst@vinfast.com: ANALYST
     marketing@agency-partner.com: ANALYST
-    
+
     # VIEWER users (explicit)
     executive@vinfast.com: VIEWER
-  
+
   # Default role for allowed domains
   default_role: VIEWER
-  
+
   # Block list (revoked users)
   blocked_users:
     - ex-employee@vinfast.com
 ```
 
 **Implementation Flow:**
+
 1. User login via OAuth → Get email from provider
 2. Check `allowed_domains` → Reject if not allowed
 3. Check `blocked_users` → Reject if blocked
@@ -682,13 +686,12 @@ access_control:
 6. Create/update user record in DB
 7. Issue JWT with role claim
 
-
-
 **Dual Authentication Mode (Current Feature):**
 
 Identity Service v2.0.0 hỗ trợ 2 authentication modes:
 
 **1. Cookie-based (Browser/Web UI):**
+
 ```yaml
 cookie:
   name: smap_session
@@ -701,44 +704,47 @@ cookie:
 ```
 
 **Flow:**
+
 - User login → Set HttpOnly cookie
 - Browser tự động gửi cookie với mọi request
 - Middleware extract session ID từ cookie
 - Lookup session trong Redis → Get user info
 
 **2. Header-based (API/Mobile):**
+
 ```
 Authorization: Bearer <jwt_token>
 ```
 
 **Flow:**
+
 - User login → Return JWT token
 - Client gửi token trong Authorization header
 - Middleware validate JWT → Extract claims
 
 **Middleware Priority:**
+
 ```go
 func (m *AuthMiddleware) Authenticate(r *http.Request) (*User, error) {
     // 1. Try Authorization header first (API clients)
     if token := r.Header.Get("Authorization"); token != "" {
         return m.validateJWT(token)
     }
-    
+
     // 2. Fallback to cookie (Browser)
     if cookie, err := r.Cookie("smap_session"); err == nil {
         return m.validateSession(cookie.Value)
     }
-    
+
     return nil, ErrUnauthorized
 }
 ```
 
 **Lợi ích:**
+
 - Browser: Automatic cookie handling, XSS protection
 - API/Mobile: Stateless JWT, easy integration
 - Flexibility: Support both web và mobile clients
-
-
 
 **Token Blacklist (Current Implementation):**
 
@@ -751,6 +757,7 @@ blacklist:
 ```
 
 **Current Implementation:**
+
 ```go
 // Revoke specific token
 func (s *AuthService) RevokeToken(jti string, remainingTTL time.Duration) error {
@@ -773,6 +780,7 @@ func (m *AuthMiddleware) isBlacklisted(jti string) bool {
 Hiện tại chỉ revoke được từng token riêng lẻ. Cần thêm khả năng revoke ALL tokens của 1 user.
 
 **Enhancement:**
+
 ```go
 // NEW: Revoke all user tokens
 func (s *AuthService) RevokeUserAccess(userID string) error {
@@ -788,12 +796,12 @@ func (s *AuthService) RevokeUserAccess(userID string) error {
 // Enhanced middleware check
 func (m *AuthMiddleware) isBlacklisted(userID, jti string) bool {
     // Check user-level blacklist first
-    userBlocked, _ := m.redis.Exists(ctx, 
+    userBlocked, _ := m.redis.Exists(ctx,
         fmt.Sprintf("blacklist:user:%s", userID)).Result()
     if userBlocked > 0 {
         return true
     }
-    
+
     // Check token-level blacklist
     tokenBlocked, _ := m.redis.Exists(ctx,
         fmt.Sprintf("blacklist:%s", jti)).Result()
@@ -802,13 +810,12 @@ func (m *AuthMiddleware) isBlacklisted(userID, jti string) bool {
 ```
 
 **Use Cases:**
+
 - User báo mất laptop → Admin revoke ALL tokens của user đó
 - Employee bị sa thải → Admin block account ngay lập tức
 - Security incident → Revoke access tức thì
 
 **Effort:** 1 hour
-
-
 
 **Session Management (Current Implementation):**
 
@@ -818,7 +825,7 @@ session:
   db: 0
   ttl: 28800 # 8 hours
   key_pattern: "session:{session_id}"
-  
+
   # Remember me feature
   remember_me:
     enabled: true
@@ -826,6 +833,7 @@ session:
 ```
 
 **Session Structure:**
+
 ```go
 type Session struct {
     ID        string    `json:"id"`
@@ -840,22 +848,23 @@ type Session struct {
 ```
 
 **Operations:**
+
 - **Create:** Login → Generate session ID → Store in Redis
 - **Read:** Middleware → Get session from Redis → Inject user into context
 - **Update:** Refresh → Extend TTL
 - **Delete:** Logout → Delete from Redis
 
 **Auto Cleanup:**
+
 - Redis TTL tự động xóa expired sessions
 - Không cần background job
 
 **Lợi ích:**
+
 - Fast (Redis in-memory)
 - Scalable (stateless services, state in Redis)
 - Reliable (Redis persistence)
 - Simple (no database queries)
-
-
 
 **Audit Log (Current Implementation - Kafka Async):**
 
@@ -906,6 +915,7 @@ audit:
 ```
 
 **Event Schema:**
+
 ```json
 {
   "user_id": "uuid",
@@ -923,6 +933,7 @@ audit:
 ```
 
 **Database Schema:**
+
 ```sql
 CREATE SCHEMA auth; -- Renamed from schema_identity
 
@@ -946,18 +957,18 @@ CREATE INDEX idx_audit_logs_expires ON auth.audit_logs(expires_at);
 ```
 
 **Cleanup Job:**
+
 ```bash
 # K8s CronJob - runs daily at 2 AM
 0 2 * * * psql -c "DELETE FROM auth.audit_logs WHERE expires_at < NOW()"
 ```
 
 **Lợi ích:**
+
 - Non-blocking (không làm chậm business logic)
 - Reliable (Kafka guarantees delivery)
 - Scalable (Kafka handles high throughput)
 - Decoupled (services không phụ thuộc Auth Service)
-
-
 
 **Multi-Provider Support (Current Implementation):**
 
@@ -975,14 +986,14 @@ oauth:
         - openid
         - email
         - profile
-    
+
     azure:
       enabled: false
       tenant_id: ${AZURE_TENANT_ID}
       client_id: ${AZURE_CLIENT_ID}
       client_secret: ${AZURE_CLIENT_SECRET}
       redirect_uri: ${APP_URL}/auth/callback/azure
-    
+
     okta:
       enabled: false
       domain: ${OKTA_DOMAIN}
@@ -996,6 +1007,7 @@ oauth:
 Hiện tại code hardcode logic cho từng provider. Cần refactor theo Interface pattern.
 
 **Target Architecture:**
+
 ```go
 // pkg/auth/provider/interface.go
 type IdentityProvider interface {
@@ -1018,6 +1030,7 @@ type OktaProvider struct {...}
 ```
 
 **Benefits:**
+
 - Easy to add new providers (LDAP, SAML, custom SSO)
 - Easy to test (mock interface)
 - Clean code (no if/else chains)
@@ -1025,11 +1038,10 @@ type OktaProvider struct {...}
 
 **Effort:** 1 day
 
-
-
 **Database Schema (Current → Target):**
 
 **Current:**
+
 ```sql
 CREATE SCHEMA schema_identity;
 
@@ -1049,6 +1061,7 @@ CREATE TABLE schema_identity.audit_logs (...);
 ```
 
 **Target:**
+
 ```sql
 -- Rename schema
 ALTER SCHEMA schema_identity RENAME TO auth;
@@ -1059,6 +1072,7 @@ CREATE TABLE auth.audit_logs (...);
 ```
 
 **Migration Steps:**
+
 1. Run SQL: `ALTER SCHEMA schema_identity RENAME TO auth;`
 2. Update config: `postgres.schema: auth`
 3. Regenerate SQLBoiler models: `make models`
@@ -1067,8 +1081,6 @@ CREATE TABLE auth.audit_logs (...);
 
 **Effort:** 2-3 hours  
 **Risk:** 🟡 MEDIUM (need downtime for schema rename)
-
-
 
 **JWT Middleware for Other Services:**
 
@@ -1083,7 +1095,7 @@ import (
     "fmt"
     "net/http"
     "strings"
-    
+
     "github.com/golang-jwt/jwt/v5"
     "github.com/redis/go-redis/v9"
 )
@@ -1108,9 +1120,9 @@ func (m *JWTMiddleware) Authenticate(next http.Handler) http.Handler {
             http.Error(w, "Missing authorization header", http.StatusUnauthorized)
             return
         }
-        
+
         tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-        
+
         // 2. Parse & validate JWT using shared secret
         token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
             // Verify signing method
@@ -1119,37 +1131,37 @@ func (m *JWTMiddleware) Authenticate(next http.Handler) http.Handler {
             }
             return m.secretKey, nil
         })
-        
+
         if err != nil || !token.Valid {
             http.Error(w, "Invalid token", http.StatusUnauthorized)
             return
         }
-        
+
         // 3. Extract claims
         claims, ok := token.Claims.(jwt.MapClaims)
         if !ok {
             http.Error(w, "Invalid token claims", http.StatusUnauthorized)
             return
         }
-        
+
         // 4. Verify issuer
         if claims["iss"] != "smap-auth-service" {
             http.Error(w, "Invalid token issuer", http.StatusUnauthorized)
             return
         }
-        
+
         // 5. Check Redis blacklist
         userID := claims["user_id"].(string)
         jti, _ := claims["jti"].(string)
-        
+
         // Check user-level blacklist
-        isUserBlacklisted, _ := m.redis.Exists(r.Context(), 
+        isUserBlacklisted, _ := m.redis.Exists(r.Context(),
             fmt.Sprintf("blacklist:user:%s", userID)).Result()
         if isUserBlacklisted > 0 {
             http.Error(w, "Token revoked", http.StatusUnauthorized)
             return
         }
-        
+
         // Check token-level blacklist
         if jti != "" {
             isTokenBlacklisted, _ := m.redis.Exists(r.Context(),
@@ -1159,12 +1171,12 @@ func (m *JWTMiddleware) Authenticate(next http.Handler) http.Handler {
                 return
             }
         }
-        
+
         // 6. Inject user info into context
         ctx := context.WithValue(r.Context(), "user_id", userID)
         ctx = context.WithValue(ctx, "email", claims["email"].(string))
         ctx = context.WithValue(ctx, "role", claims["role"].(string))
-        
+
         // 7. Pass to next handler
         next.ServeHTTP(w, r.WithContext(ctx))
     })
@@ -1175,13 +1187,13 @@ func RequireRole(role string) func(http.Handler) http.Handler {
     return func(next http.Handler) http.Handler {
         return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
             userRole := r.Context().Value("role").(string)
-            
+
             // Role hierarchy: ADMIN > ANALYST > VIEWER
             if !hasPermission(userRole, role) {
                 http.Error(w, "Insufficient permissions", http.StatusForbidden)
                 return
             }
-            
+
             next.ServeHTTP(w, r)
         })
     }
@@ -1198,6 +1210,7 @@ func hasPermission(userRole, requiredRole string) bool {
 ```
 
 **Usage trong Project Service:**
+
 ```go
 func main() {
     // Initialize JWT middleware
@@ -1205,57 +1218,55 @@ func main() {
         os.Getenv("JWT_SECRET_KEY"),
         redisClient,
     )
-    
+
     // Setup routes
     r := chi.NewRouter()
-    
+
     // Public routes
     r.Get("/health", healthHandler)
-    
+
     // Protected routes
     r.Group(func(r chi.Router) {
         r.Use(authMiddleware.Authenticate)
-        
+
         // All users can view
         r.Get("/projects", listProjectsHandler)
-        
+
         // Only ANALYST+ can create
         r.With(auth.RequireRole("ANALYST")).Post("/projects", createProjectHandler)
-        
+
         // Only ADMIN can delete
         r.With(auth.RequireRole("ADMIN")).Delete("/projects/{id}", deleteProjectHandler)
     })
-    
+
     http.ListenAndServe(":8080", r)
 }
 ```
 
-
-
 **Migration Tasks (Tuần 1):**
 
-| Task | Description | Effort | Priority |
-|------|-------------|--------|----------|
-| 1. Database Schema Rename | `ALTER SCHEMA schema_identity RENAME TO auth` | 2-3h | 🔴 HIGH |
-| 2. Folder Rename | `services/identity/` → `services/auth-service/` | 2h | 🔴 HIGH |
-| 3. Provider Abstraction | Refactor OAuth logic → Interface pattern | 1d | 🔴 HIGH |
-| 4. User-level Blacklist | Add `blacklist:user:{user_id}` support | 1h | 🔴 HIGH |
-| 5. Update Config | Rename config keys, update docs | 1h | 🟡 MEDIUM |
-| 6. Regenerate Models | SQLBoiler models for new schema | 30m | 🟡 MEDIUM |
-| 7. Update Tests | Fix broken tests after refactoring | 2h | 🟡 MEDIUM |
-| 8. Update Documentation | README, API docs, architecture diagrams | 2h | 🟡 MEDIUM |
+| Task                      | Description                                     | Effort | Priority  |
+| ------------------------- | ----------------------------------------------- | ------ | --------- |
+| 1. Database Schema Rename | `ALTER SCHEMA schema_identity RENAME TO auth`   | 2-3h   | 🔴 HIGH   |
+| 2. Folder Rename          | `services/identity/` → `services/auth-service/` | 2h     | 🔴 HIGH   |
+| 3. Provider Abstraction   | Refactor OAuth logic → Interface pattern        | 1d     | 🔴 HIGH   |
+| 4. User-level Blacklist   | Add `blacklist:user:{user_id}` support          | 1h     | 🔴 HIGH   |
+| 5. Update Config          | Rename config keys, update docs                 | 1h     | 🟡 MEDIUM |
+| 6. Regenerate Models      | SQLBoiler models for new schema                 | 30m    | 🟡 MEDIUM |
+| 7. Update Tests           | Fix broken tests after refactoring              | 2h     | 🟡 MEDIUM |
+| 8. Update Documentation   | README, API docs, architecture diagrams         | 2h     | 🟡 MEDIUM |
 
 **Total Effort:** 2-3 days
 
 **Risk Assessment:**
+
 - 🟡 MEDIUM: Database schema rename needs downtime
 - 🟢 LOW: Other tasks are non-breaking refactors
-
-
 
 **Future Enhancements (Phase 2-3):**
 
 **Phase 2 (Tuần 2-4):**
+
 1. **Refresh Token Support:**
    - Add refresh token generation
    - Add `/auth/refresh` endpoint
@@ -1269,13 +1280,13 @@ func main() {
    - Add export functionality
    - **Effort:** 1 day
 
-**Phase 3 (Tuần 12):**
-3. **Key Rotation (Optional):**
-   - Flexible key loading (file, env, K8s secret)
-   - Automatic rotation mechanism
-   - Zero-downtime rotation
-   - **Effort:** 1-2 days
-   - **Note:** Only if migrate to RS256
+**Phase 3 (Tuần 12):** 3. **Key Rotation (Optional):**
+
+- Flexible key loading (file, env, K8s secret)
+- Automatic rotation mechanism
+- Zero-downtime rotation
+- **Effort:** 1-2 days
+- **Note:** Only if migrate to RS256
 
 4. **Google Groups Integration (Optional):**
    - Dynamic role mapping from Google Groups
@@ -1291,47 +1302,43 @@ func main() {
    - **Effort:** 2-3 days
    - **Note:** Only if security requirements demand it
 
-
-
 **Roles & Permissions:**
 
-| Role | Permissions | Use Cases |
-|------|-------------|-----------|
-| **ADMIN** | • Full access to all features<br>• Manage users & roles<br>• Configure system settings<br>• View all projects & data<br>• Manage alerts & notifications<br>• Export audit logs | IT team, System administrators |
-| **ANALYST** | • Create & manage projects<br>• Upload data sources<br>• Run analysis<br>• View insights & reports<br>• Export data<br>• Use RAG chatbot<br>• Configure alerts for own projects | Marketing team, Data analysts |
-| **VIEWER** | • View dashboards (read-only)<br>• View reports<br>• View insights<br>• Cannot create/edit/delete | Executives, Stakeholders, External partners |
+| Role        | Permissions                                                                                                                                                                     | Use Cases                                   |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| **ADMIN**   | • Full access to all features<br>• Manage users & roles<br>• Configure system settings<br>• View all projects & data<br>• Manage alerts & notifications<br>• Export audit logs  | IT team, System administrators              |
+| **ANALYST** | • Create & manage projects<br>• Upload data sources<br>• Run analysis<br>• View insights & reports<br>• Export data<br>• Use RAG chatbot<br>• Configure alerts for own projects | Marketing team, Data analysts               |
+| **VIEWER**  | • View dashboards (read-only)<br>• View reports<br>• View insights<br>• Cannot create/edit/delete                                                                               | Executives, Stakeholders, External partners |
 
 **Permission Matrix:**
 
-| Action | ADMIN | ANALYST | VIEWER |
-|--------|-------|---------|--------|
-| View Dashboard | ✅ | ✅ | ✅ |
-| Create Project | ✅ | ✅ | ❌ |
-| Edit Project | ✅ | ✅ (own) | ❌ |
-| Delete Project | ✅ | ✅ (own) | ❌ |
-| Upload Data | ✅ | ✅ | ❌ |
-| Run Analysis | ✅ | ✅ | ❌ |
-| Export Data | ✅ | ✅ | ❌ |
-| Manage Users | ✅ | ❌ | ❌ |
-| Configure System | ✅ | ❌ | ❌ |
-| View Audit Logs | ✅ | ❌ | ❌ |
-
-
+| Action           | ADMIN | ANALYST  | VIEWER |
+| ---------------- | ----- | -------- | ------ |
+| View Dashboard   | ✅    | ✅       | ✅     |
+| Create Project   | ✅    | ✅       | ❌     |
+| Edit Project     | ✅    | ✅ (own) | ❌     |
+| Delete Project   | ✅    | ✅ (own) | ❌     |
+| Upload Data      | ✅    | ✅       | ❌     |
+| Run Analysis     | ✅    | ✅       | ❌     |
+| Export Data      | ✅    | ✅       | ❌     |
+| Manage Users     | ✅    | ❌       | ❌     |
+| Configure System | ✅    | ❌       | ❌     |
+| View Audit Logs  | ✅    | ❌       | ❌     |
 
 **Summary - What Changed from Original Plan:**
 
-| Aspect | Original Plan (v2.10) | Adapted Plan (v2.11) | Rationale |
-|--------|----------------------|---------------------|-----------|
-| **JWT Algorithm** | RS256 (asymmetric) | ✅ HS256 (symmetric) | Simpler, faster, sufficient for on-premise |
-| **Role Mapping** | Google Groups API | ✅ Config-based | No external dependency, simpler, working |
-| **Token TTL** | 15m access + 7d refresh | ✅ 8h single token | Better UX, sufficient security |
-| **Database Schema** | `auth.*` | ✅ `auth.*` (rename from `schema_identity`) | Align with plan |
-| **Folder Name** | `auth-service` | ✅ `auth-service` (rename from `identity`) | Align with plan |
-| **Provider Abstraction** | Not mentioned | ✅ Add Interface pattern | Improve code quality |
-| **User-level Blacklist** | Token-level only | ✅ Add user-level | Security enhancement |
-| **Dual Auth Mode** | Not mentioned | ✅ Keep (Cookie + Header) | Already working, good feature |
-| **Audit Log** | Kafka async | ✅ Kafka async | Already working perfectly |
-| **Session Management** | Redis | ✅ Redis | Already working perfectly |
+| Aspect                   | Original Plan (v2.10)   | Adapted Plan (v2.11)                        | Rationale                                  |
+| ------------------------ | ----------------------- | ------------------------------------------- | ------------------------------------------ |
+| **JWT Algorithm**        | RS256 (asymmetric)      | ✅ HS256 (symmetric)                        | Simpler, faster, sufficient for on-premise |
+| **Role Mapping**         | Google Groups API       | ✅ Config-based                             | No external dependency, simpler, working   |
+| **Token TTL**            | 15m access + 7d refresh | ✅ 8h single token                          | Better UX, sufficient security             |
+| **Database Schema**      | `auth.*`                | ✅ `auth.*` (rename from `schema_identity`) | Align with plan                            |
+| **Folder Name**          | `auth-service`          | ✅ `auth-service` (rename from `identity`)  | Align with plan                            |
+| **Provider Abstraction** | Not mentioned           | ✅ Add Interface pattern                    | Improve code quality                       |
+| **User-level Blacklist** | Token-level only        | ✅ Add user-level                           | Security enhancement                       |
+| **Dual Auth Mode**       | Not mentioned           | ✅ Keep (Cookie + Header)                   | Already working, good feature              |
+| **Audit Log**            | Kafka async             | ✅ Kafka async                              | Already working perfectly                  |
+| **Session Management**   | Redis                   | ✅ Redis                                    | Already working perfectly                  |
 
 **Key Decisions:**
 
@@ -1348,12 +1355,14 @@ func main() {
 > "Refactor structure, not rewrite. Leverage what's working, enhance what's missing."
 
 Identity Service v2.0.0 đã rất solid. Chúng ta chỉ cần:
+
 - Rename để align với plan
 - Refactor để improve code quality
 - Add missing features (user-level blacklist, provider abstraction)
 - Document design decisions trong thesis
 
 **Estimated Timeline:**
+
 - Week 1: Core refactoring (schema rename, folder rename, provider abstraction)
 - Week 2-4: Enhancements (refresh token, enhanced audit log)
 - Week 12: Optional features (key rotation, Google Groups, RS256)
@@ -1562,6 +1571,7 @@ message_queues:
 **REVISION v2.10:** Giữ nguyên Go service, refactor structure để scalable và maintainable.
 
 **Lý do không dùng n8n:**
+
 1. ❌ Single instance bottleneck - không scale ngang
 2. ❌ Performance overhead của visual workflow engine
 3. ❌ Khó debug production issues (visual workflows không có stack trace)
@@ -1597,13 +1607,13 @@ ai_workers:
     endpoint: http://sentiment-worker:8000/analyze/sentiment
     input: {content: string}
     output: {sentiment: string, score: float}
-    
+
   - name: aspect-worker
     language: Python (FastAPI)
     endpoint: http://aspect-worker:8000/analyze/aspects
     input: {content: string, aspects: string[]}
     output: [{aspect, sentiment, score, keywords}]
-    
+
   - name: keyword-worker
     language: Python (FastAPI)
     endpoint: http://keyword-worker:8000/extract/keywords
@@ -1639,29 +1649,29 @@ func (p *Pipeline) ProcessUAP(ctx context.Context, uap *UAP) error {
     if err != nil {
         return fmt.Errorf("sentiment analysis failed: %w", err)
     }
-    
+
     // 2. Call Aspect Worker (parallel with keyword)
     var aspectResult *AspectResult
     var keywordResult *KeywordResult
-    
+
     g, ctx := errgroup.WithContext(ctx)
-    
+
     g.Go(func() error {
         var err error
         aspectResult, err = p.aspectClient.Analyze(ctx, uap.Content, aspects)
         return err
     })
-    
+
     g.Go(func() error {
         var err error
         keywordResult, err = p.keywordClient.Extract(ctx, uap.Content)
         return err
     })
-    
+
     if err := g.Wait(); err != nil {
         return fmt.Errorf("parallel analysis failed: %w", err)
     }
-    
+
     // 3. Aggregate results
     analytics := &PostAnalytics{
         ProjectID:           uap.ProjectID,
@@ -1674,12 +1684,12 @@ func (p *Pipeline) ProcessUAP(ctx context.Context, uap *UAP) error {
         Aspects:             aspectResult.Aspects,
         Keywords:            keywordResult.Keywords,
     }
-    
+
     // 4. Save to database
     if err := p.repo.Insert(ctx, analytics); err != nil {
         return fmt.Errorf("failed to save analytics: %w", err)
     }
-    
+
     return nil
 }
 ```
@@ -1697,7 +1707,7 @@ func main() {
         Topic:   "analytics.uap.received",
         GroupID: "analytics-consumer",
     })
-    
+
     // Initialize pipeline
     pipeline := orchestrator.NewPipeline(
         workers.NewSentimentClient("http://sentiment-worker:8000"),
@@ -1705,7 +1715,7 @@ func main() {
         workers.NewKeywordClient("http://keyword-worker:8000"),
         repository.NewAnalyticsRepo(db),
     )
-    
+
     // Process messages
     for {
         msg, err := consumer.ReadMessage(ctx)
@@ -1713,13 +1723,13 @@ func main() {
             log.Error("failed to read message", err)
             continue
         }
-        
+
         var uap UAP
         if err := json.Unmarshal(msg.Value, &uap); err != nil {
             log.Error("failed to unmarshal UAP", err)
             continue
         }
-        
+
         // Process in goroutine for concurrency
         go func(uap UAP) {
             if err := pipeline.ProcessUAP(ctx, &uap); err != nil {
@@ -1739,28 +1749,28 @@ kind: Deployment
 metadata:
   name: analytics-consumer
 spec:
-  replicas: 5  # Horizontal scaling
+  replicas: 5 # Horizontal scaling
   selector:
     matchLabels:
       app: analytics-consumer
   template:
     spec:
       containers:
-      - name: consumer
-        image: analytics-service:latest
-        command: ["/app/consumer"]
-        resources:
-          requests:
-            cpu: 500m
-            memory: 512Mi
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-        env:
-        - name: KAFKA_BROKERS
-          value: "kafka:9092"
-        - name: KAFKA_GROUP_ID
-          value: "analytics-consumer"
+        - name: consumer
+          image: analytics-service:latest
+          command: ["/app/consumer"]
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          env:
+            - name: KAFKA_BROKERS
+              value: "kafka:9092"
+            - name: KAFKA_GROUP_ID
+              value: "analytics-consumer"
 ```
 
 **Lợi ích:**
@@ -2500,29 +2510,30 @@ frequency: ADAPTIVE (theo Runtime Mode)
 
 #### Tuần 1: Auth Service + Entity Hierarchy Setup
 
-| Task                                         | Effort | Owner |
-| -------------------------------------------- | ------ | ----- |
-| Setup Google OAuth2 integration              | 4h     | Dev   |
-| **Implement JWT RS256 signing & validation** | 4h     | Dev   |
-| **Setup JWKS endpoint for public key**       | 2h     | Dev   |
-| **Create shared JWT middleware package**     | 4h     | Dev   |
-| **Add Redis blacklist check to middleware**  | 2h     | Dev   |
-| **Google Groups integration (Directory API)**| 4h     | Dev   |
-| **Redis cache for Groups membership**        | 2h     | Dev   |
-| Implement domain restriction                 | 2h     | Dev   |
-| Implement role mapping từ config             | 4h     | Dev   |
-| **Identity Provider abstraction (Interface)**| 3h     | Dev   |
-| **Flexible key loading (file/env/k8s)**      | 2h     | Dev   |
-| **OAuth error handling & user-friendly pages**| 3h    | Dev   |
-| **Audit log Kafka publisher (shared pkg)**   | 3h     | Dev   |
-| **Audit log consumer in Auth Service**       | 3h     | Dev   |
-| **Audit log retention policy & cleanup job** | 2h     | Dev   |
-| Create auth-config.yaml template             | 2h     | Dev   |
-| **Create campaigns table (Tầng 3)**          | 2h     | Dev   |
-| **Create campaign_projects table**           | 1h     | Dev   |
-| Update Docker Compose                        | 2h     | Dev   |
+| Task                                           | Effort | Owner |
+| ---------------------------------------------- | ------ | ----- |
+| Setup Google OAuth2 integration                | 4h     | Dev   |
+| **Implement JWT RS256 signing & validation**   | 4h     | Dev   |
+| **Setup JWKS endpoint for public key**         | 2h     | Dev   |
+| **Create shared JWT middleware package**       | 4h     | Dev   |
+| **Add Redis blacklist check to middleware**    | 2h     | Dev   |
+| **Google Groups integration (Directory API)**  | 4h     | Dev   |
+| **Redis cache for Groups membership**          | 2h     | Dev   |
+| Implement domain restriction                   | 2h     | Dev   |
+| Implement role mapping từ config               | 4h     | Dev   |
+| **Identity Provider abstraction (Interface)**  | 3h     | Dev   |
+| **Flexible key loading (file/env/k8s)**        | 2h     | Dev   |
+| **OAuth error handling & user-friendly pages** | 3h     | Dev   |
+| **Audit log Kafka publisher (shared pkg)**     | 3h     | Dev   |
+| **Audit log consumer in Auth Service**         | 3h     | Dev   |
+| **Audit log retention policy & cleanup job**   | 2h     | Dev   |
+| Create auth-config.yaml template               | 2h     | Dev   |
+| **Create campaigns table (Tầng 3)**            | 2h     | Dev   |
+| **Create campaign_projects table**             | 1h     | Dev   |
+| Update Docker Compose                          | 2h     | Dev   |
 
 **Deliverables:**
+
 - Auth Service hoạt động với Google SSO
 - JWT middleware package với blacklist check
 - Identity Provider abstraction (dễ thêm Azure/Okta sau)
@@ -2650,18 +2661,18 @@ frequency: ADAPTIVE (theo Runtime Mode)
 
 #### Tuần 12: Helm Charts + Documentation + Security Hardening
 
-| Task                                      | Effort | Owner |
-| ----------------------------------------- | ------ | ----- |
-| Helm chart cho mỗi service                | 1d     | Dev   |
-| values.yaml templates                     | 4h     | Dev   |
-| **JWT Key Rotation implementation**       | 1d     | Dev   |
-| **Multi-key JWKS endpoint**               | 2h     | Dev   |
-| **Azure AD provider implementation**      | 4h     | Dev   |
-| **Entity Hierarchy documentation**        | 4h     | Dev   |
-| **UAP schema documentation**              | 2h     | Dev   |
-| **Security enhancements documentation**   | 2h     | Dev   |
-| API documentation update                  | 4h     | Dev   |
-| Demo preparation                          | 4h     | Dev   |
+| Task                                    | Effort | Owner |
+| --------------------------------------- | ------ | ----- |
+| Helm chart cho mỗi service              | 1d     | Dev   |
+| values.yaml templates                   | 4h     | Dev   |
+| **JWT Key Rotation implementation**     | 1d     | Dev   |
+| **Multi-key JWKS endpoint**             | 2h     | Dev   |
+| **Azure AD provider implementation**    | 4h     | Dev   |
+| **Entity Hierarchy documentation**      | 4h     | Dev   |
+| **UAP schema documentation**            | 2h     | Dev   |
+| **Security enhancements documentation** | 2h     | Dev   |
+| API documentation update                | 4h     | Dev   |
+| Demo preparation                        | 4h     | Dev   |
 
 **Deliverable Phase 3:**
 
