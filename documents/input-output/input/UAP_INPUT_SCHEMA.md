@@ -1,4 +1,5 @@
 # SMAP Unified Analytics Protocol (UAP) Schema Specification (v1.0)
+
 *(Dành cho Developer & Data Engineer)*
 
 Tài liệu này định nghĩa cấu trúc JSON chuẩn (Schema) được sử dụng thống nhất trong toàn bộ hệ thống SMAP. Mọi dữ liệu từ bất kỳ nguồn nào (Crawl, File Upload, Webhook) đều phải được `Ingest Worker` chuyển đổi về cấu trúc này trước khi đẩy vào `Kafka` để `Analytics` xử lý.
@@ -9,13 +10,13 @@ Tài liệu này định nghĩa cấu trúc JSON chuẩn (Schema) được sử 
 
 Một bản ghi UAP (UAP Record) gồm 6 khối chính:
 
-1.  **`uap_version`**: Phiên bản format đang dùng.
-2.  **`event_id`**: Định danh duy nhất của sự kiện xử lý này.
-3.  **`ingest`**: Metadata về quá trình thu thập (Ai lấy? Lấy từ đâu? Dự án nào?).
-4.  **`content`**: Nội dung chính cần phân tích (Text, Ảnh, Video).
-5.  **`signals`**: Các tín hiệu số học (Like, Share, Rating, Geo).
-6.  **`context`**: Ngữ cảnh bổ sung (Campaign, Keyword matched).
-7.  **`raw`**: Dữ liệu gốc (để debug hoặc tra cứu lại).
+1. **`uap_version`**: Phiên bản format đang dùng.
+2. **`event_id`**: Định danh duy nhất của sự kiện xử lý này.
+3. **`ingest`**: Metadata về quá trình thu thập (Ai lấy? Lấy từ đâu? Dự án nào?).
+4. **`content`**: Nội dung chính cần phân tích (Text, Ảnh, Video).
+5. **`signals`**: Các tín hiệu số học (Like, Share, Rating, Geo).
+6. **`context`**: Ngữ cảnh bổ sung (Campaign, Keyword matched).
+7. **`raw`**: Dữ liệu gốc (để debug hoặc tra cứu lại).
 
 ---
 
@@ -107,6 +108,7 @@ Dữ liệu thô chưa qua tẩy rửa, dùng để đối chiếu khi cần.
 ## 3. Ví dụ Minh họa (JSON)
 
 ### 3.1. Trường hợp Crawl Facebook (Social Media)
+
 ```json
 {
   "uap_version": "1.0",
@@ -125,6 +127,7 @@ Dữ liệu thô chưa qua tẩy rửa, dùng để đối chiếu khi cần.
 ```
 
 ### 3.2. Trường hợp Upload Excel (Customer Feedback)
+
 ```json
 {
   "uap_version": "1.0",

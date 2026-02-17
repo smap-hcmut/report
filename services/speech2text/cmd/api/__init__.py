@@ -1,4 +1,0 @@
-"""
-API Service entry point.
-"""
-
