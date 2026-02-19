@@ -3,7 +3,7 @@
 ## Từ Public SaaS → On-Premise Enterprise Solution
 
 **Ngày tạo:** 06/02/2026  
-**Cập nhật:** 20/02/2026 (v2.12 - Crisis Detection + Adaptive Crawl Redesign)  
+**Cập nhật:** 20/02/2026 (v2.13 - Crisis Detection chuyển sang Project Service)  
 **Thời gian thực hiện:** 3 tháng (12 tuần)  
 **Người thực hiện:** Nguyễn Tấn Tài
 
@@ -26,6 +26,7 @@
 | v2.10   | 09/02/2026 | **REVISION:** Analytics Service - Revert n8n, Keep Traditional Go Service    |
 | v2.11   | 15/02/2026 | **ADAPTATION:** Auth Service - Align with Current Identity Service v2.0.0    |
 | v2.12   | 20/02/2026 | **REDESIGN:** Crisis Detection + Adaptive Crawl - Simplified Architecture    |
+| v2.13   | 20/02/2026 | **ARCH CHANGE:** Crisis Detection chuyển từ Analytics Service → Project Service (owns config, runs detection); Analytics chỉ publish `analytics.insights.aggregated`; `analytics.crisis.detected` bị loại bỏ |
 
 ---
 
@@ -391,7 +392,7 @@ T2 (Day 3):
   - Webhook continues (real-time)
 
 T3 (Day 4):
-  - Analytics detects crisis on YouTube (45% negative)
+  - Project Service Crisis Detector detects crisis on YouTube (45% negative)
   - YouTube switches to CRISIS mode (2 min interval)
   - TikTok continues NORMAL mode (15 min) ← Không bị ảnh hưởng
   - Webhook continues (real-time)
@@ -1685,10 +1686,16 @@ Project Service là **Decision Maker** - quyết định WHAT, WHEN, WHY. Ingest
 │     ✓ Determine crawl mode (Sleep/Normal/Crisis)                │
 │     ✓ Call Ingest API để update crawl_mode                      │
 │                                                                 │
-│  4. INTEGRATION HUB (Trung tâm tích hợp)                        │
+│  4. CRISIS DETECTOR                                             │
+│     ✓ Consume insights từ Analytics Service                      │
+│     ✓ Load local crisis_detection config (own DB)                │
+│     ✓ Apply 4 triggers (Keywords, Volume, Sentiment, Influencer) │
+│     ✓ Store alerts + Trigger adaptive crawl (if CRITICAL)        │
+│     ✓ Publish project.crisis.started → Notification Service     │
+│                                                                 │
+│  5. INTEGRATION HUB (Trung tâm tích hợp)                        │
 │     ✓ Coordinate Ingest, Analytics, Knowledge, Notification     │
 │     ✓ Aggregate dashboard data từ Analytics                     │
-│     ✓ Trigger crisis alerts qua Notification                    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -1714,7 +1721,7 @@ responsibility:
 
   # Integration
   - Dashboard data aggregation (from Analytics)
-  - Crisis alert handling (consume from Analytics, call Ingest API)
+  - Crisis detection (consume insights from Analytics, apply local config, store alerts)
   - Event publishing (Kafka producer)
 
 modules:
@@ -1785,8 +1792,8 @@ kafka_topics_produced:
   - project.resumed
   - project.archived
 
-  # Config management
-  - project.config.updated # Crisis detection config changes
+  # Config management (optional - audit trail only)
+  - project.config.updated # Audit trail for config changes (Analytics không càn cần cache nữa)
 
   # Orchestration commands
   - ingest.file.process # Command to Ingest: process uploaded file
@@ -1799,7 +1806,7 @@ kafka_topics_produced:
 kafka_topics_consumed:
   # Feedback from Analytics for adaptive crawl
   - analytics.metrics.aggregated # Metrics per source (every 5 min)
-  - analytics.crisis.detected # Crisis alerts from Analytics
+  - analytics.insights.aggregated # Aggregated insights per project (Project Service applies local crisis config)
 
   # Status updates from Ingest
   - ingest.crawl.completed
@@ -2783,7 +2790,7 @@ T6: User activates project
 T7: Scheduler starts crawling every 15 min
     Source: ACTIVE (crawl_mode=NORMAL, crawl_interval=15)
 
-T8: Analytics detects crisis (45% negative)
+T8: Project Service Crisis Detector detects crisis (45% negative)
     Source: ACTIVE (crawl_mode=CRISIS, crawl_interval=2) (SYSTEM)
     Adaptive Crawl switches mode
 
