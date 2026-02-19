@@ -11,20 +11,20 @@
 
 **Changelog:**
 
-| Version | Ngày | Nội dung |
-|---------|------|----------|
-| v2.0 | 06/02/2026 | Initial migration plan |
-| v2.1 | 06/02/2026 | Tích hợp UAP, Entity Hierarchy, AI Schema Agent |
-| v2.2 | 06/02/2026 | Tích hợp Time Handling Strategy |
-| v2.3 | 07/02/2026 | Chốt Hybrid Architecture & Multi-Schema Database |
-| v2.4 | 07/02/2026 | Enhanced UX: Dry-Run, Vector Trigger, Campaign War Room |
-| v2.5 | 07/02/2026 | Real-time Engine & Intelligent Crawling |
-| v2.6 | 07/02/2026 | Artifact Editing: Inline Editor + Google Docs Integration |
-| v2.7 | 07/02/2026 | Turnkey Deployment Strategy (IaC): Ansible + K3s + Helm |
-| v2.8 | 09/02/2026 | Auth Service Deep Dive: JWT Middleware, Audit Log Strategy, Business Context |
-| v2.9 | 09/02/2026 | Enterprise Security: Token Blacklist, Multi-Provider, Key Rotation |
-| v2.10 | 09/02/2026 | **REVISION:** Analytics Service - Revert n8n, Keep Traditional Go Service |
-| v2.11 | 15/02/2026 | **ADAPTATION:** Auth Service - Align with Current Identity Service v2.0.0 |
+| Version | Ngày       | Nội dung                                                                     |
+| ------- | ---------- | ---------------------------------------------------------------------------- |
+| v2.0    | 06/02/2026 | Initial migration plan                                                       |
+| v2.1    | 06/02/2026 | Tích hợp UAP, Entity Hierarchy, AI Schema Agent                              |
+| v2.2    | 06/02/2026 | Tích hợp Time Handling Strategy                                              |
+| v2.3    | 07/02/2026 | Chốt Hybrid Architecture & Multi-Schema Database                             |
+| v2.4    | 07/02/2026 | Enhanced UX: Dry-Run, Vector Trigger, Campaign War Room                      |
+| v2.5    | 07/02/2026 | Real-time Engine & Intelligent Crawling                                      |
+| v2.6    | 07/02/2026 | Artifact Editing: Inline Editor + Google Docs Integration                    |
+| v2.7    | 07/02/2026 | Turnkey Deployment Strategy (IaC): Ansible + K3s + Helm                      |
+| v2.8    | 09/02/2026 | Auth Service Deep Dive: JWT Middleware, Audit Log Strategy, Business Context |
+| v2.9    | 09/02/2026 | Enterprise Security: Token Blacklist, Multi-Provider, Key Rotation           |
+| v2.10   | 09/02/2026 | **REVISION:** Analytics Service - Revert n8n, Keep Traditional Go Service    |
+| v2.11   | 15/02/2026 | **ADAPTATION:** Auth Service - Align with Current Identity Service v2.0.0    |
 
 ---
 
@@ -121,6 +121,286 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 
 > **Lưu ý:** Project = 1 thực thể cụ thể cần monitor (sản phẩm, chiến dịch, dịch vụ...), KHÔNG phải toàn bộ brand. Brand chỉ là text field metadata để nhóm hiển thị.
 
+#### 0.2.1 Multi-Source per Project - Quan hệ 1:N (CRITICAL)
+
+**Nguyên tắc quan trọng:** Một Project có thể có NHIỀU Data Sources với các loại khác nhau, hoạt động song song và độc lập.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Project "Monitor VF8" (1 Project)                              │
+│  ├── brand: "VinFast"                                           │
+│  ├── entity_type: "product"                                     │
+│  ├── entity_name: "VF8"                                         │
+│  │                                                              │
+│  ├── Data Source 1: Excel "Feedback Q1.xlsx" (PASSIVE)          │
+│  │   ├── Type: FILE_UPLOAD                                      │
+│  │   ├── Status: COMPLETED                                      │
+│  │   ├── Records: 500 UAP                                       │
+│  │   ├── Onboarding: AI Schema Mapping DONE                     │
+│  │   └── Trigger: Manual upload (one-time)                      │
+│  │                                                              │
+│  ├── Data Source 2: TikTok Crawl "vinfast vf8" (CRAWL)          │
+│  │   ├── Type: TIKTOK                                           │
+│  │   ├── Status: ACTIVE                                         │
+│  │   ├── Records: 1000 UAP (ongoing)                            │
+│  │   ├── Crawl Mode: NORMAL (15 min interval)                   │
+│  │   ├── Dry Run: SUCCESS                                       │
+│  │   └── Trigger: Scheduled poll (every 15 min)                 │
+│  │                                                              │
+│  ├── Data Source 3: Webhook từ CRM (PASSIVE)                    │
+│  │   ├── Type: WEBHOOK                                          │
+│  │   ├── Status: ACTIVE                                         │
+│  │   ├── Records: 300 UAP (ongoing)                             │
+│  │   ├── Onboarding: AI Schema Mapping DONE                     │
+│  │   ├── Webhook URL: https://smap.com/webhook/abc123           │
+│  │   └── Trigger: External push (real-time)                     │
+│  │                                                              │
+│  └── Data Source 4: YouTube Crawl "vf8 review" (CRAWL)          │
+│      ├── Type: YOUTUBE                                          │
+│      ├── Status: ACTIVE                                         │
+│      ├── Records: 300 UAP (ongoing)                             │
+│      ├── Crawl Mode: CRISIS (2 min interval) ← Adaptive!        │
+│      ├── Dry Run: SUCCESS                                       │
+│      └── Trigger: Scheduled poll (every 2 min - crisis mode)    │
+│                                                                 │
+│  → Dashboard aggregates: 500 + 1000 + 300 + 300 = 2100 UAP      │
+│  → Có thể filter theo từng source_id                            │
+│  → Mỗi source có lifecycle và schedule riêng biệt               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Quan hệ Database:**
+
+```sql
+-- 1 Project : N Data Sources
+schema_project.projects (1)
+    ↓ project_id
+schema_ingest.data_sources (N)
+
+-- Example:
+-- project_id = "proj_vf8"
+--   ├── source_id = "src_excel_01"    (FILE_UPLOAD)
+--   ├── source_id = "src_tiktok_01"   (TIKTOK, crawl_mode=NORMAL)
+--   ├── source_id = "src_webhook_01"  (WEBHOOK)
+--   └── source_id = "src_youtube_01"  (YOUTUBE, crawl_mode=CRISIS)
+```
+
+**Lifecycle độc lập của từng Data Source:**
+
+| Source Type     | Lifecycle                                           | Schedule                  | Adaptive Crawl                   |
+| --------------- | --------------------------------------------------- | ------------------------- | -------------------------------- |
+| **FILE_UPLOAD** | One-time: Upload → Onboarding → Process → COMPLETED | Manual trigger            | ❌ Không áp dụng                 |
+| **WEBHOOK**     | Continuous: Activate → Receive → Process (ongoing)  | External push (real-time) | ❌ Không áp dụng                 |
+| **FACEBOOK**    | Continuous: Activate → Crawl → Process (ongoing)    | Scheduled poll            | ✅ Áp dụng (Sleep/Normal/Crisis) |
+| **TIKTOK**      | Continuous: Activate → Crawl → Process (ongoing)    | Scheduled poll            | ✅ Áp dụng (Sleep/Normal/Crisis) |
+| **YOUTUBE**     | Continuous: Activate → Crawl → Process (ongoing)    | Scheduled poll            | ✅ Áp dụng (Sleep/Normal/Crisis) |
+
+**Flow chi tiết cho từng loại:**
+
+**1. FILE_UPLOAD (Passive - One-time):**
+
+```
+User uploads Excel file
+    ↓
+[Project Service]
+    - Validate project is ACTIVE
+    - Create data_source (type=FILE_UPLOAD, status=PENDING)
+    - Generate MinIO presigned URL
+    - Return upload URL to user
+    ↓
+[User uploads file to MinIO]
+    ↓
+[Project Service]
+    - Detect file uploaded (MinIO webhook)
+    - Trigger AI Schema Mapping (Onboarding)
+    - User confirms mapping
+    - Publish: ingest.file.process {source_id, file_url, mapping_rules}
+    ↓
+[Ingest Service]
+    - Download file from MinIO
+    - Parse Excel → rows
+    - Apply mapping_rules
+    - Transform rows → UAP batch
+    - Publish: smap.collector.output (UAP batch)
+    - Publish: ingest.file.completed {source_id, items_count=500}
+    ↓
+[Project Service]
+    - Update data_source (status=COMPLETED, record_count=500)
+    - NO SCHEDULE (one-time only)
+```
+
+**2. WEBHOOK (Passive - Continuous):**
+
+```
+User configures webhook
+    ↓
+[Project Service]
+    - Create data_source (type=WEBHOOK, status=PENDING)
+    - User defines payload_schema
+    - Trigger AI Schema Mapping (Onboarding)
+    - User confirms mapping
+    - Generate webhook_url + secret
+    - Publish: ingest.webhook.activate {source_id, webhook_url, secret, mapping_rules}
+    ↓
+[Ingest Service]
+    - Register webhook endpoint
+    - Listen for incoming requests
+    ↓
+[External CRM pushes data]
+    POST https://smap.com/webhook/abc123
+    Body: {"customer_name": "...", "feedback": "...", "date": "..."}
+    ↓
+[Ingest Service]
+    - Validate signature (HMAC)
+    - Apply mapping_rules
+    - Transform → UAP
+    - Publish: smap.collector.output (UAP single/batch)
+    ↓
+[Project Service]
+    - Update data_source.last_received_at
+    - Increment data_source.record_count
+    - NO SCHEDULE (event-driven)
+```
+
+**3. TIKTOK/YOUTUBE/FACEBOOK (Crawl - Continuous + Adaptive):**
+
+```
+Project activated
+    ↓
+[Project Service]
+    - Create data_source (type=TIKTOK, status=PENDING)
+    - User configures keywords, filters
+    - Trigger Dry Run
+    - User confirms Dry Run results
+    - Update data_source (status=ACTIVE, crawl_mode=NORMAL, crawl_interval=15)
+    - Schedule initial crawl: next_crawl_at = NOW()
+    ↓
+[Project Service - Scheduler (runs every 1 minute)]
+    - Query: SELECT * FROM schema_ingest.data_sources
+             WHERE next_crawl_at <= NOW() AND status = 'ACTIVE'
+    - Found: src_tiktok_01 (due now)
+    - Publish: ingest.crawl.requested {
+        source_id: "src_tiktok_01",
+        profile: "INCREMENTAL_MONITOR",
+        config: {keywords: ["vinfast vf8"], date_range: "since_last_crawl"}
+      }
+    ↓
+[Ingest Service - Worker]
+    - Consume: ingest.crawl.requested
+    - Call external crawl API (teammate's server)
+    - Receive raw data (50 items)
+    - Transform → UAP batch
+    - Publish: smap.collector.output (UAP batch)
+    - Publish: ingest.crawl.completed {source_id, items_count=50}
+    ↓
+[Analytics Service]
+    - Consume: smap.collector.output
+    - Analyze 50 items
+    - Detect: negative_ratio = 45% (CRISIS!)
+    - Publish: analytics.metrics.aggregated {
+        source_id: "src_tiktok_01",
+        new_items_count: 50,
+        negative_ratio: 0.45,
+        velocity: 50 items/hour
+      }
+    ↓
+[Project Service - Adaptive Scheduler]
+    - Consume: analytics.metrics.aggregated
+    - Load baseline: avg_negative_ratio = 12%
+    - Compare: 45% >> 12% → SWITCH TO CRISIS MODE
+    - Update data_source:
+        - crawl_mode: NORMAL → CRISIS
+        - crawl_interval: 15min → 2min
+        - next_crawl_at: NOW() + 2min
+    - Publish: project.crisis.started
+    ↓
+[Ingest Service]
+    - Consume: project.crisis.started
+    - Cancel old schedule (15min)
+    - Schedule new job (2min)
+    - Trigger crawl IMMEDIATELY
+    ↓
+[Loop continues with 2min interval until crisis resolved]
+```
+
+**Dashboard Aggregation:**
+
+```sql
+-- Dashboard query: Aggregate TẤT CẢ sources của 1 project
+SELECT
+    p.id AS project_id,
+    p.name AS project_name,
+    COUNT(DISTINCT ds.id) AS total_sources,
+    SUM(ds.record_count) AS total_records,
+
+    -- Breakdown by source type
+    COUNT(DISTINCT CASE WHEN ds.source_type = 'FILE_UPLOAD' THEN ds.id END) AS file_sources,
+    COUNT(DISTINCT CASE WHEN ds.source_type = 'WEBHOOK' THEN ds.id END) AS webhook_sources,
+    COUNT(DISTINCT CASE WHEN ds.source_category = 'crawl' THEN ds.id END) AS crawl_sources,
+
+    -- Crawl mode breakdown (chỉ cho crawl sources)
+    COUNT(DISTINCT CASE WHEN ds.crawl_mode = 'CRISIS' THEN ds.id END) AS crisis_sources,
+    COUNT(DISTINCT CASE WHEN ds.crawl_mode = 'NORMAL' THEN ds.id END) AS normal_sources,
+    COUNT(DISTINCT CASE WHEN ds.crawl_mode = 'SLEEP' THEN ds.id END) AS sleep_sources
+
+FROM schema_project.projects p
+LEFT JOIN schema_ingest.data_sources ds ON ds.project_id = p.id
+WHERE p.id = 'proj_vf8'
+GROUP BY p.id, p.name;
+
+-- Result:
+-- project_id | project_name | total_sources | total_records | file_sources | webhook_sources | crawl_sources | crisis_sources | normal_sources | sleep_sources
+-- proj_vf8   | Monitor VF8  | 4             | 2100          | 1            | 1               | 2             | 1              | 1              | 0
+```
+
+**Key Insights:**
+
+1. ✅ **Một Project có thể có NHIỀU sources** - không giới hạn số lượng
+2. ✅ **Mỗi source có lifecycle riêng** - FILE_UPLOAD one-time, WEBHOOK continuous, CRAWL scheduled
+3. ✅ **Adaptive Crawl chỉ áp dụng cho CRAWL sources** - FILE_UPLOAD và WEBHOOK không có schedule
+4. ✅ **Mỗi CRAWL source có crawl_mode riêng** - Source A có thể CRISIS, Source B vẫn NORMAL
+5. ✅ **Dashboard aggregate TẤT CẢ sources** - user thấy tổng thể, có thể filter theo source_id
+6. ✅ **Sources hoạt động song song và độc lập** - không block lẫn nhau
+
+**Ví dụ thực tế:**
+
+```
+Project "Monitor VF8" có 4 sources:
+
+Timeline:
+─────────────────────────────────────────────────────────────────
+T0 (Day 1):
+  - User uploads Excel (500 records) → COMPLETED ngay
+  - User configures TikTok crawl → Dry Run → Activate
+  - TikTok starts crawling every 15 min
+
+T1 (Day 2):
+  - User configures Webhook → Generate URL → Activate
+  - CRM starts pushing data (real-time)
+  - TikTok continues crawling (15 min interval)
+
+T2 (Day 3):
+  - User adds YouTube crawl → Dry Run → Activate
+  - YouTube starts crawling every 15 min
+  - TikTok continues (15 min)
+  - Webhook continues (real-time)
+
+T3 (Day 4):
+  - Analytics detects crisis on YouTube (45% negative)
+  - YouTube switches to CRISIS mode (2 min interval)
+  - TikTok continues NORMAL mode (15 min) ← Không bị ảnh hưởng
+  - Webhook continues (real-time)
+
+T4 (Day 5):
+  - YouTube crisis resolved → Back to NORMAL (15 min)
+  - All sources continue normally
+
+Dashboard shows:
+  - Total records: 500 (Excel) + 2000 (TikTok) + 500 (Webhook) + 800 (YouTube) = 3800
+  - Can filter by source to see breakdown
+─────────────────────────────────────────────────────────────────
+```
+
 ### 0.3 AI Schema Agent - Universal Adapter
 
 **Workflow chuẩn hóa dữ liệu:**
@@ -211,13 +491,13 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │                                                         │    │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │    │
-│  │  │ auth.*      │  │ business.*  │  │ ingest.*    │      │    │
+│  │  │ schema_identity.*      │  │ schema_project.*  │  │ schema_ingest.*    │      │    │
 │  │  │ - users     │  │ - projects  │  │ - sources   │      │    │
 │  │  │ - audit_logs│  │ - campaigns │  │ - jobs      │      │    │
 │  │  └─────────────┘  └─────────────┘  └─────────────┘      │    │
 │  │                                                         │    │
 │  │  ┌─────────────┐                                        │    │
-│  │  │ analytics.* │     ┌─────────────────────────────┐    │    │
+│  │  │ schema_analysis.* │     ┌─────────────────────────────┐    │    │
 │  │  │ - post_     │     │  Qdrant (Separate Instance) │    │    │
 │  │  │   analytics │     │  - Vector embeddings        │    │    │
 │  │  │ - comments  │     │  - RAG search               │    │    │
@@ -232,10 +512,10 @@ Mọi dữ liệu đầu vào (Excel, CSV, JSON, Social Crawl) **BẮT BUỘC** 
 
 | Service           | Schema        | Tables                                 |
 | ----------------- | ------------- | -------------------------------------- |
-| Auth Service      | `auth.*`      | users, audit_logs                      |
-| Project Service   | `business.*`  | projects, campaigns, campaign_projects |
-| Ingest Service    | `ingest.*`    | data_sources, jobs                     |
-| Analytics Service | `analytics.*` | post_analytics, comments, errors       |
+| Auth Service      | `schema_identity.*`      | users, audit_logs                      |
+| Project Service   | `schema_project.*`  | projects, campaigns, campaign_projects |
+| Ingest Service    | `schema_ingest.*`    | data_sources, jobs                     |
+| Analytics Service | `schema_analysis.*` | post_analytics, comments, errors       |
 | Knowledge Service | _(Qdrant)_    | Vector DB riêng                        |
 
 **Anti-Superbase Rules:**
@@ -496,7 +776,7 @@ Message Queue    → Kafka
 
 🟡 **GAPS (Need Refactoring):**
 
-- Database schema: `schema_identity.*` → `auth.*` (2-3h)
+- Database schema: `schema_identity.*` → `schema_identity.*` (2-3h)
 - Folder name: `services/identity/` → `services/auth-service/` (2h)
 - Provider abstraction: Hardcoded logic → Interface pattern (1d)
 - User-level blacklist: Only token-level → Add user-level (1h)
@@ -572,7 +852,7 @@ api_endpoints:
   - POST /internal/validate # Token validation
   - GET /internal/users/:id # User lookup
 
-database: PostgreSQL (schema_identity.* → auth.*)
+database: PostgreSQL (schema_identity.* → schema_identity.*)
 cache: Redis DB 0 - Sessions, blacklist
 message_queue: Kafka - Audit events publishing
 
@@ -908,7 +1188,7 @@ audit:
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │           Auth Service - Audit Consumer                 │    │
 │  │  • Consume audit events from Kafka                      │    │
-│  │  • Batch insert to auth.audit_logs (every 5s/100 msgs)  │    │
+│  │  • Batch insert to schema_identity.audit_logs (every 5s/100 msgs)  │    │
 │  │  • Retry on failure                                     │    │
 │  └─────────────────────────────────────────────────────────┘    │
 │                                                                 │
@@ -938,7 +1218,7 @@ audit:
 ```sql
 CREATE SCHEMA auth; -- Renamed from schema_identity
 
-CREATE TABLE auth.audit_logs (
+CREATE TABLE schema_identity.audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     action VARCHAR(50) NOT NULL,
@@ -951,17 +1231,17 @@ CREATE TABLE auth.audit_logs (
     expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '90 days')
 );
 
-CREATE INDEX idx_audit_logs_user ON auth.audit_logs(user_id);
-CREATE INDEX idx_audit_logs_action ON auth.audit_logs(action);
-CREATE INDEX idx_audit_logs_created ON auth.audit_logs(created_at);
-CREATE INDEX idx_audit_logs_expires ON auth.audit_logs(expires_at);
+CREATE INDEX idx_audit_logs_user ON schema_identity.audit_logs(user_id);
+CREATE INDEX idx_audit_logs_action ON schema_identity.audit_logs(action);
+CREATE INDEX idx_audit_logs_created ON schema_identity.audit_logs(created_at);
+CREATE INDEX idx_audit_logs_expires ON schema_identity.audit_logs(expires_at);
 ```
 
 **Cleanup Job:**
 
 ```bash
 # K8s CronJob - runs daily at 2 AM
-0 2 * * * psql -c "DELETE FROM auth.audit_logs WHERE expires_at < NOW()"
+0 2 * * * psql -c "DELETE FROM schema_identity.audit_logs WHERE expires_at < NOW()"
 ```
 
 **Lợi ích:**
@@ -1068,8 +1348,8 @@ CREATE TABLE schema_identity.audit_logs (...);
 ALTER SCHEMA schema_identity RENAME TO auth;
 
 -- Tables remain the same, just different schema
-CREATE TABLE auth.users (...);
-CREATE TABLE auth.audit_logs (...);
+CREATE TABLE schema_identity.users (...);
+CREATE TABLE schema_identity.audit_logs (...);
 ```
 
 **Migration Steps:**
@@ -1333,7 +1613,7 @@ func main() {
 | **JWT Algorithm**        | RS256 (asymmetric)      | ✅ HS256 (symmetric)                        | Simpler, faster, sufficient for on-premise |
 | **Role Mapping**         | Google Groups API       | ✅ Config-based                             | No external dependency, simpler, working   |
 | **Token TTL**            | 15m access + 7d refresh | ✅ 8h single token                          | Better UX, sufficient security             |
-| **Database Schema**      | `auth.*`                | ✅ `auth.*` (rename from `schema_identity`) | Align with plan                            |
+| **Database Schema**      | `schema_identity.*`                | ✅ `schema_identity.*` (rename from `schema_identity`) | Align with plan                            |
 | **Folder Name**          | `auth-service`          | ✅ `auth-service` (rename from `identity`)  | Align with plan                            |
 | **Provider Abstraction** | Not mentioned           | ✅ Add Interface pattern                    | Improve code quality                       |
 | **User-level Blacklist** | Token-level only        | ✅ Add user-level                           | Security enhancement                       |
@@ -1368,34 +1648,90 @@ Identity Service v2.0.0 đã rất solid. Chúng ta chỉ cần:
 - Week 2-4: Enhancements (refresh token, enhanced audit log)
 - Week 12: Optional features (key rotation, Google Groups, RS256)
 
-### 3.2 Project Service (Extend - Entity Hierarchy Management)
+### 3.2 Project Service - Orchestration Brain (UPDATED v2.12)
+
+> **CRITICAL UPDATE (v2.12):** Làm rõ vai trò Project Service là "Bộ não điều phối" (Orchestration Brain) của hệ thống, phân biệt rõ ràng với Ingest Service (Executor).
+
+**Vai trò tổng quan:**
+
+Project Service là **Decision Maker** - quyết định WHAT, WHEN, WHY. Ingest Service là **Task Executor** - thực thi HOW.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│           PROJECT SERVICE - ORCHESTRATION BRAIN                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. LIFECYCLE MANAGEMENT (Quản lý vòng đời)                     │
+│     ✓ Quản lý state machine của Project (xem Section 3.2.5)     │
+│     ✓ Validate state transitions                                │
+│     ✓ Enforce business rules                                    │
+│     ✓ Audit trail cho mọi state change                          │
+│                                                                 │
+│  2. DATA INGESTION ORCHESTRATION (Điều phối thu thập dữ liệu)   │
+│     ✓ Quyết định WHEN to ingest (schedule, on-demand, reactive) │
+│     ✓ Quyết định HOW to ingest (profile, strategy)              │
+│     ✓ Quyết định WHAT to ingest (sources, filters, limits)      │
+│     ✓ Publish commands → Ingest Service (executor)              │
+│                                                                 │
+│  3. ADAPTIVE CRAWL CONTROLLER (Điều khiển thu thập thích ứng)   │
+│     ✓ Consume metrics từ Analytics Service                      │
+│     ✓ Calculate baseline (7-day averages)                       │
+│     ✓ Determine crawl mode (Sleep/Normal/Crisis)                │
+│     ✓ Publish mode change events → Ingest Service               │
+│                                                                 │
+│  4. INTEGRATION HUB (Trung tâm tích hợp)                        │
+│     ✓ Coordinate Ingest, Analytics, Knowledge, Notification     │
+│     ✓ Aggregate dashboard data từ Analytics                     │
+│     ✓ Trigger crisis alerts qua Notification                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Service Specification:**
 
 ```yaml
 name: project-service
 language: Go
+version: v2.12 (Orchestration Brain)
+
 responsibility:
+  # Core Entities
   - Project CRUD (Entity Monitoring Unit - Tầng 2)
   - Campaign CRUD (Logical Analysis Unit - Tầng 3)
-  - Dashboard data aggregation
-  - Project-Campaign relationship management
+  - Data Source metadata management (config, schedule)
+
+  # Orchestration
+  - Lifecycle state machine management
+  - Data ingestion orchestration (schedule, trigger)
+  - Adaptive crawl decision making
+
+  # Integration
+  - Dashboard data aggregation (from Analytics)
+  - Crisis detection coordination
+  - Event publishing (Kafka producer)
 
 modules:
-  - /projects # Project CRUD
-  - /campaigns # Campaign CRUD (MỚI)
-  - /dashboard # Dashboard data (từ analytics_db)
+  - /projects # Project CRUD + State Machine
+  - /campaigns # Campaign CRUD
+  - /sources # Data Source metadata (NOT execution)
+  - /scheduler # Crawl scheduler + Adaptive controller
+  - /dashboard # Dashboard aggregation
+  - /orchestrator # Command publisher (to Ingest)
   - /health # Health check metrics
 
 entities:
   Project:
     - id: UUID
     - name: string (e.g., "Monitor VF8")
-    - brand: string (e.g., "VinFast") # text field, dùng để nhóm hiển thị
-    - entity_type: string (e.g., "product") # product, campaign, service, competitor, topic
-    - entity_name: string (e.g., "VF8") # tên thực thể cụ thể
+    - brand: string (e.g., "VinFast")
+    - entity_type: string (product, campaign, service, competitor, topic)
+    - entity_name: string (e.g., "VF8")
     - description: text
     - industry: string
-    - config_status: string # DRAFT, CONFIGURING, ONBOARDING, DRYRUN_RUNNING, ACTIVE...
-    - created_by: UUID (user_id)
+    - status: string # DRAFT, ACTIVE, PAUSED, ARCHIVED, ERROR
+    - config_status: string # CONFIGURING, ONBOARDING, DRYRUN_RUNNING, etc.
+    - created_by: UUID
+    - activated_at: timestamp
     - created_at: timestamp
     - updated_at: timestamp
 
@@ -1403,41 +1739,82 @@ entities:
     - id: UUID
     - name: string (e.g., "So sánh Xe điện")
     - description: text
-    - project_ids: UUID[] (many-to-many)
+    - project_ids: UUID[]
     - created_by: UUID
     - created_at: timestamp
     - updated_at: timestamp
 
-database: PostgreSQL (project_db)
+  DataSource (metadata only):
+    - id: UUID
+    - project_id: UUID
+    - name: string
+    - source_type: string (FILE_UPLOAD, WEBHOOK, FACEBOOK, TIKTOK, YOUTUBE)
+    - source_category: string (crawl, passive)
+    - config: JSONB
+    - crawl_mode: string (SLEEP, NORMAL, CRISIS)
+    - crawl_interval_minutes: int
+    - next_crawl_at: timestamp
+    - last_crawl_metrics: JSONB
+    - baseline_metrics: JSONB
+    - status: string (PENDING, ACTIVE, PAUSED, FAILED)
 
-message_queues:
+database: PostgreSQL (schema_project.* schema)
+
+kafka_topics_produced:
+  # Lifecycle events
   - project.created
-  - project.updated
-  - campaign.created
-  - campaign.updated
+  - project.activated
+  - project.paused
+  - project.resumed
+  - project.archived
+
+  # Orchestration commands
+  - ingest.crawl.requested # Command to Ingest: execute crawl
+  - ingest.file.process # Command to Ingest: process uploaded file
+  - ingest.webhook.activate # Command to Ingest: activate webhook
+
+  # Adaptive crawl events
+  - project.crisis.started # Crisis mode activated
+  - project.crisis.resolved # Crisis mode resolved
+  - project.mode.changed # Crawl mode changed
+
+kafka_topics_consumed:
+  # Feedback from Analytics for adaptive crawl
+  - analytics.metrics.aggregated
+
+  # Status updates from Ingest
+  - ingest.crawl.completed
+  - ingest.file.completed
+  - ingest.dryrun.completed
 ```
 
-**Database Schema (project_db):**
+**Database Schema (business.\*):**
 
 ```sql
 -- Projects table (Entity Monitoring Unit - Tầng 2)
-CREATE TABLE projects (
+CREATE TABLE schema_project.projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
-    brand VARCHAR(100),                    -- Tên brand (text, dùng để nhóm hiển thị)
-    entity_type VARCHAR(50),               -- product, campaign, service, competitor, topic
-    entity_name VARCHAR(200),              -- Tên thực thể cụ thể (VD: "VF8")
+    brand VARCHAR(100),
+    entity_type VARCHAR(50),
+    entity_name VARCHAR(200),
     description TEXT,
     industry VARCHAR(100),
-    config_status VARCHAR(20) DEFAULT 'DRAFT',
+
+    -- Status fields
+    status VARCHAR(20) DEFAULT 'DRAFT',           -- DRAFT, ACTIVE, PAUSED, ARCHIVED, ERROR
+    config_status VARCHAR(20) DEFAULT 'DRAFT',    -- CONFIGURING, ONBOARDING, DRYRUN_RUNNING, etc.
+
+    -- Metadata
     created_by UUID NOT NULL,
+    activated_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     deleted_at TIMESTAMPTZ
 );
 
 -- Campaigns table (Logical Analysis Unit - Tầng 3)
-CREATE TABLE campaigns (
+CREATE TABLE schema_project.campaigns (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -1448,19 +1825,1187 @@ CREATE TABLE campaigns (
 );
 
 -- Campaign-Project relationship (many-to-many)
-CREATE TABLE campaign_projects (
-    campaign_id UUID REFERENCES campaigns(id) ON DELETE CASCADE,
-    project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+CREATE TABLE schema_project.campaign_projects (
+    campaign_id UUID REFERENCES schema_project.campaigns(id) ON DELETE CASCADE,
+    project_id UUID REFERENCES schema_project.projects(id) ON DELETE CASCADE,
     added_at TIMESTAMPTZ DEFAULT NOW(),
     PRIMARY KEY (campaign_id, project_id)
 );
 
+-- State transition audit trail (NEW)
+CREATE TABLE business.project_state_transitions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID NOT NULL REFERENCES schema_project.projects(id),
+
+    from_state VARCHAR(50) NOT NULL,
+    to_state VARCHAR(50) NOT NULL,
+
+    trigger_type VARCHAR(20) NOT NULL,  -- 'USER' | 'SYSTEM'
+    triggered_by UUID,                  -- user_id (if USER trigger)
+
+    validation_passed BOOLEAN,
+    validation_errors JSONB,
+    actions_taken JSONB,
+
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes
-CREATE INDEX idx_projects_created_by ON projects(created_by);
-CREATE INDEX idx_campaigns_created_by ON campaigns(created_by);
-CREATE INDEX idx_campaign_projects_campaign ON campaign_projects(campaign_id);
-CREATE INDEX idx_campaign_projects_project ON campaign_projects(project_id);
+CREATE INDEX idx_projects_created_by ON schema_project.projects(created_by);
+CREATE INDEX idx_projects_status ON schema_project.projects(status);
+CREATE INDEX idx_campaigns_created_by ON schema_project.campaigns(created_by);
+CREATE INDEX idx_campaign_projects_campaign ON schema_project.campaign_projects(campaign_id);
+CREATE INDEX idx_campaign_projects_project ON schema_project.campaign_projects(project_id);
+CREATE INDEX idx_project_transitions_project ON business.project_state_transitions(project_id, created_at DESC);
 ```
+
+#### 3.2.1 Phân biệt Project Service vs Ingest Service
+
+**Nguyên tắc phân chia trách nhiệm:**
+
+| Aspect             | Project Service (Brain)               | Ingest Service (Executor)          |
+| ------------------ | ------------------------------------- | ---------------------------------- |
+| **Role**           | Decision Maker                        | Task Executor                      |
+| **Responsibility** | WHAT, WHEN, WHY                       | HOW                                |
+| **Data Sources**   | Manage metadata (config, schedule)    | Execute actual ingestion           |
+| **File Upload**    | Trigger upload flow, validate         | Parse file, transform to UAP       |
+| **Crawl**          | Schedule crawl jobs, decide frequency | Call external API, fetch data      |
+| **Webhook**        | Generate webhook URL, manage config   | Receive webhook, validate payload  |
+| **AI Schema**      | Coordinate onboarding flow            | Execute LLM calls, suggest mapping |
+| **Dry Run**        | Trigger dry run, collect results      | Execute test crawl, return samples |
+| **Adaptive**       | Consume metrics, decide mode          | Execute crawl with new frequency   |
+| **State**          | Manage project state machine          | Report job status back             |
+| **Database**       | business.\* (metadata)                | ingest.\* (execution logs)         |
+
+**Ví dụ cụ thể:**
+
+**Scenario 1: File Upload**
+
+```
+User uploads Excel file
+    ↓
+[Project Service]
+    - Validate project is ACTIVE
+    - Generate upload URL (MinIO presigned)
+    - Create data_source record (status: PENDING)
+    - Publish: ingest.file.process {source_id, file_url, mapping_rules}
+    ↓
+[Ingest Service]
+    - Consume: ingest.file.process
+    - Download file from MinIO
+    - Parse Excel → rows
+    - Apply mapping_rules (from AI Schema Mapping)
+    - Transform rows → UAP
+    - Publish: smap.collector.output (UAP batch)
+    - Publish: ingest.file.completed {source_id, items_count, status}
+    ↓
+[Project Service]
+    - Consume: ingest.file.completed
+    - Update data_source (status: COMPLETED, record_count)
+```
+
+**Scenario 2: Scheduled Crawl**
+
+```
+Cron job triggers (every 15 minutes)
+    ↓
+[Project Service - Scheduler]
+    - Query: SELECT * FROM schema_ingest.data_sources
+             WHERE next_crawl_at <= NOW() AND status = 'ACTIVE'
+    - For each source:
+        - Determine crawl profile (Incremental Monitor)
+        - Build crawl config (keywords, date_range, limit)
+        - Publish: ingest.crawl.requested {source_id, profile, config}
+    ↓
+[Ingest Service - Worker]
+    - Consume: ingest.crawl.requested
+    - Call external crawl API (teammate's server)
+        POST /api/crawl {keywords, platforms, date_range}
+    - Receive raw data (JSON/JSONL)
+    - Transform → UAP
+    - Publish: smap.collector.output (UAP batch)
+    - Publish: ingest.crawl.completed {source_id, items_count, status}
+    ↓
+[Project Service - Metrics Consumer]
+    - Consume: ingest.crawl.completed
+    - Update schema_ingest.data_sources:
+        - last_crawl_at = NOW()
+        - last_crawl_metrics = {items_count, ...}
+        - next_crawl_at = NOW() + crawl_interval
+```
+
+**Scenario 3: Adaptive Crawl (Crisis Mode)**
+
+```
+[Analytics Service]
+    - Analyze batch of UAP
+    - Detect: negative_ratio = 45% > 30% threshold
+    - Aggregate metrics per source
+    - Publish: analytics.metrics.aggregated {source_id, metrics}
+    ↓
+[Project Service - Adaptive Scheduler]
+    - Consume: analytics.metrics.aggregated
+    - Load baseline: avg_negative_ratio = 12%
+    - Compare: 45% >> 12% → CRISIS MODE
+    - Update schema_ingest.data_sources:
+        - crawl_mode: NORMAL → CRISIS
+        - crawl_interval: 15min → 2min
+        - next_crawl_at: NOW() + 2min
+        - mode_change_reason: "Negative ratio 45% > 30%"
+    - Publish: project.crisis.started {project_id, source_id, metrics}
+    ↓
+[Ingest Service]
+    - Consume: project.crisis.started
+    - Cancel scheduled job (15min)
+    - Schedule new job (2min)
+    - Trigger crawl IMMEDIATELY (không đợi 2min)
+    ↓
+[Notification Service]
+    - Consume: project.crisis.started
+    - Send Slack alert: "🚨 VF8 TikTok: 45% negative!"
+    - Send WebSocket to Dashboard: real-time badge update
+```
+
+#### 3.2.2 Kafka Topics Architecture
+
+**Topics do Project Service produce:**
+
+```yaml
+# Lifecycle Events
+project.created:
+  payload: {project_id, name, entity_type, sources[], created_by}
+  consumers: [analytics-srv, knowledge-srv]
+
+project.activated:
+  payload: {project_id, sources[], analytics_config, activated_at}
+  consumers: [ingest-srv, analytics-srv, knowledge-srv]
+
+project.paused:
+  payload: {project_id, paused_by, reason}
+  consumers: [ingest-srv]
+
+project.resumed:
+  payload: {project_id, resumed_by}
+  consumers: [ingest-srv]
+
+# Orchestration Commands (to Ingest Service)
+ingest.crawl.requested:
+  payload: {source_id, profile, config: {keywords, date_range, limit}}
+  consumer: ingest-srv
+
+ingest.file.process:
+  payload: {source_id, file_url, mapping_rules}
+  consumer: ingest-srv
+
+ingest.webhook.activate:
+  payload: {source_id, webhook_url, secret, payload_schema}
+  consumer: ingest-srv
+
+# Adaptive Crawl Events
+project.crisis.started:
+  payload: {project_id, source_id, metrics, severity, reason}
+  consumers: [ingest-srv, noti-srv]
+
+project.crisis.resolved:
+  payload: {project_id, source_id, duration_minutes}
+  consumers: [ingest-srv, noti-srv]
+
+project.mode.changed:
+  payload: {source_id, old_mode, new_mode, reason}
+  consumers: [ingest-srv]
+```
+
+**Topics do Project Service consume:**
+
+```yaml
+# Feedback from Analytics (for adaptive crawl)
+analytics.metrics.aggregated:
+  payload: {source_id, new_items_count, negative_ratio, velocity, timestamp}
+  purpose: Adaptive crawl decision making
+
+# Status updates from Ingest
+ingest.crawl.completed:
+  payload: {source_id, items_count, status, error_message}
+  purpose: Update crawl schedule
+
+ingest.file.completed:
+  payload: {source_id, items_count, status, error_message}
+  purpose: Update data source status
+
+ingest.dryrun.completed:
+  payload: {source_id, status, sample_data[], error_message}
+  purpose: Update project config_status
+```
+
+#### 3.2.3 Adaptive Crawl Implementation
+
+**Database Schema bổ sung (schema_ingest.data_sources):**
+
+```sql
+-- Managed by Project Service, executed by Ingest Service
+CREATE TABLE schema_ingest.data_sources (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    source_type VARCHAR(20) NOT NULL,
+    source_category VARCHAR(10) NOT NULL DEFAULT 'passive',
+
+    -- Config
+    config JSONB,
+
+    -- Adaptive Crawl fields
+    crawl_mode VARCHAR(20) DEFAULT 'NORMAL',        -- SLEEP | NORMAL | CRISIS
+    crawl_interval_minutes INT DEFAULT 15,
+    next_crawl_at TIMESTAMPTZ,
+
+    -- Metrics tracking
+    last_crawl_at TIMESTAMPTZ,
+    last_crawl_metrics JSONB,
+    baseline_metrics JSONB,
+
+    -- Mode change tracking
+    mode_changed_at TIMESTAMPTZ,
+    mode_change_reason TEXT,
+
+    -- Status
+    status VARCHAR(20) DEFAULT 'PENDING',
+
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_data_sources_next_crawl
+ON schema_ingest.data_sources(next_crawl_at)
+WHERE status = 'ACTIVE' AND source_category = 'crawl';
+```
+
+**Adaptive Scheduler Logic:**
+
+```go
+// internal/scheduler/adaptive.go
+package scheduler
+
+type AdaptiveScheduler struct {
+    repo          DataSourceRepository
+    kafkaProducer KafkaProducer
+    logger        Logger
+}
+
+func (s *AdaptiveScheduler) ProcessMetrics(ctx context.Context, metrics SourceMetrics) error {
+    // 1. Get source with baseline
+    source, err := s.repo.GetByID(ctx, metrics.SourceID)
+    if err != nil {
+        return err
+    }
+
+    // 2. Determine new mode
+    newMode := s.determineMode(metrics, source.BaselineMetrics)
+
+    // 3. If mode changed, update and publish event
+    if newMode != source.CrawlMode {
+        interval := s.getIntervalForMode(newMode)
+        reason := s.getModeChangeReason(metrics, source.BaselineMetrics, newMode)
+
+        // Update database
+        err := s.repo.UpdateCrawlMode(ctx, source.ID, UpdateCrawlModeInput{
+            CrawlMode:        newMode,
+            CrawlInterval:    interval,
+            NextCrawlAt:      time.Now().Add(time.Duration(interval) * time.Minute),
+            ModeChangeReason: reason,
+        })
+
+        // Publish event
+        if newMode == CrawlModeCrisis {
+            s.kafkaProducer.Publish(ctx, "project.crisis.started", CrisisEvent{
+                ProjectID: source.ProjectID,
+                SourceID:  source.ID,
+                Metrics:   metrics,
+                Reason:    reason,
+            })
+        }
+    }
+
+    return nil
+}
+
+func (s *AdaptiveScheduler) determineMode(current SourceMetrics, baseline BaselineMetrics) CrawlMode {
+    // Crisis detection
+    if current.NegativeRatio > 0.30 {
+        return CrawlModeCrisis
+    }
+
+    if baseline.AvgVelocity > 0 {
+        velocityIncrease := (current.Velocity - baseline.AvgVelocity) / baseline.AvgVelocity
+        if velocityIncrease > 2.0 {
+            return CrawlModeCrisis
+        }
+    }
+
+    // Sleep detection
+    if current.NewItemsCount < 5 {
+        return CrawlModeSleep
+    }
+
+    return CrawlModeNormal
+}
+```
+
+#### 3.2.4 Crawl Scheduler (Cron Job)
+
+```go
+// cmd/scheduler/main.go
+package main
+
+func main() {
+    scheduler := NewCrawlScheduler(repo, kafkaProducer, logger)
+
+    // Run every minute
+    ticker := time.NewTicker(1 * time.Minute)
+    defer ticker.Stop()
+
+    for range ticker.C {
+        ctx := context.Background()
+
+        // Get sources due for crawl
+        sources, err := repo.GetDueSources(ctx, time.Now())
+        if err != nil {
+            logger.Errorf(ctx, "failed to get due sources: %v", err)
+            continue
+        }
+
+        // Publish crawl commands
+        for _, source := range sources {
+            profile := s.determineCrawlProfile(source)
+            config := s.buildCrawlConfig(source, profile)
+
+            err := kafkaProducer.Publish(ctx, "ingest.crawl.requested", CrawlCommand{
+                SourceID: source.ID,
+                Profile:  profile,
+                Config:   config,
+            })
+
+            if err != nil {
+                logger.Errorf(ctx, "failed to publish crawl command: %v", err)
+            }
+        }
+    }
+}
+```
+
+#### 3.2.4.1 Dashboard Orchestration (NEW - v2.13)
+
+**Vai trò:** Project Service là **Dashboard Owner** - điều phối và tổng hợp dữ liệu từ nhiều nguồn để phục vụ Dashboard UI.
+
+**Architecture Pattern:** API Gateway Pattern - Single entry point cho Dashboard, proxy calls tới backend services.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              DASHBOARD ORCHESTRATION FLOW                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  [User Browser]                                                 │
+│      │                                                          │
+│      │ HTTP GET /projects/{id}/dashboard?time_range=7d         │
+│      ↓                                                          │
+│  [Project Service - Dashboard Module] ← OWNER                   │
+│      │                                                          │
+│      ├─► Query schema_project.projects (metadata)                     │
+│      │   ✅ project_id, name, brand, status, activated_at       │
+│      │                                                          │
+│      ├─► Query business.data_sources (sources summary)          │
+│      │   ✅ total_sources, record_count, crawl_modes            │
+│      │   ✅ sources_detail (id, name, type, status, metrics)    │
+│      │                                                          │
+│      └─► HTTP GET /analytics/projects/{id}/insights             │
+│          ↓                                                      │
+│      [Analytics Service - Insights API] ← PROVIDER              │
+│          │                                                      │
+│          ├─► Check Redis cache (5 min TTL)                      │
+│          │   Key: insights:proj_{id}:7d                         │
+│          │                                                      │
+│          └─► Query analytics.post_analytics                     │
+│              ✅ Aggregate: sentiment, keywords, trends, aspects  │
+│              ✅ Cache result (5 min TTL)                         │
+│              ✅ Return JSON                                      │
+│          ↓                                                      │
+│      [Project Service]                                          │
+│          - Combine: metadata + sources + analytics              │
+│          - Handle errors (fallback if Analytics down)           │
+│          - Return unified response                              │
+│      ↓                                                          │
+│  [User Browser]                                                 │
+│      - Render Dashboard                                         │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**API Endpoint:**
+
+```go
+// GET /projects/{id}/dashboard?time_range=7d
+func (h *DashboardHandler) GetDashboard(c *gin.Context) {
+    projectID := c.Param("id")
+    timeRange := c.DefaultQuery("time_range", "7d")
+    
+    // 1. Get project metadata (local DB)
+    project, err := h.projectRepo.GetByID(c.Request.Context(), projectID)
+    if err != nil {
+        c.JSON(404, gin.H{"error": "project not found"})
+        return
+    }
+    
+    // 2. Get data sources summary (local DB)
+    sources, err := h.sourceRepo.ListByProject(c.Request.Context(), projectID)
+    if err != nil {
+        c.JSON(500, gin.H{"error": "failed to get sources"})
+        return
+    }
+    
+    sourceSummary := h.aggregateSourceSummary(sources)
+    
+    // 3. Call Analytics Service for insights (HTTP - REAL-TIME)
+    analyticsResp, err := h.analyticsClient.GetProjectInsights(
+        c.Request.Context(),
+        projectID,
+        timeRange,
+    )
+    
+    // Handle Analytics Service unavailable (graceful degradation)
+    if err != nil {
+        h.logger.Warnf("Analytics service unavailable: %v", err)
+        c.JSON(200, gin.H{
+            "project":   project,
+            "sources":   sourceSummary,
+            "analytics": nil,
+            "error":     "Analytics service temporarily unavailable",
+        })
+        return
+    }
+    
+    // 4. Combine response
+    c.JSON(200, gin.H{
+        "project":   project,
+        "sources":   sourceSummary,
+        "analytics": analyticsResp,
+    })
+}
+
+func (h *DashboardHandler) aggregateSourceSummary(sources []DataSource) SourceSummary {
+    summary := SourceSummary{
+        TotalSources: len(sources),
+        SourcesDetail: []SourceDetail{},
+    }
+    
+    for _, src := range sources {
+        summary.TotalRecords += src.RecordCount
+        
+        // Count by type
+        switch src.SourceType {
+        case "FILE_UPLOAD":
+            summary.FileSources++
+        case "WEBHOOK":
+            summary.WebhookSources++
+        default:
+            summary.CrawlSources++
+        }
+        
+        // Count by crawl mode
+        if src.CrawlMode == "CRISIS" {
+            summary.CrisisSources++
+        } else if src.CrawlMode == "NORMAL" {
+            summary.NormalSources++
+        } else if src.CrawlMode == "SLEEP" {
+            summary.SleepSources++
+        }
+        
+        // Add detail
+        summary.SourcesDetail = append(summary.SourcesDetail, SourceDetail{
+            ID:          src.ID,
+            Name:        src.Name,
+            Type:        src.SourceType,
+            Status:      src.Status,
+            CrawlMode:   src.CrawlMode,
+            RecordCount: src.RecordCount,
+        })
+    }
+    
+    return summary
+}
+```
+
+**Response Structure:**
+
+```json
+{
+  "project": {
+    "id": "proj_vf8",
+    "name": "Monitor VF8",
+    "brand": "VinFast",
+    "entity_type": "product",
+    "entity_name": "VF8",
+    "status": "ACTIVE",
+    "activated_at": "2026-02-15T10:00:00Z"
+  },
+  "sources": {
+    "total_sources": 4,
+    "total_records": 2100,
+    "file_sources": 1,
+    "webhook_sources": 1,
+    "crawl_sources": 2,
+    "crisis_sources": 1,
+    "normal_sources": 1,
+    "sleep_sources": 0,
+    "sources_detail": [
+      {
+        "id": "src_excel_01",
+        "name": "Feedback Q1",
+        "type": "FILE_UPLOAD",
+        "status": "COMPLETED",
+        "record_count": 500
+      },
+      {
+        "id": "src_tiktok_01",
+        "name": "TikTok Crawl",
+        "type": "TIKTOK",
+        "status": "ACTIVE",
+        "crawl_mode": "CRISIS",
+        "record_count": 1000
+      }
+    ]
+  },
+  "analytics": {
+    "sentiment": {
+      "positive": 45,
+      "negative": 32,
+      "neutral": 23,
+      "distribution": [
+        {"date": "2026-02-13", "positive": 40, "negative": 35, "neutral": 25},
+        {"date": "2026-02-14", "positive": 42, "negative": 33, "neutral": 25},
+        {"date": "2026-02-15", "positive": 45, "negative": 32, "neutral": 23}
+      ]
+    },
+    "top_keywords": [
+      {"keyword": "xe điện", "count": 450, "sentiment": "neutral"},
+      {"keyword": "pin", "count": 320, "sentiment": "negative"},
+      {"keyword": "sạc", "count": 280, "sentiment": "negative"}
+    ],
+    "aspects": [
+      {"aspect": "BATTERY", "positive": 20, "negative": 60, "neutral": 20},
+      {"aspect": "PRICE", "positive": 10, "negative": 70, "neutral": 20}
+    ],
+    "trends": {
+      "sentiment_trend": "declining",
+      "volume_trend": "increasing"
+    }
+  }
+}
+```
+
+**Real-time Updates (WebSocket Push):**
+
+```
+[Analytics Service - Background Job]
+    - Every 1 minute: Aggregate latest metrics
+    - Detect significant changes (sentiment shift > 5%, etc.)
+    - Publish to Redis: project:{id}:user:{uid}
+    ↓
+[Notification Service]
+    - Subscribe Redis: project:*:user:*
+    - Receive message
+    - Transform to WebSocket message
+    - Push to connected clients
+    ↓
+[Dashboard UI]
+    - Receive WebSocket event
+    - Update specific chart/metric (incremental update)
+    - Show notification badge
+```
+
+**WebSocket Message Types:**
+
+```typescript
+// Type 1: Metrics Update (Incremental)
+{
+  "type": "DASHBOARD_METRICS_UPDATE",
+  "timestamp": "2026-02-19T10:30:00Z",
+  "payload": {
+    "project_id": "proj_vf8",
+    "metrics": {
+      "sentiment": {"positive": 45, "negative": 32, "neutral": 23},
+      "total_records": 2150
+    },
+    "change_summary": {
+      "sentiment_shift": "+3% negative",
+      "new_records": 50
+    }
+  }
+}
+
+// Type 2: Crisis Alert (High Priority)
+{
+  "type": "CRISIS_ALERT",
+  "timestamp": "2026-02-19T10:31:00Z",
+  "payload": {
+    "project_id": "proj_vf8",
+    "severity": "CRITICAL",
+    "alert_type": "sentiment_spike",
+    "metric": "Negative Sentiment",
+    "current_value": 0.45,
+    "threshold": 0.30,
+    "affected_aspects": ["BATTERY", "PRICE"]
+  }
+}
+
+// Type 3: Source Status Update
+{
+  "type": "DATA_SOURCE_UPDATE",
+  "timestamp": "2026-02-19T10:32:00Z",
+  "payload": {
+    "project_id": "proj_vf8",
+    "source_id": "src_tiktok_01",
+    "status": "ACTIVE",
+    "crawl_mode": "CRISIS",
+    "message": "Switched to crisis mode due to sentiment spike"
+  }
+}
+```
+
+**Responsibilities Summary:**
+
+| Service | Dashboard Role | Data Owned | API Provided |
+|---------|---------------|------------|--------------|
+| **Project Service** | **Dashboard Owner** | schema_project.projects<br>business.data_sources | GET /projects/{id}/dashboard<br>(Orchestrate + Aggregate) |
+| **Analytics Service** | **Insights Provider** | analytics.post_analytics | GET /analytics/projects/{id}/insights<br>(Sentiment, Keywords, Trends) |
+| **Notification Service** | **Real-time Pusher** | Redis Pub/Sub (transient) | WebSocket /ws<br>(Push updates) |
+
+**Key Design Decisions:**
+
+1. ✅ **Hybrid Approach:** HTTP Pull (initial load) + WebSocket Push (real-time updates)
+2. ✅ **Separation of Concerns:** Project Service orchestrates, Analytics Service provides insights
+3. ✅ **Graceful Degradation:** Dashboard works even if Analytics Service is down (shows metadata only)
+4. ✅ **Cache Strategy:** Analytics Service caches insights (5 min TTL) for performance
+5. ✅ **Change Detection:** Only push WebSocket updates when significant changes occur (> 5% shift)
+6. ✅ **No Data Duplication:** Project Service doesn't store analytics data, always proxies to Analytics
+
+**Performance Characteristics:**
+
+| Metric | Value | Note |
+|--------|-------|------|
+| Initial Load | 200-500ms | HTTP + Redis cache |
+| WebSocket Latency | 10-50ms | Redis Pub/Sub → WebSocket |
+| Update Frequency | 1 min | Configurable per project |
+| Cache TTL | 5 min | Balance freshness vs load |
+
+---
+
+#### 3.2.5 Simplified State Machine (REVISED - v2.12)
+
+**Design Principles:**
+
+1. **Separation of Concerns:** Project lifecycle ≠ Data Source lifecycle
+2. **Clear Semantics:** States must be meaningful to users, not just technical execution details
+3. **Explicit Triggers:** Every transition must specify WHO (User/System/External) triggers it
+4. **Minimal Complexity:** Avoid transient states, use sub-statuses for execution details
+
+---
+
+**3.2.5.1 Project State Machine (4 States Only)**
+
+Project states represent the BUSINESS LIFECYCLE of a monitoring entity, not technical execution details.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    PROJECT STATE MACHINE                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  [*] ──────────► DRAFT ──────────► ACTIVE ──────────► ARCHIVED  │
+│                   │                  │                           │
+│                   │                  ↓                           │
+│                   │                PAUSED                        │
+│                   │                  │                           │
+│                   │                  ↓                           │
+│                   └──────────────► ACTIVE                        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**State Definitions:**
+
+| State      | Meaning                                                  | User Perspective                                  |
+| ---------- | -------------------------------------------------------- | ------------------------------------------------- |
+| `DRAFT`    | Project created, user is configuring data sources       | "I'm setting up my project"                       |
+| `ACTIVE`   | Project is live, data sources are running                | "My project is monitoring data"                   |
+| `PAUSED`   | Project temporarily stopped, can be resumed              | "I paused monitoring, will resume later"          |
+| `ARCHIVED` | Project permanently stopped, historical data kept (90d)  | "This project is done, keep data for compliance"  |
+
+**Project Transition Table:**
+
+| From State | To State   | Trigger Event                    | Triggered By | Validation                                | System Actions                                                                 | Example                                                      |
+| ---------- | ---------- | -------------------------------- | ------------ | ----------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| `null`     | `DRAFT`    | User creates project             | **USER**     | None                                      | INSERT INTO schema_project.projects (status='DRAFT')                                 | User clicks "New Project" button                             |
+| `DRAFT`    | `ACTIVE`   | User activates project           | **USER**     | At least 1 data source with status=READY | UPDATE projects SET status='ACTIVE', activated_at=NOW(); Publish project.activated | User clicks "Activate Project" after configuring sources    |
+| `ACTIVE`   | `PAUSED`   | User pauses project              | **USER**     | None                                      | UPDATE projects SET status='PAUSED'; Pause all ACTIVE sources; Publish project.paused | User clicks "Pause" button                                   |
+| `PAUSED`   | `ACTIVE`   | User resumes project             | **USER**     | At least 1 data source can be resumed    | UPDATE projects SET status='ACTIVE'; Resume all PAUSED sources; Publish project.resumed | User clicks "Resume" button                                  |
+| `ACTIVE`   | `ARCHIVED` | User archives project            | **USER**     | None                                      | UPDATE projects SET status='ARCHIVED', archived_at=NOW(); Cancel all jobs; Publish project.archived | User clicks "Archive" button                                 |
+| `PAUSED`   | `ARCHIVED` | User archives paused project     | **USER**     | None                                      | UPDATE projects SET status='ARCHIVED', archived_at=NOW(); Publish project.archived | User clicks "Archive" button on paused project               |
+| `DRAFT`    | `ARCHIVED` | User deletes draft project       | **USER**     | None                                      | UPDATE projects SET status='ARCHIVED', archived_at=NOW()                       | User clicks "Delete" on draft project                        |
+
+**Key Insights:**
+
+- ✅ **No CONFIGURING state** - DRAFT already means "user is configuring"
+- ✅ **No ACTIVATING state** - activation is atomic, no transient state needed
+- ✅ **No ONBOARDING_* states** - those belong to Data Source lifecycle, not Project
+- ✅ **No DRYRUN_* states** - dry run is a Data Source validation step, not Project state
+- ✅ **Clear trigger actors** - every transition explicitly states WHO triggers it
+
+---
+
+**3.2.5.2 Data Source State Machine (6 States)**
+
+Data Source states represent the OPERATIONAL LIFECYCLE of individual data ingestion channels.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 DATA SOURCE STATE MACHINE                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  [*] ──► PENDING ──► READY ──► ACTIVE ──► COMPLETED             │
+│            │          │         │                               │
+│            │          │         ↓                               │
+│            │          │       PAUSED                            │
+│            │          │         │                               │
+│            │          │         ↓                               │
+│            │          └───────► ACTIVE                          │
+│            │                                                    │
+│            └──────────────────► FAILED                          │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**State Definitions:**
+
+| State       | Meaning                                                  | Applies To                    | User Perspective                                  |
+| ----------- | -------------------------------------------------------- | ----------------------------- | ------------------------------------------------- |
+| `PENDING`   | Source created, waiting for configuration/validation     | All types                     | "I'm configuring this source"                     |
+| `READY`     | Source validated, ready to activate                      | All types                     | "This source is ready to go"                      |
+| `ACTIVE`    | Source is running (crawling/receiving data)              | All types                     | "This source is actively collecting data"         |
+| `PAUSED`    | Source temporarily stopped (by user or parent project)   | Crawl, Webhook                | "I paused this source"                            |
+| `COMPLETED` | Source finished (one-time sources only)                  | FILE_UPLOAD                   | "File upload completed"                           |
+| `FAILED`    | Source encountered error, needs user intervention        | All types                     | "This source has an error, please fix"            |
+
+**Data Source Transition Table:**
+
+| From State | To State    | Trigger Event                                | Triggered By | Validation                                | System Actions                                                                 | Example                                                      |
+| ---------- | ----------- | -------------------------------------------- | ------------ | ----------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| `null`     | `PENDING`   | User adds data source to project             | **USER**     | None                                      | INSERT INTO schema_ingest.data_sources (status='PENDING')                             | User clicks "Add Data Source" → selects type                 |
+| `PENDING`  | `READY`     | Validation passed (onboarding/dry run)       | **SYSTEM**   | Depends on source type (see below)        | UPDATE data_sources SET status='READY', validated_at=NOW()                     | AI Schema Mapping confirmed OR Dry Run success               |
+| `PENDING`  | `FAILED`    | Validation failed                            | **SYSTEM**   | None                                      | UPDATE data_sources SET status='FAILED', error_message='...'                   | Dry Run failed (auth error, connection timeout)              |
+| `FAILED`   | `PENDING`   | User fixes config and retries                | **USER**     | None                                      | UPDATE data_sources SET status='PENDING', error_message=NULL                   | User updates keywords, clicks "Retry Validation"             |
+| `READY`    | `ACTIVE`    | Parent project activated OR user activates   | **USER**     | Parent project status = ACTIVE            | UPDATE data_sources SET status='ACTIVE', activated_at=NOW(); Schedule jobs (if crawl) | Project activated → all READY sources become ACTIVE          |
+| `ACTIVE`   | `PAUSED`    | User pauses source OR parent project paused  | **USER**     | None                                      | UPDATE data_sources SET status='PAUSED'; Cancel scheduled jobs                 | User clicks "Pause Source" OR Project paused                 |
+| `PAUSED`   | `ACTIVE`    | User resumes source OR parent project resumed| **USER**     | Parent project status = ACTIVE            | UPDATE data_sources SET status='ACTIVE'; Reschedule jobs                       | User clicks "Resume Source" OR Project resumed               |
+| `ACTIVE`   | `COMPLETED` | File upload processing finished              | **SYSTEM**   | source_type = FILE_UPLOAD                 | UPDATE data_sources SET status='COMPLETED', completed_at=NOW()                 | Ingest Service finished parsing Excel file                   |
+| `ACTIVE`   | `FAILED`    | Runtime error (crawl API down, webhook auth) | **SYSTEM**   | None                                      | UPDATE data_sources SET status='FAILED', error_message='...'                   | External crawl API returns 500 error                         |
+| `ACTIVE`   | `FAILED`    | Webhook signature validation failed          | **EXTERNAL** | HMAC signature mismatch                   | UPDATE data_sources SET status='FAILED', error_message='Invalid signature'     | External CRM sends webhook with wrong secret                 |
+
+**Validation Rules by Source Type:**
+
+| Source Type     | PENDING → READY Validation                                                                 | Triggered By | Example                                                      |
+| --------------- | ------------------------------------------------------------------------------------------ | ------------ | ------------------------------------------------------------ |
+| `FILE_UPLOAD`   | User uploads file → AI Schema Mapping → User confirms mapping                              | **USER**     | User uploads Excel → AI suggests mapping → User clicks "Confirm" |
+| `WEBHOOK`       | User defines payload_schema → AI Schema Mapping → User confirms mapping → Webhook URL generated | **USER**     | User provides sample JSON → AI suggests mapping → User clicks "Confirm" |
+| `FACEBOOK`      | User configures keywords → Dry Run (fetch sample data) → User reviews results → Success   | **SYSTEM**   | User enters "vinfast vf8" → System fetches 10 sample posts → User clicks "Looks good" |
+| `TIKTOK`        | User configures keywords → Dry Run (fetch sample data) → User reviews results → Success   | **SYSTEM**   | User enters "vinfast vf8" → System fetches 10 sample videos → User clicks "Looks good" |
+| `YOUTUBE`       | User configures keywords → Dry Run (fetch sample data) → User reviews results → Success   | **SYSTEM**   | User enters "vf8 review" → System fetches 10 sample videos → User clicks "Looks good" |
+
+**Sub-Statuses (NOT main status, stored in separate columns):**
+
+These are NOT part of the main state machine, but provide additional context for UI/debugging:
+
+```sql
+-- schema_project.projects table
+status VARCHAR(20) NOT NULL,  -- DRAFT | ACTIVE | PAUSED | ARCHIVED
+
+-- schema_ingest.data_sources table
+status VARCHAR(20) NOT NULL,  -- PENDING | READY | ACTIVE | PAUSED | COMPLETED | FAILED
+
+-- Sub-statuses (optional, for UI details)
+onboarding_status VARCHAR(20),  -- NULL | IN_PROGRESS | CONFIRMED | REJECTED (for FILE_UPLOAD, WEBHOOK)
+dryrun_status VARCHAR(20),      -- NULL | RUNNING | SUCCESS | WARNING | FAILED (for CRAWL sources)
+error_message TEXT,             -- Error details when status=FAILED
+last_error_at TIMESTAMPTZ,      -- Last error timestamp
+```
+
+**Key Insights:**
+
+- ✅ **Separation:** Project states (4) vs Data Source states (6) - clear hierarchy
+- ✅ **Meaningful:** States represent user-facing concepts, not technical execution steps
+- ✅ **Sub-statuses:** Onboarding/Dry Run details stored separately, not polluting main state
+- ✅ **Explicit triggers:** Every transition specifies WHO (User/System/External) triggers it
+- ✅ **Lifecycle clarity:** FILE_UPLOAD ends at COMPLETED, CRAWL/WEBHOOK stay ACTIVE indefinitely
+
+---
+
+**3.2.5.3 Combined Flow Examples**
+
+**Example 1: FILE_UPLOAD Source (Passive - One-time)**
+
+```
+Timeline:
+─────────────────────────────────────────────────────────────────
+T0: User creates project
+    Project: null → DRAFT (USER)
+    
+T1: User adds File Upload source
+    Source: null → PENDING (USER)
+    
+T2: User uploads Excel file
+    Source: PENDING (onboarding_status=IN_PROGRESS) (SYSTEM)
+    AI Schema Agent analyzes file
+    
+T3: User confirms mapping
+    Source: PENDING → READY (USER)
+    onboarding_status=CONFIRMED
+    
+T4: User activates project
+    Project: DRAFT → ACTIVE (USER)
+    Source: READY → ACTIVE (SYSTEM - cascaded from project)
+    
+T5: Ingest Service processes file
+    Source: ACTIVE (processing 500 rows)
+    
+T6: Processing finished
+    Source: ACTIVE → COMPLETED (SYSTEM)
+    record_count=500
+    
+Result:
+  - Project: ACTIVE (continues monitoring)
+  - Source: COMPLETED (one-time, done)
+─────────────────────────────────────────────────────────────────
+```
+
+**Example 2: TIKTOK Crawl Source (Active - Continuous)**
+
+```
+Timeline:
+─────────────────────────────────────────────────────────────────
+T0: User creates project
+    Project: null → DRAFT (USER)
+    
+T1: User adds TikTok Crawl source
+    Source: null → PENDING (USER)
+    
+T2: User configures keywords "vinfast vf8"
+    Source: PENDING (dryrun_status=NULL)
+    
+T3: User clicks "Dry Run"
+    Source: PENDING (dryrun_status=RUNNING) (SYSTEM)
+    Ingest Service calls external crawl API
+    
+T4: Dry Run returns 10 sample videos
+    Source: PENDING (dryrun_status=SUCCESS) (SYSTEM)
+    User reviews sample data
+    
+T5: User clicks "Looks good"
+    Source: PENDING → READY (USER)
+    
+T6: User activates project
+    Project: DRAFT → ACTIVE (USER)
+    Source: READY → ACTIVE (SYSTEM - cascaded from project)
+    
+T7: Scheduler starts crawling every 15 min
+    Source: ACTIVE (crawl_mode=NORMAL, crawl_interval=15)
+    
+T8: Analytics detects crisis (45% negative)
+    Source: ACTIVE (crawl_mode=CRISIS, crawl_interval=2) (SYSTEM)
+    Adaptive Crawl switches mode
+    
+T9: User pauses project
+    Project: ACTIVE → PAUSED (USER)
+    Source: ACTIVE → PAUSED (SYSTEM - cascaded from project)
+    
+T10: User resumes project
+    Project: PAUSED → ACTIVE (USER)
+    Source: PAUSED → ACTIVE (SYSTEM - cascaded from project)
+    
+Result:
+  - Project: ACTIVE (continues monitoring)
+  - Source: ACTIVE (crawling every 2 min - crisis mode)
+─────────────────────────────────────────────────────────────────
+```
+
+**Example 3: WEBHOOK Source (Passive - Continuous)**
+
+```
+Timeline:
+─────────────────────────────────────────────────────────────────
+T0: User creates project
+    Project: null → DRAFT (USER)
+    
+T1: User adds Webhook source
+    Source: null → PENDING (USER)
+    
+T2: User provides sample JSON payload
+    Source: PENDING (onboarding_status=IN_PROGRESS) (SYSTEM)
+    AI Schema Agent analyzes payload
+    
+T3: User confirms mapping
+    Source: PENDING → READY (USER)
+    onboarding_status=CONFIRMED
+    webhook_url generated: https://smap.com/webhook/abc123
+    
+T4: User activates project
+    Project: DRAFT → ACTIVE (USER)
+    Source: READY → ACTIVE (SYSTEM - cascaded from project)
+    
+T5: External CRM pushes data
+    Source: ACTIVE (receiving data) (EXTERNAL)
+    Ingest Service validates HMAC signature
+    
+T6: Invalid signature received
+    Source: ACTIVE → FAILED (EXTERNAL)
+    error_message="Invalid HMAC signature"
+    
+T7: User fixes CRM webhook secret
+    Source: FAILED → PENDING (USER)
+    User clicks "Retry"
+    
+T8: User re-validates
+    Source: PENDING → READY (USER)
+    
+T9: System auto-activates (parent project is ACTIVE)
+    Source: READY → ACTIVE (SYSTEM)
+    
+Result:
+  - Project: ACTIVE (continues monitoring)
+  - Source: ACTIVE (receiving webhook data)
+─────────────────────────────────────────────────────────────────
+```
+
+---
+
+**3.2.5.4 Database Schema (Updated)**
+
+```sql
+-- schema_project.projects table
+CREATE TABLE schema_project.projects (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    brand VARCHAR(100),
+    entity_type VARCHAR(50),
+    entity_name VARCHAR(255),
+    
+    -- SIMPLIFIED STATUS (4 states only)
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    -- Allowed values: DRAFT | ACTIVE | PAUSED | ARCHIVED
+    
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    activated_at TIMESTAMPTZ,
+    paused_at TIMESTAMPTZ,
+    archived_at TIMESTAMPTZ,
+    
+    created_by VARCHAR(50) NOT NULL,
+    
+    CONSTRAINT chk_project_status CHECK (status IN ('DRAFT', 'ACTIVE', 'PAUSED', 'ARCHIVED'))
+);
+
+-- schema_ingest.data_sources table
+CREATE TABLE schema_ingest.data_sources (
+    id VARCHAR(50) PRIMARY KEY,
+    project_id VARCHAR(50) NOT NULL REFERENCES schema_project.projects(id),
+    
+    source_type VARCHAR(20) NOT NULL,
+    -- Allowed values: FILE_UPLOAD | WEBHOOK | FACEBOOK | TIKTOK | YOUTUBE
+    
+    source_category VARCHAR(20) NOT NULL,
+    -- Allowed values: passive | crawl
+    
+    -- SIMPLIFIED STATUS (6 states)
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    -- Allowed values: PENDING | READY | ACTIVE | PAUSED | COMPLETED | FAILED
+    
+    -- SUB-STATUSES (not main status, for UI details)
+    onboarding_status VARCHAR(20),
+    -- NULL | IN_PROGRESS | CONFIRMED | REJECTED (for FILE_UPLOAD, WEBHOOK)
+    
+    dryrun_status VARCHAR(20),
+    -- NULL | RUNNING | SUCCESS | WARNING | FAILED (for CRAWL sources)
+    
+    error_message TEXT,
+    last_error_at TIMESTAMPTZ,
+    
+    -- Crawl-specific fields (NULL for passive sources)
+    crawl_mode VARCHAR(20),
+    -- NULL | SLEEP | NORMAL | CRISIS (for CRAWL sources only)
+    
+    crawl_interval INT,
+    -- Interval in minutes (NULL for passive sources)
+    
+    next_crawl_at TIMESTAMPTZ,
+    -- Next scheduled crawl time (NULL for passive sources)
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    validated_at TIMESTAMPTZ,
+    activated_at TIMESTAMPTZ,
+    paused_at TIMESTAMPTZ,
+    completed_at TIMESTAMPTZ,
+    
+    record_count INT DEFAULT 0,
+    last_received_at TIMESTAMPTZ,
+    
+    CONSTRAINT chk_source_status CHECK (status IN ('PENDING', 'READY', 'ACTIVE', 'PAUSED', 'COMPLETED', 'FAILED')),
+    CONSTRAINT chk_source_type CHECK (source_type IN ('FILE_UPLOAD', 'WEBHOOK', 'FACEBOOK', 'TIKTOK', 'YOUTUBE')),
+    CONSTRAINT chk_source_category CHECK (source_category IN ('passive', 'crawl')),
+    CONSTRAINT chk_onboarding_status CHECK (onboarding_status IN ('IN_PROGRESS', 'CONFIRMED', 'REJECTED')),
+    CONSTRAINT chk_dryrun_status CHECK (dryrun_status IN ('RUNNING', 'SUCCESS', 'WARNING', 'FAILED')),
+    CONSTRAINT chk_crawl_mode CHECK (crawl_mode IN ('SLEEP', 'NORMAL', 'CRISIS'))
+);
+
+-- State transition audit log
+CREATE TABLE business.project_state_history (
+    id SERIAL PRIMARY KEY,
+    project_id VARCHAR(50) NOT NULL REFERENCES schema_project.projects(id),
+    from_state VARCHAR(20),
+    to_state VARCHAR(20) NOT NULL,
+    triggered_by VARCHAR(20) NOT NULL,
+    -- USER | SYSTEM | EXTERNAL
+    trigger_actor_id VARCHAR(50),
+    -- user_id if triggered_by=USER, NULL otherwise
+    reason TEXT,
+    metadata JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    CONSTRAINT chk_triggered_by CHECK (triggered_by IN ('USER', 'SYSTEM', 'EXTERNAL'))
+);
+
+CREATE TABLE ingest.data_source_state_history (
+    id SERIAL PRIMARY KEY,
+    source_id VARCHAR(50) NOT NULL REFERENCES schema_ingest.data_sources(id),
+    from_state VARCHAR(20),
+    to_state VARCHAR(20) NOT NULL,
+    triggered_by VARCHAR(20) NOT NULL,
+    trigger_actor_id VARCHAR(50),
+    reason TEXT,
+    metadata JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    CONSTRAINT chk_triggered_by CHECK (triggered_by IN ('USER', 'SYSTEM', 'EXTERNAL'))
+);
+```
+
+---
+
+**3.2.5.5 API Endpoints (Updated)**
+
+```go
+// GET /projects/{id}
+// Returns project with current status and all data sources
+
+// Response:
+{
+    "id": "proj_vf8",
+    "name": "Monitor VF8",
+    "status": "ACTIVE",
+    "activated_at": "2026-02-15T10:00:00Z",
+    "data_sources": [
+        {
+            "id": "src_excel_01",
+            "type": "FILE_UPLOAD",
+            "status": "COMPLETED",
+            "onboarding_status": "CONFIRMED",
+            "record_count": 500,
+            "completed_at": "2026-02-15T10:05:00Z"
+        },
+        {
+            "id": "src_tiktok_01",
+            "type": "TIKTOK",
+            "status": "ACTIVE",
+            "dryrun_status": "SUCCESS",
+            "crawl_mode": "CRISIS",
+            "crawl_interval": 2,
+            "next_crawl_at": "2026-02-15T10:47:00Z",
+            "record_count": 1000
+        }
+    ]
+}
+
+// POST /projects/{id}/activate
+// Activates project (DRAFT → ACTIVE)
+// Validation: At least 1 data source with status=READY
+
+// POST /projects/{id}/pause
+// Pauses project (ACTIVE → PAUSED)
+// Cascades to all ACTIVE data sources
+
+// POST /projects/{id}/resume
+// Resumes project (PAUSED → ACTIVE)
+// Cascades to all PAUSED data sources
+
+// POST /projects/{id}/archive
+// Archives project (ACTIVE/PAUSED → ARCHIVED)
+
+// GET /projects/{id}/state-history
+// Returns state transition audit log with trigger actors
+
+// Response:
+{
+    "transitions": [
+        {
+            "from_state": null,
+            "to_state": "DRAFT",
+            "triggered_by": "USER",
+            "trigger_actor_id": "user_123",
+            "reason": "User created project",
+            "created_at": "2026-02-15T09:00:00Z"
+        },
+        {
+            "from_state": "DRAFT",
+            "to_state": "ACTIVE",
+            "triggered_by": "USER",
+            "trigger_actor_id": "user_123",
+            "reason": "User clicked Activate button",
+            "created_at": "2026-02-15T10:00:00Z"
+        },
+        {
+            "from_state": "ACTIVE",
+            "to_state": "PAUSED",
+            "triggered_by": "USER",
+            "trigger_actor_id": "user_123",
+            "reason": "User clicked Pause button",
+            "created_at": "2026-02-15T11:00:00Z"
+        }
+    ]
+}
+
+// POST /data-sources/{id}/validate
+// Triggers validation (PENDING → READY or FAILED)
+// For FILE_UPLOAD/WEBHOOK: Triggers AI Schema Mapping
+// For CRAWL: Triggers Dry Run
+
+// POST /data-sources/{id}/retry
+// Retries failed source (FAILED → PENDING)
+
+// POST /data-sources/{id}/pause
+// Pauses individual source (ACTIVE → PAUSED)
+
+// POST /data-sources/{id}/resume
+// Resumes individual source (PAUSED → ACTIVE)
+```
+
+**Complete State Machine:**
+
+```
+[*] ──────────────────────────────────────────► DRAFT
+     User creates project
+
+DRAFT ──────────────────────────────────────► CONFIGURING
+     User adds data sources
+     Trigger: User action
+     Validation: None
+```
+
+---
 
 ### 3.3 Ingest Service (Data Source + AI Schema Agent)
 
@@ -1588,14 +3133,14 @@ responsibility:
   - Orchestrate AI analysis pipeline
   - Call AI Workers (HTTP/gRPC)
   - Aggregate results
-  - Write to analytics.* schema
+  - Write to schema_analysis.* schema
   - Publish completion events
 
 modules:
   - /consumer # Kafka consumer (UAP messages)
   - /orchestrator # Pipeline orchestration logic
   - /workers # AI worker clients (HTTP)
-  - /repository # Database access (analytics.*)
+  - /repository # Database access (schema_analysis.*)
   - /api # Internal API (optional, for monitoring)
 
 entry_points:
@@ -1621,7 +3166,7 @@ ai_workers:
     input: {content: string}
     output: {keywords: string[]}
 
-database: PostgreSQL (analytics.* schema)
+database: PostgreSQL (schema_analysis.* schema)
 
 message_queues:
   consume:
@@ -1844,11 +3389,11 @@ Theo quyết định ở Section 0.5, sử dụng **1 PostgreSQL Instance** vớ
 
 | DB Cũ                  | Schema Mới     | Hành động                        |
 | ---------------------- | -------------- | -------------------------------- |
-| identity_db            | `auth.*`       | Simplify: chỉ users + audit_logs |
-| project_db             | `business.*`   | Giữ + thêm campaigns table       |
-| (Mới)                  | `ingest.*`     | Tạo mới cho Data Sources         |
+| identity_db            | `schema_identity.*`       | Simplify: chỉ users + audit_logs |
+| project_db             | `schema_project.*`   | Giữ + thêm campaigns table       |
+| (Mới)                  | `schema_ingest.*`     | Tạo mới cho Data Sources         |
 | collector_db (MongoDB) | ❌ XOÁ         | Không cần raw storage riêng      |
-| analytics_db           | `analytics.*`  | Giữ + extend với UAP fields      |
+| analytics_db           | `schema_analysis.*`  | Giữ + extend với UAP fields      |
 | (Mới)                  | Qdrant (riêng) | Vector DB cho RAG                |
 | (Mới)                  | Redis (riêng)  | Session store, cache             |
 
@@ -1863,7 +3408,7 @@ Theo quyết định ở Section 0.5, sử dụng **1 PostgreSQL Instance** vớ
 CREATE SCHEMA IF NOT EXISTS auth;
 
 -- Users table (auto-created on first SSO login)
-CREATE TABLE auth.users (
+CREATE TABLE schema_identity.users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255),
@@ -1876,9 +3421,9 @@ CREATE TABLE auth.users (
 );
 
 -- Audit log table
-CREATE TABLE auth.audit_logs (
+CREATE TABLE schema_identity.audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES auth.users(id),
+    user_id UUID REFERENCES schema_identity.users(id),
     action VARCHAR(50) NOT NULL,
     resource_type VARCHAR(50),
     resource_id UUID,
@@ -1888,9 +3433,9 @@ CREATE TABLE auth.audit_logs (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_auth_users_email ON auth.users(email);
-CREATE INDEX idx_auth_audit_user ON auth.audit_logs(user_id);
-CREATE INDEX idx_auth_audit_created ON auth.audit_logs(created_at);
+CREATE INDEX idx_auth_users_email ON schema_identity.users(email);
+CREATE INDEX idx_auth_audit_user ON schema_identity.audit_logs(user_id);
+CREATE INDEX idx_auth_audit_created ON schema_identity.audit_logs(created_at);
 ```
 
 #### business.\* (Project Service)
@@ -1899,7 +3444,7 @@ CREATE INDEX idx_auth_audit_created ON auth.audit_logs(created_at);
 CREATE SCHEMA IF NOT EXISTS business;
 
 -- Projects table (Entity Monitoring Unit - Tầng 2)
-CREATE TABLE business.projects (
+CREATE TABLE schema_project.projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     brand VARCHAR(100),                    -- Tên brand (text, dùng để nhóm hiển thị)
@@ -1917,7 +3462,7 @@ CREATE TABLE business.projects (
 );
 
 -- Campaigns table (Tầng 3 - Logical Analysis Unit)
-CREATE TABLE business.campaigns (
+CREATE TABLE schema_project.campaigns (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -1928,9 +3473,9 @@ CREATE TABLE business.campaigns (
 );
 
 -- Campaign-Project relationship (many-to-many)
-CREATE TABLE business.campaign_projects (
-    campaign_id UUID REFERENCES business.campaigns(id) ON DELETE CASCADE,
-    project_id UUID REFERENCES business.projects(id) ON DELETE CASCADE,
+CREATE TABLE schema_project.campaign_projects (
+    campaign_id UUID REFERENCES schema_project.campaigns(id) ON DELETE CASCADE,
+    project_id UUID REFERENCES schema_project.projects(id) ON DELETE CASCADE,
     added_at TIMESTAMPTZ DEFAULT NOW(),
     PRIMARY KEY (campaign_id, project_id)
 );
@@ -1938,7 +3483,7 @@ CREATE TABLE business.campaign_projects (
 -- Campaign Artifacts table (AI-generated reports, documents)
 CREATE TABLE business.campaign_artifacts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    campaign_id UUID REFERENCES business.campaigns(id) ON DELETE CASCADE,
+    campaign_id UUID REFERENCES schema_project.campaigns(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,           -- "Báo cáo so sánh Q1.pdf"
     file_type VARCHAR(50),                -- "application/pdf", "text/markdown"
     storage_path TEXT NOT NULL,           -- MinIO path
@@ -1953,8 +3498,8 @@ CREATE TABLE business.campaign_artifacts (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_biz_projects_created_by ON business.projects(created_by);
-CREATE INDEX idx_biz_campaigns_created_by ON business.campaigns(created_by);
+CREATE INDEX idx_biz_projects_created_by ON schema_project.projects(created_by);
+CREATE INDEX idx_biz_campaigns_created_by ON schema_project.campaigns(created_by);
 CREATE INDEX idx_biz_artifacts_campaign ON business.campaign_artifacts(campaign_id);
 ```
 
@@ -1964,9 +3509,9 @@ CREATE INDEX idx_biz_artifacts_campaign ON business.campaign_artifacts(campaign_
 CREATE SCHEMA IF NOT EXISTS ingest;
 
 -- Data Sources table (Tầng 1 - Physical Data Unit)
-CREATE TABLE ingest.data_sources (
+CREATE TABLE schema_ingest.data_sources (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    project_id UUID NOT NULL, -- Reference to business.projects
+    project_id UUID NOT NULL, -- Reference to schema_project.projects
     name VARCHAR(255) NOT NULL,
     source_type VARCHAR(20) NOT NULL, -- 'FILE_UPLOAD', 'WEBHOOK', 'FACEBOOK', 'TIKTOK', 'YOUTUBE'
     source_category VARCHAR(10) NOT NULL DEFAULT 'passive', -- 'crawl' hoặc 'passive'
@@ -2002,8 +3547,8 @@ CREATE TABLE ingest.data_sources (
     deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_ingest_sources_project ON ingest.data_sources(project_id);
-CREATE INDEX idx_ingest_sources_status ON ingest.data_sources(status);
+CREATE INDEX idx_ingest_sources_project ON schema_ingest.data_sources(project_id);
+CREATE INDEX idx_ingest_sources_status ON schema_ingest.data_sources(status);
 ```
 
 #### analytics.\* (Analytics Service / n8n Workers)
@@ -2014,8 +3559,8 @@ CREATE SCHEMA IF NOT EXISTS analytics;
 -- Post analytics table (UAP-based)
 CREATE TABLE analytics.post_analytics (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    project_id UUID NOT NULL, -- Reference to business.projects
-    source_id UUID NOT NULL,  -- Reference to ingest.data_sources
+    project_id UUID NOT NULL, -- Reference to schema_project.projects
+    source_id UUID NOT NULL,  -- Reference to schema_ingest.data_sources
 
     -- UAP Core Fields
     content TEXT NOT NULL,
@@ -2153,8 +3698,8 @@ Flow:
    - n8n gọi API: POST /knowledge/index
 
 Output:
-- Data Source record trong ingest.* schema
-- UAP records trong analytics.* schema
+- Data Source record trong schema_ingest.* schema
+- UAP records trong schema_analysis.* schema
 - Vector embeddings trong Qdrant (với sentiment/aspect metadata)
 
 Services involved:
@@ -2232,12 +3777,12 @@ Services involved:
 
 **Artifact Actions:**
 
-| Action | Mô tả | Implementation |
-|--------|-------|----------------|
-| **Preview** | Xem nhanh nội dung | Modal với PDF viewer / Markdown renderer |
-| **Download** | Tải về máy | Direct link từ MinIO |
-| **Edit (Inline)** | Chỉnh sửa trực tiếp trong UI | Rich Text Editor (TipTap/Lexical) → Re-export PDF |
-| **Edit (Google Docs)** | Mở trong Google Docs với live sync | OAuth → Create/Update Google Doc → Embed iframe |
+| Action                 | Mô tả                              | Implementation                                    |
+| ---------------------- | ---------------------------------- | ------------------------------------------------- |
+| **Preview**            | Xem nhanh nội dung                 | Modal với PDF viewer / Markdown renderer          |
+| **Download**           | Tải về máy                         | Direct link từ MinIO                              |
+| **Edit (Inline)**      | Chỉnh sửa trực tiếp trong UI       | Rich Text Editor (TipTap/Lexical) → Re-export PDF |
+| **Edit (Google Docs)** | Mở trong Google Docs với live sync | OAuth → Create/Update Google Doc → Embed iframe   |
 
 **Edit Workflow Options:**
 
@@ -2358,7 +3903,7 @@ Services involved:
 │       ↓                                                         │
 │  [CHECKPOINT: Has sentiment + aspects?]                         │
 │       │                                                         │
-│       ├── NO → Save to analytics.* only (không index)           │
+│       ├── NO → Save to schema_analysis.* only (không index)           │
 │       │                                                         │
 │       └── YES → POST /knowledge/index                           │
 │                    ↓                                            │
