@@ -62,6 +62,92 @@ Message Queue: Kafka
 | **State**          | Manage project state machine          | Report job status back            |
 | **Database**       | schema_project.\* (metadata)          | schema_ingest.\* (execution logs) |
 
+**CRITICAL: Data Source Ownership**
+
+``` l
+DATA SOURCE = Thực thể của INGEST SERVICE
+
+┌─────────────────────────────────────────────────────────────────┐
+│  WHO CREATES DATA SOURCE?                                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  [Frontend] User clicks "Add Data Source"                       │
+│      ↓                                                          │
+│  [Project Service] Validate project exists                      │
+│      ↓                                                          │
+│  [Project Service] Call Ingest Service API:                     │
+│      POST /ingest/sources                                       │
+│      {                                                          │
+│        project_id: "proj_vf8",                                  │
+│        name: "TikTok VF8",                                      │
+│        source_type: "TIKTOK",                                   │
+│        config: {...}                                            │
+│      }                                                          │
+│      ↓                                                          │
+│  [Ingest Service] CREATE data source:                           │
+│      - Generate ID: gen_random_uuid()                           │
+│      - INSERT schema_ingest.data_sources                        │
+│      - Return: {id: "src_tiktok_01", status: "PENDING"}        │
+│      ↓                                                          │
+│  [Project Service] Store reference:                             │
+│      - Cache source_id in memory (optional)                     │
+│      - OR query Ingest Service when needed                      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Database Schema Ownership:**
+
+```sql
+-- INGEST SERVICE owns this table
+CREATE TABLE schema_ingest.data_sources (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),  -- Ingest Service generates
+    project_id UUID NOT NULL,  -- Reference to Project Service
+    name VARCHAR(255) NOT NULL,
+    source_type VARCHAR(20) NOT NULL,
+    source_category VARCHAR(10) NOT NULL DEFAULT 'passive',
+
+    -- Config
+    config JSONB,
+
+    -- Adaptive Crawl (only for crawl sources)
+    crawl_mode VARCHAR(20) DEFAULT 'NORMAL',
+    crawl_interval_minutes INT DEFAULT 11,
+    next_crawl_at TIMESTAMPTZ,
+
+    -- Metrics
+    last_crawl_at TIMESTAMPTZ,
+    last_crawl_metrics JSONB,
+    baseline_metrics JSONB,
+
+    -- Status
+    status VARCHAR(20) DEFAULT 'PENDING',
+    onboarding_status VARCHAR(20),
+    dryrun_status VARCHAR(20),
+    error_message TEXT,
+
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Project Service does NOT have a data_sources table
+-- It queries Ingest Service via HTTP API or Kafka events
+```
+
+**Why Ingest Service owns Data Sources?**
+
+1. **Separation of Concerns:**
+   - Project Service = Business logic (projects, campaigns)
+   - Ingest Service = Data ingestion logic (sources, crawling)
+
+2. **Scalability:**
+   - Ingest Service can scale independently
+   - Can have multiple Ingest Service instances
+
+3. **Domain Boundaries:**
+   - Data Source lifecycle tied to ingestion execution
+   - Ingest Service knows best about crawl status, errors, metrics
+
 ### 2.2 Core Responsibilities
 
 ```
@@ -289,11 +375,46 @@ Khi archive project, Project Service publish event `project.archived` với list
 internal/
 ├── projects/          # Project CRUD + State Machine
 ├── campaigns/         # Campaign CRUD
-├── sources/           # Data Source metadata (NOT execution)
-├── scheduler/         # Crawl scheduler + Adaptive controller
+├── scheduler/         # Adaptive controller (consume metrics, decide mode)
 ├── dashboard/         # Dashboard aggregation
+├── crisis/            # Crisis config + alert management
 ├── orchestrator/      # Command publisher (to Ingest)
-└── health/           # Health check metrics
+├── ingest_client/     # HTTP client to call Ingest Service API
+└── health/            # Health check metrics
+```
+
+**IMPORTANT: NO sources/ module**
+
+Project Service KHÔNG có domain/repository cho Data Sources vì:
+- Data Sources thuộc về Ingest Service
+- Project Service chỉ gọi Ingest Service API qua HTTP client
+- Không duplicate domain logic
+
+**Example: ingest_client/**
+
+```go
+// internal/ingest_client/client.go
+
+type IngestClient struct {
+    baseURL    string
+    httpClient *http.Client
+}
+
+func (c *IngestClient) CreateSource(ctx context.Context, req CreateSourceRequest) (*Source, error) {
+    // POST /ingest/sources
+}
+
+func (c *IngestClient) GetSource(ctx context.Context, sourceID string) (*Source, error) {
+    // GET /ingest/sources/{id}
+}
+
+func (c *IngestClient) UpdateSource(ctx context.Context, sourceID string, req UpdateSourceRequest) error {
+    // PUT /ingest/sources/{id}
+}
+
+func (c *IngestClient) ActivateSource(ctx context.Context, sourceID string) error {
+    // POST /ingest/sources/{id}/activate
+}
 ```
 
 ### 5.2 Core API Endpoints
@@ -316,15 +437,30 @@ GET    /projects/{id}/dashboard     # Get dashboard data
 **Data Sources:**
 
 ```
-POST   /projects/{id}/sources       # Add data source
-GET    /sources/{id}                # Get source details
+POST   /projects/{id}/sources       # Project Service receives request
+                                     # → Calls Ingest Service API
+                                     # → Returns source_id from Ingest
+
+GET    /sources/{id}                # Query Ingest Service directly
+                                     # OR Project Service proxies to Ingest
+
 PUT    /sources/{id}                # Update source config
+                                     # → Project Service → Ingest Service
+
 DELETE /sources/{id}                # Delete source
+                                     # → Project Service → Ingest Service
+
 POST   /sources/{id}/dry-run        # Trigger dry run
+                                     # → Project Service → Ingest Service
+
 POST   /sources/{id}/activate       # Activate source
+                                     # → Project Service updates status via Ingest API
+
 POST   /sources/{id}/pause          # Pause source
 POST   /sources/{id}/resume         # Resume source
 ```
+
+**Note:** Project Service là API Gateway cho Frontend, nhưng actual data source records được store và manage bởi Ingest Service.
 
 **Campaigns:**
 
@@ -339,6 +475,8 @@ DELETE /campaigns/{id}/projects/{pid} # Remove project
 ```
 
 ### 5.3 Database Schema
+
+**Project Service Schema (schema_project.*):**
 
 ```sql
 -- Projects (Tầng 2: Entity Monitoring Unit)
@@ -377,12 +515,16 @@ CREATE TABLE schema_project.campaign_projects (
     added_at TIMESTAMPTZ DEFAULT NOW(),
     PRIMARY KEY (campaign_id, project_id)
 );
+```
 
+**Ingest Service Schema (schema_ingest.*):**
+
+```sql
 -- Data Sources (Tầng 1: Physical Data Unit)
--- Managed by Project Service, executed by Ingest Service
+-- OWNED BY INGEST SERVICE - Project Service queries via API
 CREATE TABLE schema_ingest.data_sources (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    project_id UUID NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),  -- Generated by Ingest Service
+    project_id UUID NOT NULL,  -- Foreign key to Project Service (logical reference)
     name VARCHAR(255) NOT NULL,
     source_type VARCHAR(20) NOT NULL,
     source_category VARCHAR(10) NOT NULL DEFAULT 'passive',
@@ -416,17 +558,45 @@ CREATE TABLE schema_ingest.data_sources (
             OR (source_category = 'passive' AND crawl_mode IS NULL)
         )
 );
+
+-- Note: No foreign key constraint on project_id because it's cross-service reference
+-- Project Service and Ingest Service are separate databases/services
+```
+
+**Cross-Service Communication:**
+
+```
+[Frontend] POST /projects/{id}/sources
+    ↓
+[Project Service API]
+    1. Validate project exists (query schema_project.projects)
+    2. Call Ingest Service: POST /ingest/sources
+    ↓
+[Ingest Service API]
+    1. INSERT schema_ingest.data_sources
+    2. Return: {id: "src_123", status: "PENDING"}
+    ↓
+[Project Service]
+    1. Return source_id to Frontend
+    2. (Optional) Cache source_id for quick lookup
 ```
 
 ### 5.4 Kafka Event Handlers (Consumers)
 
-Project Service consume các events từ Ingest và Analytics để cập nhật state.
+Project Service consume các events từ Ingest và Analytics để:
+- Trigger adaptive crawl decisions (từ Analytics metrics)
+- Update internal state nếu cần (optional caching)
 
 **Module:** `internal/consumers/` hoặc `internal/scheduler/consumers.go`
 
+**IMPORTANT:** Project Service KHÔNG update database của Ingest Service. Chỉ:
+1. Consume events để biết status
+2. Make decisions (adaptive crawl mode)
+3. Publish commands back to Ingest Service
+
 #### 5.4.1 Crawl Completed Handler
 
-**Purpose:** Cập nhật schedule sau khi crawl hoàn thành
+**Purpose:** Nhận thông báo crawl hoàn thành (for monitoring/logging only)
 
 **Flow:**
 
@@ -439,27 +609,21 @@ INPUT: ingest.crawl.completed
   └─ timestamp
 
 PROCESS:
-  1. Get current source from database
-  2. Store crawl metrics:
-     - items_count, status, duration
-  3. Calculate next crawl time:
-     - next_crawl_at = NOW + crawl_interval_minutes
-  4. Update database:
-     - last_crawl_at = NOW
-     - last_crawl_metrics = {...}
-     - next_crawl_at = calculated time
-     - status = ACTIVE (if SUCCESS)
-  5. If FAILED:
-     - Store error_message
+  1. Log crawl completion
+  2. (Optional) Update local cache if needed
+  3. No database update - Ingest Service owns the data
 
-OUTPUT: Database updated
-  ├─ Source ready for next crawl
-  └─ Metrics stored for adaptive decision
+OUTPUT: Logged
+  └─ Project Service aware of crawl status
+     (Ingest Service already updated its own database)
+
+NOTE: Ingest Service tự update schema_ingest.data_sources
+      Project Service chỉ consume để biết status
 ```
 
 #### 5.4.2 File Upload Completed Handler
 
-**Purpose:** Cập nhật status sau khi FILE_UPLOAD source processing hoàn thành
+**Purpose:** Nhận thông báo FILE_UPLOAD source processing hoàn thành
 
 **Context:** Khi user upload file Excel/CSV (FILE_UPLOAD source), Ingest Service xử lý file và publish event này.
 
@@ -474,29 +638,28 @@ INPUT: ingest.file.completed
   └─ processing_duration_ms
 
 PROCESS:
-  1. Determine final status:
-     - If SUCCESS → status = COMPLETED (one-time upload done)
-     - If FAILED → status = FAILED (user needs to re-upload)
-  2. Update database (schema_ingest.data_sources):
-     - status = determined status
-     - record_count = items_count
-     - error_message (if FAILED)
-     - completed_at = NOW
+  1. Log file processing completion
+  2. (Optional) Update local cache if needed
+  3. No database update - Ingest Service owns the data
 
-OUTPUT: Database updated
-  └─ FILE_UPLOAD source marked as COMPLETED or FAILED
-     (No further processing - one-time upload)
+OUTPUT: Logged
+  └─ Project Service aware of file upload status
+     (Ingest Service already updated status to COMPLETED/FAILED)
 
 EXAMPLE:
   User uploads "feedback_q1.xlsx" (500 rows)
   → Ingest Service parses → 500 UAP records
+  → Ingest Service updates: schema_ingest.data_sources status = COMPLETED
   → Publish: ingest.file.completed {source_id, items_count: 500, status: SUCCESS}
-  → Project Service updates: status = COMPLETED
+  → Project Service logs: "File upload completed for source_id"
+
+NOTE: Ingest Service tự update schema_ingest.data_sources
+      Project Service chỉ consume để biết status
 ```
 
 #### 5.4.3 Dry Run Completed Handler
 
-**Purpose:** Cập nhật dry run results và chuyển source sang READY
+**Purpose:** Nhận thông báo dry run results
 
 **Flow:**
 
@@ -509,19 +672,19 @@ INPUT: ingest.dryrun.completed
   └─ warnings[]
 
 PROCESS:
-  1. Determine next status:
-     - If SUCCESS → status = READY (can activate)
-     - If FAILED → status = PENDING (needs fix)
-  2. Store dry run results:
-     - sample_data, total_found, warnings
-  3. Update database:
-     - status = determined status
-     - dryrun_status = SUCCESS/FAILED
-     - dryrun_results = {...}
+  1. Log dry run completion
+  2. (Optional) Update local cache if needed
+  3. No database update - Ingest Service owns the data
 
-OUTPUT: Database updated
-  ├─ If SUCCESS: Source ready to activate
-  └─ If FAILED: User needs to fix config
+OUTPUT: Logged
+  ├─ If SUCCESS: Source ready to activate (Ingest Service updated status = READY)
+  └─ If FAILED: User needs to fix config (Ingest Service kept status = PENDING)
+
+NOTE: Ingest Service tự update schema_ingest.data_sources
+      - status = READY (if SUCCESS) or PENDING (if FAILED)
+      - dryrun_status = SUCCESS/FAILED
+      - dryrun_results = {...}
+      Project Service chỉ consume để biết status
 ```
 
 #### 5.4.4 Metrics Aggregated Handler (Adaptive Scheduler)
@@ -538,30 +701,35 @@ INPUT: analytics.metrics.aggregated
   └─ new_items_count
 
 PROCESS:
-  1. Get source from database
-  2. Check source_category:
-     - If passive → SKIP (no adaptive crawl)
-     - If crawl → Continue
-  3. Load baseline metrics (7-day average)
-  4. Determine new mode:
+  1. Get source info from Ingest Service:
+     - Call: GET /ingest/sources/{source_id}
+     - Check: source_category = crawl? (skip if passive)
+  2. Load baseline metrics (7-day average)
+  3. Determine new mode:
      - Compare current vs baseline
      - Apply rules (see Section 6.3)
-  5. If mode changed:
+  4. If mode changed:
      - Calculate new interval:
        * SLEEP → 60 min
        * NORMAL → 11 min
        * CRISIS → 2 min
-     - Update database:
-       * crawl_mode = new mode
-       * crawl_interval = new interval
-       * next_crawl_at = NOW + interval
-     - Publish: project.mode.changed
-  6. Store current metrics as last_crawl_metrics
+     - Call Ingest Service API:
+       PUT /ingest/sources/{source_id}/crawl-mode
+       {
+         crawl_mode: "CRISIS",
+         crawl_interval: 2,
+         reason: "Negative ratio 45% >> baseline 10%"
+       }
+     - Publish: project.mode.changed (for notification)
+  5. Store current metrics for next comparison
 
 OUTPUT: Mode change (if needed)
-  ├─ Database updated with new mode
-  ├─ Event published to Ingest Service
-  └─ Next crawl scheduled
+  ├─ Ingest Service updated with new mode
+  ├─ Event published for notification
+  └─ Next crawl scheduled by Ingest Service
+
+NOTE: Project Service KHÔNG update database trực tiếp
+      Chỉ gọi Ingest Service API để thay đổi mode
 ```
 
 ---
@@ -1296,21 +1464,29 @@ PROCESS:
   2. Check if should trigger adaptive crawl:
      - Condition 1: severity = CRITICAL?
      - Condition 2: source_id exists?
-     - Condition 3: source_category = crawl?
-     - If ALL YES → Continue to step 3
-     - If ANY NO → Skip to step 3
+     - If YES → Continue to step 3
+     - If NO → Skip to step 4
   
-  3. Publish crisis.started event:
+  3. Trigger adaptive crawl (if CRITICAL):
+     - Get source info: GET /ingest/sources/{source_id}
+     - Check: source_category = crawl?
+     - If YES:
+       * Call Ingest API: PUT /ingest/sources/{source_id}/crawl-mode
+         {crawl_mode: "CRISIS", crawl_interval: 2, reason: "Crisis detected"}
+  
+  4. Publish crisis.started event:
      - Topic: project.crisis.started
      - Payload: {project_id, source_id, alert_id, severity, metrics}
      - Consumers:
-       * Ingest Service → Trigger adaptive crawl
        * Notification Service → Send alerts
 
 OUTPUT: Alert stored + Events published
   ├─ Alert history saved for dashboard
   ├─ Adaptive crawl triggered (if CRITICAL + crawl source)
   └─ Notifications sent to user
+
+NOTE: Project Service gọi Ingest Service API để update mode
+      KHÔNG update database của Ingest Service trực tiếp
 ```
 
 ---

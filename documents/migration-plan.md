@@ -275,15 +275,11 @@ Project activated
     - Update data_source (status=ACTIVE, crawl_mode=NORMAL, crawl_interval=15)
     - Schedule initial crawl: next_crawl_at = NOW()
     ↓
-[Project Service - Scheduler (runs every 1 minute)]
+[Ingest Service - Scheduler (runs every 1 minute)]
     - Query: SELECT * FROM schema_ingest.data_sources
              WHERE next_crawl_at <= NOW() AND status = 'ACTIVE'
     - Found: src_tiktok_01 (due now)
-    - Publish: ingest.crawl.requested {
-        source_id: "src_tiktok_01",
-        profile: "INCREMENTAL_MONITOR",
-        config: {keywords: ["vinfast vf8"], date_range: "since_last_crawl"}
-      }
+    - Execute crawl directly (no Kafka event needed)
     ↓
 [Ingest Service - Worker]
     - Consume: ingest.crawl.requested
@@ -308,17 +304,18 @@ Project activated
     - Consume: analytics.metrics.aggregated
     - Load baseline: avg_negative_ratio = 12%
     - Compare: 45% >> 12% → SWITCH TO CRISIS MODE
-    - Update data_source:
-        - crawl_mode: NORMAL → CRISIS
-        - crawl_interval: 15min → 2min
-        - next_crawl_at: NOW() + 2min
-    - Publish: project.crisis.started
+    - Call Ingest Service API:
+        PUT /ingest/sources/{source_id}/crawl-mode
+        {crawl_mode: "CRISIS", crawl_interval: 2, reason: "..."}
+    - Publish: project.crisis.started (for notification)
     ↓
 [Ingest Service]
-    - Consume: project.crisis.started
-    - Cancel old schedule (15min)
-    - Schedule new job (2min)
-    - Trigger crawl IMMEDIATELY
+    - Receives API call: PUT /ingest/sources/{id}/crawl-mode
+    - Update schema_ingest.data_sources:
+        * crawl_mode = CRISIS
+        * crawl_interval = 2
+        * next_crawl_at = NOW() (immediate)
+    - Worker picks up on next poll (within 1 minute)
     ↓
 [Loop continues with 2min interval until crisis resolved]
 ```
@@ -1926,12 +1923,12 @@ Cron job triggers (every 15 minutes)
     - Publish: smap.collector.output (UAP batch)
     - Publish: ingest.crawl.completed {source_id, items_count, status}
     ↓
-[Project Service - Metrics Consumer]
-    - Consume: ingest.crawl.completed
+[Ingest Service - After Crawl]
     - Update schema_ingest.data_sources:
         - last_crawl_at = NOW()
         - last_crawl_metrics = {items_count, ...}
         - next_crawl_at = NOW() + crawl_interval
+    - Publish: ingest.crawl.completed (for monitoring only)
 ```
 
 **Scenario 3: Adaptive Crawl (Crisis Mode)**
@@ -2042,7 +2039,8 @@ ingest.dryrun.completed:
 **Database Schema bổ sung (schema_ingest.data_sources):**
 
 ```sql
--- Managed by Project Service, executed by Ingest Service
+-- OWNED BY INGEST SERVICE
+-- Project Service queries via HTTP API, does NOT update directly
 CREATE TABLE schema_ingest.data_sources (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id UUID NOT NULL,
@@ -2474,7 +2472,7 @@ func (h *DashboardHandler) aggregateSourceSummary(sources []DataSource) SourceSu
 
 | Service | Dashboard Role | Data Owned | API Provided |
 |---------|---------------|------------|--------------|
-| **Project Service** | **Dashboard Owner** | schema_project.projects<br>business.data_sources | GET /projects/{id}/dashboard<br>(Orchestrate + Aggregate) |
+| **Project Service** | **Dashboard Owner** | schema_project.projects | GET /projects/{id}/dashboard<br>(Orchestrate + Aggregate)<br>Calls Ingest Service API for sources |
 | **Analytics Service** | **Insights Provider** | analytics.post_analytics | GET /analytics/projects/{id}/insights<br>(Sentiment, Keywords, Trends) |
 | **Notification Service** | **Real-time Pusher** | Redis Pub/Sub (transient) | WebSocket /ws<br>(Push updates) |
 
@@ -2597,7 +2595,7 @@ Data Source states represent the OPERATIONAL LIFECYCLE of individual data ingest
 
 | From State | To State    | Trigger Event                                | Triggered By | Validation                                | System Actions                                                                 | Example                                                      |
 | ---------- | ----------- | -------------------------------------------- | ------------ | ----------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| `null`     | `PENDING`   | User adds data source to project             | **USER**     | None                                      | INSERT INTO schema_ingest.data_sources (status='PENDING')                             | User clicks "Add Data Source" → selects type                 |
+| `null`     | `PENDING`   | User adds data source to project             | **USER**     | None                                      | [Ingest Service] INSERT INTO schema_ingest.data_sources (status='PENDING')                             | User clicks "Add Data Source" → Project Service calls Ingest API                 |
 | `PENDING`  | `READY`     | Validation passed (onboarding/dry run)       | **SYSTEM**   | Depends on source type (see below)        | UPDATE data_sources SET status='READY', validated_at=NOW()                     | AI Schema Mapping confirmed OR Dry Run success               |
 | `PENDING`  | `FAILED`    | Validation failed                            | **SYSTEM**   | None                                      | UPDATE data_sources SET status='FAILED', error_message='...'                   | Dry Run failed (auth error, connection timeout)              |
 | `FAILED`   | `PENDING`   | User fixes config and retries                | **USER**     | None                                      | UPDATE data_sources SET status='PENDING', error_message=NULL                   | User updates keywords, clicks "Retry Validation"             |
@@ -2626,7 +2624,7 @@ These are NOT part of the main state machine, but provide additional context for
 -- schema_project.projects table
 status VARCHAR(20) NOT NULL,  -- DRAFT | ACTIVE | PAUSED | ARCHIVED
 
--- schema_ingest.data_sources table
+-- schema_ingest.data_sources table (OWNED BY INGEST SERVICE)
 status VARCHAR(20) NOT NULL,  -- PENDING | READY | ACTIVE | PAUSED | COMPLETED | FAILED
 
 -- Sub-statuses (optional, for UI details)
@@ -3391,7 +3389,7 @@ Theo quyết định ở Section 0.5, sử dụng **1 PostgreSQL Instance** vớ
 | ---------------------- | -------------- | -------------------------------- |
 | identity_db            | `schema_identity.*`       | Simplify: chỉ users + audit_logs |
 | project_db             | `schema_project.*`   | Giữ + thêm campaigns table       |
-| (Mới)                  | `schema_ingest.*`     | Tạo mới cho Data Sources         |
+| (Mới)                  | `schema_ingest.*`     | Tạo mới cho Data Sources (OWNED BY INGEST SERVICE)         |
 | collector_db (MongoDB) | ❌ XOÁ         | Không cần raw storage riêng      |
 | analytics_db           | `schema_analysis.*`  | Giữ + extend với UAP fields      |
 | (Mới)                  | Qdrant (riêng) | Vector DB cho RAG                |
