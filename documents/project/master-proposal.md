@@ -1,7 +1,7 @@
 # Project Service - Complete Specification
 
-**Phiên bản:** 2.0 (Consolidated)  
-**Ngày cập nhật:** 19/02/2026  
+**Phiên bản:** 2.1 (Crisis Detection + Adaptive Crawl Redesign)  
+**Ngày cập nhật:** 20/02/2026  
 **Repo:** project-srv (Go)  
 **Tác giả:** System Architect
 
@@ -29,7 +29,6 @@
 Project Service là **"Orchestration Brain"** của hệ thống SMAP Enterprise - bộ não điều phối trung tâm chịu trách nhiệm:
 
 - **Lifecycle Management:** Quản lý vòng đời của Campaign và Project
-- **Data Ingestion Orchestration:** Điều phối thu thập dữ liệu từ đa nguồn
 - **Adaptive Crawl Controller:** Điều khiển thu thập thích ứng dựa trên metrics
 
 ### 1.2 Tech Stack
@@ -64,7 +63,7 @@ Message Queue: Kafka
 
 **CRITICAL: Data Source Ownership**
 
-``` l
+```
 DATA SOURCE = Thực thể của INGEST SERVICE
 
 ┌─────────────────────────────────────────────────────────────────┐
@@ -259,10 +258,10 @@ Project "Monitor VF8" (1 Project - theo dõi thương hiệu VF8)
 
 **Lifecycle độc lập:**
 
-| Source Type             | Lifecycle  | Schedule       | Adaptive Crawl | Ví dụ                                |
-| ----------------------- | ---------- | -------------- | -------------- | ------------------------------------ |
-| FILE_UPLOAD             | One-time   | Manual         | ❌ KHÔNG       | User upload feedback_q1.xlsx 1 lần   |
-| WEBHOOK                 | Continuous | Real-time push | ❌ KHÔNG       | CRM push complaints real-time        |
+| Source Type             | Lifecycle  | Schedule       | Adaptive Crawl | Ví dụ                                 |
+| ----------------------- | ---------- | -------------- | -------------- | ------------------------------------- |
+| FILE_UPLOAD             | One-time   | Manual         | ❌ KHÔNG       | User upload feedback_q1.xlsx 1 lần    |
+| WEBHOOK                 | Continuous | Real-time push | ❌ KHÔNG       | CRM push complaints real-time         |
 | FACEBOOK/TIKTOK/YOUTUBE | Continuous | Scheduled poll | ✅ CÓ          | Crawl TikTok mỗi 11 phút (có thể đổi) |
 
 **Tại sao cần nhiều Data Sources?**
@@ -386,6 +385,7 @@ internal/
 **IMPORTANT: NO sources/ module**
 
 Project Service KHÔNG có domain/repository cho Data Sources vì:
+
 - Data Sources thuộc về Ingest Service
 - Project Service chỉ gọi Ingest Service API qua HTTP client
 - Không duplicate domain logic
@@ -476,7 +476,7 @@ DELETE /campaigns/{id}/projects/{pid} # Remove project
 
 ### 5.3 Database Schema
 
-**Project Service Schema (schema_project.*):**
+**Project Service Schema (schema_project.\*):**
 
 ```sql
 -- Projects (Tầng 2: Entity Monitoring Unit)
@@ -517,7 +517,7 @@ CREATE TABLE schema_project.campaign_projects (
 );
 ```
 
-**Ingest Service Schema (schema_ingest.*):**
+**Ingest Service Schema (schema_ingest.\*):**
 
 ```sql
 -- Data Sources (Tầng 1: Physical Data Unit)
@@ -584,12 +584,14 @@ CREATE TABLE schema_ingest.data_sources (
 ### 5.4 Kafka Event Handlers (Consumers)
 
 Project Service consume các events từ Ingest và Analytics để:
+
 - Trigger adaptive crawl decisions (từ Analytics metrics)
 - Update internal state nếu cần (optional caching)
 
 **Module:** `internal/consumers/` hoặc `internal/scheduler/consumers.go`
 
 **IMPORTANT:** Project Service KHÔNG update database của Ingest Service. Chỉ:
+
 1. Consume events để biết status
 2. Make decisions (adaptive crawl mode)
 3. Publish commands back to Ingest Service
@@ -1078,92 +1080,175 @@ T5 (10:00): Situation improves
 
 ---
 
-## 7. CRISIS DETECTION
+## 7. CRISIS DETECTION & ADAPTIVE CRAWL
 
 ### 7.1 Overview
 
+**Concept:**
+
+- **Adaptive Crawl:** ALWAYS ENABLED - System tự động điều chỉnh crawl frequency dựa trên metrics
+- **Crisis Detection:** User config 4 triggers (Keywords, Volume, Sentiment, Influencer) với default values
+- **System tự động dùng crisis_detection thresholds cho adaptive crawl** → Consistent behavior
+
 **Vai trò phân chia:**
 
-- **Project Service:** Quản lý Crisis Config (CRUD API, store config)
-- **Analytics Service:** Thực thi detection logic, publish alerts
+- **Project Service:** Quản lý Crisis Detection Config (CRUD API, store config)
+- **Analytics Service:**
+  - Publish metrics (every 5 min) → `analytics.metrics.aggregated`
+  - Thực thi crisis detection logic → `analytics.crisis.detected`
+- **Project Service (Adaptive Scheduler):**
+  - Consume metrics → Extract threshold từ crisis_detection config → Call Ingest API
+- **Project Service (Crisis Handler):**
+  - Consume crisis alerts → Store alert → Call Ingest API (if CRITICAL)
+- **Ingest Service:** Execute crawl với mode được chỉ định
 
 **Flow:**
 
 ```
-[Project Service] Store crisis config
+[Project Service] Store crisis_detection config (user input)
     ↓
-[Analytics Service] Analyze UAP → Check against config → Detect crisis
+[Analytics Service] Publish metrics every 5 min
+    → Publish: analytics.metrics.aggregated
     ↓
-[Project Service] Consume crisis alert → Trigger adaptive crawl
+[Project Service - Adaptive Scheduler]
+    → Consume: analytics.metrics.aggregated
+    → Extract threshold from crisis_detection config
+    → Compare metrics vs threshold
+    → Call Ingest API: Update crawl mode if needed
     ↓
-[Notification Service] Push alert to user
+[Ingest Service] Update crawl_mode and schedule next crawl
+
+    ┌─────────────────────────────────────────────┐
+    │  PARALLEL: Crisis Detection                 │
+    └─────────────────────────────────────────────┘
+
+[Analytics Service] Analyze UAP → Check crisis_detection rules
+    → Publish: analytics.crisis.detected
+    ↓
+[Project Service - Crisis Handler]
+    → Consume: analytics.crisis.detected
+    → Store alert in crisis_alerts table
+    → If CRITICAL: Call Ingest API to force CRISIS mode
+    → Publish: project.crisis.started (for notification)
+    ↓
+[Notification Service] Push alert to user (email, Slack, SMS)
 ```
 
 ---
 
-### 7.2 Crisis Configuration Management (Project Service)
+### 7.2 Crisis Detection Config Structure
 
-#### 7.2.1 Database Schema
+**User chỉ cần config Crisis Detection. Adaptive Crawl tự động hoạt động.**
 
-```sql
--- Store crisis config per project
-CREATE TABLE schema_project.crisis_configs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    project_id UUID NOT NULL REFERENCES schema_project.projects(id) ON DELETE CASCADE,
-
-    -- Config JSON
-    config JSONB NOT NULL,
-
-    -- Metadata
-    created_by UUID NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-
-    -- Unique constraint: 1 config per project
-    CONSTRAINT uq_crisis_config_project UNIQUE (project_id)
-);
-
-CREATE INDEX idx_crisis_configs_project ON schema_project.crisis_configs(project_id);
-```
-
-#### 7.2.2 Config Structure
+**Config JSON:**
 
 ```json
 {
   "project_id": "proj_vf8",
-  "version": "1.0",
-  "triggers": {
+
+  // CHỈ CẦN CONFIG CRISIS DETECTION
+  // Adaptive crawl tự động:
+  //   - ALWAYS enabled (không cần user config)
+  //   - Dùng crisis_detection thresholds
+  //   - Sleep mode: hardcoded (< 10 items/hour)
+
+  "crisis_detection": {
+    // Trigger 1: Keywords (Default: disabled)
     "keywords_trigger": {
-      "enabled": true,
-      "logic": "OR",
+      "enabled": false, // ENUM: true | false - Default: false
+      "logic": "OR", // ENUM: "AND" | "OR" - Default: "OR"
       "groups": [
         {
-          "name": "critical_terms",
-          "keywords": ["lừa đảo", "scam", "fake", "giả mạo"],
-          "weight": 10
-        },
-        {
-          "name": "legal_health",
-          "keywords": ["ngộ độc", "kiện", "công an", "nhập viện"],
-          "weight": 11
+          "name": "Từ ngữ nghiêm trọng",
+          "keywords": ["lừa đảo", "scam", "giả mạo"],
+          "weight": 10 // 1-100
         }
       ]
     },
+
+    // Trigger 2: Volume (Default: enabled)
     "volume_trigger": {
-      "enabled": true,
-      "metric": "mentions_count",
+      "enabled": true, // ENUM: true | false - Default: true
+      "metric": "MENTIONS", // ENUM: "MENTIONS" | "ENGAGEMENT" | "REACH" - Default: "MENTIONS"
       "rules": [
         {
-          "level": "WARNING",
-          "threshold_percent_growth": 50,
-          "comparison_window_hours": 4,
-          "baseline": "average_last_7_days"
-        },
+          "level": "CRITICAL", // ENUM: "WARNING" | "CRITICAL" - Default: "CRITICAL"
+          "threshold_percent_growth": 200, // Default: 200 (3x baseline)
+          "comparison_window_hours": 1, // Default: 1
+          "baseline": "PREVIOUS_PERIOD" // ENUM: "PREVIOUS_PERIOD" | "AVERAGE_7D" | "AVERAGE_30D" - Default: "PREVIOUS_PERIOD"
+        }
+      ]
+    },
+
+    // Trigger 3: Sentiment (Default: enabled)
+    "sentiment_trigger": {
+      "enabled": true, // ENUM: true | false - Default: true
+      "min_sample_size": 50, // Default: 50
+      "rules": [
+        {
+          "type": "NEGATIVE_SPIKE", // ENUM: "NEGATIVE_SPIKE" | "ASPECT_NEGATIVE" - Default: "NEGATIVE_SPIKE"
+          "threshold_percent": 30 // Default: 30 - ADAPTIVE CRAWL DÙNG THRESHOLD NÀY
+        }
+      ]
+    },
+
+    // Trigger 4: Influencer (Default: disabled)
+    "influencer_trigger": {
+      "enabled": false, // ENUM: true | false - Default: false
+      "logic": "OR", // ENUM: "AND" | "OR" - Default: "OR"
+      "rules": [
+        {
+          "type": "HIGH_REACH", // ENUM: "HIGH_REACH" | "VIRAL_NEGATIVE" - Default: "HIGH_REACH"
+          "min_followers": 100000,
+          "required_sentiment": "NEGATIVE" // ENUM: "NEGATIVE" | "NEUTRAL" - Default: "NEGATIVE"
+        }
+      ]
+    }
+  }
+}
+```
+
+**ENUM Fields Summary:**
+
+| Field                                           | Enum Values                                    | Default           | Description                         |
+| ----------------------------------------------- | ---------------------------------------------- | ----------------- | ----------------------------------- |
+| `keywords_trigger.enabled`                      | `true`, `false`                                | `false`           | Enable/disable keywords trigger     |
+| `keywords_trigger.logic`                        | `AND`, `OR`                                    | `OR`              | Logic operator for keyword groups   |
+| `volume_trigger.enabled`                        | `true`, `false`                                | `true`            | Enable/disable volume trigger       |
+| `volume_trigger.metric`                         | `MENTIONS`, `ENGAGEMENT`, `REACH`              | `MENTIONS`        | Metric to monitor                   |
+| `volume_trigger.rules[].level`                  | `WARNING`, `CRITICAL`                          | `CRITICAL`        | Alert severity level                |
+| `volume_trigger.rules[].baseline`               | `PREVIOUS_PERIOD`, `AVERAGE_7D`, `AVERAGE_30D` | `PREVIOUS_PERIOD` | Baseline calculation method         |
+| `sentiment_trigger.enabled`                     | `true`, `false`                                | `true`            | Enable/disable sentiment trigger    |
+| `sentiment_trigger.rules[].type`                | `NEGATIVE_SPIKE`, `ASPECT_NEGATIVE`            | `NEGATIVE_SPIKE`  | Sentiment rule type                 |
+| `influencer_trigger.enabled`                    | `true`, `false`                                | `false`           | Enable/disable influencer trigger   |
+| `influencer_trigger.logic`                      | `AND`, `OR`                                    | `OR`              | Logic operator for influencer rules |
+| `influencer_trigger.rules[].type`               | `HIGH_REACH`, `VIRAL_NEGATIVE`                 | `HIGH_REACH`      | Influencer rule type                |
+| `influencer_trigger.rules[].required_sentiment` | `NEGATIVE`, `NEUTRAL`                          | `NEGATIVE`        | Required sentiment for trigger      |
+
+---
+
+### 7.3 Default Config (System-generated)
+
+**Khi user tạo project mới, system tạo default config:**
+
+```json
+{
+  "project_id": "proj_vf8",
+  "crisis_detection": {
+    "keywords_trigger": {
+      "enabled": false,
+      "logic": "OR",
+      "groups": []
+    },
+    "volume_trigger": {
+      "enabled": true,
+      "metric": "MENTIONS",
+      "rules": [
         {
           "level": "CRITICAL",
-          "threshold_percent_growth": 110,
+          "threshold_percent_growth": 200,
           "comparison_window_hours": 1,
-          "baseline": "average_last_24_hours"
+          "baseline": "PREVIOUS_PERIOD"
         }
       ]
     },
@@ -1172,161 +1257,491 @@ CREATE INDEX idx_crisis_configs_project ON schema_project.crisis_configs(project
       "min_sample_size": 50,
       "rules": [
         {
-          "type": "negative_ratio",
+          "type": "NEGATIVE_SPIKE",
           "threshold_percent": 30
-        },
-        {
-          "type": "absa_aspect_alert",
-          "critical_aspects": ["safety", "hygiene", "legal"],
-          "negative_threshold_percent": 11
         }
       ]
     },
     "influencer_trigger": {
-      "enabled": true,
+      "enabled": false,
       "logic": "OR",
-      "rules": [
-        {
-          "type": "macro_influencer",
-          "min_followers": 100000,
-          "required_sentiment": "negative"
-        },
-        {
-          "type": "viral_post",
-          "min_shares": 500,
-          "min_comments": 200,
-          "required_sentiment": "negative"
-        }
-      ]
+      "rules": []
     }
-  },
-  "notification_channels": {
-    "email": ["marketing@vinfast.com"],
-    "slack_webhook": "https://hooks.slack.com/services/...",
-    "sms": ["+84901034567"]
   }
 }
 ```
 
-#### 7.2.3 API Endpoints
+**Default Behavior:**
 
-**Create/Update Crisis Config:**
+- Alert ở 30% negative HOẶC 200% volume growth
+- Adaptive crawl tự động switch ở 30% negative
+- Sleep mode ở < 10 items/hour (hardcoded)
+- User chỉ cần customize nếu muốn thay đổi thresholds
+
+**Frontend Tooltips (Hướng dẫn cho user):**
+
+| Trigger        | Tooltip                                                                                                  |
+| -------------- | -------------------------------------------------------------------------------------------------------- |
+| **Keywords**   | "Phát hiện từ khóa nhạy cảm như 'lừa đảo', 'scam'. Mặc định: Tắt (bạn cần thêm từ khóa để bật)"          |
+| **Volume**     | "Phát hiện tăng đột biến lượng mentions. Mặc định: Bật - Cảnh báo khi tăng 200% (3x) so với giờ trước"   |
+| **Sentiment**  | "Phát hiện tỷ lệ negative cao. Mặc định: Bật - Cảnh báo khi > 30% negative (cần tối thiểu 50 bình luận)" |
+| **Influencer** | "Phát hiện influencer lớn hoặc bài viral negative. Mặc định: Tắt (bạn cần cấu hình để bật)"              |
+
+---
+
+### 7.4 System Behavior (Adaptive Crawl - Always Enabled)
+
+**Adaptive Crawl = System behavior, KHÔNG cần user config.**
+
+**3 Rules để quyết định crawl mode:**
+
+#### Rule 1: Crisis Detection → Adaptive Crawl (Automatic)
+
+**Trigger:** Analytics Service phát hiện crisis → Publish `analytics.crisis.detected`
+
+**Flow:**
+
+```
+[Analytics Service] Detect crisis (keywords/volume/sentiment/influencer)
+    → Publish: analytics.crisis.detected
+    ↓
+[Project Service - Crisis Handler]
+    1. Consume: analytics.crisis.detected
+    2. Store alert in crisis_alerts table
+    3. Check conditions:
+       - severity = CRITICAL?
+       - source_id exists?
+       - source_category = crawl?
+    4. If ALL YES:
+       → Call Ingest API: PUT /ingest/sources/{source_id}/crawl-mode
+         {
+           crawl_mode: "CRISIS",
+           crawl_interval: 2,
+           reason: "Crisis detected: {trigger_type}"
+         }
+    5. Publish: project.crisis.started (for notification)
+    ↓
+[Ingest Service] Update crawl_mode → Schedule next crawl in 2 min
+```
+
+**Example:**
+
+```
+T0 (10:00): Normal state
+  - TikTok source: NORMAL mode (11 min interval)
+
+T1 (10:05): Analytics detects critical keywords
+  - Post: "Xe VF8 lừa đảo, pin giả mạo"
+  - Crisis Detection: TRIGGERED (keywords_trigger)
+  - Severity: CRITICAL
+
+T2 (10:05): Project Service handles crisis
+  - Store alert in crisis_alerts table
+  - Call Ingest API: PUT /crawl-mode {mode: CRISIS, interval: 2}
+  - Publish: project.crisis.started
+
+T3 (10:07): Ingest Service crawls immediately
+  - Next crawl: 10:09, 10:11, 10:13... (every 2 min)
+```
+
+**NOTE:** Analytics Service PUBLISH event → Project Service CONSUME → Call Ingest API
+
+---
+
+#### Rule 2: Metrics-based Adaptive Crawl (Automatic)
+
+**Trigger:** Analytics Service publish metrics every 5 min → `analytics.metrics.aggregated`
+
+**Flow:**
+
+```
+[Analytics Service] Aggregate metrics (every 5 min)
+    → Publish: analytics.metrics.aggregated
+    ↓
+[Project Service - Adaptive Scheduler]
+    1. Consume: analytics.metrics.aggregated
+    2. Get source info:
+       - Call: GET /ingest/sources/{source_id}
+       - Check: source_category = crawl? (skip if passive)
+    3. Load crisis_detection config:
+       - Query: schema_project.project_configs
+       - Extract: sentiment_trigger.threshold_percent (e.g., 30%)
+    4. Compare metrics vs threshold:
+       - current.negative_ratio = 35%
+       - 35% > 30% → CRISIS mode
+    5. Determine new mode:
+       - CRISIS: negative_ratio > threshold
+       - SLEEP: new_items_count < 10/hour (hardcoded)
+       - NORMAL: otherwise
+    6. If mode changed:
+       → Call Ingest API: PUT /ingest/sources/{source_id}/crawl-mode
+         {
+           crawl_mode: "CRISIS",
+           crawl_interval: 2,
+           reason: "Negative ratio 35% > threshold 30%"
+         }
+    ↓
+[Ingest Service] Update crawl_mode → Schedule next crawl
+```
+
+**Decision Logic:**
+
+```
+INPUT: Current Metrics + Crisis Detection Config
+  ├─ current.negative_ratio = 0.35 (35%)
+  ├─ current.new_items_count = 50
+  ├─ config.sentiment_trigger.threshold_percent = 30
+  └─ hardcoded.sleep_threshold = 10 items/hour
+
+DECISION TREE (Priority Order):
+
+1. CRISIS Detection (Highest Priority)
+   ├─ Rule: negative_ratio > threshold?
+   │  └─ 35% > 30% → CRISIS MODE (2 min)
+
+2. SLEEP Detection (Lowest Priority)
+   ├─ Rule: new_items_count < 10/hour?
+   │  └─ 50 > 10 → NOT SLEEP
+
+3. Default: NORMAL MODE (11 min)
+
+OUTPUT: CRISIS MODE
+  └─ Reason: "Negative ratio 35% > threshold 30%"
+```
+
+**Example:**
+
+```
+T0 (10:00): Normal state
+  - TikTok source: NORMAL mode (11 min)
+  - Config: sentiment_trigger.threshold_percent = 30%
+
+T1 (10:05): Metrics show high negative ratio
+  - Metrics: negative_ratio = 35%, new_items = 50
+  - Adaptive Scheduler: 35% > 30% → CRISIS mode
+  - Call Ingest API: PUT /crawl-mode {mode: CRISIS, interval: 2}
+
+T2 (10:07): Ingest Service crawls with 2 min interval
+  - Next crawl: 10:09, 10:11, 10:13...
+
+T3 (11:00): Situation improves
+  - Metrics: negative_ratio = 12%
+  - Adaptive Scheduler: 12% < 30% → NORMAL mode
+  - Call Ingest API: PUT /crawl-mode {mode: NORMAL, interval: 11}
+```
+
+**NOTE:** Project Service KHÔNG update Ingest database trực tiếp, chỉ gọi API
+
+---
+
+#### Rule 3: Sleep Mode (Automatic - Hardcoded)
+
+**Trigger:** Low activity detected (< 10 items/hour)
+
+**Flow:**
+
+```
+[Analytics Service] Publish metrics
+    → analytics.metrics.aggregated {new_items_count: 3}
+    ↓
+[Project Service - Adaptive Scheduler]
+    1. Check: new_items_count < 10/hour?
+    2. If YES:
+       → Call Ingest API: PUT /ingest/sources/{source_id}/crawl-mode
+         {
+           crawl_mode: "SLEEP",
+           crawl_interval: 60,
+           reason: "Low activity: 3 items/hour < 10"
+         }
+    ↓
+[Ingest Service] Update crawl_mode → Schedule next crawl in 60 min
+```
+
+**Example:**
+
+```
+T0 (10:00): Normal state
+  - TikTok source: NORMAL mode (11 min)
+
+T1 (10:05): Metrics show low activity
+  - Metrics: new_items_count = 3 (last hour)
+  - Adaptive Scheduler: 3 < 10 → SLEEP mode
+  - Call Ingest API: PUT /crawl-mode {mode: SLEEP, interval: 60}
+
+T2 (11:05): Next crawl (60 min later)
+  - Ingest Service crawls again
+
+T3 (11:10): Activity increases
+  - Metrics: new_items_count = 25
+  - Adaptive Scheduler: 25 > 10 → NORMAL mode
+  - Call Ingest API: PUT /crawl-mode {mode: NORMAL, interval: 11}
+```
+
+**Sleep Threshold:** Hardcoded = 10 items/hour (KHÔNG cần user config)
+
+---
+
+**Summary:**
+
+| Rule       | Trigger            | Threshold Source                                     | Mode          | Interval |
+| ---------- | ------------------ | ---------------------------------------------------- | ------------- | -------- |
+| **Rule 1** | Crisis detected    | Analytics Service                                    | CRISIS        | 2 min    |
+| **Rule 2** | Metrics aggregated | crisis_detection.sentiment_trigger.threshold_percent | CRISIS/NORMAL | 2/11 min |
+| **Rule 3** | Low activity       | Hardcoded (10 items/hour)                            | SLEEP         | 60 min   |
+
+**Priority:** Rule 1 (Crisis) > Rule 2 (Metrics) > Rule 3 (Sleep)
+
+---
+
+### 7.5 Configuration Management (Project Service)
+
+### 7.5 Configuration Management (Project Service)
+
+#### 7.5.1 Database Schema
+
+```sql
+-- Store crisis detection config per project
+CREATE TABLE schema_project.project_configs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID NOT NULL REFERENCES schema_project.projects(id) ON DELETE CASCADE,
+
+    -- Crisis Detection Config (JSONB - complex structure)
+    -- Adaptive crawl tự động dùng thresholds từ config này
+    crisis_detection JSONB NOT NULL,
+
+    -- Metadata
+    created_by UUID NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+    -- Unique constraint: 1 config per project
+    CONSTRAINT uq_project_config UNIQUE (project_id)
+);
+
+CREATE INDEX idx_project_configs_project ON schema_project.project_configs(project_id);
+```
+
+**Example crisis_detection JSONB:**
+
+```json
+{
+  "keywords_trigger": {
+    "enabled": false,
+    "logic": "OR",
+    "groups": []
+  },
+  "volume_trigger": {
+    "enabled": true,
+    "metric": "MENTIONS",
+    "rules": [
+      {
+        "level": "CRITICAL",
+        "threshold_percent_growth": 200,
+        "comparison_window_hours": 1,
+        "baseline": "PREVIOUS_PERIOD"
+      }
+    ]
+  },
+  "sentiment_trigger": {
+    "enabled": true,
+    "min_sample_size": 50,
+    "rules": [
+      {
+        "type": "NEGATIVE_SPIKE",
+        "threshold_percent": 30
+      }
+    ]
+  },
+  "influencer_trigger": {
+    "enabled": false,
+    "logic": "OR",
+    "rules": []
+  }
+}
+```
+
+---
+
+#### 7.5.2 API Endpoints
+
+**Create/Update Crisis Detection Config:**
 
 ```http
-PUT /projects/{project_id}/crisis-config
+PUT /projects/{project_id}/config
 Authorization: Bearer {token}
 Content-Type: application/json
 
 {
-  "triggers": {
-    "keywords_trigger": {
+  "crisis_detection": {
+    "sentiment_trigger": {
       "enabled": true,
-      "groups": [...]
+      "min_sample_size": 50,
+      "rules": [
+        {
+          "type": "NEGATIVE_SPIKE",
+          "threshold_percent": 25
+        }
+      ]
     },
-    "volume_trigger": {...},
-    "sentiment_trigger": {...},
-    "influencer_trigger": {...}
-  },
-  "notification_channels": {...}
+    "volume_trigger": {
+      "enabled": true,
+      "metric": "MENTIONS",
+      "rules": [
+        {
+          "level": "CRITICAL",
+          "threshold_percent_growth": 200,
+          "comparison_window_hours": 1,
+          "baseline": "PREVIOUS_PERIOD"
+        }
+      ]
+    }
+  }
 }
 
 Response 200:
 {
   "id": "config_103",
   "project_id": "proj_vf8",
-  "config": {...},
+  "crisis_detection": {
+    "keywords_trigger": {...},
+    "volume_trigger": {...},
+    "sentiment_trigger": {...},
+    "influencer_trigger": {...}
+  },
   "created_at": "2026-02-19T10:00:00Z",
   "updated_at": "2026-02-19T10:00:00Z"
 }
 ```
 
-**Get Crisis Config:**
+**Get Crisis Detection Config:**
 
 ```http
-GET /projects/{project_id}/crisis-config
+GET /projects/{project_id}/config
 Authorization: Bearer {token}
 
 Response 200:
 {
   "id": "config_103",
   "project_id": "proj_vf8",
-  "config": {...},
+  "crisis_detection": {
+    "keywords_trigger": {
+      "enabled": false,
+      "logic": "OR",
+      "groups": []
+    },
+    "volume_trigger": {
+      "enabled": true,
+      "metric": "MENTIONS",
+      "rules": [...]
+    },
+    "sentiment_trigger": {
+      "enabled": true,
+      "min_sample_size": 50,
+      "rules": [
+        {
+          "type": "NEGATIVE_SPIKE",
+          "threshold_percent": 30
+        }
+      ]
+    },
+    "influencer_trigger": {
+      "enabled": false,
+      "logic": "OR",
+      "rules": []
+    }
+  },
   "created_at": "2026-02-19T10:00:00Z",
   "updated_at": "2026-02-19T10:00:00Z"
 }
 
 Response 404 (if not configured):
 {
-  "error": "Crisis config not found for project"
+  "error": "Config not found for project"
 }
 ```
 
-**Get Crisis Alert History:**
+**Partial Update (Only Sentiment Trigger):**
 
 ```http
-GET /projects/{project_id}/crisis-alerts?limit=20&offset=0
-Authorization: Bearer {token}
+PUT /projects/{project_id}/config
+Content-Type: application/json
+
+{
+  "crisis_detection": {
+    "sentiment_trigger": {
+      "threshold_percent": 20
+    }
+  }
+}
 
 Response 200:
 {
-  "total": 5,
-  "alerts": [
-    {
-      "id": "alert_103",
-      "project_id": "proj_vf8",
-      "source_id": "src_tiktok_01",
-      "trigger_type": "sentiment_trigger",
-      "severity": "CRITICAL",
-      "metrics": {
-        "negative_ratio": 0.45,
-        "sample_size": 110
-      },
-      "detected_at": "2026-02-19T10:30:00Z",
-      "resolved_at": null,
-      "status": "ACTIVE"
-    }
-  ]
+  "crisis_detection": {
+    "sentiment_trigger": {
+      "threshold_percent": 20  // Updated
+    },
+    "volume_trigger": {...},  // Unchanged
+    "keywords_trigger": {...},  // Unchanged
+    "influencer_trigger": {...}  // Unchanged
+  }
 }
-```
-
-#### 7.2.4 Implementation (Project Service)
-
-**Flow:**
-
-```
-INPUT: PUT /projects/{id}/crisis-config
-  ├─ project_id
-  ├─ config (triggers, notification_channels)
-  └─ user_id
-
-PROCESS:
-  1. Validate config structure:
-     - Check required fields
-     - Validate trigger rules
-     - Validate notification channels
-  2. Check project exists:
-     - Query: schema_project.projects
-     - If NOT found → Error 404
-  3. Upsert config:
-     - INSERT or UPDATE schema_project.crisis_configs
-     - Unique constraint: 1 config per project
-  4. Publish event:
-     - Topic: project.crisis_config.updated
-     - Payload: {project_id, config, updated_by}
-     - Consumer: Analytics Service (cache config)
-
-OUTPUT: Config stored + Event published
-  ├─ Response 200: {id, project_id, config, timestamps}
-  └─ Analytics Service receives update
 ```
 
 ---
 
-### 7.3 Crisis Detection Execution (Analytics Service)
+#### 7.5.3 Implementation Flow
+
+```
+INPUT: PUT /projects/{id}/config
+  ├─ project_id
+  └─ crisis_detection (full or partial update)
+
+PROCESS:
+  1. Validate config structure:
+     - Check ENUM values (enabled, logic, metric, level, type, etc.)
+     - Check required fields per trigger
+     - Validate thresholds (> 0)
+     - Validate min_sample_size (> 0)
+
+  2. Check project exists:
+     - Query: schema_project.projects WHERE id = project_id
+     - If NOT found → Error 404
+
+  3. Merge with existing config (if partial update):
+     - Load existing config from database
+     - Deep merge new fields with existing
+     - Keep unchanged fields as-is
+
+  4. Upsert config:
+     - INSERT or UPDATE schema_project.project_configs
+     - Unique constraint: 1 config per project
+     - ON CONFLICT (project_id) DO UPDATE
+
+  5. Publish event:
+     - Topic: project.config.updated
+     - Payload: {
+         project_id,
+         crisis_detection,
+         updated_by,
+         timestamp
+       }
+     - Consumer: Analytics Service (cache config for crisis detection)
+
+OUTPUT: Config stored + Event published
+  ├─ Response 200: {id, project_id, crisis_detection, created_at, updated_at}
+  ├─ Analytics Service receives update → Refresh cached config
+  └─ Adaptive Scheduler uses new threshold on next metrics event
+```
+
+**NOTE:** Adaptive crawl tự động dùng threshold từ crisis_detection config, không cần separate API
+
+---
+
+### 7.6 Crisis Detection Execution (Analytics Service)
 
 **Xem chi tiết:** `documents/analysis/crisis_detection_implementation.md`
 
-#### 7.3.1 Data Flow
+#### 7.6.1 Data Flow
 
 ```
 [Analytics Service - UAP Consumer]
@@ -1336,7 +1751,7 @@ OUTPUT: Config stored + Event published
     ↓
 [Analytics Service - Crisis Detector (Background Job)]
     Every 5 minutes:
-    1. Load crisis config from Project Service (or cache)
+    1. Load crisis configs from Project Service (or cache)
     2. Query recent data (last 5 min)
     3. Check against each trigger:
        - Keywords trigger
@@ -1348,7 +1763,8 @@ OUTPUT: Config stored + Event published
 [Project Service - Crisis Handler]
     1. Consume: analytics.crisis.detected
     2. Store alert in crisis_alerts table
-    3. Trigger adaptive crawl (if needed)
+    3. Check adaptive_crawl config:
+       - If enabled → Trigger adaptive crawl
     4. Publish: project.crisis.started
     ↓
 [Notification Service]
@@ -1356,7 +1772,7 @@ OUTPUT: Config stored + Event published
     2. Send alerts via configured channels (email, Slack, SMS)
 ```
 
-#### 7.3.2 Kafka Event: analytics.crisis.detected
+#### 7.6.2 Kafka Event: analytics.crisis.detected
 
 **Topic:** `analytics.crisis.detected`
 
@@ -1411,7 +1827,7 @@ OUTPUT: Config stored + Event published
 | `sample_posts`  | array  | Sample posts that triggered alert (max 5)                                                       |
 | `detected_at`   | string | ISO8601 timestamp                                                                               |
 
-#### 7.3.3 Crisis Alert Storage (Project Service)
+#### 7.6.3 Crisis Alert Storage (Project Service)
 
 ```sql
 -- Store crisis alerts for history
@@ -1442,7 +1858,7 @@ CREATE INDEX idx_crisis_alerts_project ON schema_project.crisis_alerts(project_i
 CREATE INDEX idx_crisis_alerts_status ON schema_project.crisis_alerts(status, detected_at DESC);
 ```
 
-#### 7.3.4 Crisis Handler (Project Service)
+#### 7.6.4 Crisis Handler (Project Service)
 
 **Flow:**
 
@@ -1460,25 +1876,29 @@ PROCESS:
      - Fields: project_id, source_id, trigger_type, severity
      - Status: ACTIVE
      - Store: metrics, matched_rules, sample_posts
-  
+
   2. Check if should trigger adaptive crawl:
      - Condition 1: severity = CRITICAL?
      - Condition 2: source_id exists?
      - If YES → Continue to step 3
      - If NO → Skip to step 4
-  
+
   3. Trigger adaptive crawl (if CRITICAL):
      - Get source info: GET /ingest/sources/{source_id}
      - Check: source_category = crawl?
      - If YES:
        * Call Ingest API: PUT /ingest/sources/{source_id}/crawl-mode
-         {crawl_mode: "CRISIS", crawl_interval: 2, reason: "Crisis detected"}
-  
+         {
+           crawl_mode: "CRISIS",
+           crawl_interval: 2,
+           reason: "Crisis detected: {trigger_type}"
+         }
+
   4. Publish crisis.started event:
      - Topic: project.crisis.started
      - Payload: {project_id, source_id, alert_id, severity, metrics}
      - Consumers:
-       * Notification Service → Send alerts
+       * Notification Service → Send alerts (email, Slack, SMS)
 
 OUTPUT: Alert stored + Events published
   ├─ Alert history saved for dashboard
@@ -1491,37 +1911,94 @@ NOTE: Project Service gọi Ingest Service API để update mode
 
 ---
 
-### 7.4 Kafka Topics Summary
+### 7.7 Kafka Topics Summary
 
 ```yaml
 # Config management
-project.crisis_config.updated:
+project.config.updated:
   producer: project-srv
   consumer: analytics-srv
-  payload: { project_id, config, updated_by, timestamp }
-  purpose: Notify Analytics Service of config changes
+  payload: { project_id, crisis_detection, updated_by, timestamp }
+  purpose: Notify Analytics Service of config changes (cache for crisis detection)
+
+# Metrics aggregation (for adaptive crawl)
+analytics.metrics.aggregated:
+  producer: analytics-srv
+  consumer: project-srv
+  payload: { source_id, negative_ratio, velocity, new_items_count, time_window }
+  purpose: Trigger adaptive crawl mode changes
 
 # Crisis detection
 analytics.crisis.detected:
   producer: analytics-srv
   consumer: project-srv
   payload:
-    { alert_id, project_id, source_id, trigger_type, severity, metrics, ... }
+    {
+      alert_id,
+      project_id,
+      source_id,
+      trigger_type,
+      severity,
+      metrics,
+      matched_rules,
+      sample_posts,
+    }
   purpose: Alert Project Service of detected crisis
 
 # Crisis notification
 project.crisis.started:
   producer: project-srv
-  consumers: [ingest-srv, noti-srv]
+  consumers: [noti-srv]
   payload: { project_id, source_id, alert_id, severity, metrics, timestamp }
-  purpose: Trigger adaptive crawl + send notifications
+  purpose: Send notifications to user (email, Slack, SMS)
 
 project.crisis.resolved:
   producer: project-srv
-  consumers: [ingest-srv, noti-srv]
+  consumers: [noti-srv]
   payload: { project_id, source_id, alert_id, duration_minutes }
   purpose: Notify crisis resolved
+
+# Adaptive crawl mode change (optional notification)
+project.mode.changed:
+  producer: project-srv
+  consumers: [noti-srv]
+  payload: { source_id, old_mode, new_mode, reason, timestamp }
+  purpose: Notify mode change (optional - for monitoring)
 ```
+
+---
+
+### 7.8 Implementation Checklist
+
+**Project Service:**
+
+- [ ] Database: Create `project_configs` table (crisis_detection only)
+- [ ] Database: Create `crisis_alerts` table
+- [ ] API: PUT /projects/{id}/config (crisis_detection)
+- [ ] API: GET /projects/{id}/config (crisis_detection)
+- [ ] API: GET /projects/{id}/crisis-alerts (list alerts)
+- [ ] Consumer: analytics.crisis.detected → Store alert + Trigger adaptive crawl (if CRITICAL)
+- [ ] Consumer: analytics.metrics.aggregated → Adaptive Scheduler (extract threshold from crisis_detection)
+- [ ] Producer: project.config.updated (when config changes)
+- [ ] Producer: project.crisis.started (when crisis detected)
+- [ ] Producer: project.mode.changed (when crawl mode changes)
+- [ ] Adaptive Scheduler: Extract threshold from crisis_detection.sentiment_trigger.threshold_percent
+- [ ] Adaptive Scheduler: Compare metrics vs threshold → Call Ingest API if mode change needed
+- [ ] Adaptive Scheduler: Sleep mode detection (< 10 items/hour hardcoded)
+
+**Analytics Service:**
+
+- [ ] Consumer: project.config.updated → Cache crisis_detection config
+- [ ] Background Job: Crisis Detector (every 5 min)
+- [ ] Detection Logic: Keywords, Volume, Sentiment, Influencer triggers
+- [ ] Producer: analytics.crisis.detected (when crisis detected)
+- [ ] Producer: analytics.metrics.aggregated (every 5 min per source)
+
+**Notification Service:**
+
+- [ ] Consumer: project.crisis.started → Send alerts via email, Slack, SMS
+- [ ] Consumer: project.crisis.resolved → Send resolution notification
+- [ ] Consumer: project.mode.changed → Send mode change notification (optional)
 
 ---
 

@@ -41,7 +41,7 @@ Analytics Service thực thi crisis detection logic:
 
 ## 3. CRISIS CONFIG CACHE
 
-### 3.1 Consumer: project.crisis_config.updated
+### 3.1 Consumer: project.config.updated
 
 ```python
 # internal/consumers/crisis_config_consumer.py
@@ -59,12 +59,12 @@ class CrisisConfigConsumer:
     async def handle_message(self, message: dict):
         """Handle crisis config update event."""
         project_id = message["project_id"]
-        config = message["config"]
+        crisis_detection = message["crisis_detection"]
         
         self.logger.info(f"Received crisis config update for project {project_id}")
         
         # Update cache
-        await self.cache.set(project_id, config)
+        await self.cache.set(project_id, crisis_detection)
         
         self.logger.info(f"Crisis config cached for project {project_id}")
 ```
@@ -602,7 +602,7 @@ redis:
 
 kafka:
   topics:
-    crisis_config_updated: project.crisis_config.updated
+    config_updated: project.config.updated
     crisis_detected: analytics.crisis.detected
 ```
 
