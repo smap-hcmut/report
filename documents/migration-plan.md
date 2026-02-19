@@ -1928,19 +1928,19 @@ CREATE INDEX idx_project_transitions_project ON schema_project.project_state_tra
 
 **Nguyên tắc phân chia trách nhiệm:**
 
-| Aspect             | Project Service (Brain)              | Ingest Service (Executor)                 |
-| ------------------ | ------------------------------------ | ----------------------------------------- |
-| **Role**           | Decision Maker                       | Task Executor                             |
-| **Responsibility** | WHAT, WHEN, WHY                      | HOW                                       |
-| **Data Sources**   | Manage crisis_detection config       | Own data_sources table, execute ingestion |
-| **File Upload**    | Trigger upload flow, validate        | Parse file, transform to UAP              |
-| **Crawl**          | Call Ingest API to update crawl_mode | Execute crawl, manage schedule            |
-| **Webhook**        | Generate webhook URL, manage config  | Receive webhook, validate payload         |
-| **AI Schema**      | Coordinate onboarding flow           | Execute LLM calls, suggest mapping        |
-| **Dry Run**        | Trigger dry run, collect results     | Execute test crawl, return samples        |
-| **Adaptive**       | Consume metrics, call Ingest API     | Execute crawl with updated mode           |
-| **State**          | Manage project state machine         | Report job status back                    |
-| **Database**       | schema_project.\* (metadata, config) | schema_ingest.\* (data_sources, jobs)     |
+| Aspect             | Project Service (Brain)                          | Ingest Service (Executor)             |
+| ------------------ | ------------------------------------------------ | ------------------------------------- |
+| **Role**           | Orchestrator                                     | Data Ingestion Engine                 |
+| **Responsibility** | Project lifecycle, Crisis config, Adaptive logic | Data sources, Ingestion execution     |
+| **Data Sources**   | ❌ KHÔNG quản lý (Frontend → Ingest trực tiếp)   | ✅ Full CRUD + Execution              |
+| **File Upload**    | ❌ KHÔNG tham gia                                | ✅ Upload + Parse + Transform         |
+| **Crawl**          | ❌ KHÔNG schedule (Frontend → Ingest trực tiếp)  | ✅ Schedule + Execute crawl           |
+| **Webhook**        | ❌ KHÔNG tham gia                                | ✅ Generate URL + Receive payload     |
+| **AI Schema**      | ❌ KHÔNG tham gia                                | ✅ Execute LLM calls, suggest mapping |
+| **Dry Run**        | ❌ KHÔNG tham gia                                | ✅ Execute test crawl, return samples |
+| **Adaptive**       | ✅ Consume metrics, call Ingest API              | ✅ Execute crawl with updated mode    |
+| **State**          | ✅ Manage project state machine                  | Report job status back                |
+| **Database**       | schema_project.\* (projects, configs)            | schema_ingest.\* (data_sources, jobs) |
 
 **Ví dụ cụ thể:**
 

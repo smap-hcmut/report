@@ -16,7 +16,7 @@
 5. [Modules và API](#5-modules-và-api)
 6. [Adaptive Crawl](#6-adaptive-crawl)
 7. [Crisis Detection](#7-crisis-detection)
-8. [Dashboard Orchestration](#8-dashboard-orchestration)
+8. [Dashboard Aggregation](#8-dashboard-aggregation)
 9. [Implementation Status](#9-implementation-status)
 10. [Deployment Checklist](#10-deployment-checklist)
 
@@ -26,10 +26,21 @@
 
 ### 1.1 Định nghĩa
 
-Project Service là **"Orchestration Brain"** của hệ thống SMAP Enterprise - bộ não điều phối trung tâm chịu trách nhiệm:
+Project Service là **Domain Service** quản lý Project và Campaign entities - KHÔNG phải orchestration brain hay gateway.
 
-- **Lifecycle Management:** Quản lý vòng đời của Campaign và Project
-- **Adaptive Crawl Controller:** Điều khiển thu thập thích ứng dựa trên metrics
+**Core Responsibilities:**
+
+- **Project Lifecycle:** CRUD + State Machine (DRAFT → ACTIVE → PAUSED → ARCHIVED)
+- **Campaign Management:** Group projects for cross-analysis
+- **Crisis Detection Config:** User-defined rules for alerts
+- **Dashboard Aggregation:** Query data from other services
+
+**KHÔNG chịu trách nhiệm:**
+
+- ❌ Data ingestion (Ingest Service owns)
+- ❌ Scheduling crawls (Ingest Service owns)
+- ❌ File processing (Ingest Service owns)
+- ❌ Orchestration/Gateway (Frontend calls services directly)
 
 ### 1.2 Tech Stack
 
@@ -37,62 +48,126 @@ Project Service là **"Orchestration Brain"** của hệ thống SMAP Enterprise
 Language: Go
 Framework: Gin (HTTP), Kafka (Events)
 Database: PostgreSQL (schema_project.* schema)
-Cache: Redis (optional, for dashboard)
-Message Queue: Kafka
+Message Queue: Kafka (event-driven communication)
 ```
+
+### 1.3 Project State Machine (Simplified)
+
+```
+DRAFT ──────────────────────────────────────────────────────────┐
+  │                                                              │
+  │ User creates project                                         │
+  │ No data sources yet                                          │
+  │                                                              │
+  ↓                                                              │
+ACTIVE ←──────────────────────────────────────────────────────┐  │
+  │                                                           │  │
+  │ Ingest Service published first data                       │  │
+  │ → Project Service consumes event                          │  │
+  │ → Auto transition: DRAFT → ACTIVE                         │  │
+  │                                                           │  │
+  ↓                                                           │  │
+PAUSED                                                        │  │
+  │                                                           │  │
+  │ User calls: POST /projects/{id}/pause                     │  │
+  │ → Project Service: Update status = PAUSED                 │  │
+  │ → Publish: project.paused {project_id}                    │  │
+  │ → Ingest Service: Pause ALL sources of this project       │  │
+  │                                                           │  │
+  │ User calls: POST /projects/{id}/resume                    │  │
+  │ → Project Service: Update status = ACTIVE ────────────────┘  │
+  │ → Publish: project.resumed {project_id}                      │
+  │ → Ingest Service: Resume ALL sources                         │
+  │                                                              │
+  ↓                                                              │
+ARCHIVED                                                         │
+  │                                                              │
+  │ User calls: POST /projects/{id}/archive                      │
+  │ → Project Service: Soft delete (deleted_at = NOW())          │
+  │ → Publish: project.archived {project_id}                     │
+  │ → Ingest Service: Soft delete ALL sources ───────────────────┘
+  │
+  └─ Cannot be resumed (permanent)
+```
+
+**State Transition Rules:**
+
+| From   | To       | Trigger                                    | Action                                     |
+| ------ | -------- | ------------------------------------------ | ------------------------------------------ |
+| DRAFT  | ACTIVE   | Ingest publishes `ingest.data.first_batch` | Auto transition (system)                   |
+| ACTIVE | PAUSED   | User calls `/projects/{id}/pause`          | Publish `project.paused` → Ingest pauses   |
+| PAUSED | ACTIVE   | User calls `/projects/{id}/resume`         | Publish `project.resumed` → Ingest resumes |
+| ACTIVE | ARCHIVED | User calls `/projects/{id}/archive`        | Soft delete + Publish `project.archived`   |
+| PAUSED | ARCHIVED | User calls `/projects/{id}/archive`        | Soft delete + Publish `project.archived`   |
 
 ---
 
 ## 2. VAI TRÒ VÀ TRÁCH NHIỆM
 
-### 2.1 Project Service vs Ingest Service
+### 2.1 Project Service = Domain Service (NOT Gateway)
 
-**Nguyên tắc phân chia:**
+**Nguyên tắc:**
 
-| Aspect             | Project Service (Brain)               | Ingest Service (Executor)         |
-| ------------------ | ------------------------------------- | --------------------------------- |
-| **Role**           | Decision Maker                        | Task Executor                     |
-| **Responsibility** | WHAT, WHEN, WHY                       | HOW                               |
-| **Data Sources**   | Manage metadata (config, schedule)    | Execute actual ingestion          |
-| **File Upload**    | Trigger upload flow, validate         | Parse file, transform to UAP      |
-| **Crawl**          | Schedule crawl jobs, decide frequency | Call external API, fetch data     |
-| **Webhook**        | Generate webhook URL, manage config   | Receive webhook, validate payload |
-| **Adaptive**       | Consume metrics, decide mode          | Execute crawl with new frequency  |
-| **State**          | Manage project state machine          | Report job status back            |
-| **Database**       | schema_project.\* (metadata)          | schema_ingest.\* (execution logs) |
+| Aspect             | Project Service                       | Ingest Service                        |
+| ------------------ | ------------------------------------- | ------------------------------------- |
+| **Role**           | Domain Service (Project + Campaign)   | Domain Service (Data Ingestion)       |
+| **Responsibility** | Project lifecycle, Crisis config      | Data sources, Ingestion, Scheduling   |
+| **Data Sources**   | ❌ KHÔNG quản lý                      | ✅ Full ownership                     |
+| **File Upload**    | ❌ KHÔNG tham gia                     | ✅ Full ownership                     |
+| **Crawl**          | ❌ KHÔNG tham gia                     | ✅ Full ownership (config + schedule) |
+| **Webhook**        | ❌ KHÔNG tham gia                     | ✅ Full ownership                     |
+| **Adaptive**       | ✅ Consume metrics, call Ingest API   | ✅ Execute crawl with updated mode    |
+| **State**          | ✅ Manage project state (4 states)    | Consume project events (pause/resume) |
+| **Database**       | schema_project.\* (projects, configs) | schema_ingest.\* (sources, jobs)      |
 
-**CRITICAL: Data Source Ownership**
+**CRITICAL: Decoupled Architecture**
 
 ```
-DATA SOURCE = Thực thể của INGEST SERVICE
-
 ┌─────────────────────────────────────────────────────────────────┐
-│  WHO CREATES DATA SOURCE?                                       │
+│  FRONTEND CALLS SERVICES DIRECTLY (NO GATEWAY)                  │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  [Frontend] User clicks "Add Data Source"                       │
+│  [Frontend] ──────────────────────────────────────┐             │
+│      │                                            │             │
+│      │ POST /projects                             │             │
+│      ↓                                            │             │
+│  [Project Service]                                │             │
+│      - Create project (status = DRAFT)            │             │
+│      - Return project_id                          │             │
+│                                                   │             │
+│  [Frontend] ──────────────────────────────────────┘             │
+│      │                                                          │
+│      │ POST /ingest/sources                                     │
 │      ↓                                                          │
-│  [Project Service] Validate project exists                      │
-│      ↓                                                          │
-│  [Project Service] Call Ingest Service API:                     │
-│      POST /ingest/sources                                       │
-│      {                                                          │
-│        project_id: "proj_vf8",                                  │
-│        name: "TikTok VF8",                                      │
-│        source_type: "TIKTOK",                                   │
-│        config: {...}                                            │
-│      }                                                          │
-│      ↓                                                          │
-│  [Ingest Service] CREATE data source:                           │
-│      - Generate ID: gen_random_uuid()                           │
-│      - INSERT schema_ingest.data_sources                        │
-│      - Return: {id: "src_tiktok_01", status: "PENDING"}        │
-│      ↓                                                          │
-│  [Project Service] Store reference:                             │
-│      - Cache source_id in memory (optional)                     │
-│      - OR query Ingest Service when needed                      │
+│  [Ingest Service]                                               │
+│      - Validate token                                           │
+│      - Check project exists (query schema_project.projects)     │
+│      - Create data source                                       │
+│      - Start ingestion                                          │
+│      - When first data arrives:                                 │
+│        → Publish: ingest.data.first_batch {project_id}          │
+│                                                                 │
+│  [Project Service]                                              │
+│      - Consume: ingest.data.first_batch                         │
+│      - Auto transition: DRAFT → ACTIVE                          │
+│                                                                 │
+│  NOTE: Project Service KHÔNG gọi Ingest Service                 │
+│        Chỉ consume events từ Kafka                              │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+```
+
+**Communication Pattern:**
+
+```
+Project Service ←──── Kafka Events ←──── Ingest Service
+     │                                        ↑
+     │ Publish: project.paused                │
+     │          project.resumed               │
+     │          project.archived              │
+     └────────────────────────────────────────┘
+
+     (Event-driven, NO direct HTTP calls)
 ```
 
 **Database Schema Ownership:**
@@ -151,31 +226,38 @@ CREATE TABLE schema_ingest.data_sources (
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│           PROJECT SERVICE - ORCHESTRATION BRAIN                 │
+│           PROJECT SERVICE - DOMAIN SERVICE                      │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  1. LIFECYCLE MANAGEMENT                                        │
-│     ✓ Quản lý state machine của Project                         │
+│  1. PROJECT & CAMPAIGN MANAGEMENT                               │
+│     ✓ CRUD operations cho Projects và Campaigns                 │
+│     ✓ Quản lý state machine (4 states: DRAFT/ACTIVE/PAUSED/ARCHIVED) │
 │     ✓ Validate state transitions                                │
 │     ✓ Enforce business rules                                    │
 │     ✓ Audit trail cho mọi state change                          │
 │                                                                 │
-│  2. DATA INGESTION ORCHESTRATION                                │
-│     ✓ Quyết định WHEN to ingest (schedule, on-demand)           │
-│     ✓ Quyết định HOW to ingest (profile, strategy)              │
-│     ✓ Quyết định WHAT to ingest (sources, filters)              │
-│     ✓ Publish commands → Ingest Service                         │
+│  2. CRISIS DETECTION CONFIG                                     │
+│     ✓ Store user-defined crisis detection rules                 │
+│     ✓ Manage 4 triggers (Keywords, Volume, Sentiment, Influencer) │
+│     ✓ Provide default values cho triggers                       │
+│     ✓ Publish config updates → Analytics Service                │
 │                                                                 │
 │  3. ADAPTIVE CRAWL CONTROLLER                                   │
 │     ✓ Consume metrics từ Analytics Service                      │
-│     ✓ Calculate baseline (7-day averages)                       │
+│     ✓ Extract thresholds từ crisis_detection config             │
 │     ✓ Determine crawl mode (Sleep/Normal/Crisis)                │
-│     ✓ Publish mode change events                                │
+│     ✓ Call Ingest API để update crawl mode                      │
 │                                                                 │
-│  4. INTEGRATION HUB                                             │
-│     ✓ Coordinate Ingest, Analytics, Knowledge, Notification     │
-│     ✓ Aggregate dashboard data từ Analytics                     │
-│     ✓ Trigger crisis alerts qua Notification                    │
+│  4. CRISIS ALERT HANDLER                                        │
+│     ✓ Consume crisis alerts từ Analytics Service                │
+│     ✓ Store alerts in crisis_alerts table                       │
+│     ✓ Trigger adaptive crawl (if CRITICAL)                      │
+│     ✓ Publish events → Notification Service                     │
+│                                                                 │
+│  5. DASHBOARD AGGREGATION                                       │
+│     ✓ Query project metadata (schema_project.*)                 │
+│     ✓ Query Analytics API for insights                          │
+│     ✓ Combine data for unified dashboard response               │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -372,50 +454,28 @@ Khi archive project, Project Service publish event `project.archived` với list
 
 ```
 internal/
-├── projects/          # Project CRUD + State Machine
+├── projects/          # Project CRUD + State Machine (4 states)
 ├── campaigns/         # Campaign CRUD
-├── scheduler/         # Adaptive controller (consume metrics, decide mode)
-├── dashboard/         # Dashboard aggregation
-├── crisis/            # Crisis config + alert management
-├── orchestrator/      # Command publisher (to Ingest)
-├── ingest_client/     # HTTP client to call Ingest Service API
+├── configs/           # Crisis Detection Config CRUD
+├── scheduler/         # Adaptive Scheduler (consume metrics, call Ingest API)
+├── crisis/            # Crisis Handler (consume alerts, call Ingest API)
+├── dashboard/         # Dashboard aggregation (query Analytics + Ingest APIs)
 └── health/            # Health check metrics
 ```
 
-**IMPORTANT: NO sources/ module**
+**IMPORTANT: Pure Domain Service**
 
-Project Service KHÔNG có domain/repository cho Data Sources vì:
+Project Service KHÔNG có:
 
-- Data Sources thuộc về Ingest Service
-- Project Service chỉ gọi Ingest Service API qua HTTP client
-- Không duplicate domain logic
+- ❌ orchestrator/ module (không publish commands)
+- ❌ ingest_client/ module (không gọi Ingest HTTP API thường xuyên)
+- ❌ sources/ module (Data Sources thuộc Ingest)
 
-**Example: ingest_client/**
+**Lý do:**
 
-```go
-// internal/ingest_client/client.go
-
-type IngestClient struct {
-    baseURL    string
-    httpClient *http.Client
-}
-
-func (c *IngestClient) CreateSource(ctx context.Context, req CreateSourceRequest) (*Source, error) {
-    // POST /ingest/sources
-}
-
-func (c *IngestClient) GetSource(ctx context.Context, sourceID string) (*Source, error) {
-    // GET /ingest/sources/{id}
-}
-
-func (c *IngestClient) UpdateSource(ctx context.Context, sourceID string, req UpdateSourceRequest) error {
-    // PUT /ingest/sources/{id}
-}
-
-func (c *IngestClient) ActivateSource(ctx context.Context, sourceID string) error {
-    // POST /ingest/sources/{id}/activate
-}
-```
+- Project Service chỉ quản lý domain riêng: Projects + Campaigns + Crisis Config
+- Communication với Ingest = Event-driven (Kafka)
+- Chỉ call Ingest API khi adaptive crawl (scheduler/ module)
 
 ### 5.2 Core API Endpoints
 
@@ -431,36 +491,16 @@ POST   /projects/{id}/activate      # Activate project
 POST   /projects/{id}/pause         # Pause project
 POST   /projects/{id}/resume        # Resume project
 POST   /projects/{id}/archive       # Archive project
-GET    /projects/{id}/dashboard     # Get dashboard data
+GET    /projects/{id}/dashboard     # Get dashboard data (aggregate from Analytics + Ingest)
 ```
 
-**Data Sources:**
+**Crisis Detection Config:**
 
 ```
-POST   /projects/{id}/sources       # Project Service receives request
-                                     # → Calls Ingest Service API
-                                     # → Returns source_id from Ingest
-
-GET    /sources/{id}                # Query Ingest Service directly
-                                     # OR Project Service proxies to Ingest
-
-PUT    /sources/{id}                # Update source config
-                                     # → Project Service → Ingest Service
-
-DELETE /sources/{id}                # Delete source
-                                     # → Project Service → Ingest Service
-
-POST   /sources/{id}/dry-run        # Trigger dry run
-                                     # → Project Service → Ingest Service
-
-POST   /sources/{id}/activate       # Activate source
-                                     # → Project Service updates status via Ingest API
-
-POST   /sources/{id}/pause          # Pause source
-POST   /sources/{id}/resume         # Resume source
+PUT    /projects/{id}/config        # Create/Update crisis detection config
+GET    /projects/{id}/config        # Get crisis detection config
+GET    /projects/{id}/crisis-alerts # List crisis alerts
 ```
-
-**Note:** Project Service là API Gateway cho Frontend, nhưng actual data source records được store và manage bởi Ingest Service.
 
 **Campaigns:**
 
@@ -473,6 +513,12 @@ DELETE /campaigns/{id}                # Delete campaign
 POST   /campaigns/{id}/projects       # Add project to campaign
 DELETE /campaigns/{id}/projects/{pid} # Remove project
 ```
+
+**NOTE:**
+
+- ❌ KHÔNG có Data Source APIs trong Project Service
+- ✅ Frontend gọi trực tiếp Ingest Service cho tất cả Data Source operations
+- ✅ Project Service chỉ quản lý: Projects, Campaigns, Crisis Config, Dashboard
 
 ### 5.3 Database Schema
 
@@ -583,113 +629,44 @@ CREATE TABLE schema_ingest.data_sources (
 
 ### 5.4 Kafka Event Handlers (Consumers)
 
-Project Service consume các events từ Ingest và Analytics để:
+Project Service chỉ consume 3 loại events:
 
-- Trigger adaptive crawl decisions (từ Analytics metrics)
-- Update internal state nếu cần (optional caching)
+1. **ingest.data.first_batch** - Auto transition DRAFT → ACTIVE
+2. **analytics.metrics.aggregated** - Adaptive crawl decision
+3. **analytics.crisis.detected** - Crisis alert handling
 
-**Module:** `internal/consumers/` hoặc `internal/scheduler/consumers.go`
+**Module:** `internal/consumers/`
 
-**IMPORTANT:** Project Service KHÔNG update database của Ingest Service. Chỉ:
+#### 5.4.1 First Data Handler (State Transition)
 
-1. Consume events để biết status
-2. Make decisions (adaptive crawl mode)
-3. Publish commands back to Ingest Service
-
-#### 5.4.1 Crawl Completed Handler
-
-**Purpose:** Nhận thông báo crawl hoàn thành (for monitoring/logging only)
+**Purpose:** Auto transition project từ DRAFT → ACTIVE khi Ingest Service publish data lần đầu
 
 **Flow:**
 
 ```
-INPUT: ingest.crawl.completed
+INPUT: ingest.data.first_batch
+  ├─ project_id
   ├─ source_id
   ├─ items_count
-  ├─ status (SUCCESS/FAILED)
-  ├─ crawl_duration_ms
   └─ timestamp
 
 PROCESS:
-  1. Log crawl completion
-  2. (Optional) Update local cache if needed
-  3. No database update - Ingest Service owns the data
+  1. Check project status:
+     - Query: SELECT status FROM schema_project.projects WHERE id = project_id
+     - If status != DRAFT → Skip (already active)
+  2. Update project status:
+     - UPDATE schema_project.projects SET status = 'ACTIVE', activated_at = NOW()
+  3. Log transition:
+     - INSERT schema_project.project_state_transitions
+       (from_state: DRAFT, to_state: ACTIVE, trigger_type: SYSTEM)
 
-OUTPUT: Logged
-  └─ Project Service aware of crawl status
-     (Ingest Service already updated its own database)
-
-NOTE: Ingest Service tự update schema_ingest.data_sources
-      Project Service chỉ consume để biết status
+OUTPUT: Project activated
+  └─ Project status = ACTIVE
 ```
 
-#### 5.4.2 File Upload Completed Handler
+**NOTE:** Đây là ONLY event từ Ingest mà Project Service cần consume
 
-**Purpose:** Nhận thông báo FILE_UPLOAD source processing hoàn thành
-
-**Context:** Khi user upload file Excel/CSV (FILE_UPLOAD source), Ingest Service xử lý file và publish event này.
-
-**Flow:**
-
-```
-INPUT: ingest.file.completed
-  ├─ source_id (FILE_UPLOAD source)
-  ├─ items_count (số dòng đã parse)
-  ├─ status (SUCCESS/FAILED)
-  ├─ file_url (s3://bucket/file.xlsx)
-  └─ processing_duration_ms
-
-PROCESS:
-  1. Log file processing completion
-  2. (Optional) Update local cache if needed
-  3. No database update - Ingest Service owns the data
-
-OUTPUT: Logged
-  └─ Project Service aware of file upload status
-     (Ingest Service already updated status to COMPLETED/FAILED)
-
-EXAMPLE:
-  User uploads "feedback_q1.xlsx" (500 rows)
-  → Ingest Service parses → 500 UAP records
-  → Ingest Service updates: schema_ingest.data_sources status = COMPLETED
-  → Publish: ingest.file.completed {source_id, items_count: 500, status: SUCCESS}
-  → Project Service logs: "File upload completed for source_id"
-
-NOTE: Ingest Service tự update schema_ingest.data_sources
-      Project Service chỉ consume để biết status
-```
-
-#### 5.4.3 Dry Run Completed Handler
-
-**Purpose:** Nhận thông báo dry run results
-
-**Flow:**
-
-```
-INPUT: ingest.dryrun.completed
-  ├─ source_id
-  ├─ status (SUCCESS/FAILED)
-  ├─ sample_data (max 10 items)
-  ├─ total_found
-  └─ warnings[]
-
-PROCESS:
-  1. Log dry run completion
-  2. (Optional) Update local cache if needed
-  3. No database update - Ingest Service owns the data
-
-OUTPUT: Logged
-  ├─ If SUCCESS: Source ready to activate (Ingest Service updated status = READY)
-  └─ If FAILED: User needs to fix config (Ingest Service kept status = PENDING)
-
-NOTE: Ingest Service tự update schema_ingest.data_sources
-      - status = READY (if SUCCESS) or PENDING (if FAILED)
-      - dryrun_status = SUCCESS/FAILED
-      - dryrun_results = {...}
-      Project Service chỉ consume để biết status
-```
-
-#### 5.4.4 Metrics Aggregated Handler (Adaptive Scheduler)
+#### 5.4.2 Metrics Aggregated Handler (Adaptive Scheduler)
 
 **Purpose:** Quyết định crawl mode dựa trên metrics từ Analytics
 
@@ -703,17 +680,52 @@ INPUT: analytics.metrics.aggregated
   └─ new_items_count
 
 PROCESS:
-  1. Get source info from Ingest Service:
-     - Call: GET /ingest/sources/{source_id}
-     - Check: source_category = crawl? (skip if passive)
-  2. Load baseline metrics (7-day average)
-  3. Determine new mode:
-     - Compare current vs baseline
-     - Apply rules (see Section 6.3)
-  4. If mode changed:
-     - Calculate new interval:
-       * SLEEP → 60 min
-       * NORMAL → 11 min
+  1. Load crisis_detection config:
+     - Query: schema_project.project_configs
+     - Extract threshold: sentiment_trigger.threshold_percent = 30%
+  2. Determine new mode:
+     - Compare: negative_ratio vs threshold
+     - If 45% > 30% → CRISIS mode
+     - If new_items_count < 10/hour → SLEEP mode
+     - Else → NORMAL mode
+  3. If mode changed:
+     - Call Ingest API: PUT /ingest/sources/{source_id}/crawl-mode
+       {crawl_mode: "CRISIS", crawl_interval: 2, reason: "..."}
+     - Publish: project.mode.changed (for notification)
+
+OUTPUT: Crawl mode updated (if needed)
+  └─ Ingest Service updates crawl_mode and reschedules
+```
+
+#### 5.4.3 Crisis Detected Handler
+
+**Purpose:** Store crisis alert và trigger adaptive crawl (if CRITICAL)
+
+**Flow:**
+
+```
+INPUT: analytics.crisis.detected
+  ├─ alert_id
+  ├─ project_id, source_id
+  ├─ trigger_type, severity
+  ├─ metrics, matched_rules
+  └─ sample_posts[]
+
+PROCESS:
+  1. Store alert:
+     - INSERT schema_project.crisis_alerts
+     - Fields: project_id, source_id, trigger_type, severity, metrics
+     - Status: ACTIVE
+  2. If severity = CRITICAL:
+     - Call Ingest API: PUT /ingest/sources/{source_id}/crawl-mode
+       {crawl_mode: "CRISIS", crawl_interval: 2}
+  3. Publish notification:
+     - Topic: project.crisis.started
+     - Consumers: noti-srv (send alerts)
+
+OUTPUT: Alert stored + Adaptive crawl triggered (if CRITICAL)
+```
+
        * CRISIS → 2 min
      - Call Ingest Service API:
        PUT /ingest/sources/{source_id}/crawl-mode
@@ -723,15 +735,17 @@ PROCESS:
          reason: "Negative ratio 45% >> baseline 10%"
        }
      - Publish: project.mode.changed (for notification)
-  5. Store current metrics for next comparison
+
+5. Store current metrics for next comparison
 
 OUTPUT: Mode change (if needed)
-  ├─ Ingest Service updated with new mode
-  ├─ Event published for notification
-  └─ Next crawl scheduled by Ingest Service
+├─ Ingest Service updated with new mode
+├─ Event published for notification
+└─ Next crawl scheduled by Ingest Service
 
 NOTE: Project Service KHÔNG update database trực tiếp
-      Chỉ gọi Ingest Service API để thay đổi mode
+Chỉ gọi Ingest Service API để thay đổi mode
+
 ```
 
 ---
@@ -743,58 +757,60 @@ NOTE: Project Service KHÔNG update database trực tiếp
 **2 Mechanisms khác nhau nhưng bổ trợ cho nhau:**
 
 ```
+
 ┌─────────────────────────────────────────────────────────────────┐
-│         ADAPTIVE CRAWL vs CRISIS DETECTION                      │
+│ ADAPTIVE CRAWL vs CRISIS DETECTION │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ADAPTIVE CRAWL (Automatic - Metrics-based)                     │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │  Purpose: Tự động điều chỉnh tần suất crawl               │  │
-│  │  Trigger: Analytics metrics (every 5 min)                 │  │
-│  │  Input:   analytics.metrics.aggregated                    │  │
-│  │           {negative_ratio, velocity, new_items_count}     │  │
-│  │  Logic:   Simple threshold-based rules                    │  │
-│  │           - negative_ratio > 30% → CRISIS                 │  │
-│  │           - velocity > 2x baseline → CRISIS               │  │
-│  │           - new_items < 5 → SLEEP                         │  │
-│  │  Action:  Change crawl_mode + crawl_interval              │  │
-│  │  Scope:   Per source (independent)                        │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  CRISIS DETECTION (User-configured - Rule-based)                │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │  Purpose: Phát hiện khủng hoảng theo rules của user       │  │
-│  │  Trigger: Background job (every 5 min)                    │  │
-│  │  Input:   schema_analysis.post_insight (recent data)      │  │
-│  │  Logic:   Complex user-defined rules                      │  │
-│  │           - Keywords (critical terms)                     │  │
-│  │           - Volume (spike detection)                      │  │
-│  │           - Sentiment (negative ratio + ABSA)             │  │
-│  │           - Influencer (viral posts)                      │  │
-│  │  Action:  Send alerts + Store history                     │  │
-│  │  Scope:   Per project (aggregate all sources)             │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  INTERACTION:                                                   │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │  Crisis Detection CÓ THỂ trigger Adaptive Crawl:          │  │
-│  │                                                           │  │
-│  │  [Analytics] Detect crisis (keywords/volume/sentiment)    │  │
-│  │      → Publish: analytics.crisis.detected                 │  │
-│  │      ↓                                                    │  │
-│  │  [Project Service] Consume crisis alert                   │  │
-│  │      → If severity=CRITICAL + source is crawl             │  │
-│  │      → Publish: project.crisis.started                    │  │
-│  │      ↓                                                    │  │
-│  │  [Adaptive Scheduler] Consume crisis event                │  │
-│  │      → Force switch to CRISIS mode (override metrics)     │  │
-│  │      → crawl_interval = 2 min                             │  │
-│  │                                                           │  │
-│  │  Nhưng Adaptive Crawl KHÔNG trigger Crisis Detection      │  │
-│  │  (chỉ là điều chỉnh tần suất, không phải alert)           │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                                                                 │
+│ │
+│ ADAPTIVE CRAWL (Automatic - Metrics-based) │
+│ ┌───────────────────────────────────────────────────────────┐ │
+│ │ Purpose: Tự động điều chỉnh tần suất crawl │ │
+│ │ Trigger: Analytics metrics (every 5 min) │ │
+│ │ Input: analytics.metrics.aggregated │ │
+│ │ {negative_ratio, velocity, new_items_count} │ │
+│ │ Logic: Simple threshold-based rules │ │
+│ │ - negative_ratio > 30% → CRISIS │ │
+│ │ - velocity > 2x baseline → CRISIS │ │
+│ │ - new_items < 5 → SLEEP │ │
+│ │ Action: Change crawl_mode + crawl_interval │ │
+│ │ Scope: Per source (independent) │ │
+│ └───────────────────────────────────────────────────────────┘ │
+│ │
+│ CRISIS DETECTION (User-configured - Rule-based) │
+│ ┌───────────────────────────────────────────────────────────┐ │
+│ │ Purpose: Phát hiện khủng hoảng theo rules của user │ │
+│ │ Trigger: Background job (every 5 min) │ │
+│ │ Input: schema_analysis.post_insight (recent data) │ │
+│ │ Logic: Complex user-defined rules │ │
+│ │ - Keywords (critical terms) │ │
+│ │ - Volume (spike detection) │ │
+│ │ - Sentiment (negative ratio + ABSA) │ │
+│ │ - Influencer (viral posts) │ │
+│ │ Action: Send alerts + Store history │ │
+│ │ Scope: Per project (aggregate all sources) │ │
+│ └───────────────────────────────────────────────────────────┘ │
+│ │
+│ INTERACTION: │
+│ ┌───────────────────────────────────────────────────────────┐ │
+│ │ Crisis Detection CÓ THỂ trigger Adaptive Crawl: │ │
+│ │ │ │
+│ │ [Analytics] Detect crisis (keywords/volume/sentiment) │ │
+│ │ → Publish: analytics.crisis.detected │ │
+│ │ ↓ │ │
+│ │ [Project Service] Consume crisis alert │ │
+│ │ → If severity=CRITICAL + source is crawl │ │
+│ │ → Publish: project.crisis.started │ │
+│ │ ↓ │ │
+│ │ [Adaptive Scheduler] Consume crisis event │ │
+│ │ → Force switch to CRISIS mode (override metrics) │ │
+│ │ → crawl_interval = 2 min │ │
+│ │ │ │
+│ │ Nhưng Adaptive Crawl KHÔNG trigger Crisis Detection │ │
+│ │ (chỉ là điều chỉnh tần suất, không phải alert) │ │
+│ └───────────────────────────────────────────────────────────┘ │
+│ │
 └─────────────────────────────────────────────────────────────────┘
+
 ```
 
 **So sánh chi tiết:**
@@ -831,33 +847,40 @@ NOTE: Project Service KHÔNG update database trực tiếp
 **Example Scenario:**
 
 ```
+
 Timeline:
 ─────────────────────────────────────────────────────────────────
 T0 (10:00): Normal state
-  - TikTok source: NORMAL mode (11 min interval)
-  - No crisis detected
+
+- TikTok source: NORMAL mode (11 min interval)
+- No crisis detected
 
 T1 (10:05): Analytics detects high negative ratio
-  - Metrics: negative_ratio = 35%
-  - Adaptive Crawl: NORMAL → CRISIS (2 min interval)
-  - Crisis Detection: Not triggered yet (no critical keywords)
+
+- Metrics: negative_ratio = 35%
+- Adaptive Crawl: NORMAL → CRISIS (2 min interval)
+- Crisis Detection: Not triggered yet (no critical keywords)
 
 T2 (10:10): User posts with critical keywords
-  - Post: "Xe VF8 lừa đảo, pin giả mạo"
-  - Crisis Detection: TRIGGERED (keywords_trigger)
-  - Alert sent to user via email/Slack
-  - Adaptive Crawl: Already in CRISIS mode (no change)
+
+- Post: "Xe VF8 lừa đảo, pin giả mạo"
+- Crisis Detection: TRIGGERED (keywords_trigger)
+- Alert sent to user via email/Slack
+- Adaptive Crawl: Already in CRISIS mode (no change)
 
 T3 (10:11): More negative posts
-  - Metrics: negative_ratio = 50%
-  - Adaptive Crawl: Stay in CRISIS mode
-  - Crisis Detection: Already alerted (no duplicate)
+
+- Metrics: negative_ratio = 50%
+- Adaptive Crawl: Stay in CRISIS mode
+- Crisis Detection: Already alerted (no duplicate)
 
 T4 (10:00): Situation improves
-  - Metrics: negative_ratio = 11%
-  - Adaptive Crawl: CRISIS → NORMAL (11 min interval)
-  - Crisis Detection: Mark alert as RESOLVED
-─────────────────────────────────────────────────────────────────
+
+- Metrics: negative_ratio = 11%
+- Adaptive Crawl: CRISIS → NORMAL (11 min interval)
+- Crisis Detection: Mark alert as RESOLVED
+  ─────────────────────────────────────────────────────────────────
+
 ```
 
 ---
@@ -893,34 +916,36 @@ T4 (10:00): Situation improves
 **Decision Flow:**
 
 ```
+
 INPUT: Current Metrics + Baseline (7-day avg)
-  ├─ current.negative_ratio = 0.45 (45%)
-  ├─ current.velocity = 50 items/hour
-  ├─ current.new_items_count = 50
-  ├─ baseline.avg_negative_ratio = 0.10 (10%)
-  └─ baseline.avg_velocity = 20 items/hour
+├─ current.negative_ratio = 0.45 (45%)
+├─ current.velocity = 50 items/hour
+├─ current.new_items_count = 50
+├─ baseline.avg_negative_ratio = 0.10 (10%)
+└─ baseline.avg_velocity = 20 items/hour
 
 DECISION TREE (Priority Order):
 
 1. CRISIS Detection (Highest Priority)
    ├─ Rule 1: negative_ratio > 30%?
-   │  └─ YES → CRISIS MODE (2 min)
+   │ └─ YES → CRISIS MODE (2 min)
    ├─ Rule 2: negative_ratio > 3x baseline?
-   │  └─ 0.45 / 0.10 = 4.5x > 3x → CRISIS MODE
+   │ └─ 0.45 / 0.10 = 4.5x > 3x → CRISIS MODE
    └─ Rule 3: velocity > 2x baseline AND negative_ratio > 20%?
-      └─ 50 / 20 = 2.5x > 2x AND 45% > 20% → CRISIS MODE
+   └─ 50 / 20 = 2.5x > 2x AND 45% > 20% → CRISIS MODE
 
 2. SLEEP Detection (Lowest Priority)
    ├─ Rule 4: new_items_count < 5?
-   │  └─ YES → SLEEP MODE (60 min)
+   │ └─ YES → SLEEP MODE (60 min)
    └─ Rule 5: velocity < 10 items/hour?
-      └─ YES → SLEEP MODE (60 min)
+   └─ YES → SLEEP MODE (60 min)
 
 3. Default: NORMAL MODE (11 min)
 
 OUTPUT: Determined Mode
-  └─ Example: CRISIS MODE (45% >> 10% baseline)
-```
+└─ Example: CRISIS MODE (45% >> 10% baseline)
+
+````
 
 **Example Payload:**
 
@@ -932,7 +957,7 @@ OUTPUT: Determined Mode
   "velocity": 50.0,
   "time_window": "last_5min"
 }
-```
+````
 
 #### 6.3.2 Manual (Crisis-triggered) - Override Method
 
@@ -2002,11 +2027,11 @@ project.mode.changed:
 
 ---
 
-## 8. DASHBOARD ORCHESTRATION
+## 8. DASHBOARD AGGREGATION
 
 ### 8.1 Architecture Pattern
 
-**API Gateway Pattern** - Project Service là single entry point cho Dashboard.
+**Aggregation Pattern** - Project Service tổng hợp data từ nhiều services cho Dashboard.
 
 ```
 [User Browser]
@@ -2103,175 +2128,195 @@ Real-time Updates:
 
 ---
 
-## 9. KAFKA TOPICS
+## 9. KAFKA TOPICS (Event-Driven Communication)
 
 ### 9.1 Topics Produced by Project Service
 
 ```yaml
-# Lifecycle Events
-project.created:
-  payload: {project_id, name, entity_type, sources[], created_by}
-  consumers: [analytics-srv, knowledge-srv]
-
-project.activated:
-  payload: {project_id, sources[], analytics_config, activated_at}
-  consumers: [ingest-srv, analytics-srv, knowledge-srv]
-
+# Lifecycle Events (for Ingest Service to pause/resume/archive sources)
 project.paused:
-  payload: {project_id, paused_by, reason}
-  consumers: [ingest-srv]
+  payload: { project_id, paused_by, timestamp }
+  consumer: ingest-srv
+  purpose: Ingest pauses ALL sources of this project
 
 project.resumed:
-  payload: {project_id, resumed_by}
-  consumers: [ingest-srv]
+  payload: { project_id, resumed_by, timestamp }
+  consumer: ingest-srv
+  purpose: Ingest resumes ALL sources of this project
 
 project.archived:
-  payload: {project_id, source_ids[], archived_by, timestamp}
-  consumers: [ingest-srv]
-  purpose: Cancel all scheduled jobs for archived sources
-
-# Orchestration Commands
-ingest.crawl.requested:
-  payload: {source_id, profile, config}
+  payload: { project_id, archived_by, timestamp }
   consumer: ingest-srv
+  purpose: Ingest soft deletes ALL sources of this project
 
-ingest.file.process:
-  payload: {source_id, file_url, mapping_rules}
-  consumer: ingest-srv
+# Crisis & Adaptive Crawl Events
+project.config.updated:
+  payload: { project_id, crisis_detection, updated_by, timestamp }
+  consumer: analytics-srv
+  purpose: Analytics caches crisis config for detection
 
-ingest.webhook.activate:
-  payload: {source_id, webhook_url, secret, payload_schema}
-  consumer: ingest-srv
-
-# Adaptive Crawl Events
 project.crisis.started:
-  payload: {project_id, source_id, metrics, severity, reason}
-  consumers: [ingest-srv, noti-srv]
-
-project.crisis.resolved:
-  payload: {project_id, source_id, duration_minutes}
-  consumers: [ingest-srv, noti-srv]
+  payload: { project_id, source_id, alert_id, severity, metrics }
+  consumer: noti-srv
+  purpose: Send notifications to user
 
 project.mode.changed:
-  payload: {source_id, old_mode, new_mode, reason}
-  consumers: [ingest-srv]
+  payload: { source_id, old_mode, new_mode, reason, timestamp }
+  consumer: noti-srv
+  purpose: Optional notification for mode changes
 ```
 
 ### 9.2 Topics Consumed by Project Service
 
 ```yaml
-# Feedback from Analytics (for Adaptive Crawl)
+# From Ingest Service (state transition)
+ingest.data.first_batch:
+  producer: ingest-srv
+  purpose: Auto transition project DRAFT → ACTIVE
+  payload:
+    project_id: string
+    source_id: string
+    items_count: int
+    timestamp: string
+
+# From Analytics Service (adaptive crawl)
 analytics.metrics.aggregated:
   producer: analytics-srv
   purpose: Adaptive crawl decision making
   payload:
-    source_id: string # "src_tiktok_01"
-    project_id: string # "proj_vf8"
-    new_items_count: int # 50
-    negative_ratio: float # 0.45 (45%)
-    positive_ratio: float # 0.30 (30%)
-    neutral_ratio: float # 0.25 (25%)
-    velocity: float # 50.0 (items/hour)
-    avg_sentiment_score: float # -0.35 (-1 to 1)
-    time_window: string # "last_5min"
-    timestamp: string # "2026-02-19T10:30:00Z"
-  example:
-    {
-      "source_id": "src_tiktok_01",
-      "project_id": "proj_vf8",
-      "new_items_count": 50,
-      "negative_ratio": 0.45,
-      "positive_ratio": 0.30,
-      "neutral_ratio": 0.25,
-      "velocity": 50.0,
-      "avg_sentiment_score": -0.35,
-      "time_window": "last_5min",
-      "timestamp": "2026-02-19T10:30:00Z",
-    }
+    source_id: string
+    project_id: string
+    new_items_count: int
+    negative_ratio: float
+    velocity: float
+    time_window: string
+    timestamp: string
 
-# Status updates from Ingest (after crawl execution)
-ingest.crawl.completed:
-  producer: ingest-srv
-  purpose: Update crawl schedule and metrics
+# From Analytics Service (crisis detection)
+analytics.crisis.detected:
+  producer: analytics-srv
+  purpose: Store alert + Trigger adaptive crawl (if CRITICAL)
   payload:
-    source_id: string # "src_tiktok_01"
-    project_id: string # "proj_vf8"
-    items_count: int # 50 (items fetched)
-    status: string # "SUCCESS" | "FAILED" | "PARTIAL"
-    error_message: string # null or error details
-    crawl_duration_ms: int # 3500 (execution time)
-    next_cursor: string # Pagination cursor (optional)
-    timestamp: string # "2026-02-19T10:25:00Z"
+    alert_id: string
+    project_id: string
+    source_id: string
+    trigger_type: string
+    severity: string
+    metrics: object
+    matched_rules: array
+    sample_posts: array
+    detected_at: string
+```
+
+### 9.3 Communication Pattern
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  EVENT-DRIVEN ARCHITECTURE (NO DIRECT HTTP CALLS)              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Project Service ←──── Kafka ←──── Ingest Service               │
+│       │                                  ↑                      │
+│       │ Publish: project.paused          │                      │
+│       │          project.resumed         │                      │
+│       │          project.archived        │                      │
+│       └──────────────────────────────────┘                      │
+│                                                                 │
+│  Project Service ←──── Kafka ←──── Analytics Service            │
+│       │                                  ↑                      │
+│       │ Consume: metrics, crisis         │                      │
+│       │                                  │                      │
+│       │ Publish: config.updated          │                      │
+│       └──────────────────────────────────┘                      │
+│                                                                 │
+│  EXCEPTION: Adaptive Crawl (HTTP call)                          │
+│  Project Service ────HTTP PUT────> Ingest Service               │
+│                  /ingest/sources/{id}/crawl-mode                │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**NOTE:**
+
+- Project Service KHÔNG publish commands (ingest.crawl.requested, ingest.file.process, etc.)
+- Frontend gọi trực tiếp Ingest Service cho tất cả data source operations
+- Project Service chỉ publish lifecycle events (pause/resume/archive)
+  crawl_duration_ms: int # 3500 (execution time)
+  next_cursor: string # Pagination cursor (optional)
+  timestamp: string # "2026-02-19T10:25:00Z"
   example:
-    {
-      "source_id": "src_tiktok_01",
-      "project_id": "proj_vf8",
-      "items_count": 50,
-      "status": "SUCCESS",
-      "error_message": null,
-      "crawl_duration_ms": 3500,
-      "next_cursor": "cursor_abc103",
-      "timestamp": "2026-02-19T10:25:00Z",
-    }
+  {
+  "source_id": "src_tiktok_01",
+  "project_id": "proj_vf8",
+  "items_count": 50,
+  "status": "SUCCESS",
+  "error_message": null,
+  "crawl_duration_ms": 3500,
+  "next_cursor": "cursor_abc103",
+  "timestamp": "2026-02-19T10:25:00Z",
+  }
 
 # File processing completion
+
 ingest.file.completed:
-  producer: ingest-srv
-  purpose: Update data source status after file processing
-  payload:
-    source_id: string # "src_excel_01"
-    project_id: string # "proj_vf8"
-    items_count: int # 500 (rows processed)
-    status: string # "SUCCESS" | "FAILED"
-    error_message: string # null or error details
-    file_url: string # "s3://bucket/file.xlsx"
-    processing_duration_ms: int # 10000
-    timestamp: string # "2026-02-19T10:20:00Z"
-  example:
-    {
-      "source_id": "src_excel_01",
-      "project_id": "proj_vf8",
-      "items_count": 500,
-      "status": "SUCCESS",
-      "error_message": null,
-      "file_url": "s3://smap-uploads/proj_vf8/feedback_q1.xlsx",
-      "processing_duration_ms": 10000,
-      "timestamp": "2026-02-19T10:20:00Z",
-    }
+producer: ingest-srv
+purpose: Update data source status after file processing
+payload:
+source_id: string # "src_excel_01"
+project_id: string # "proj_vf8"
+items_count: int # 500 (rows processed)
+status: string # "SUCCESS" | "FAILED"
+error_message: string # null or error details
+file_url: string # "s3://bucket/file.xlsx"
+processing_duration_ms: int # 10000
+timestamp: string # "2026-02-19T10:20:00Z"
+example:
+{
+"source_id": "src_excel_01",
+"project_id": "proj_vf8",
+"items_count": 500,
+"status": "SUCCESS",
+"error_message": null,
+"file_url": "s3://smap-uploads/proj_vf8/feedback_q1.xlsx",
+"processing_duration_ms": 10000,
+"timestamp": "2026-02-19T10:20:00Z",
+}
 
 # Dry run completion
+
 ingest.dryrun.completed:
-  producer: ingest-srv
-  purpose: Update project config_status with dry run results
-  payload:
-    source_id: string # "src_youtube_01"
-    project_id: string # "proj_vf8"
-    status: string # "SUCCESS" | "FAILED" | "WARNING"
-    sample_data: array # Sample items (max 10)
-    total_found: int # Total items available
-    error_message: string # null or error details
-    warnings: array # ["Low quality data", ...]
-    timestamp: string # "2026-02-19T10:11:00Z"
-  example:
-    {
-      "source_id": "src_youtube_01",
-      "project_id": "proj_vf8",
-      "status": "SUCCESS",
-      "sample_data":
-        [
-          {
-            "title": "VF8 Review 2026",
-            "author": "Tech Reviewer",
-            "views": 5000,
-            "published_at": "2026-02-18T10:00:00Z",
-            "content": "Great car but battery drains fast...",
-          },
-        ],
-      "total_found": 110,
-      "error_message": null,
-      "warnings": [],
-      "timestamp": "2026-02-19T10:11:00Z",
-    }
+producer: ingest-srv
+purpose: Update project config_status with dry run results
+payload:
+source_id: string # "src_youtube_01"
+project_id: string # "proj_vf8"
+status: string # "SUCCESS" | "FAILED" | "WARNING"
+sample_data: array # Sample items (max 10)
+total_found: int # Total items available
+error_message: string # null or error details
+warnings: array # ["Low quality data", ...]
+timestamp: string # "2026-02-19T10:11:00Z"
+example:
+{
+"source_id": "src_youtube_01",
+"project_id": "proj_vf8",
+"status": "SUCCESS",
+"sample_data":
+[
+{
+"title": "VF8 Review 2026",
+"author": "Tech Reviewer",
+"views": 5000,
+"published_at": "2026-02-18T10:00:00Z",
+"content": "Great car but battery drains fast...",
+},
+],
+"total_found": 110,
+"error_message": null,
+"warnings": [],
+"timestamp": "2026-02-19T10:11:00Z",
+}
+
 ```
 
 ---
@@ -2281,88 +2326,102 @@ ingest.dryrun.completed:
 ### 10.1 Scenario 1: Add FILE_UPLOAD to ACTIVE Project
 
 ```
+
 Given: Project ACTIVE with 1 TikTok source (ACTIVE, NORMAL mode)
 When: User adds FILE_UPLOAD source
 Then:
-  - Source created: status=PENDING, source_category=passive
-  - NO dry run required
-  - User uploads file → Onboarding (AI Schema Mapping)
-  - User confirms mapping → status=READY
-  - User activates → status=ACTIVE
-  - crawl_mode remains NULL (not applicable)
-  - Analytics Service SKIPS this source
-  - Adaptive Scheduler SKIPS this source
+
+- Source created: status=PENDING, source_category=passive
+- NO dry run required
+- User uploads file → Onboarding (AI Schema Mapping)
+- User confirms mapping → status=READY
+- User activates → status=ACTIVE
+- crawl_mode remains NULL (not applicable)
+- Analytics Service SKIPS this source
+- Adaptive Scheduler SKIPS this source
+
 ```
 
 ### 10.2 Scenario 2: Add YOUTUBE to ACTIVE Project
 
 ```
+
 Given: Project ACTIVE with 1 Excel source (COMPLETED)
 When: User adds YOUTUBE source
 Then:
-  - Source created: status=PENDING, source_category=crawl
-  - Dry run REQUIRED
-  - User triggers dry run → dryrun_status=RUNNING
-  - Dry run completes → dryrun_status=SUCCESS, status=READY
-  - User activates → status=ACTIVE, crawl_mode=NORMAL
-  - Scheduler picks up and starts crawling
-  - Analytics Service INCLUDES this source
-  - Adaptive Scheduler processes metrics
+
+- Source created: status=PENDING, source_category=crawl
+- Dry run REQUIRED
+- User triggers dry run → dryrun_status=RUNNING
+- Dry run completes → dryrun_status=SUCCESS, status=READY
+- User activates → status=ACTIVE, crawl_mode=NORMAL
+- Scheduler picks up and starts crawling
+- Analytics Service INCLUDES this source
+- Adaptive Scheduler processes metrics
+
 ```
 
 ### 10.3 Scenario 3: Crisis Detected on New Source
 
 ```
+
 Given: YouTube source just activated (5 min ago)
 When: First batch analyzed, 45% negative
 Then:
-  - Analytics aggregates metrics
-  - Publishes: analytics.metrics.aggregated
-  - Adaptive Scheduler receives
-  - Compares with baseline
-  - Switches to CRISIS mode (2 min interval)
-  - Publishes: project.crisis.started
-  - Notification Service sends alert
-  - Dashboard shows crisis badge
+
+- Analytics aggregates metrics
+- Publishes: analytics.metrics.aggregated
+- Adaptive Scheduler receives
+- Compares with baseline
+- Switches to CRISIS mode (2 min interval)
+- Publishes: project.crisis.started
+- Notification Service sends alert
+- Dashboard shows crisis badge
+
 ```
 
 ### 10.4 Scenario 4: Add Source When Project PAUSED
 
 ```
+
 Given: Project PAUSED
 When: User adds new source
 Then:
-  - Source created: status=PENDING ✅
-  - User can configure and dry run ✅
-  - User CANNOT activate ❌
-  - Error: "Cannot activate source when project is paused"
-  - Solution: User must resume project first
+
+- Source created: status=PENDING ✅
+- User can configure and dry run ✅
+- User CANNOT activate ❌
+- Error: "Cannot activate source when project is paused"
+- Solution: User must resume project first
+
 ```
 
 ---
 
 ## 11. CONCLUSION
 
-Project Service là "Orchestration Brain" của hệ thống SMAP Enterprise với các trách nhiệm chính:
+Project Service là **Domain Service** của hệ thống SMAP Enterprise với các trách nhiệm chính:
 
-1. ✅ **Lifecycle Management:** Quản lý state machine của Project và Data Source
-2. ✅ **Data Ingestion Orchestration:** Điều phối thu thập dữ liệu từ đa nguồn
-3. ✅ **Adaptive Crawl Controller:** Điều khiển thu thập thích ứng dựa trên metrics
-4. ✅ **Integration Hub:** Kết nối Frontend với các backend services
-5. ✅ **Crisis Detection:** Quản lý rules và trigger alerts
-6. ✅ **Dashboard Orchestration:** Tổng hợp dữ liệu từ nhiều nguồn
+1. ✅ **Project & Campaign Management:** Quản lý entities và state machine (4 states)
+2. ✅ **Crisis Detection Config:** Store và manage user-defined rules
+3. ✅ **Adaptive Crawl Controller:** Consume metrics → Call Ingest API để update mode
+4. ✅ **Crisis Alert Handler:** Store alerts và trigger notifications
+5. ✅ **Dashboard Aggregation:** Tổng hợp dữ liệu từ Analytics + Ingest APIs
+6. ✅ **Event Publisher:** Publish lifecycle events (pause/resume/archive) → Ingest Service
 
 **Key Principles:**
 
-- Decision Maker (WHAT, WHEN, WHY) - NOT Executor (HOW)
-- Manage metadata - NOT execution
-- Orchestrate - NOT implement
-- Coordinate - NOT duplicate
+- Domain Service - NOT Gateway, NOT Orchestrator
+- Event-driven communication - Kafka for async, HTTP for sync (adaptive crawl only)
+- Ingest Service = Fully independent (owns data sources, scheduling, execution)
+- Frontend calls services directly - NO proxy/gateway pattern
+- Project Service manages domain logic - NOT infrastructure concerns
 
 **Status:** SPECIFICATION COMPLETE - READY FOR IMPLEMENTATION 🚀
 
 ---
 
-**Last Updated:** 19/02/2026  
-**Version:** 2.0 (Consolidated)  
+**Last Updated:** 19/02/2026
+**Version:** 2.0 (Consolidated)
 **Author:** System Architect
+```
