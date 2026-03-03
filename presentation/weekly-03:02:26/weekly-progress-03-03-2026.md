@@ -145,11 +145,11 @@ Sau khi bắt đầu giai đoạn 2, nhiệm vụ đầu tiên là refactor các
 | ------------------------------ | :-----------: | ----------------------------------------------------- |
 | **Identity Service**           | Done Detailed | OAuth2/JWT, RBAC, Audit Logging                       |
 | **Notification Service**       | Done Detailed | WebSocket, Redis Pub/Sub, Discord                     |
-| **Analytics Service** (Python) |  Refactored   | 5-Stage AI Pipeline, Kafka, PhoBERT ONNX, YAKE, spaCy |
+| **Analytics Service** (Python) |  Refactored   | AI Pipeline (Python), Kafka, PhoBERT, YAKE, spaCy     |
 | **Knowledge Service**          | Done Phase 1  | RAG, Qdrant Vector DB, Gemini LLM                     |
-| **Project Service**            |    Pending    | CRUD cơ bản cho Project, Campaign                     |
-| **Ingest Service**             |  In-progress  | Hiện tại chỉ đang code Integration Module             |
-| **Migration Plan**             |     v2.13     | 13 lần cập nhật, chốt kiến trúc 6 Backend + 1 UI      |
+| **Project Service**            |    Pending    | CRUD Project/Campaign, Crisis Detection logic          |
+| **Ingest Service**             |  In-progress  | Integration Module, AI Schema Agent (Onboarding)      |
+| **Migration Plan**             |     v2.13     | Chốt kiến trúc 6 Backend + 1 UI                       |
 
 ---
 
@@ -162,20 +162,15 @@ section { font-size: 24px; }
 <div class="columns">
 <div>
 
-## Đã hoàn thành
+## Hiện trạng & Thách thức
 
-- OAuth2 login flow (Google)
-- JWT HS256 token generation & verification
-- Session management (Redis)
-- RBAC: ADMIN / ANALYST / VIEWER
-- Audit logging (PostgreSQL + Kafka)
-- Internal API (service-to-service)
-- HttpOnly Cookie + Bearer token
-- Swagger API docs
-
-## Chưa hoàn thành
-
-- Docker & Kubernetes deployment
+- Chưa test E2E thực tế trên tập dữ liệu lớn.
+- Các tính năng tự động tạo Báo cáo (Report Generation) đang trong giai đoạn hoàn thiện logic Map-Reduce.
+- Token window management: Đang sử dụng ước lượng thô, cần tối ưu hóa chính xác hơn.
+- OAuth2 login flow (Google Integration)
+- JWT token generation & internal validation
+- RBAC: ADMIN / ANALYST / VIEWER mapping
+- Audit logging flow (Async via Kafka)
 
 </div>
 <div>
@@ -188,11 +183,24 @@ section { font-size: 24px; }
 | Framework | Gin 1.11.0                     |
 | Database  | PostgreSQL (`schema_identity`) |
 | Cache     | Redis (session, blacklist)     |
-| Queue     | Kafka (audit events)           |
 | Auth      | Google OAuth2 + JWT HS256      |
 
 </div>
 </div>
+
+---
+
+## Technical Contract (Interface)
+
+<style scoped>
+section { font-size: 24px; }
+</style>
+
+- `GET /authentication/login` – OAuth2 redirect
+- `GET /authentication/callback` – Token issuance
+- `GET /authentication/me` – User identity retrieval
+- `POST /internal/validate` – S2S Token Validation
+- **Kafka:** `audit.events` (Topic publisher)
 
 ---
 
@@ -221,28 +229,30 @@ section { font-size: 24px; }
 
 ## Đã hoàn thành
 
-- WebSocket connection management (JWT auth)
-- Redis Pub/Sub subscriber
-- Hub-based message routing (user-scoped)
-- 4 message types: DATA_ONBOARDING, ANALYTICS_PIPELINE, CRISIS_ALERT, CAMPAIGN_EVENT
-- Discord integration (Rich Embeds)
-- Project-level filtering
+- WebSocket connection manager (JWT logic)
+- Redis Pub/Sub subscriber (Multi-channel)
+- Discord integration (Rich Embeds Alert)
+- Project-level message routing
+
+## Technical Contract (Interface)
+
+- `GET /ws?token=...` – WebSocket Handshake
+- **Redis Channels:**
+  - `project:{id}:user:{uid}`
+  - `alert:crisis:user:{uid}`
+- **Alert:** Discord Webhook API integration
 
 </div>
 <div>
 
-## Kiến trúc
+## Tech Stack
 
-```
-Backend Services
-  → Redis Pub/Sub
-  → notification-srv
-  → Hub (routing by UserID)
-  → WebSocket → Browser
-
-  [Crisis Path]
-  → Discord Webhook (Rich Embed)
-```
+| Component | Technology            |
+| --------- | --------------------- |
+| Language  | Go                    |
+| Framework | Standard Library / WS |
+| Cache     | Redis Pub/Sub         |
+| Push      | Discord API           |
 
 </div>
 </div>
@@ -301,30 +311,30 @@ section { font-size: 24px; }
 
 ## Đã hoàn thành
 
-- Semantic Search (Qdrant + Voyage AI)
-- RAG Chat (Gemini 1.5-pro, multi-turn)
-- Report Generation (Map-Reduce pattern)
-- Analytics Indexing (Kafka + HTTP)
-- 3-Tier Caching (embedding, campaign, search)
-- PostgreSQL metadata tables
-- MinIO report storage
+- Context-aware Semantic Search (Qdrant)
+- RAG Chat integration (Gemini 1.5-pro)
+- 3-Tier Caching (Embedding/Campaign/Search)
+- Vector Indexing worker (UAP input)
 
-## Đã hoàn thành
+## Technical Contract (Interface)
 
-- Chưa test E2E thực tế
-- Chưa có các tính năng generate report
+- `POST /api/v1/search` – Semantic Search
+- `POST /api/v1/chat` – Multi-turn RAG Q&A
+- `POST /internal/index/by-file` – Batch Index
+- **Kafka:** `analytics.batch.completed` (Consumer)
 
 </div>
 <div>
 
-## API Endpoints
+## Tech Stack
 
-| Endpoint                        | Purpose         |
-| ------------------------------- | --------------- |
-| `POST /api/v1/search`           | Semantic search |
-| `POST /api/v1/chat`             | RAG Q&A         |
-| `POST /api/v1/reports/generate` | Async report    |
-| `POST /internal/index`          | Index batch     |
+| Component | Technology            |
+| --------- | --------------------- |
+| Language  | Go                    |
+| Vector DB | Qdrant                |
+| Embedding | Voyage AI / OpenAI    |
+| LLM       | Gemini 1.5-pro        |
+| Storage   | MinIO (Artifacts)     |
 
 </div>
 </div>
@@ -425,26 +435,20 @@ section { font-size: 26px; }
 
 ## Identity Service
 
-| #   | Issue                                | Severity |
+| #   | Issue (từ Report)                    | Severity |
 | --- | ------------------------------------ | :------: |
-| 1   | Audit log query chậm (>1M rows, >2s) |  Medium  |
-| 2   | HS256 JWT – shared secret risk       |  Medium  |
-| 3   | Redis single point of failure        |  Medium  |
-| 4   | Service keys plaintext trong config  |  Medium  |
-| 5   | Thiếu Prometheus metrics             |  Medium  |
-| 6   | Chưa có integration tests cho OAuth  |   Low    |
+| 1   | HS256 JWT – Rủi ro lộ shared secret  |  Medium  |
+| 2   | Audit log query chậm khi data >1M    |  Low     |
 
 </div>
 <div>
 
 ## Notification Service
 
-| #   | Issue                                   | Severity |
-| --- | --------------------------------------- | :------: |
-| 1   | Hub single goroutine – bottleneck >50k  |  Medium  |
-| 2   | Message loss khi client disconnect      |  Medium  |
-| 3   | Thiếu per-user rate limiting (DoS risk) |  Medium  |
-| 4   | Thiếu metrics/observability             |  Medium  |
+| #   | Issue (từ Report)                    | Severity |
+| --- | ------------------------------------ | :------: |
+| 1   | Push-only (Không nhận data ngược lại)|  Low     |
+| 2   | Connection leak khi ngắt kết nối đột ngột|  Medium  |
 
 </div>
 </div>
@@ -461,26 +465,21 @@ section { font-size: 26px; }
 
 ## Analytics Service
 
-| #   | Issue                              | Severity |
-| --- | ---------------------------------- | :------: |
-| 1   | PhoBERT ~100-200ms/text (CPU only) |  Medium  |
-| 2   | Single consumer instance           |  Medium  |
-| 3   | Poison messages skip, không DLQ    |  Medium  |
-| 4   | Thiếu monitoring metrics           |  Medium  |
-| 5   | Hardcoded thresholds trong code    |   Low    |
-| 6   | Chưa có unit/integration tests     |  Medium  |
+| #   | Issue (từ Report)                    | Severity |
+| --- | ------------------------------------ | :------: |
+| 1   | Phase 6: Legacy Cleanup CHƯA BẮT ĐẦU |  Medium  |
+| 2   | Hiệu năng PhoBERT bị giới hạn trên CPU|  Low     |
 
 </div>
 <div>
 
 ## Knowledge Service
 
-| #   | Issue                                  | Severity |
-| --- | -------------------------------------- | :------: |
-| 1   | **Conversation Export chưa implement** | **HIGH** |
-| 2   | Token window rough estimation          |  Medium  |
-| 3   | Không có rate limiting                 |  Medium  |
-| 4   | Thiếu prompt injection protection      |  Medium  |
+| #   | Issue (từ Report)                    | Severity |
+| --- | ------------------------------------ | :------: |
+| 1   | Thiếu kiểm thử E2E với data thực tế  |  HIGH    |
+| 2   | Tính năng Report Gen chưa hoàn thiện |  HIGH    |
+| 3   | Ước lượng Token window còn thô       |  Medium  |
 
 </div>
 </div>
@@ -490,36 +489,30 @@ section { font-size: 26px; }
 # Vấn đề – Cross-cutting & Bugs (2/3)
 
 <style scoped>
-section { font-size: 20px; }
+section { font-size: 21px; }
 </style>
 
 <div class="columns">
 <div>
 
-## Cross-cutting Issues (tất cả services)
+## Cross-cutting Issues
 
-| Vấn đề                        | Impact                  |  Status  |
+| Vấn đề (Technical Debt)       | Impact                  |  Status  |
 | ----------------------------- | ----------------------- | :------: |
-| **Thiếu Prometheus metrics**  | Không monitor realtime  | Planning |
-| **Thiếu Grafana dashboard**   | Không visualize health  | Planning |
-| **Thiếu distributed tracing** | Khó debug cross-service |   Todo   |
-| **Load testing chưa xong**    | Chưa validate targets   |  30-80%  |
-| **Redis single instance**     | SPOF cho Auth + Noti    |   Todo   |
-| **Test coverage thấp**        | Risk regression bugs    | Partial  |
+| **Thiếu Distributed Tracing** | Khó debug cross-service |   Todo   |
+| **Redis Single Instance**     | SPOF cho toàn hệ thống  |   Todo   |
+| **Test Coverage thấp**        | Risk regression bugs    | Partial  |
 
 </div>
 <div>
 
-## Known Bugs
+## Security & Reliability
 
 | Bug                                         | Service      | Severity |
 | ------------------------------------------- | ------------ | :------: |
-| **#45** Connection leak khi disconnect      | Notification |  Medium  |
-| **#67** Discord webhook timeout log thiếu   | Notification |   Low    |
-| **#001** Kafka producer buffer không flush  | Analytics    |  Medium  |
-| **#002** PhoBERT chậm với text >512 tokens  | Analytics    |   Low    |
-| **#001** OAuth state cleanup chưa implement | Identity     |   Low    |
-| **#002** Audit log pagination performance   | Identity     |  Medium  |
+| **#45** Connection leak on disconnect       | Notification |  Medium  |
+| **#001** Kafka producer buffer flush delay  | Analytics    |  Medium  |
+| **#001** OAuth state cleanup missing        | Identity     |   Low    |
 
 ### Workarounds đã có
 
@@ -542,39 +535,28 @@ section { font-size: 20px; }
 <div class="columns">
 <div>
 
-## Short-term (1-2 tháng)
+## Short-term (Tháng 3/2026 - Sprint 1)
 
-| Task                              | Service          | Priority |
-| --------------------------------- | ---------------- | :------: |
-| Prometheus metrics export         | All              | **HIGH** |
-| Grafana monitoring dashboard      | All              | **HIGH** |
-| Load testing comprehensive        | All              | **HIGH** |
-| **Conversation Export & Summary** | Knowledge        | **HIGH** |
-| Dead Letter Queue (DLQ)           | Analytics        |  Medium  |
-| Per-user rate limiting            | Noti + Knowledge |  Medium  |
-| Unit + Integration tests          | Analytics        |  Medium  |
-| 2FA/MFA support                   | Identity         |  Medium  |
+- Hoàn thiện **Ingest & Project Service** code-base.
+- E2E Integration: Ingest -> Analytics -> Knowledge.
+- Triển khai **Woodpecker CI** & ArgoCD.
+- Fix bugs bảo mật (JWT risk, connection leaks).
 
 </div>
 <div>
 
-## Mid-term (3-6 tháng)
+## Mid-term (Tháng 4/2026 - Sprint 2)
 
-- Redis Sentinel/Cluster (HA)
-- Multi-provider OAuth2 (Azure AD, Okta)
-- Sharded Hub >50k connections
-- Batch inference PhoBERT (GPU)
-- OpenTelemetry distributed tracing
-- Cache invalidation granular
-- WebSocket/SSE real-time updates
+- **Report Generation:** Full feature implementation.
+- Security Hardening (Key Rotation, RS256).
+- Load Testing & Performance Tuning.
+- Triển khai Prometheus/Grafana monitoring.
 
-## Long-term (6+ tháng)
+## Final Milestone (Tháng 5/2026)
 
-- Migrate JWT sang RS256
-- Multi-region deployment
-- Auto-scaling
-- Advanced hallucination detection
-- Custom report templates
+- **Thesis Documentation & Report.**
+- System Verification & Final Audit.
+- **Graduation Defense.**
 
 </div>
 </div>
