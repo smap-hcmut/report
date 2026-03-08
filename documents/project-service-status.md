@@ -10,6 +10,7 @@
 Project Service quản lý hierarchy Campaign → Project → CrisisConfig. Được viết bằng Go, Gin framework, PostgreSQL (SQLBoiler), không có domain logic phụ thuộc vào ingest/data source.
 
 **Ba domain:**
+
 - `campaign` — quản lý marketing campaigns (top-level container)
 - `project` — quản lý monitoring projects (thuộc về campaign)
 - `crisis` — quản lý crisis detection config (1-1 với project)
@@ -110,6 +111,7 @@ ConsumerServer có infrastructure wired (kafka producer, redis client, postgres)
 Thư mục `services/project/adaptive/` tồn tại nhưng **hoàn toàn trống**, không có file nào.
 
 Theo thiết kế (trong `ingest-project-boundary.md`), Adaptive Crawl cần project service phát hiện crisis → thay đổi crawl frequency của ingest service. Hiện tại logic này chưa tồn tại ở bất kỳ service nào:
+
 - Project service: `adaptive/` trống
 - Analysis service: topic `analytics.metrics.aggregated` chưa được publish
 - Ingest service: chưa rõ (code chưa được paste vào repo này)
@@ -119,6 +121,7 @@ Theo thiết kế (trong `ingest-project-boundary.md`), Adaptive Crawl cần pro
 ## 7. Tình Trạng Tổng Thể
 
 **Implemented và hoạt động:**
+
 - Campaign CRUD (full: Create/List/Detail/Update/Archive)
 - Project CRUD (full, với campaign validation khi create)
 - Crisis Config CRUD (Upsert/Detail/Delete, JSONB storage)
@@ -126,12 +129,14 @@ Theo thiết kế (trong `ingest-project-boundary.md`), Adaptive Crawl cần pro
 - ProjectConfigStatus enum (wizard states) defined trong model
 
 **Chưa implement / còn TODO:**
+
 - Kafka consumer (scaffold trống, không subscribe topic nào)
 - Adaptive crawl (thư mục trống)
 - ProjectConfigStatus transitions trong usecase — state chỉ được set externally
 - Không có internal API endpoint để các service khác query (e.g., ingest service hỏi "project có đang active không?")
 
 **Liên quan tới vấn đề Ingest/Project boundary:**
+
 - Project service không có DataSource domain — đây là phần của ingest service
 - Project service không expose API nội bộ → knowledge service đang gọi HTTP `/projects` với JWT (xem knowledge-service-status.md)
 - Consumer infrastructure có kafka producer nhưng chưa dùng → khi implement Adaptive Crawl, project service sẽ có thể publish event thay vì gọi HTTP đồng bộ

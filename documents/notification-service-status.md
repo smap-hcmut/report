@@ -10,6 +10,7 @@
 Notification Service là push-only real-time service của SMAP. Được viết bằng Go, dùng Gin + Gorilla WebSocket, Redis Pub/Sub, không có database riêng.
 
 **Hai domain:**
+
 - `websocket` — WebSocket connection management, message routing
 - `alert` — Discord webhook dispatch
 
@@ -44,7 +45,7 @@ ProcessMessage:
 Không có field `type` trong Redis payload. Service dùng **heuristic field-sniffing**:
 
 | Điều kiện | MessageType |
-|-----------|-------------|
+| --- | --- |
 | `source_id` + `total_records` | `ANALYTICS_PIPELINE` |
 | `source_id` + `record_count` | `DATA_ONBOARDING` |
 | `alert_type` | `CRISIS_ALERT` |
@@ -70,7 +71,7 @@ type Hub struct {
 - `run()` goroutine: xử lý register/unregister/broadcast events
 - `SendToUser()`: dùng `mu.RLock()`, có thể gọi từ nhiều goroutine song song
 - 1 user có thể có nhiều connections (multi-tab)
-- Buffer per connection: channel `send` (unbuffered trong code, chú ý)
+- Buffer per connection: channel `send` **buffered 256** (`make(chan []byte, 256)` — `usecase/new.go:52`)
 
 ### 2.4 Connection Lifecycle
 
@@ -91,7 +92,7 @@ JWT auth: shared secret (HS256), đọc từ Cookie `smap_auth_token` hoặc que
 ### 2.6 Message Payload Types (từ types.go)
 
 | Type | Key Fields |
-|------|-----------|
+| --- | --- |
 | `DATA_ONBOARDING` | `project_id`, `source_id`, `source_name`, `status`, `progress`, `record_count` |
 | `ANALYTICS_PIPELINE` | `project_id`, `source_id`, `total_records`, `processed_count`, `progress`, `current_phase` |
 | `CRISIS_ALERT` | `project_id`, `severity`, `alert_type`, `current_value`, `threshold`, `affected_aspects` |
@@ -105,7 +106,7 @@ JWT auth: shared secret (HS256), đọc từ Cookie `smap_auth_token` hoặc que
 Alert UseCase gửi Discord webhook cho **3 event types** (không chỉ crisis):
 
 | Method | Discord Format |
-|--------|---------------|
+| --- | --- |
 | `DispatchCrisisAlert` | Rich embed, severity → color (CRITICAL=red, WARNING=orange, INFO=blue) |
 | `DispatchDataOnboarding` | Embed với status, progress, record count |
 | `DispatchCampaignEvent` | Embed với campaign lifecycle info |
@@ -125,6 +126,7 @@ Lines 19–45 là toàn bộ comment planning notes của developer ("I cannot e
 ### 4.2 [DESIGN] Message Type Detection Dễ Vỡ
 
 `detectMessageType()` dùng field presence heuristics. Không có explicit `type` field trong Redis message contract. Nếu:
+
 - `DataOnboarding` gửi payload thiếu `record_count` → không match
 - `AnalyticsPipeline` thiếu `total_records` → có thể match nhầm sang DataOnboarding
 
@@ -139,13 +141,13 @@ Nên thêm explicit `type` field vào Redis message format.
 ## 5. So Sánh Report Cũ vs Code Thực Tế
 
 | Mục | Report Cũ (notification-srv-report.md) | Code Thực Tế |
-|-----|----------------------------------------|--------------|
+| --- | --- | --- |
 | JWT algorithm | HS256 | HS256 (đúng) |
 | Redis channels | project/campaign/alert:crisis/system | project/campaign/alert (all subtypes)/system (đúng nhưng không chỉ crisis) |
 | Alert → Discord | Chỉ CRISIS_ALERT | 3 methods: Crisis + DataOnboarding + CampaignEvent |
 | Message type detection | Không mô tả | Heuristic field-sniffing, không có explicit `type` field |
 | Hub concurrency | "Single goroutine routing" | `run()` goroutine + `sync.RWMutex` cho SendToUser |
-| Connection buffer | "256 messages per connection" | Channel `send` không thấy buffer size config (unbuffered trong code) |
+| Connection buffer | "256 messages per connection" | Buffered 256 — `make(chan []byte, 256)` tại `usecase/new.go:52` |
 | No database | Correct | Correct |
 
 ---
@@ -153,6 +155,7 @@ Nên thêm explicit `type` field vào Redis message format.
 ## 6. Tình Trạng Tổng Thể
 
 **Implemented và hoạt động:**
+
 - WebSocket connection management (gorilla, readPump/writePump, ping/pong)
 - Hub-based routing (user-scoped, multi-connection per user)
 - Redis PSubscribe (4 channel patterns)
@@ -162,6 +165,7 @@ Nên thêm explicit `type` field vào Redis message format.
 - Health check endpoint
 
 **Cần fix trước production:**
+
 - Xóa planning comments trong `subscriber.go` (lines 19–45)
 - Thêm explicit `type` field vào Redis message contract (tránh heuristic detection fail silently)
 - Làm rõ khi nào `DispatchDataOnboarding` và `DispatchCampaignEvent` được trigger (document hoặc wire vào ProcessMessage)
