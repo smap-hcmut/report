@@ -42,6 +42,7 @@ Kafka message (UAP v1.0)
 **Error handling per stage:** Mỗi stage có `try/except`, lỗi bị log và skip — pipeline tiếp tục với giá trị default. Stage lỗi không làm dừng pipeline.
 
 **Exception routing ở Kafka handler:**
+
 - JSON parse error → log + skip (commit offset)
 - UAP validation error → log + skip (commit offset)
 - Business error → raise (KHÔNG commit offset → retry on next poll)
@@ -51,12 +52,14 @@ Kafka message (UAP v1.0)
 ## 3. Kafka contracts
 
 **Input:**
+
 ```text
 Topic: config-driven (đọc từ kafka_consumer_config.topics)
 Format: UAP v1.0 JSON { uap_version, event_id, ingest, content, signals, context }
 ```
 
 **Output:**
+
 ```text
 Topic: smap.analytics.output (hardcoded)
 Format: JSON array of InsightMessage (batch = 10 items default)
@@ -82,6 +85,7 @@ Message: [{
 **Table:** `post_insight` — lưu full analytics result per document
 
 Các field chính:
+
 - Sentiment: `overall_sentiment`, `overall_sentiment_score`, `sentiment_confidence`, `aspects` (JSONB)
 - Impact: `engagement_score`, `virality_score`, `influence_score`, `impact_score`
 - Risk: `risk_level`, `risk_factors`, `requires_attention`, `alert_triggered`
@@ -113,6 +117,7 @@ Analytics publish trực tiếp lên Kafka dạng JSON. Knowledge đọc JSONL f
 Kết quả: Ngay cả khi cả 2 service đều chạy đúng, Knowledge service sẽ không nhận được data từ Analytics.
 
 **Cần thêm một trong hai:**
+
 - Option A: Analytics viết JSONL batch ra MinIO sau mỗi flush, rồi publish `analytics.batch.completed`
 - Option B: Knowledge subscribe trực tiếp `smap.analytics.output` và bỏ `analytics.batch.completed`
 - Option C: Thêm một batch writer service giữa 2 service (overkill)

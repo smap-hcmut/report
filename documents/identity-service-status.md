@@ -10,6 +10,7 @@
 Identity Service là service xác thực và phân quyền trung tâm của SMAP. Được viết bằng Go, sử dụng Gin framework, PostgreSQL (qua SQLBoiler), Redis, và Kafka.
 
 **Hai domain chính:**
+
 - `authentication` — OAuth2, JWT, session, token revocation
 - `audit` — thu thập, lưu trữ, và truy vấn audit log
 
@@ -43,18 +44,24 @@ GET /authentication/callback?code=xxx&state=xxx
 
 ### 2.2 JWT Implementation
 
-Database schema (`jwt_keys` table):
-- `kid` — Key ID, dùng trong JWT header
-- `private_key` — RSA private key, encrypted AES-256-GCM at rest
-- `public_key` — RSA public key, exposed qua JWKS endpoint
-- `status` — `active` / `rotating` / `retired`
+**File thực tế:** `pkg/jwt/jwt.go`
 
-**=> JWT dùng RSA key pairs (RS256), KHÔNG phải HS256 shared secret như report cũ mô tả.**
+```go
+type Manager struct {
+    secretKey []byte  // shared secret
+}
+// GenerateToken dùng jwt.SigningMethodHS256
+// VerifyToken check jwt.SigningMethodHMAC
+```
+
+**=> JWT dùng HS256 (HMAC shared secret), không phải RS256.**
+
+**Lưu ý:** Bảng `jwt_keys` tồn tại trong sqlboiler codegen nhưng **không được dùng** trong JWT generation hiện tại. Đây là artifact từ lần refactor trước, không phải active code.
 
 ### 2.3 Session Management (Redis)
 
 | Redis key | Value | TTL |
-|-----------|-------|-----|
+| --- | --- | --- |
 | `session:{jti}` | `{ user_id, jti, created_at, expires_at }` | default / 7d (rememberMe) |
 | `user_sessions:{userID}` | JSON array of JTIs | 7 ngày |
 | `blacklist:{jti}` | `"1"` | remaining token lifetime |
@@ -131,6 +138,7 @@ internal := r.Group("/internal") //, mw.ServiceAuth())
 ```
 
 `mw.ServiceAuth()` bị comment out. Ba endpoint nội bộ hiện không cần authentication:
+
 - `POST /internal/validate` — bất kỳ ai có thể validate/probe token
 - `GET /internal/users/:id` — bất kỳ ai có thể lấy user info
 - `POST /internal/revoke-token` — chỉ cần ADMIN role (vẫn có `mw.Admin()`)
@@ -147,31 +155,32 @@ fmt.Println("DEBUG: ValidateToken Handler Reached")
 
 Cần xóa trước khi deploy.
 
-### 4.3 [DISCREPANCY] Report Cũ Ghi HS256
+### 4.3 [NOTE] JWT là HS256, bảng `jwt_keys` không được dùng
 
-`identity-report.md` (15/02/2026) viết: `"Generate JWT Token (HS256)"`.
-Code thực tế dùng RSA key pairs (bảng `jwt_keys` với `kid`, `public_key`, `private_key`, hỗ trợ JWKS endpoint). Đây là RS256, không phải HS256.
+Code thực tế (`pkg/jwt/jwt.go`) dùng `jwt.SigningMethodHS256` với `secretKey []byte`.
+Bảng `jwt_keys` có trong sqlboiler codegen nhưng không được gọi ở bất kỳ đâu trong JWT logic — đây là artifact từ lần refactor trước.
 
 ---
 
 ## 5. So Sánh Report Cũ vs Code Thực Tế
 
-| Mục | Report Cũ (identity-report.md) | Code Thực Tế |
-|-----|--------------------------------|--------------|
-| JWT algorithm | HS256 shared secret | RSA key pairs (RS256), bảng `jwt_keys` |
+| Mục | Report Cũ | Code Thực Tế |
+| --- | --- | --- |
+| JWT algorithm | HS256 shared secret | HS256 (đúng) — `pkg/jwt/jwt.go` |
+| `jwt_keys` table | Mentioned | Tồn tại trong sqlboiler nhưng **không dùng** |
 | Role mapping | Google Groups | Email config map (`userRoles`), Groups bỏ |
 | Internal auth | X-Service-Key required | `mw.ServiceAuth()` commented out |
-| Audit storage | PostgreSQL | Kafka (`audit.events`) → consumer → PostgreSQL (đúng) |
+| Audit storage | PostgreSQL | Kafka (`audit.events`) → consumer → PostgreSQL |
 | Session storage | Redis | Redis (đúng) |
 | Token blacklist | Redis | Redis (đúng) |
 | OAuth provider | Google | Google (đúng) |
-| JWKS endpoint | Mentioned | Schema hỗ trợ (public_key exposed) |
 
 ---
 
 ## 6. Tình Trạng Tổng Thể
 
 **Implemented và hoạt động:**
+
 - Google OAuth2 flow hoàn chỉnh (10 bước)
 - RSA JWT với key rotation lifecycle (active/rotating/retired)
 - Session management với Redis
@@ -182,9 +191,12 @@ Code thực tế dùng RSA key pairs (bảng `jwt_keys` với `kid`, `public_key
 - Internal token validation API
 
 **Cần fix trước production:**
+
 - Enable `mw.ServiceAuth()` trên `/internal` routes
 - Xóa `fmt.Println("DEBUG: ...")` trong ValidateToken handler
 
 **Không phải bug, nhưng cần document:**
+
 - Google Groups integration đã bị bỏ, role mapping bây giờ chỉ qua email config
-- JWT là RS256 (RSA), không phải HS256
+- JWT là **HS256** (HMAC shared secret) — bảng `jwt_keys` trong sqlboiler là artifact cũ, không được dùng
+- Token TTL mặc định: 8 giờ; rememberMe: 7 ngày
