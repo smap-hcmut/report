@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMAP MVP Console</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#242836;--border:#2e3348;
+  --text:#e1e4ed;--text2:#8b8fa8;--accent:#6c5ce7;--accent2:#a29bfe;
+  --green:#00b894;--red:#ff6b6b;--orange:#fdcb6e;--blue:#74b9ff;
+  --radius:8px;--shadow:0 4px 24px rgba(0,0,0,.3);
+}
+html{font-size:14px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+button{cursor:pointer;font-family:inherit;font-size:.875rem}
+input,select,textarea{font-family:inherit;font-size:.875rem;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:.5rem .75rem;width:100%;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:60px}
+select{cursor:pointer}
+label{display:block;margin-bottom:.25rem;font-weight:600;color:var(--text2);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px}
+
+#app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:.6rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+#app-header h1{font-size:1.05rem;color:var(--accent2);font-weight:700}
+#header-right{display:flex;align-items:center;gap:1rem}
+#user-info{color:var(--text2);font-size:.85rem}
+#user-info strong{color:var(--text)}
+
+#layout{display:flex;flex:1;overflow:hidden}
+#sidebar{width:200px;background:var(--surface);border-right:1px solid var(--border);padding:.5rem 0;overflow-y:auto;flex-shrink:0}
+.nav-item{padding:.6rem 1.2rem;cursor:pointer;color:var(--text2);font-size:.82rem;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--surface2);color:var(--accent2);border-left-color:var(--accent)}
+.nav-section{padding:.5rem 1.2rem;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-top:.5rem;opacity:.5}
+#main{flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:1rem}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:1px solid var(--border);background:var(--surface2)}
+.panel-header h2{font-size:.9rem;display:flex;align-items:center;gap:.4rem}
+.panel-body{padding:1rem}
+
+#breadcrumb{display:flex;align-items:center;gap:.3rem;font-size:.8rem;color:var(--text2);margin-bottom:.25rem;flex-wrap:wrap}
+#breadcrumb .bc-item{cursor:pointer;color:var(--accent2);transition:color .15s}
+#breadcrumb .bc-item:hover{color:var(--text)}
+#breadcrumb .bc-sep{color:var(--border)}
+#breadcrumb .bc-current{color:var(--text);cursor:default}
+
+.btn{display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .85rem;border:none;border-radius:var(--radius);font-weight:600;font-size:.78rem;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#5b4bd5}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{opacity:.85}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{opacity:.85}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{background:var(--border)}
+.btn-sm{padding:.3rem .55rem;font-size:.72rem}
+
+.badge{display:inline-block;padding:.12rem .45rem;border-radius:4px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.badge-green{background:rgba(0,184,148,.15);color:var(--green)}
+.badge-red{background:rgba(255,107,107,.15);color:var(--red)}
+.badge-orange{background:rgba(253,203,110,.15);color:var(--orange)}
+.badge-blue{background:rgba(116,185,255,.15);color:var(--blue)}
+.badge-gray{background:rgba(139,143,168,.12);color:var(--text2)}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem}
+.form-row.c3{grid-template-columns:1fr 1fr 1fr}
+.form-row.full{grid-template-columns:1fr}
+.form-group{margin-bottom:.5rem}
+.form-inline{display:flex;gap:.5rem;align-items:flex-end}
+.create-form{padding:1rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:1rem;border:1px dashed var(--border)}
+.create-form h3{font-size:.85rem;color:var(--text2);margin-bottom:.75rem}
+
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead th{text-align:left;padding:.5rem .65rem;border-bottom:2px solid var(--border);color:var(--text2);font-size:.72rem;text-transform:uppercase;letter-spacing:.4px}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
+tbody tr:hover{background:rgba(108,92,231,.06)}
+tbody td{padding:.45rem .65rem}
+tbody tr.selected{background:rgba(108,92,231,.12);border-left:3px solid var(--accent)}
+.empty-state{text-align:center;padding:1.5rem;color:var(--text2);font-size:.85rem}
+
+#toast-container{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem}
+.toast{padding:.6rem 1rem;border-radius:var(--radius);font-size:.82rem;font-weight:500;box-shadow:var(--shadow);animation:slideIn .25s ease;max-width:380px}
+.toast-success{background:var(--green);color:#fff}
+.toast-error{background:var(--red);color:#fff}
+.toast-info{background:var(--blue);color:#000}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.trigger-section{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.6rem;overflow:hidden}
+.trigger-header{display:flex;align-items:center;justify-content:space-between;padding:.5rem .7rem;background:var(--surface2);cursor:pointer;user-select:none}
+.trigger-header h4{font-size:.82rem;display:flex;align-items:center;gap:.4rem}
+.trigger-body{padding:.7rem;display:none}
+.trigger-body.open{display:block}
+.rule-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.65rem;margin-bottom:.4rem;position:relative}
+.rule-remove{position:absolute;top:.3rem;right:.4rem;background:none;border:none;color:var(--red);font-size:.9rem;cursor:pointer;padding:0}
+
+.tab-row{display:flex;gap:0;margin-bottom:.75rem;border-bottom:2px solid var(--border)}
+.tab-btn{padding:.4rem .85rem;border:none;background:none;color:var(--text2);font-size:.82rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab-btn.active{color:var(--accent2);border-bottom-color:var(--accent)}
+.tab-btn:hover{color:var(--text)}
+
+#config-bar{background:var(--surface2);padding:.4rem 1.25rem;font-size:.72rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:1rem;flex-wrap:wrap;color:var(--text2)}
+
+.cascade-level{border-left:3px solid var(--border);padding-left:0;margin-top:.75rem}
+.cascade-level.l1{border-left-color:var(--accent)}
+.cascade-level.l2{border-left-color:var(--green)}
+.cascade-level.l3{border-left-color:var(--blue)}
+
+@media(max-width:800px){#sidebar{width:56px}.nav-item span{display:none}.nav-section{display:none}.form-row,.form-row.c3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="app-header">
+  <h1>SMAP Console</h1>
+  <div id="header-right">
+    <span id="user-info">Not logged in</span>
+    <button class="btn btn-danger btn-sm" id="btn-logout" style="display:none" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+
+<div id="layout">
+  <div id="sidebar">
+    <div class="nav-section">Auth</div>
+    <div class="nav-item active" data-tab="login" onclick="switchTab('login')"><span>Login</span></div>
+    <div class="nav-section">Workspace</div>
+    <div class="nav-item" data-tab="dashboard" onclick="switchTab('dashboard')"><span>Dashboard</span></div>
+    <div class="nav-section">Settings</div>
+    <div class="nav-item" data-tab="settings" onclick="switchTab('settings')"><span>Config</span></div>
+  </div>
+
+  <div id="main">
+
+    <!-- LOGIN -->
+    <div class="tab-content" id="tab-login">
+      <div class="panel">
+        <div class="panel-header"><h2>Authentication</h2></div>
+        <div class="panel-body">
+          <p style="color:var(--text2);margin-bottom:1rem;font-size:.85rem">Login via OAuth2 or paste Bearer token.</p>
+          <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="doLogin()">Login with Google</button>
+          </div>
+          <div class="form-group">
+            <label>Manual Token (dev)</label>
+            <div class="form-inline">
+              <input type="text" id="manual-token" placeholder="Paste Bearer token...">
+              <button class="btn btn-secondary" onclick="saveManualToken()">Save</button>
+            </div>
+          </div>
+          <div id="auth-status" style="margin-top:.75rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD (cascading) -->
+    <div class="tab-content" id="tab-dashboard" style="display:none">
+
+      <div id="breadcrumb"></div>
+
+      <!-- CAMPAIGNS -->
+      <div class="panel" id="panel-campaigns">
+        <div class="panel-header">
+          <h2>Campaigns</h2>
+          <button class="btn btn-primary btn-sm" onclick="toggleForm('campaign-form')">+ New</button>
+        </div>
+        <div class="panel-body">
+          <div id="campaign-form" class="create-form" style="display:none">
+            <h3>Create Campaign</h3>
+            <div class="form-row">
+              <div class="form-group"><label>Name *</label><input id="c-name" placeholder="Campaign name"></div>
+              <div class="form-group"><label>Description</label><input id="c-desc" placeholder="Description"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Start Date</label><input type="datetime-local" id="c-start"></div>
+              <div class="form-group"><label>End Date</label><input type="datetime-local" id="c-end"></div>
+            </div>
+            <div style="display:flex;gap:.5rem">
+              <button class="btn btn-success" onclick="createCampaign()">Create</button>
+              <button class="btn btn-secondary" onclick="toggleForm('campaign-form')">Cancel</button>
+            </div>
+          </div>
+          <div id="campaign-list"><div class="empty-state"><span class="spinner"></span></div></div>
+        </div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div class="cascade-level l1" id="panel-projects" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Projects <span id="proj-parent-label" style="color:var(--text2);font-weight:400;font-size:.78rem;margin-left:.5rem"></span></h2>
+            <button class="btn btn-primary btn-sm" onclick="toggleForm('project-form')">+ New</button>
+          </div>
+          <div class="panel-body">
+            <div id="project-form" class="create-form" style="display:none">
+              <h3>Create Project</h3>
+              <div class="form-row">
+                <div class="form-group"><label>Name *</label><input id="p-name" placeholder="Project name"></div>
+                <div class="form-group"><label>Brand</label><input id="p-brand" placeholder="Brand"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Entity Type *</label>
+                  <select id="p-entity-type">
+                    <option value="">-- Select --</option>
+                    <option value="product">Product</option>
+                    <option value="campaign">Campaign</option>
+                    <option value="service">Service</option>
+                    <option value="competitor">Competitor</option>
+                    <option value="topic">Topic</option>
+                  </select>
+                </div>
+                <div class="form-group"><label>Entity Name *</label><input id="p-entity-name" placeholder="Entity name"></div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group"><label>Description</label><textarea id="p-desc" rows="2" placeholder="Description"></textarea></div>
+              </div>
+              <div style="display:flex;gap:.5rem">
+                <button class="btn btn-success" onclick="createProject()">Create</button>
+                <button class="btn btn-secondary" onclick="toggleForm('project-form')">Cancel</button>
+              </div>
+            </div>
+            <div id="project-list"><div class="empty-state"><span class="spinner"></span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATASOURCES + CRISIS CONFIG -->
+      <div class="cascade-level l2" id="panel-datasources" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Datasources <span id="ds-parent-label" style="color:var(--text2);font-weight:400;font-size:.78rem;margin-left:.5rem"></span></h2>
+            <button class="btn btn-primary btn-sm" onclick="toggleForm('ds-form')">+ New</button>
+          </div>
+          <div class="panel-body">
+            <div id="ds-form" class="create-form" style="display:none">
+              <h3>Create Datasource</h3>
+              <div class="form-row">
+                <div class="form-group"><label>Name *</label><input id="ds-name" placeholder="Datasource name"></div>
+                <div class="form-group"><label>Description</label><input id="ds-desc" placeholder="Description"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Source Type *</label>
+                  <select id="ds-source-type" onchange="onSourceTypeChange()">
+                    <option value="">-- Select --</option>
+                    <option value="TIKTOK">TikTok</option>
+                    <option value="FACEBOOK">Facebook</option>
+                    <option value="YOUTUBE">YouTube</option>
+                    <option value="FILE_UPLOAD">File Upload</option>
+                    <option value="WEBHOOK">Webhook</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Source Category</label>
+                  <select id="ds-source-category" onchange="onCategoryChange()">
+                    <option value="CRAWL">CRAWL</option>
+                    <option value="PASSIVE">PASSIVE</option>
+                  </select>
+                </div>
+              </div>
+              <div id="crawl-fields">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Crawl Mode *</label>
+                    <select id="ds-crawl-mode">
+                      <option value="NORMAL">NORMAL</option>
+                      <option value="SLEEP">SLEEP</option>
+                      <option value="CRISIS">CRISIS</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>Crawl Interval (min)</label><input type="number" id="ds-crawl-interval" value="60" min="1"></div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>Config (JSON)</label><textarea id="ds-config" rows="2" placeholder='{"key":"value"}'></textarea></div>
+                <div class="form-group"><label>Account Ref (JSON)</label><textarea id="ds-account-ref" rows="2" placeholder='{"key":"value"}'></textarea></div>
+              </div>
+              <div style="display:flex;gap:.5rem">
+                <button class="btn btn-success" onclick="createDatasource()">Create</button>
+                <button class="btn btn-secondary" onclick="toggleForm('ds-form')">Cancel</button>
+              </div>
+            </div>
+            <div id="ds-list"><div class="empty-state"><span class="spinner"></span></div></div>
+          </div>
+        </div>
+
+        <!-- Crisis Config -->
+        <div class="panel" style="margin-top:.75rem">
+          <div class="panel-header" style="cursor:pointer" onclick="toggleCrisisPanel()">
+            <h2>Crisis Config <span id="crisis-parent-label" style="color:var(--text2);font-weight:400;font-size:.78rem;margin-left:.5rem"></span></h2>
+            <span id="crisis-toggle-arrow" style="color:var(--text2)">&#9656;</span>
+          </div>
+          <div class="panel-body" id="crisis-panel-body" style="display:none">
+            <div id="crisis-current" style="margin-bottom:.75rem"></div>
+            <div id="crisis-form-wrapper">
+              <!-- Keywords Trigger -->
+              <div class="trigger-section">
+                <div class="trigger-header" onclick="toggleTrigger('kw')">
+                  <h4><input type="checkbox" id="kw-enabled" onclick="event.stopPropagation()"> Keywords Trigger</h4>
+                  <span id="kw-arrow">&#9656;</span>
+                </div>
+                <div class="trigger-body" id="kw-body">
+                  <div class="form-group"><label>Logic</label><select id="kw-logic"><option value="OR">OR</option><option value="AND">AND</option></select></div>
+                  <div id="kw-groups"></div>
+                  <button class="btn btn-secondary btn-sm" onclick="addKeywordGroup()" style="margin-top:.4rem">+ Add Group</button>
+                </div>
+              </div>
+              <!-- Volume Trigger -->
+              <div class="trigger-section">
+                <div class="trigger-header" onclick="toggleTrigger('vol')">
+                  <h4><input type="checkbox" id="vol-enabled" onclick="event.stopPropagation()"> Volume Trigger</h4>
+                  <span id="vol-arrow">&#9656;</span>
+                </div>
+                <div class="trigger-body" id="vol-body">
+                  <div class="form-group"><label>Metric</label><select id="vol-metric"><option value="MENTIONS">Mentions</option><option value="ENGAGEMENT">Engagement</option><option value="REACH">Reach</option></select></div>
+                  <div id="vol-rules"></div>
+                  <button class="btn btn-secondary btn-sm" onclick="addVolumeRule()" style="margin-top:.4rem">+ Add Rule</button>
+                </div>
+              </div>
+              <!-- Sentiment Trigger -->
+              <div class="trigger-section">
+                <div class="trigger-header" onclick="toggleTrigger('sent')">
+                  <h4><input type="checkbox" id="sent-enabled" onclick="event.stopPropagation()"> Sentiment Trigger</h4>
+                  <span id="sent-arrow">&#9656;</span>
+                </div>
+                <div class="trigger-body" id="sent-body">
+                  <div class="form-group"><label>Min Sample Size</label><input type="number" id="sent-min-sample" value="30" min="1"></div>
+                  <div id="sent-rules"></div>
+                  <button class="btn btn-secondary btn-sm" onclick="addSentimentRule()" style="margin-top:.4rem">+ Add Rule</button>
+                </div>
+              </div>
+              <!-- Influencer Trigger -->
+              <div class="trigger-section">
+                <div class="trigger-header" onclick="toggleTrigger('inf')">
+                  <h4><input type="checkbox" id="inf-enabled" onclick="event.stopPropagation()"> Influencer Trigger</h4>
+                  <span id="inf-arrow">&#9656;</span>
+                </div>
+                <div class="trigger-body" id="inf-body">
+                  <div class="form-group"><label>Logic</label><select id="inf-logic"><option value="OR">OR</option><option value="AND">AND</option></select></div>
+                  <div id="inf-rules"></div>
+                  <button class="btn btn-secondary btn-sm" onclick="addInfluencerRule()" style="margin-top:.4rem">+ Add Rule</button>
+                </div>
+              </div>
+              <div style="display:flex;gap:.5rem;margin-top:.75rem">
+                <button class="btn btn-success" onclick="saveCrisisConfig()">Save Crisis Config</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCrisisConfig()">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TARGETS + DRYRUN -->
+      <div class="cascade-level l3" id="panel-targets" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Targets <span id="tgt-parent-label" style="color:var(--text2);font-weight:400;font-size:.78rem;margin-left:.5rem"></span></h2>
+          </div>
+          <div class="panel-body">
+            <div id="target-list" style="margin-bottom:1rem"><div class="empty-state"><span class="spinner"></span></div></div>
+            <h3 style="font-size:.85rem;color:var(--text2);margin-bottom:.5rem">Create Target</h3>
+            <div class="tab-row">
+              <button class="tab-btn active" data-ttype="keywords" onclick="switchTargetType('keywords')">Keywords</button>
+              <button class="tab-btn" data-ttype="profiles" onclick="switchTargetType('profiles')">Profiles</button>
+              <button class="tab-btn" data-ttype="posts" onclick="switchTargetType('posts')">Posts</button>
+            </div>
+            <div style="padding:.75rem;background:var(--surface2);border-radius:var(--radius)">
+              <div class="form-row full">
+                <div class="form-group"><label>Values * <small style="font-weight:400;text-transform:none">(one per line)</small></label><textarea id="tgt-values" rows="3" placeholder="keyword1&#10;keyword2"></textarea></div>
+              </div>
+              <div class="form-row c3">
+                <div class="form-group"><label>Label</label><input id="tgt-label" placeholder="Optional"></div>
+                <div class="form-group"><label>Priority</label><input type="number" id="tgt-priority" value="0" min="0"></div>
+                <div class="form-group" id="tgt-crawl-interval-row"><label>Crawl Interval (min)</label><input type="number" id="tgt-crawl-interval" min="1" placeholder="Optional"></div>
+              </div>
+              <div class="form-row full" id="tgt-platform-meta-row" style="display:none">
+                <div class="form-group"><label>Platform Meta (JSON)</label><textarea id="tgt-platform-meta" rows="2" placeholder='{"key":"value"}'></textarea></div>
+              </div>
+              <button class="btn btn-success" onclick="createTarget()">Create Target</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DryRun -->
+        <div class="panel" style="margin-top:.75rem">
+          <div class="panel-header">
+            <h2>DryRun</h2>
+            <div style="display:flex;gap:.4rem">
+              <button class="btn btn-primary btn-sm" onclick="triggerDryrun()">Run DryRun</button>
+              <button class="btn btn-secondary btn-sm" onclick="loadDryrunLatest()">Refresh</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="dryrun-result"><div class="empty-state">No dryrun data yet</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-content" id="tab-settings" style="display:none">
+      <div class="panel">
+        <div class="panel-header"><h2>API Configuration</h2></div>
+        <div class="panel-body">
+          <div class="form-group"><label>Identity Service (Auth)</label><input id="cfg-identity" value="http://localhost:8080"></div>
+          <div class="form-group"><label>Project Service</label><input id="cfg-project" value="http://localhost:8081"></div>
+          <div class="form-group"><label>Ingest Service</label><input id="cfg-ingest" value="http://localhost:8082"></div>
+          <button class="btn btn-primary" onclick="saveConfig();toast('Config saved','success')" style="margin-top:.5rem">Save</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="config-bar">
+  <span>Identity: <strong id="bar-identity">:8080</strong></span>
+  <span>Project: <strong id="bar-project">:8081</strong></span>
+  <span>Ingest: <strong id="bar-ingest">:8082</strong></span>
+  <span style="margin-left:auto" id="bar-ctx"></span>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+// CONFIG & STATE
+const DEFAULT_CFG={identity:'http://localhost:8080',project:'http://localhost:8081',ingest:'http://localhost:8082'};
+let CFG={...DEFAULT_CFG};
+let S={token:null,user:null,campaigns:[],projects:[],datasources:[],targets:[],selCampaign:null,selProject:null,selDatasource:null,targetType:'keywords'};
+
+// INIT
+(function init(){
+  try{const s=localStorage.getItem('smap_cfg');if(s)CFG={...DEFAULT_CFG,...JSON.parse(s)};}catch(e){}
+  document.getElementById('cfg-identity').value=CFG.identity;
+  document.getElementById('cfg-project').value=CFG.project;
+  document.getElementById('cfg-ingest').value=CFG.ingest;
+  updateConfigBar();
+  S.token=localStorage.getItem('smap_token');
+  const p=new URLSearchParams(location.search);
+  const ut=p.get('token');
+  if(ut){S.token=ut;localStorage.setItem('smap_token',ut);history.replaceState({},'',location.pathname);}
+  if(S.token)fetchMe();else updateAuthUI();
+})();
+
+// CONFIG
+function saveConfig(){
+  CFG.identity=document.getElementById('cfg-identity').value.replace(/\/+$/,'');
+  CFG.project=document.getElementById('cfg-project').value.replace(/\/+$/,'');
+  CFG.ingest=document.getElementById('cfg-ingest').value.replace(/\/+$/,'');
+  localStorage.setItem('smap_cfg',JSON.stringify(CFG));
+  updateConfigBar();
+}
+function updateConfigBar(){
+  document.getElementById('bar-identity').textContent=CFG.identity;
+  document.getElementById('bar-project').textContent=CFG.project;
+  document.getElementById('bar-ingest').textContent=CFG.ingest;
+}
+
+// AUTH
+function doLogin(){
+  var r=encodeURIComponent(location.href.split('?')[0]);
+  location.href=CFG.identity+'/authentication/login?provider=google&redirect='+r;
+}
+function saveManualToken(){
+  var t=document.getElementById('manual-token').value.trim();
+  if(!t)return toast('Paste a token first','error');
+  S.token=t;localStorage.setItem('smap_token',t);fetchMe();
+}
+async function fetchMe(){
+  try{
+    var r=await authFetch(CFG.identity+'/authentication/me');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var b=await r.json();S.user=b.data;updateAuthUI();
+    toast('Welcome, '+(S.user.full_name||S.user.email),'success');
+  }catch(e){S.user=null;updateAuthUI();toast('Auth failed: '+e.message,'error');}
+}
+async function doLogout(){
+  try{await authFetch(CFG.identity+'/authentication/logout',{method:'POST'});}catch(e){}
+  S.token=null;S.user=null;localStorage.removeItem('smap_token');
+  updateAuthUI();switchTab('login');toast('Logged out','info');
+}
+function updateAuthUI(){
+  var info=document.getElementById('user-info'),btn=document.getElementById('btn-logout'),st=document.getElementById('auth-status');
+  if(S.user){
+    info.innerHTML='<strong>'+esc(S.user.full_name||S.user.email)+'</strong>';
+    btn.style.display='inline-flex';
+    st.innerHTML='<div style="padding:.6rem;background:rgba(0,184,148,.08);border:1px solid var(--green);border-radius:var(--radius)"><strong style="color:var(--green)">Authenticated</strong><br><span style="color:var(--text2);font-size:.82rem">ID: '+(S.user.id||'-')+' | '+esc(S.user.email||'-')+'</span></div>';
+  }else if(S.token){info.textContent='Verifying...';btn.style.display='none';st.innerHTML='<span style="color:var(--orange)">Token set, verifying...</span>';
+  }else{info.textContent='Not logged in';btn.style.display='none';st.innerHTML='<span style="color:var(--text2)">No session.</span>';}
+}
+
+// FETCH HELPER
+async function authFetch(url,opts){
+  if(!opts)opts={};if(!opts.headers)opts.headers={};
+  if(S.token)opts.headers['Authorization']='Bearer '+S.token;
+  if(opts.body&&typeof opts.body==='object'&&!(opts.body instanceof FormData)){
+    opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(opts.body);
+  }
+  var r=await fetch(url,opts);
+  if(r.status===401){toast('Session expired','error');S.token=null;S.user=null;localStorage.removeItem('smap_token');updateAuthUI();}
+  return r;
+}
+
+// NAVIGATION
+function switchTab(tab){
+  document.querySelectorAll('.tab-content').forEach(function(e){e.style.display='none';});
+  document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active');});
+  var el=document.getElementById('tab-'+tab);if(el)el.style.display='';
+  var nav=document.querySelector('[data-tab="'+tab+'"]');if(nav)nav.classList.add('active');
+  if(tab==='dashboard')loadCampaigns();
+}
+function toggleForm(id){var el=document.getElementById(id);el.style.display=el.style.display==='none'?'':'none';}
+
+function updateBreadcrumb(){
+  var bc=document.getElementById('breadcrumb');
+  var html='<span class="bc-item" onclick="deselectAll();loadCampaigns()">Campaigns</span>';
+  if(S.selCampaign){
+    html+='<span class="bc-sep">-></span><span class="bc-item" onclick="deselectFrom(\'project\')">'+esc(S.selCampaign.name)+'</span>';
+    html+='<span class="bc-sep">-></span><span class="'+(S.selProject?'bc-item" onclick="deselectFrom(\'datasource\')':'bc-current')+'">Projects</span>';
+  }
+  if(S.selProject){
+    html+='<span class="bc-sep">-></span><span class="bc-item" onclick="deselectFrom(\'datasource\')">'+esc(S.selProject.name)+'</span>';
+    html+='<span class="bc-sep">-></span><span class="'+(S.selDatasource?'bc-item':'bc-current')+'">Datasources</span>';
+  }
+  if(S.selDatasource){
+    html+='<span class="bc-sep">-></span><span class="bc-current">'+esc(S.selDatasource.name)+'</span>';
+    html+='<span class="bc-sep">-></span><span class="bc-current">Targets</span>';
+  }
+  bc.innerHTML=html;
+  var ctx=[S.selCampaign?S.selCampaign.name:null,S.selProject?S.selProject.name:null,S.selDatasource?S.selDatasource.name:null].filter(Boolean).join(' -> ');
+  document.getElementById('bar-ctx').textContent=ctx;
+}
+
+function deselectAll(){S.selCampaign=null;S.selProject=null;S.selDatasource=null;hideCascade(1);updateBreadcrumb();}
+function deselectFrom(level){
+  if(level==='project'){S.selProject=null;S.selDatasource=null;hideCascade(2);selectCampaign(S.selCampaign.id);}
+  if(level==='datasource'){S.selDatasource=null;hideCascade(3);selectProject(S.selProject.id);}
+}
+function hideCascade(fromLevel){
+  if(fromLevel<=1)document.getElementById('panel-projects').style.display='none';
+  if(fromLevel<=2)document.getElementById('panel-datasources').style.display='none';
+  if(fromLevel<=3)document.getElementById('panel-targets').style.display='none';
+}
+
+// CAMPAIGNS
+async function loadCampaigns(){
+  var el=document.getElementById('campaign-list');
+  el.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
+  updateBreadcrumb();
+  try{
+    var r=await authFetch(CFG.project+'/api/v1/campaigns?page=1&limit=50');
+    var b=await r.json();var list=(b.data&&b.data.campaigns)||[];
+    S.campaigns=list;
+    if(!list.length){el.innerHTML='<div class="empty-state">No campaigns yet. Create one above.</div>';return;}
+    var rows='';
+    for(var i=0;i<list.length;i++){
+      var c=list[i];
+      rows+='<tr onclick="selectCampaign(\''+c.id+'\')" class="'+(S.selCampaign&&S.selCampaign.id===c.id?'selected':'')+'">';
+      rows+='<td><strong>'+esc(c.name)+'</strong></td><td>'+badge(c.status)+'</td>';
+      rows+='<td>'+fmtD(c.start_date)+'</td><td>'+fmtD(c.end_date)+'</td><td>'+fmtD(c.created_at)+'</td></tr>';
+    }
+    el.innerHTML='<table><thead><tr><th>Name</th><th>Status</th><th>Start</th><th>End</th><th>Created</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  }catch(e){el.innerHTML='<div class="empty-state" style="color:var(--red)">Error: '+esc(e.message)+'</div>';}
+}
+
+async function createCampaign(){
+  var name=document.getElementById('c-name').value.trim();
+  if(!name)return toast('Name required','error');
+  var p={name:name,description:document.getElementById('c-desc').value.trim()};
+  var s=document.getElementById('c-start').value,e=document.getElementById('c-end').value;
+  if(s)p.start_date=new Date(s).toISOString();if(e)p.end_date=new Date(e).toISOString();
+  try{
+    var r=await authFetch(CFG.project+'/api/v1/campaigns',{method:'POST',body:p});
+    var b=await r.json();if(!r.ok)throw new Error(b.message||'Failed');
+    toast('Campaign created!','success');toggleForm('campaign-form');
+    document.getElementById('c-name').value='';document.getElementById('c-desc').value='';
+    loadCampaigns();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+function selectCampaign(id){
+  S.selCampaign=null;
+  for(var i=0;i<S.campaigns.length;i++){if(S.campaigns[i].id===id){S.selCampaign=S.campaigns[i];break;}}
+  if(!S.selCampaign)S.selCampaign={id:id,name:id};
+  S.selProject=null;S.selDatasource=null;
+  hideCascade(2);
+  loadCampaigns();
+  document.getElementById('panel-projects').style.display='';
+  document.getElementById('proj-parent-label').textContent='in '+S.selCampaign.name;
+  loadProjects();
+  updateBreadcrumb();
+}
+
+// PROJECTS
+async function loadProjects(){
+  var cid=S.selCampaign?S.selCampaign.id:null;if(!cid)return;
+  var el=document.getElementById('project-list');
+  el.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
+  try{
+    var r=await authFetch(CFG.project+'/api/v1/campaigns/'+cid+'/projects?page=1&limit=50');
+    var b=await r.json();var list=(b.data&&b.data.projects)||[];
+    S.projects=list;
+    if(!list.length){el.innerHTML='<div class="empty-state">No projects. Create one above.</div>';return;}
+    var rows='';
+    for(var i=0;i<list.length;i++){
+      var p=list[i];
+      rows+='<tr onclick="selectProject(\''+p.id+'\')" class="'+(S.selProject&&S.selProject.id===p.id?'selected':'')+'">';
+      rows+='<td><strong>'+esc(p.name)+'</strong></td><td>'+esc(p.brand||'-')+'</td>';
+      rows+='<td>'+esc(p.entity_type)+'/'+esc(p.entity_name)+'</td>';
+      rows+='<td>'+badge(p.status)+'</td><td>'+badge(p.config_status)+'</td></tr>';
+    }
+    el.innerHTML='<table><thead><tr><th>Name</th><th>Brand</th><th>Entity</th><th>Status</th><th>Config</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  }catch(e){el.innerHTML='<div class="empty-state" style="color:var(--red)">Error: '+esc(e.message)+'</div>';}
+}
+
+async function createProject(){
+  var cid=S.selCampaign?S.selCampaign.id:null;if(!cid)return toast('Select a campaign first','error');
+  var name=document.getElementById('p-name').value.trim();
+  var et=document.getElementById('p-entity-type').value,en=document.getElementById('p-entity-name').value.trim();
+  if(!name)return toast('Name required','error');if(!et)return toast('Entity type required','error');if(!en)return toast('Entity name required','error');
+  var p={name:name,description:document.getElementById('p-desc').value.trim(),brand:document.getElementById('p-brand').value.trim(),entity_type:et,entity_name:en};
+  try{
+    var r=await authFetch(CFG.project+'/api/v1/campaigns/'+cid+'/projects',{method:'POST',body:p});
+    var b=await r.json();if(!r.ok)throw new Error(b.message||'Failed');
+    toast('Project created!','success');toggleForm('project-form');
+    ['p-name','p-desc','p-brand','p-entity-name'].forEach(function(i){document.getElementById(i).value='';});
+    document.getElementById('p-entity-type').value='';loadProjects();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+function selectProject(id){
+  S.selProject=null;
+  for(var i=0;i<S.projects.length;i++){if(S.projects[i].id===id){S.selProject=S.projects[i];break;}}
+  if(!S.selProject)S.selProject={id:id,name:id};
+  S.selDatasource=null;hideCascade(3);
+  loadProjects();
+  document.getElementById('panel-datasources').style.display='';
+  document.getElementById('ds-parent-label').textContent='in '+S.selProject.name;
+  document.getElementById('crisis-parent-label').textContent='for '+S.selProject.name;
+  loadDatasources();
+  loadCrisisConfig();
+  updateBreadcrumb();
+}
+
+// DATASOURCES
+async function loadDatasources(){
+  var pid=S.selProject?S.selProject.id:null;if(!pid)return;
+  var el=document.getElementById('ds-list');
+  el.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
+  try{
+    var r=await authFetch(CFG.ingest+'/api/v1/datasources?project_id='+pid+'&page=1&limit=50');
+    var b=await r.json();var list=(b.data&&b.data.datasources)||b.data||[];
+    S.datasources=Array.isArray(list)?list:[];
+    if(!S.datasources.length){el.innerHTML='<div class="empty-state">No datasources. Create one above.</div>';return;}
+    var rows='';
+    for(var i=0;i<S.datasources.length;i++){
+      var d=S.datasources[i];
+      rows+='<tr onclick="selectDatasource(\''+d.id+'\')" class="'+(S.selDatasource&&S.selDatasource.id===d.id?'selected':'')+'">';
+      rows+='<td><strong>'+esc(d.name)+'</strong></td><td>'+esc(d.source_type||'-')+'</td>';
+      rows+='<td>'+esc(d.source_category||'-')+'</td><td>'+badge(d.status)+'</td><td>'+esc(d.crawl_mode||'-')+'</td></tr>';
+    }
+    el.innerHTML='<table><thead><tr><th>Name</th><th>Type</th><th>Category</th><th>Status</th><th>Crawl</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  }catch(e){el.innerHTML='<div class="empty-state" style="color:var(--red)">Error: '+esc(e.message)+'</div>';}
+}
+
+function onSourceTypeChange(){
+  var st=document.getElementById('ds-source-type').value;
+  var cat=document.getElementById('ds-source-category');
+  if(st==='FILE_UPLOAD'||st==='WEBHOOK')cat.value='PASSIVE';else if(st)cat.value='CRAWL';
+  onCategoryChange();
+}
+function onCategoryChange(){document.getElementById('crawl-fields').style.display=document.getElementById('ds-source-category').value==='CRAWL'?'':'none';}
+
+async function createDatasource(){
+  var pid=S.selProject?S.selProject.id:null;if(!pid)return toast('Select a project first','error');
+  var name=document.getElementById('ds-name').value.trim();
+  var st=document.getElementById('ds-source-type').value;
+  var sc=document.getElementById('ds-source-category').value;
+  if(!name)return toast('Name required','error');if(!st)return toast('Source type required','error');
+  var p={project_id:pid,name:name,description:document.getElementById('ds-desc').value.trim(),source_type:st,source_category:sc};
+  if(sc==='CRAWL'){p.crawl_mode=document.getElementById('ds-crawl-mode').value;p.crawl_interval_minutes=parseInt(document.getElementById('ds-crawl-interval').value)||60;}
+  var cs=document.getElementById('ds-config').value.trim();
+  if(cs){try{p.config=JSON.parse(cs);}catch(e){return toast('Config JSON invalid','error');}}
+  var as2=document.getElementById('ds-account-ref').value.trim();
+  if(as2){try{p.account_ref=JSON.parse(as2);}catch(e){return toast('Account Ref JSON invalid','error');}}
+  try{
+    var r=await authFetch(CFG.ingest+'/api/v1/datasources',{method:'POST',body:p});
+    var b=await r.json();if(!r.ok)throw new Error(b.message||'Failed');
+    toast('Datasource created!','success');toggleForm('ds-form');
+    ['ds-name','ds-desc','ds-config','ds-account-ref'].forEach(function(i){document.getElementById(i).value='';});
+    document.getElementById('ds-source-type').value='';loadDatasources();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+function selectDatasource(id){
+  S.selDatasource=null;
+  for(var i=0;i<S.datasources.length;i++){if(S.datasources[i].id===id){S.selDatasource=S.datasources[i];break;}}
+  if(!S.selDatasource)S.selDatasource={id:id,name:id};
+  loadDatasources();
+  document.getElementById('panel-targets').style.display='';
+  document.getElementById('tgt-parent-label').textContent='in '+S.selDatasource.name;
+  loadTargets();
+  loadDryrunLatest();
+  updateBreadcrumb();
+}
+
+// TARGETS
+async function loadTargets(){
+  var dsId=S.selDatasource?S.selDatasource.id:null;if(!dsId)return;
+  var el=document.getElementById('target-list');
+  el.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
+  try{
+    var r=await authFetch(CFG.ingest+'/api/v1/datasources/'+dsId+'/targets');
+    var b=await r.json();var list=(b.data&&b.data.targets)||b.data||[];
+    S.targets=Array.isArray(list)?list:[];
+    if(!S.targets.length){el.innerHTML='<div class="empty-state">No targets yet. Create below.</div>';return;}
+    var rows='';
+    for(var i=0;i<S.targets.length;i++){
+      var t=S.targets[i];
+      var vals=(t.values||[]).slice(0,3).join(', ')+((t.values||[]).length>3?' ...':'');
+      rows+='<tr><td>'+esc(t.target_type||t.type||'-')+'</td><td>'+esc(t.label||'-')+'</td>';
+      rows+='<td><small>'+esc(vals)+'</small></td>';
+      rows+='<td>'+(t.is_active?'<span class="badge badge-green">Yes</span>':'<span class="badge badge-gray">No</span>')+'</td>';
+      rows+='<td>'+(t.priority!=null?t.priority:'-')+'</td>';
+      rows+='<td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteTarget(\''+t.id+'\')">X</button></td></tr>';
+    }
+    el.innerHTML='<table><thead><tr><th>Type</th><th>Label</th><th>Values</th><th>Active</th><th>Priority</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+  }catch(e){el.innerHTML='<div class="empty-state" style="color:var(--red)">Error: '+esc(e.message)+'</div>';}
+}
+
+function switchTargetType(type){
+  S.targetType=type;
+  document.querySelectorAll('.tab-btn[data-ttype]').forEach(function(b){b.classList.toggle('active',b.dataset.ttype===type);});
+  document.getElementById('tgt-platform-meta-row').style.display=type==='profiles'?'':'none';
+  document.getElementById('tgt-crawl-interval-row').style.display=type==='keywords'?'':'none';
+  document.getElementById('tgt-values').placeholder=type==='keywords'?'keyword1\nkeyword2':'https://...\nhttps://...';
+}
+
+async function createTarget(){
+  var dsId=S.selDatasource?S.selDatasource.id:null;if(!dsId)return toast('Select a datasource','error');
+  var raw=document.getElementById('tgt-values').value.trim();
+  if(!raw)return toast('Values required','error');
+  var values=raw.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  var p={values:values};
+  var lbl=document.getElementById('tgt-label').value.trim();if(lbl)p.label=lbl;
+  var pri=parseInt(document.getElementById('tgt-priority').value);if(!isNaN(pri))p.priority=pri;
+  if(S.targetType==='keywords'){var ci=parseInt(document.getElementById('tgt-crawl-interval').value);if(!isNaN(ci)&&ci>0)p.crawl_interval_minutes=ci;}
+  if(S.targetType==='profiles'){var m=document.getElementById('tgt-platform-meta').value.trim();if(m){try{p.platform_meta=JSON.parse(m);}catch(e){return toast('Platform Meta JSON invalid','error');}}}
+  try{
+    var r=await authFetch(CFG.ingest+'/api/v1/datasources/'+dsId+'/targets/'+S.targetType,{method:'POST',body:p});
+    var b=await r.json();if(!r.ok)throw new Error(b.message||'Failed');
+    toast('Target created!','success');document.getElementById('tgt-values').value='';document.getElementById('tgt-label').value='';loadTargets();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+async function deleteTarget(tid){
+  var dsId=S.selDatasource?S.selDatasource.id:null;if(!confirm('Delete this target?'))return;
+  try{
+    var r=await authFetch(CFG.ingest+'/api/v1/datasources/'+dsId+'/targets/'+tid,{method:'DELETE'});
+    if(!r.ok){var b=await r.json();throw new Error(b.message||'Failed');}
+    toast('Target deleted','success');loadTargets();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+// DRYRUN
+async function triggerDryrun(){
+  var dsId=S.selDatasource?S.selDatasource.id:null;if(!dsId)return toast('Select a datasource','error');
+  try{
+    var r=await authFetch(CFG.ingest+'/api/v1/datasources/'+dsId+'/dryrun',{method:'POST',body:{force:true}});
+    var b=await r.json();if(!r.ok)throw new Error(b.message||'Failed');
+    toast('DryRun triggered!','success');setTimeout(function(){loadDryrunLatest();},1000);
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+async function loadDryrunLatest(){
+  var dsId=S.selDatasource?S.selDatasource.id:null;if(!dsId)return;
+  var el=document.getElementById('dryrun-result');
+  el.innerHTML='<div class="empty-state"><span class="spinner"></span></div>';
+  try{
+    var r=await authFetch(CFG.ingest+'/api/v1/datasources/'+dsId+'/dryrun/latest');
+    if(r.status===404){el.innerHTML='<div class="empty-state">No dryrun results yet.</div>';return;}
+    var b=await r.json();var dr=(b.data&&b.data.dryrun)||b.data;
+    if(!dr){el.innerHTML='<div class="empty-state">No data.</div>';return;}
+    var html='<div style="padding:.75rem;background:var(--surface2);border-radius:var(--radius);font-size:.85rem">';
+    html+='<div><strong>Status:</strong> '+badge(dr.status||dr.dryrun_status)+'</div>';
+    html+='<div><strong>Created:</strong> '+fmtD(dr.created_at)+'</div>';
+    if(dr.result){html+='<div style="margin-top:.4rem"><strong>Result:</strong><pre style="background:var(--surface);padding:.4rem;border-radius:4px;max-height:250px;overflow:auto;font-size:.78rem;margin-top:.2rem">'+esc(typeof dr.result==='string'?dr.result:JSON.stringify(dr.result,null,2))+'</pre></div>';}
+    if(dr.error_message){html+='<div style="color:var(--red);margin-top:.3rem"><strong>Error:</strong> '+esc(dr.error_message)+'</div>';}
+    html+='</div>';
+    el.innerHTML=html;
+  }catch(e){el.innerHTML='<div class="empty-state" style="color:var(--red)">Error: '+esc(e.message)+'</div>';}
+}
+
+// CRISIS CONFIG
+function toggleCrisisPanel(){
+  var body=document.getElementById('crisis-panel-body');
+  var arrow=document.getElementById('crisis-toggle-arrow');
+  var isOpen=body.style.display==='none';
+  body.style.display=isOpen?'':'none';
+  arrow.innerHTML=isOpen?'&#9662;':'&#9656;';
+}
+
+async function loadCrisisConfig(){
+  var pid=S.selProject?S.selProject.id:null;if(!pid)return;
+  var el=document.getElementById('crisis-current');
+  el.innerHTML='<span class="spinner"></span>';
+  try{
+    var r=await authFetch(CFG.project+'/api/v1/projects/'+pid+'/crisis-config');
+    if(r.status===404||r.status===400){el.innerHTML='<div class="empty-state" style="padding:.5rem">No crisis config. Create below.</div>';resetCrisisForm();return;}
+    var b=await r.json();var cfg=b.data&&b.data.crisis_config;
+    if(!cfg){el.innerHTML='<div class="empty-state" style="padding:.5rem">No config.</div>';resetCrisisForm();return;}
+    var kw=cfg.keywords_trigger,vol=cfg.volume_trigger,sent=cfg.sentiment_trigger,inf=cfg.influencer_trigger;
+    el.innerHTML='<div style="padding:.4rem;background:var(--surface2);border-radius:var(--radius);font-size:.82rem"><strong>Status:</strong> '+badge(cfg.status)+' | KW:'+(kw&&kw.enabled?'Y':'N')+' Vol:'+(vol&&vol.enabled?'Y':'N')+' Sent:'+(sent&&sent.enabled?'Y':'N')+' Inf:'+(inf&&inf.enabled?'Y':'N')+'</div>';
+    populateCrisisForm(cfg);
+  }catch(e){el.innerHTML='<span style="color:var(--red)">Error: '+esc(e.message)+'</span>';}
+}
+
+function resetCrisisForm(){
+  ['kw','vol','sent','inf'].forEach(function(k){document.getElementById(k+'-enabled').checked=false;});
+  document.getElementById('kw-groups').innerHTML='';document.getElementById('vol-rules').innerHTML='';
+  document.getElementById('sent-rules').innerHTML='';document.getElementById('inf-rules').innerHTML='';
+  document.getElementById('kw-logic').value='OR';document.getElementById('inf-logic').value='OR';
+  document.getElementById('vol-metric').value='MENTIONS';document.getElementById('sent-min-sample').value='30';
+}
+
+function populateCrisisForm(cfg){
+  resetCrisisForm();
+  if(cfg.keywords_trigger){document.getElementById('kw-enabled').checked=!!cfg.keywords_trigger.enabled;document.getElementById('kw-logic').value=cfg.keywords_trigger.logic||'OR';(cfg.keywords_trigger.groups||[]).forEach(function(g){addKeywordGroup(g);});}
+  if(cfg.volume_trigger){document.getElementById('vol-enabled').checked=!!cfg.volume_trigger.enabled;document.getElementById('vol-metric').value=cfg.volume_trigger.metric||'MENTIONS';(cfg.volume_trigger.rules||[]).forEach(function(r){addVolumeRule(r);});}
+  if(cfg.sentiment_trigger){document.getElementById('sent-enabled').checked=!!cfg.sentiment_trigger.enabled;document.getElementById('sent-min-sample').value=cfg.sentiment_trigger.min_sample_size||30;(cfg.sentiment_trigger.rules||[]).forEach(function(r){addSentimentRule(r);});}
+  if(cfg.influencer_trigger){document.getElementById('inf-enabled').checked=!!cfg.influencer_trigger.enabled;document.getElementById('inf-logic').value=cfg.influencer_trigger.logic||'OR';(cfg.influencer_trigger.rules||[]).forEach(function(r){addInfluencerRule(r);});}
+}
+
+function addKeywordGroup(d){
+  var c=document.getElementById('kw-groups'),div=document.createElement('div');div.className='rule-card';
+  div.innerHTML='<button class="rule-remove" onclick="this.parentElement.remove()">X</button>'
+    +'<div class="form-row"><div class="form-group"><label>Name</label><input class="kg-name" value="'+esc(d&&d.name?d.name:'')+'"></div>'
+    +'<div class="form-group"><label>Weight</label><input type="number" class="kg-weight" min="1" value="'+(d&&d.weight?d.weight:1)+'"></div></div>'
+    +'<div class="form-group"><label>Keywords (one/line)</label><textarea class="kg-keywords" rows="2">'+esc(d&&d.keywords?d.keywords.join('\n'):'')+'</textarea></div>';
+  c.appendChild(div);
+}
+function addVolumeRule(d){
+  var c=document.getElementById('vol-rules'),div=document.createElement('div');div.className='rule-card';
+  div.innerHTML='<button class="rule-remove" onclick="this.parentElement.remove()">X</button>'
+    +'<div class="form-row"><div class="form-group"><label>Level</label><select class="vr-level"><option value="WARNING"'+(d&&d.level==='WARNING'?' selected':'')+'>WARNING</option><option value="CRITICAL"'+(d&&d.level==='CRITICAL'?' selected':'')+'>CRITICAL</option></select></div>'
+    +'<div class="form-group"><label>Threshold %</label><input type="number" class="vr-threshold" step="0.1" value="'+(d&&d.threshold_percent_growth?d.threshold_percent_growth:150)+'"></div></div>'
+    +'<div class="form-row"><div class="form-group"><label>Window (hrs)</label><input type="number" class="vr-window" min="1" value="'+(d&&d.comparison_window_hours?d.comparison_window_hours:24)+'"></div>'
+    +'<div class="form-group"><label>Baseline</label><select class="vr-baseline"><option value="PREVIOUS_PERIOD"'+(d&&d.baseline==='PREVIOUS_PERIOD'?' selected':'')+'>Previous</option><option value="AVERAGE_7D"'+(d&&d.baseline==='AVERAGE_7D'?' selected':'')+'>Avg 7D</option><option value="AVERAGE_30D"'+(d&&d.baseline==='AVERAGE_30D'?' selected':'')+'>Avg 30D</option></select></div></div>';
+  c.appendChild(div);
+}
+function addSentimentRule(d){
+  var c=document.getElementById('sent-rules'),div=document.createElement('div');div.className='rule-card';
+  div.innerHTML='<button class="rule-remove" onclick="this.parentElement.remove()">X</button>'
+    +'<div class="form-row"><div class="form-group"><label>Type</label><select class="sr-type"><option value="NEGATIVE_SPIKE"'+(d&&d.type==='NEGATIVE_SPIKE'?' selected':'')+'>Negative Spike</option><option value="ASPECT_NEGATIVE"'+(d&&d.type==='ASPECT_NEGATIVE'?' selected':'')+'>Aspect Negative</option></select></div>'
+    +'<div class="form-group"><label>Threshold %</label><input type="number" class="sr-threshold" step="0.1" value="'+(d&&d.threshold_percent?d.threshold_percent:'')+'"></div></div>'
+    +'<div class="form-row"><div class="form-group"><label>Critical Aspects (one/line)</label><textarea class="sr-aspects" rows="2">'+esc(d&&d.critical_aspects?d.critical_aspects.join('\n'):'')+'</textarea></div>'
+    +'<div class="form-group"><label>Neg Threshold %</label><input type="number" class="sr-neg-threshold" step="0.1" value="'+(d&&d.negative_threshold_percent?d.negative_threshold_percent:'')+'"></div></div>';
+  c.appendChild(div);
+}
+function addInfluencerRule(d){
+  var c=document.getElementById('inf-rules'),div=document.createElement('div');div.className='rule-card';
+  div.innerHTML='<button class="rule-remove" onclick="this.parentElement.remove()">X</button>'
+    +'<div class="form-row"><div class="form-group"><label>Type</label><select class="ir-type"><option value="HIGH_REACH"'+(d&&d.type==='HIGH_REACH'?' selected':'')+'>High Reach</option><option value="VIRAL_NEGATIVE"'+(d&&d.type==='VIRAL_NEGATIVE'?' selected':'')+'>Viral Negative</option></select></div>'
+    +'<div class="form-group"><label>Min Followers</label><input type="number" class="ir-followers" value="'+(d&&d.min_followers?d.min_followers:'')+'"></div></div>'
+    +'<div class="form-row"><div class="form-group"><label>Sentiment</label><select class="ir-sentiment"><option value="">Any</option><option value="NEGATIVE"'+(d&&d.required_sentiment==='NEGATIVE'?' selected':'')+'>Negative</option><option value="NEUTRAL"'+(d&&d.required_sentiment==='NEUTRAL'?' selected':'')+'>Neutral</option></select></div>'
+    +'<div class="form-group"><label>Min Shares</label><input type="number" class="ir-shares" value="'+(d&&d.min_shares?d.min_shares:'')+'"></div></div>'
+    +'<div class="form-row"><div class="form-group"><label>Min Comments</label><input type="number" class="ir-comments" value="'+(d&&d.min_comments?d.min_comments:'')+'"></div><div></div></div>';
+  c.appendChild(div);
+}
+
+function toggleTrigger(p){var b=document.getElementById(p+'-body'),a=document.getElementById(p+'-arrow');var o=b.classList.toggle('open');a.innerHTML=o?'&#9662;':'&#9656;';}
+
+function collectCrisisPayload(){
+  var p={};
+  if(document.getElementById('kw-enabled').checked){
+    var groups=[];document.querySelectorAll('#kw-groups .rule-card').forEach(function(c){
+      groups.push({name:c.querySelector('.kg-name').value.trim(),keywords:c.querySelector('.kg-keywords').value.split('\n').map(function(s){return s.trim();}).filter(Boolean),weight:parseInt(c.querySelector('.kg-weight').value)||1});
+    });p.keywords_trigger={enabled:true,logic:document.getElementById('kw-logic').value,groups:groups};
+  }
+  if(document.getElementById('vol-enabled').checked){
+    var rules=[];document.querySelectorAll('#vol-rules .rule-card').forEach(function(c){
+      rules.push({level:c.querySelector('.vr-level').value,threshold_percent_growth:parseFloat(c.querySelector('.vr-threshold').value)||0,comparison_window_hours:parseInt(c.querySelector('.vr-window').value)||24,baseline:c.querySelector('.vr-baseline').value});
+    });p.volume_trigger={enabled:true,metric:document.getElementById('vol-metric').value,rules:rules};
+  }
+  if(document.getElementById('sent-enabled').checked){
+    var rules2=[];document.querySelectorAll('#sent-rules .rule-card').forEach(function(c){
+      var r={type:c.querySelector('.sr-type').value};var t=parseFloat(c.querySelector('.sr-threshold').value);if(!isNaN(t))r.threshold_percent=t;
+      var a=c.querySelector('.sr-aspects').value.split('\n').map(function(s){return s.trim();}).filter(Boolean);if(a.length)r.critical_aspects=a;
+      var n=parseFloat(c.querySelector('.sr-neg-threshold').value);if(!isNaN(n))r.negative_threshold_percent=n;rules2.push(r);
+    });p.sentiment_trigger={enabled:true,min_sample_size:parseInt(document.getElementById('sent-min-sample').value)||30,rules:rules2};
+  }
+  if(document.getElementById('inf-enabled').checked){
+    var rules3=[];document.querySelectorAll('#inf-rules .rule-card').forEach(function(c){
+      var r={type:c.querySelector('.ir-type').value};var f=parseInt(c.querySelector('.ir-followers').value);if(!isNaN(f)&&f>0)r.min_followers=f;
+      var s=c.querySelector('.ir-sentiment').value;if(s)r.required_sentiment=s;
+      var sh=parseInt(c.querySelector('.ir-shares').value);if(!isNaN(sh)&&sh>0)r.min_shares=sh;
+      var cm=parseInt(c.querySelector('.ir-comments').value);if(!isNaN(cm)&&cm>0)r.min_comments=cm;rules3.push(r);
+    });p.influencer_trigger={enabled:true,logic:document.getElementById('inf-logic').value,rules:rules3};
+  }
+  return p;
+}
+
+async function saveCrisisConfig(){
+  var pid=S.selProject?S.selProject.id:null;if(!pid)return toast('Select a project','error');
+  var p=collectCrisisPayload();if(!Object.keys(p).length)return toast('Enable at least one trigger','error');
+  try{
+    var r=await authFetch(CFG.project+'/api/v1/projects/'+pid+'/crisis-config',{method:'PUT',body:p});
+    var b=await r.json();if(!r.ok)throw new Error(b.message||'Failed');
+    toast('Crisis config saved!','success');loadCrisisConfig();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+async function deleteCrisisConfig(){
+  var pid=S.selProject?S.selProject.id:null;if(!pid)return toast('Select a project','error');
+  if(!confirm('Delete crisis config?'))return;
+  try{
+    var r=await authFetch(CFG.project+'/api/v1/projects/'+pid+'/crisis-config',{method:'DELETE'});
+    if(!r.ok){var b=await r.json();throw new Error(b.message||'Failed');}
+    toast('Crisis config deleted','success');loadCrisisConfig();
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+// UTILITIES
+function esc(s){if(s==null)return'';var d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+function fmtD(s){if(!s)return'-';try{return new Date(s).toLocaleString('vi-VN',{dateStyle:'short',timeStyle:'short'});}catch(e){return s;}}
+function badge(s){
+  if(!s)return'<span class="badge badge-gray">-</span>';
+  var m={ACTIVE:'green',NORMAL:'green',SUCCESS:'green',READY:'green',CONFIRMED:'green',INACTIVE:'gray',PAUSED:'gray',SLEEP:'gray',PENDING:'gray',NOT_REQUIRED:'gray',DRAFT:'gray',ARCHIVED:'gray',COMPLETED:'blue',WARNING:'orange',RUNNING:'orange',ANALYZING:'orange',CONFIGURING:'orange',ONBOARDING:'orange',CRITICAL:'red',FAILED:'red',ERROR:'red',CANCELLED:'red'};
+  return'<span class="badge badge-'+(m[s]||'gray')+'">'+esc(s)+'</span>';
+}
+function toast(msg,type){if(!type)type='info';var el=document.createElement('div');el.className='toast toast-'+type;el.textContent=msg;document.getElementById('toast-container').appendChild(el);setTimeout(function(){el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(function(){el.remove();},300);},3000);}
+</script>
+</body>
+</html>

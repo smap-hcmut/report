@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMAP UI Test Console</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Manual UI Test</p>
+        <h1>SMAP UI Test Console</h1>
+      </div>
+      <div class="topbar-actions">
+        <div id="auth-pill" class="status-pill status-idle">Checking session</div>
+        <button id="login-btn" class="btn btn-primary" type="button">Login with Google</button>
+        <button id="logout-btn" class="btn btn-danger hidden" type="button">Logout</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="main-column">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Auth</h2>
+              <p class="panel-subtitle">Cookie-based login, logout, and redirect flow through identity-srv.</p>
+            </div>
+            <button id="refresh-auth-btn" class="btn btn-secondary" type="button">Refresh Auth</button>
+          </div>
+          <div class="panel-body auth-grid">
+            <div class="auth-card">
+              <h3>Current User</h3>
+              <pre id="user-info" class="detail-box">Not authenticated</pre>
+            </div>
+            <div class="auth-card">
+              <h3>Runtime Config</h3>
+              <pre id="runtime-config" class="detail-box"></pre>
+            </div>
+          </div>
+        </section>
+
+        <section id="workspace-lock" class="panel workspace-lock hidden">
+          <div class="panel-body">
+            <h2>Workspace Locked</h2>
+            <p>Login first to enable CRUD requests against project-srv and ingest-srv.</p>
+          </div>
+        </section>
+
+        <div id="workspace" class="workspace hidden">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Workspace Context</h2>
+                <p class="panel-subtitle">Selection cascades from campaign to project to datasource.</p>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div id="context-bar" class="context-bar">Campaigns</div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Campaigns</h2>
+                <p class="panel-subtitle">Full CRUD for project-srv campaigns.</p>
+              </div>
+              <div class="header-actions">
+                <button id="reset-campaign-btn" class="btn btn-secondary" type="button">Reset Form</button>
+                <button id="refresh-campaigns-btn" class="btn btn-secondary" type="button">Refresh</button>
+              </div>
+            </div>
+            <div class="panel-body split-section">
+              <form id="campaign-form" class="editor-card">
+                <input id="campaign-edit-id" type="hidden">
+                <div class="field-grid two-col">
+                  <label>
+                    <span>Name</span>
+                    <input id="campaign-name" type="text" required>
+                  </label>
+                  <label>
+                    <span>Status (update only)</span>
+                    <select id="campaign-status">
+                      <option value="">Keep current</option>
+                      <option value="ACTIVE">ACTIVE</option>
+                      <option value="INACTIVE">INACTIVE</option>
+                      <option value="ARCHIVED">ARCHIVED</option>
+                    </select>
+                  </label>
+                </div>
+                <label>
+                  <span>Description</span>
+                  <textarea id="campaign-description" rows="2"></textarea>
+                </label>
+                <div class="field-grid two-col">
+                  <label>
+                    <span>Start Date</span>
+                    <input id="campaign-start" type="datetime-local">
+                  </label>
+                  <label>
+                    <span>End Date</span>
+                    <input id="campaign-end" type="datetime-local">
+                  </label>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Save Campaign</button>
+                </div>
+              </form>
+              <div class="list-card">
+                <div id="campaign-list" class="table-wrap"></div>
+                <pre id="campaign-detail" class="detail-box">Select a campaign to inspect detail.</pre>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Projects</h2>
+                <p class="panel-subtitle">CRUD under the selected campaign.</p>
+              </div>
+              <div class="header-actions">
+                <button id="reset-project-btn" class="btn btn-secondary" type="button">Reset Form</button>
+                <button id="refresh-projects-btn" class="btn btn-secondary" type="button">Refresh</button>
+              </div>
+            </div>
+            <div class="panel-body split-section">
+              <form id="project-form" class="editor-card">
+                <input id="project-edit-id" type="hidden">
+                <div class="field-grid two-col">
+                  <label>
+                    <span>Name</span>
+                    <input id="project-name" type="text" required>
+                  </label>
+                  <label>
+                    <span>Brand</span>
+                    <input id="project-brand" type="text">
+                  </label>
+                </div>
+                <div class="field-grid two-col">
+                  <label>
+                    <span>Entity Type</span>
+                    <select id="project-entity-type" required>
+                      <option value="product">product</option>
+                      <option value="campaign">campaign</option>
+                      <option value="service">service</option>
+                      <option value="competitor">competitor</option>
+                      <option value="topic">topic</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Entity Name</span>
+                    <input id="project-entity-name" type="text" required>
+                  </label>
+                </div>
+                <label>
+                  <span>Description</span>
+                  <textarea id="project-description" rows="2"></textarea>
+                </label>
+                <label>
+                  <span>Status (update only)</span>
+                  <select id="project-status">
+                    <option value="">Keep current</option>
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="PAUSED">PAUSED</option>
+                    <option value="ARCHIVED">ARCHIVED</option>
+                  </select>
+                </label>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Save Project</button>
+                </div>
+              </form>
+              <div class="list-card">
+                <div id="project-list" class="table-wrap"></div>
+                <pre id="project-detail" class="detail-box">Select a project to inspect detail.</pre>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Crisis Config</h2>
+                <p class="panel-subtitle">Detail, update, and delete for the selected project.</p>
+              </div>
+              <div class="header-actions">
+                <button id="load-crisis-sample-btn" class="btn btn-secondary" type="button">Load Sample</button>
+                <button id="refresh-crisis-btn" class="btn btn-secondary" type="button">Refresh</button>
+                <button id="delete-crisis-btn" class="btn btn-danger" type="button">Delete</button>
+              </div>
+            </div>
+            <div class="panel-body split-section">
+              <form id="crisis-form" class="editor-card">
+                <label>
+                  <span>Crisis Config JSON</span>
+                  <textarea id="crisis-json" rows="18"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Save Crisis Config</button>
+                </div>
+              </form>
+              <div class="list-card">
+                <pre id="crisis-detail" class="detail-box">Select a project to inspect crisis config.</pre>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Datasources</h2>
+                <p class="panel-subtitle">CRUD under the selected project.</p>
+              </div>
+              <div class="header-actions">
+                <button id="reset-datasource-btn" class="btn btn-secondary" type="button">Reset Form</button>
+                <button id="refresh-datasources-btn" class="btn btn-secondary" type="button">Refresh</button>
+              </div>
+            </div>
+            <div class="panel-body split-section">
+              <form id="datasource-form" class="editor-card">
+                <input id="datasource-edit-id" type="hidden">
+                <div class="field-grid two-col">
+                  <label>
+                    <span>Name</span>
+                    <input id="datasource-name" type="text" required>
+                  </label>
+                  <label>
+                    <span>Source Type</span>
+                    <select id="datasource-source-type">
+                      <option value="TIKTOK">TIKTOK</option>
+                      <option value="FACEBOOK">FACEBOOK</option>
+                      <option value="YOUTUBE">YOUTUBE</option>
+                      <option value="FILE_UPLOAD">FILE_UPLOAD</option>
+                      <option value="WEBHOOK">WEBHOOK</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="field-grid three-col">
+                  <label>
+                    <span>Source Category</span>
+                    <select id="datasource-source-category">
+                      <option value="CRAWL">CRAWL</option>
+                      <option value="PASSIVE">PASSIVE</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Crawl Mode</span>
+                    <select id="datasource-crawl-mode">
+                      <option value="NORMAL">NORMAL</option>
+                      <option value="SLEEP">SLEEP</option>
+                      <option value="CRISIS">CRISIS</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Crawl Interval Minutes</span>
+                    <input id="datasource-crawl-interval" type="number" min="1" value="11">
+                  </label>
+                </div>
+                <label>
+                  <span>Description</span>
+                  <textarea id="datasource-description" rows="2"></textarea>
+                </label>
+                <label>
+                  <span>Config JSON</span>
+                  <textarea id="datasource-config" rows="4"></textarea>
+                </label>
+                <label>
+                  <span>Account Ref JSON</span>
+                  <textarea id="datasource-account-ref" rows="3"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Save Datasource</button>
+                </div>
+              </form>
+              <div class="list-card">
+                <div id="datasource-list" class="table-wrap"></div>
+                <pre id="datasource-detail" class="detail-box">Select a datasource to inspect detail.</pre>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Targets</h2>
+                <p class="panel-subtitle">CRUD under the selected datasource.</p>
+              </div>
+              <div class="header-actions">
+                <button id="reset-target-btn" class="btn btn-secondary" type="button">Reset Form</button>
+                <button id="refresh-targets-btn" class="btn btn-secondary" type="button">Refresh</button>
+              </div>
+            </div>
+            <div class="panel-body split-section">
+              <form id="target-form" class="editor-card">
+                <input id="target-edit-id" type="hidden">
+                <div class="field-grid three-col">
+                  <label>
+                    <span>Target Type</span>
+                    <select id="target-type">
+                      <option value="keywords">keywords</option>
+                      <option value="profiles">profiles</option>
+                      <option value="posts">posts</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Priority</span>
+                    <input id="target-priority" type="number" value="1">
+                  </label>
+                  <label>
+                    <span>Crawl Interval Minutes</span>
+                    <input id="target-crawl-interval" type="number" min="1" value="11">
+                  </label>
+                </div>
+                <label>
+                  <span>Label</span>
+                  <input id="target-label" type="text">
+                </label>
+                <label>
+                  <span>Values (one per line)</span>
+                  <textarea id="target-values" rows="6"></textarea>
+                </label>
+                <label>
+                  <span>Platform Meta JSON</span>
+                  <textarea id="target-platform-meta" rows="3"></textarea>
+                </label>
+                <label class="checkbox-field">
+                  <input id="target-is-active" type="checkbox" checked>
+                  <span>Target is active</span>
+                </label>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Save Target</button>
+                </div>
+              </form>
+              <div class="list-card">
+                <div id="target-list" class="table-wrap"></div>
+                <pre id="target-detail" class="detail-box">Select a target to inspect detail.</pre>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <aside class="side-column">
+        <section class="panel sticky-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Debug</h2>
+              <p class="panel-subtitle">Last request and response for manual verification.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <pre id="debug-output" class="detail-box">No requests yet.</pre>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div id="toast-stack" class="toast-stack"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

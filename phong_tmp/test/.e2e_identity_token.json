@@ -1,0 +1,16 @@
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmdxdW9jcGhvbmcxNzAzQGdtYWlsLmNvbSIsInJvbGUiOiJWSUVXRVIiLCJpc3MiOiJzbWFwLWF1dGgtc2VydmljZSIsInN1YiI6IjMzZmZjZmQ5LWY3ODItNDlhOS1hOGE2LTM1NjNiYzAyNzUwZCIsImF1ZCI6WyJzbWFwLWFwaSJdLCJleHAiOjE3NzMzMjU1NjUsImlhdCI6MTc3MzI5Njc2NSwianRpIjoiYWMxMjE3NzItYzZkNS00OTcxLWJjMTEtMGJhNGMzMWE4NzBiIn0.hLzlSFRDZaw6aRm7oUIWBi5Ac9ONz2LvFtekmGdVRHM",
+  "source": "json.data.token",
+  "saved_at": "2026-03-12T06:48:05.356442+00:00",
+  "expires_at_unix": 1773325565,
+  "expires_at": "2026-03-12T14:26:05+00:00",
+  "claims": {
+    "sub": "33ffcfd9-f782-49a9-a8a6-3563bc02750d",
+    "email": "dangquocphong1703@gmail.com",
+    "role": "VIEWER",
+    "iss": "smap-auth-service",
+    "aud": [
+      "smap-api"
+    ]
+  }
+}
