@@ -8,7 +8,7 @@ import socketserver
 from pathlib import Path
 
 
-PORT = 3001
+PORT = 3005
 ROOT = Path(__file__).resolve().parent
 
 

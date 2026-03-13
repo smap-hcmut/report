@@ -340,10 +340,200 @@
               </div>
             </div>
           </section>
+
+          <!-- ============================================================ -->
+          <!-- KNOWLEDGE — CHAT (RAG)                                        -->
+          <!-- ============================================================ -->
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Knowledge — Chat (RAG)</h2>
+                <p class="panel-subtitle">Multi-turn AI chat against the indexed knowledge base for the selected campaign.</p>
+              </div>
+              <div class="header-actions">
+                <button id="new-conversation-btn" class="btn btn-secondary" type="button">New Conversation</button>
+                <button id="load-suggestions-btn" class="btn btn-secondary" type="button">Suggestions</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div id="chat-msgs" class="chat-messages-box"></div>
+              <div id="chat-suggestions" class="chat-suggestions hidden"></div>
+              <form id="chat-form" class="chat-input-row">
+                <input id="chat-input" type="text" placeholder="Ask about your campaign data…" autocomplete="off">
+                <button class="btn btn-primary" type="submit">Send</button>
+              </form>
+            </div>
+          </section>
+
+          <!-- ============================================================ -->
+          <!-- KNOWLEDGE — SEARCH                                            -->
+          <!-- ============================================================ -->
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Knowledge — Search</h2>
+                <p class="panel-subtitle">Semantic search across indexed posts for the selected campaign.</p>
+              </div>
+            </div>
+            <div class="panel-body split-section">
+              <form id="search-form" class="editor-card">
+                <label>
+                  <span>Query</span>
+                  <input id="search-query" type="text" placeholder="e.g. pin sụt nhanh" required>
+                </label>
+                <div class="field-grid two-col">
+                  <label>
+                    <span>Sentiment Filter</span>
+                    <select id="search-sentiment">
+                      <option value="">Any</option>
+                      <option value="positive">Positive</option>
+                      <option value="negative">Negative</option>
+                      <option value="neutral">Neutral</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Platform Filter</span>
+                    <select id="search-platform">
+                      <option value="">Any</option>
+                      <option value="tiktok">TikTok</option>
+                      <option value="facebook">Facebook</option>
+                      <option value="youtube">YouTube</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="field-grid two-col">
+                  <label>
+                    <span>Date From</span>
+                    <input id="search-date-from" type="date">
+                  </label>
+                  <label>
+                    <span>Date To</span>
+                    <input id="search-date-to" type="date">
+                  </label>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+              </form>
+              <div class="list-card">
+                <pre id="search-result" class="detail-box">Search results will appear here.</pre>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============================================================ -->
+          <!-- KNOWLEDGE — AI REPORTS                                        -->
+          <!-- ============================================================ -->
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Knowledge — AI Reports</h2>
+                <p class="panel-subtitle">Generate an AI report (Markdown) for the selected campaign.</p>
+              </div>
+              <div class="header-actions">
+                <button id="refresh-report-btn" class="btn btn-secondary" type="button">Refresh Status</button>
+              </div>
+            </div>
+            <div class="panel-body split-section">
+              <form id="report-form" class="editor-card">
+                <label>
+                  <span>Report Type</span>
+                  <select id="report-type">
+                    <option value="SUMMARY">SUMMARY</option>
+                    <option value="COMPARISON">COMPARISON</option>
+                    <option value="TREND">TREND</option>
+                    <option value="ASPECT_DEEP_DIVE">ASPECT_DEEP_DIVE</option>
+                  </select>
+                </label>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Generate Report</button>
+                </div>
+                <div id="report-status-row" class="hidden">
+                  <span class="muted">Report ID: </span><span id="report-id-display" class="muted"></span>
+                  <br>
+                  <span class="muted">Status: </span><span id="report-status-display" class="muted">—</span>
+                </div>
+              </form>
+              <div class="list-card">
+                <pre id="report-detail" class="detail-box">Generate a report to see details here.</pre>
+                <div id="report-download-row" class="hidden form-actions">
+                  <a id="report-download-link" href="#" target="_blank" class="btn btn-primary">Download Markdown</a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============================================================ -->
+          <!-- SCRAPER — TASK SUBMISSION                                      -->
+          <!-- ============================================================ -->
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Scraper — Task Submission</h2>
+                <p class="panel-subtitle">Submit a scraping task (TikTok / Facebook / YouTube) and inspect results.</p>
+              </div>
+              <div class="header-actions">
+                <button id="refresh-scraper-tasks-btn" class="btn btn-secondary" type="button">List Tasks</button>
+              </div>
+            </div>
+            <div class="panel-body split-section">
+              <form id="scraper-form" class="editor-card">
+                <label>
+                  <span>Platform</span>
+                  <select id="scraper-platform">
+                    <option value="tiktok">TikTok</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="youtube">YouTube</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Action</span>
+                  <input id="scraper-action" type="text" value="get_post" placeholder="e.g. get_post">
+                </label>
+                <label>
+                  <span>Params JSON</span>
+                  <textarea id="scraper-params" rows="4">{"url": "https://www.tiktok.com/@user/video/123"}</textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Submit Task</button>
+                </div>
+                <div id="scraper-task-id-row" class="hidden">
+                  <span class="muted">Task ID: </span><span id="scraper-task-id-display" class="muted"></span>
+                  <br>
+                  <button id="fetch-scraper-result-btn" class="btn btn-secondary" type="button" style="margin-top:8px;">Fetch Result</button>
+                </div>
+              </form>
+              <div class="list-card">
+                <pre id="scraper-result" class="detail-box">Submit a task to inspect result.</pre>
+              </div>
+            </div>
+          </section>
+
         </div>
       </section>
 
       <aside class="side-column">
+        <!-- WebSocket Status -->
+        <section class="panel" style="margin-bottom:20px;">
+          <div class="panel-header">
+            <div>
+              <h2>Notifications</h2>
+              <p class="panel-subtitle">Real-time alerts via WebSocket.</p>
+            </div>
+            <div id="ws-pill" class="status-pill status-idle">Disconnected</div>
+          </div>
+          <div class="panel-body">
+            <div id="notification-feed" class="notification-feed">
+              <div class="muted">Connect to start receiving alerts.</div>
+            </div>
+            <div class="form-actions" style="margin-top:12px;">
+              <button id="ws-connect-btn" class="btn btn-primary" type="button">Connect WS</button>
+              <button id="ws-disconnect-btn" class="btn btn-danger hidden" type="button">Disconnect</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Debug Panel (existing, moved to side) -->
         <section class="panel sticky-panel">
           <div class="panel-header">
             <div>

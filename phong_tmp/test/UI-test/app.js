@@ -2,9 +2,12 @@
   "use strict";
 
   const CFG = {
-    identity: "http://localhost:8082",
-    project: "http://localhost:8081/api/v1",
-    ingest: "http://localhost:8080/api/v1",
+    identity: "https://smap-api.tantai.dev/identity",
+    project: "https://smap-api.tantai.dev/project/api/v1",
+    ingest: "https://smap-api.tantai.dev/ingest/api/v1",
+    knowledge: "https://smap-api.tantai.dev/knowledge/api/v1",
+    scraper: "https://smap-api.tantai.dev/scraper/api/v1",
+    notificationWs: "wss://smap-api.tantai.dev/notification/ws",
   };
 
   const CRISIS_SAMPLE = {
@@ -47,6 +50,18 @@
     targets: [],
     selectedTargetId: null,
     selectedTarget: null,
+    // Knowledge
+    conversationId: null,
+    chatMessages: [],
+    // Report
+    currentReportId: null,
+    reportPollTimer: null,
+    // Scraper
+    lastScraperTaskId: null,
+    // WebSocket
+    ws: null,
+    wsReconnectAttempts: 0,
+    wsReconnectTimer: null,
   };
 
   const el = {};
@@ -120,6 +135,46 @@
       "target-detail",
       "debug-output",
       "toast-stack",
+      // Knowledge Chat
+      "chat-form",
+      "chat-input",
+      "chat-msgs",
+      "chat-suggestions",
+      "new-conversation-btn",
+      "load-suggestions-btn",
+      // Knowledge Search
+      "search-form",
+      "search-query",
+      "search-sentiment",
+      "search-platform",
+      "search-date-from",
+      "search-date-to",
+      "search-result",
+      // Knowledge Reports
+      "report-form",
+      "report-type",
+      "report-status-row",
+      "report-id-display",
+      "report-status-display",
+      "report-detail",
+      "report-download-row",
+      "report-download-link",
+      "refresh-report-btn",
+      // Scraper
+      "scraper-form",
+      "scraper-platform",
+      "scraper-action",
+      "scraper-params",
+      "scraper-task-id-row",
+      "scraper-task-id-display",
+      "scraper-result",
+      "refresh-scraper-tasks-btn",
+      "fetch-scraper-result-btn",
+      // WebSocket / Notifications
+      "ws-pill",
+      "ws-connect-btn",
+      "ws-disconnect-btn",
+      "notification-feed",
     ];
 
     ids.forEach(function (id) {
@@ -166,6 +221,27 @@
     bindAsync(el["target-form"], "submit", saveTarget);
     el["reset-target-btn"].addEventListener("click", resetTargetForm);
     bindAsync(el["refresh-targets-btn"], "click", loadTargets);
+
+    // Knowledge Chat
+    bindAsync(el["chat-form"], "submit", sendChat);
+    el["new-conversation-btn"].addEventListener("click", newConversation);
+    bindAsync(el["load-suggestions-btn"], "click", loadSuggestions);
+
+    // Knowledge Search
+    bindAsync(el["search-form"], "submit", doSearch);
+
+    // Knowledge Reports
+    bindAsync(el["report-form"], "submit", generateReport);
+    bindAsync(el["refresh-report-btn"], "click", refreshReportStatus);
+
+    // Scraper
+    bindAsync(el["scraper-form"], "submit", submitScraperTask);
+    bindAsync(el["refresh-scraper-tasks-btn"], "click", listScraperTasks);
+    bindAsync(el["fetch-scraper-result-btn"], "click", fetchScraperResult);
+
+    // WebSocket
+    el["ws-connect-btn"].addEventListener("click", wsConnect);
+    el["ws-disconnect-btn"].addEventListener("click", wsDisconnect);
   }
 
   function bindAsync(node, eventName, handler) {
@@ -181,6 +257,9 @@
         identity: CFG.identity,
         project: CFG.project,
         ingest: CFG.ingest,
+        knowledge: CFG.knowledge,
+        scraper: CFG.scraper,
+        notification_ws: CFG.notificationWs,
         ui_origin: window.location.origin,
         redirect_target: redirectTarget,
       },
@@ -1210,6 +1289,331 @@
     }
     resetTargetForm();
     await loadTargets();
+  }
+
+  // ================================================================
+  // KNOWLEDGE — CHAT (RAG)
+  // ================================================================
+
+  function newConversation() {
+    STATE.conversationId = null;
+    STATE.chatMessages = [];
+    el["chat-msgs"].innerHTML = '';
+    el["chat-suggestions"].classList.add("hidden");
+    el["chat-input"].value = '';
+    showToast("New conversation started", "info");
+  }
+
+  function appendChatMessage(role, content, citations) {
+    const div = document.createElement("div");
+    div.className = "chat-msg chat-msg-" + role;
+    const head = document.createElement("div");
+    head.className = "chat-msg-role";
+    head.textContent = role === "user" ? "You" : "AI";
+    div.appendChild(head);
+    const text = document.createElement("div");
+    text.className = "chat-msg-text";
+    text.textContent = content;
+    div.appendChild(text);
+    if (citations && citations.length) {
+      const cit = document.createElement("div");
+      cit.className = "chat-citations muted";
+      cit.textContent = "Sources: " + citations.map(function(c) { return c.content ? c.content.slice(0, 60) + "…" : c.id; }).join(" | ");
+      div.appendChild(cit);
+    }
+    el["chat-msgs"].appendChild(div);
+    el["chat-msgs"].scrollTop = el["chat-msgs"].scrollHeight;
+  }
+
+  async function sendChat(event) {
+    event.preventDefault();
+    const msg = el["chat-input"].value.trim();
+    if (!msg) { return; }
+    if (!STATE.selectedCampaignId) {
+      showToast("Select a campaign first", "error");
+      return;
+    }
+    appendChatMessage("user", msg, null);
+    el["chat-input"].value = "";
+    el["chat-input"].disabled = true;
+    const body = {
+      campaign_id: STATE.selectedCampaignId,
+      message: msg,
+    };
+    if (STATE.conversationId) {
+      body.conversation_id = STATE.conversationId;
+    }
+    try {
+      const result = await request(CFG.knowledge, "/chat", { method: "POST", body: body });
+      const data = result.data || {};
+      STATE.conversationId = data.conversation_id || STATE.conversationId;
+      appendChatMessage("assistant", data.message || "", data.citations || []);
+      if (data.suggestions && data.suggestions.length) {
+        renderSuggestions(data.suggestions);
+      }
+    } catch (error) {
+      appendChatMessage("assistant", "⚠ " + error.message, null);
+    } finally {
+      el["chat-input"].disabled = false;
+      el["chat-input"].focus();
+    }
+  }
+
+  async function loadSuggestions() {
+    if (!STATE.selectedCampaignId) {
+      showToast("Select a campaign first", "error");
+      return;
+    }
+    const result = await request(CFG.knowledge, "/campaigns/" + STATE.selectedCampaignId + "/suggestions");
+    const sugs = (result.data && result.data.suggestions) || [];
+    renderSuggestions(sugs);
+  }
+
+  function renderSuggestions(list) {
+    el["chat-suggestions"].innerHTML = "";
+    if (!list.length) {
+      el["chat-suggestions"].classList.add("hidden");
+      return;
+    }
+    list.slice(0, 5).forEach(function(s) {
+      const btn = document.createElement("button");
+      btn.className = "suggestion-chip";
+      btn.type = "button";
+      btn.textContent = typeof s === "string" ? s : s.question || s.text || JSON.stringify(s);
+      btn.addEventListener("click", function() {
+        el["chat-input"].value = btn.textContent;
+        el["chat-input"].focus();
+      });
+      el["chat-suggestions"].appendChild(btn);
+    });
+    el["chat-suggestions"].classList.remove("hidden");
+  }
+
+  // ================================================================
+  // KNOWLEDGE — SEARCH
+  // ================================================================
+
+  async function doSearch(event) {
+    event.preventDefault();
+    if (!STATE.selectedCampaignId) {
+      showToast("Select a campaign first", "error");
+      return;
+    }
+    const body = {
+      campaign_id: STATE.selectedCampaignId,
+      query: el["search-query"].value.trim(),
+    };
+    const filters = {};
+    if (el["search-sentiment"].value) filters.sentiment = el["search-sentiment"].value;
+    if (el["search-platform"].value) filters.platform = el["search-platform"].value;
+    if (el["search-date-from"].value) filters.date_from = new Date(el["search-date-from"].value).toISOString();
+    if (el["search-date-to"].value) filters.date_to = new Date(el["search-date-to"].value).toISOString();
+    if (Object.keys(filters).length) body.filters = filters;
+    const result = await request(CFG.knowledge, "/search", { method: "POST", body: body });
+    showDetail("search-result", result.data || result.body);
+    showToast("Search complete", "success");
+  }
+
+  // ================================================================
+  // KNOWLEDGE — AI REPORTS
+  // ================================================================
+
+  async function generateReport(event) {
+    event.preventDefault();
+    if (!STATE.selectedCampaignId) {
+      showToast("Select a campaign first", "error");
+      return;
+    }
+    const body = {
+      campaign_id: STATE.selectedCampaignId,
+      report_type: el["report-type"].value,
+    };
+    const result = await request(CFG.knowledge, "/reports/generate", { method: "POST", body: body });
+    const data = result.data || {};
+    STATE.currentReportId = data.report_id || data.id;
+    el["report-id-display"].textContent = STATE.currentReportId || "?";
+    el["report-status-display"].textContent = data.status || "PROCESSING";
+    el["report-status-row"].classList.remove("hidden");
+    el["report-download-row"].classList.add("hidden");
+    showDetail("report-detail", data);
+    showToast("Report generation triggered", "success");
+    if (STATE.currentReportId) {
+      startReportPolling();
+    }
+  }
+
+  function startReportPolling() {
+    if (STATE.reportPollTimer) clearInterval(STATE.reportPollTimer);
+    STATE.reportPollTimer = setInterval(function() {
+      refreshReportStatus().catch(handleUiError);
+    }, 3000);
+  }
+
+  async function refreshReportStatus() {
+    if (!STATE.currentReportId) {
+      showToast("No active report", "error");
+      return;
+    }
+    const result = await request(CFG.knowledge, "/reports/" + STATE.currentReportId);
+    const data = result.data || {};
+    const status = data.status || "?";
+    el["report-status-display"].textContent = status;
+    el["report-status-row"].classList.remove("hidden");
+    showDetail("report-detail", data);
+    if (status === "COMPLETED") {
+      if (STATE.reportPollTimer) { clearInterval(STATE.reportPollTimer); STATE.reportPollTimer = null; }
+      // fetch download link
+      try {
+        const dlResult = await request(CFG.knowledge, "/reports/" + STATE.currentReportId + "/download");
+        const url = (dlResult.data && dlResult.data.url) || (dlResult.body && dlResult.body.url) || "#";
+        el["report-download-link"].href = url;
+        el["report-download-row"].classList.remove("hidden");
+        showToast("Report ready — download available", "success");
+      } catch(e) { /* ignore */ }
+    } else if (status === "FAILED") {
+      if (STATE.reportPollTimer) { clearInterval(STATE.reportPollTimer); STATE.reportPollTimer = null; }
+      showToast("Report generation failed", "error");
+    }
+  }
+
+  // ================================================================
+  // SCRAPER — TASK SUBMISSION
+  // ================================================================
+
+  async function submitScraperTask(event) {
+    event.preventDefault();
+    const platform = el["scraper-platform"].value;
+    const action = el["scraper-action"].value.trim();
+    let params;
+    try {
+      params = JSON.parse(el["scraper-params"].value);
+    } catch(e) {
+      showToast("Params JSON invalid", "error");
+      return;
+    }
+    const body = { action: action, params: params };
+    const result = await request(CFG.scraper, "/tasks/" + platform, { method: "POST", body: body });
+    const data = result.data || result.body || {};
+    STATE.lastScraperTaskId = data.task_id || data.id;
+    if (STATE.lastScraperTaskId) {
+      el["scraper-task-id-display"].textContent = STATE.lastScraperTaskId;
+      el["scraper-task-id-row"].classList.remove("hidden");
+    }
+    showDetail("scraper-result", data);
+    showToast("Scraper task submitted", "success");
+  }
+
+  async function fetchScraperResult() {
+    if (!STATE.lastScraperTaskId) {
+      showToast("No task ID available", "error");
+      return;
+    }
+    const result = await request(CFG.scraper, "/tasks/" + STATE.lastScraperTaskId + "/result");
+    showDetail("scraper-result", result.data || result.body);
+    showToast("Result fetched", "success");
+  }
+
+  async function listScraperTasks() {
+    const result = await request(CFG.scraper, "/tasks");
+    showDetail("scraper-result", result.data || result.body);
+    showToast("Tasks listed", "success");
+  }
+
+  // ================================================================
+  // NOTIFICATION — WEBSOCKET
+  // ================================================================
+
+  function wsConnect() {
+    if (STATE.ws && STATE.ws.readyState === WebSocket.OPEN) {
+      showToast("Already connected", "info");
+      return;
+    }
+    if (STATE.wsReconnectTimer) { clearTimeout(STATE.wsReconnectTimer); STATE.wsReconnectTimer = null; }
+    setWsPill("Connecting…", "idle");
+    try {
+      STATE.ws = new WebSocket(CFG.notificationWs);
+    } catch (e) {
+      setWsPill("Error", "error");
+      showToast("WebSocket error: " + e.message, "error");
+      return;
+    }
+    STATE.ws.addEventListener("open", function() {
+      STATE.wsReconnectAttempts = 0;
+      setWsPill("Connected", "ok");
+      el["ws-connect-btn"].classList.add("hidden");
+      el["ws-disconnect-btn"].classList.remove("hidden");
+      appendNotification("system", "WebSocket connected");
+      showToast("WebSocket connected", "success");
+    });
+    STATE.ws.addEventListener("message", function(event) {
+      var data;
+      try { data = JSON.parse(event.data); } catch(e) { data = { raw: event.data }; }
+      appendNotification(data.type || "message", data.message || event.data, data);
+    });
+    STATE.ws.addEventListener("close", function(event) {
+      setWsPill("Disconnected", "idle");
+      el["ws-connect-btn"].classList.remove("hidden");
+      el["ws-disconnect-btn"].classList.add("hidden");
+      appendNotification("system", "WebSocket disconnected (code " + event.code + ")");
+      if (!event.wasClean) {
+        scheduleWsReconnect();
+      }
+    });
+    STATE.ws.addEventListener("error", function() {
+      setWsPill("Error", "error");
+      appendNotification("error", "WebSocket error");
+    });
+  }
+
+  function wsDisconnect() {
+    if (STATE.wsReconnectTimer) { clearTimeout(STATE.wsReconnectTimer); STATE.wsReconnectTimer = null; }
+    STATE.wsReconnectAttempts = 0;
+    if (STATE.ws) {
+      STATE.ws.close(1000, "Manual disconnect");
+      STATE.ws = null;
+    }
+    setWsPill("Disconnected", "idle");
+    el["ws-connect-btn"].classList.remove("hidden");
+    el["ws-disconnect-btn"].classList.add("hidden");
+    showToast("WebSocket disconnected", "info");
+  }
+
+  function scheduleWsReconnect() {
+    STATE.wsReconnectAttempts++;
+    if (STATE.wsReconnectAttempts > 6) return;
+    const delay = Math.min(1000 * Math.pow(2, STATE.wsReconnectAttempts - 1), 30000);
+    setWsPill("Reconnecting in " + (delay / 1000).toFixed(0) + "s…", "idle");
+    STATE.wsReconnectTimer = setTimeout(function() {
+      if (STATE.user) wsConnect();
+    }, delay);
+  }
+
+  function setWsPill(msg, kind) {
+    el["ws-pill"].textContent = msg;
+    el["ws-pill"].className = "status-pill status-" + kind;
+  }
+
+  function appendNotification(type, message, data) {
+    var feed = el["notification-feed"];
+    // Remove the placeholder if present
+    var placeholder = feed.querySelector(".muted");
+    if (placeholder) placeholder.remove();
+    var item = document.createElement("div");
+    item.className = "noti-item noti-" + (type || "message");
+    var ts = new Date().toLocaleTimeString();
+    item.innerHTML =
+      '<span class="noti-ts">' + escapeHtml(ts) + '</span>' +
+      '<span class="noti-type">' + escapeHtml(type || "msg") + '</span>' +
+      '<span class="noti-msg">' + escapeHtml(message || "") + '</span>';
+    if (data && typeof data === "object") {
+      var detail = document.createElement("pre");
+      detail.className = "noti-data";
+      detail.textContent = JSON.stringify(data, null, 2);
+      item.appendChild(detail);
+    }
+    feed.insertBefore(item, feed.firstChild);
+    // Cap at 50 items
+    while (feed.children.length > 50) feed.removeChild(feed.lastChild);
   }
 
   window.App = {

@@ -452,3 +452,160 @@ tbody tr.selected {
     width: 100%;
   }
 }
+
+/* ================================================================
+   KNOWLEDGE CHAT
+================================================================ */
+
+.chat-messages-box {
+  min-height: 220px;
+  max-height: 420px;
+  overflow-y: auto;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(64, 91, 131, 0.55);
+  background: rgba(7, 12, 22, 0.94);
+  margin-bottom: 12px;
+}
+
+.chat-msg {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  max-width: 90%;
+}
+
+.chat-msg-user {
+  background: rgba(18, 181, 166, 0.14);
+  border: 1px solid rgba(18, 181, 166, 0.3);
+  justify-self: end;
+}
+
+.chat-msg-assistant {
+  background: rgba(64, 91, 131, 0.22);
+  border: 1px solid rgba(64, 91, 131, 0.45);
+  justify-self: start;
+}
+
+.chat-msg-role {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.chat-msg-user .chat-msg-role { color: var(--accent); }
+
+.chat-msg-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.chat-citations {
+  margin-top: 6px;
+  font-size: 11px;
+  border-top: 1px solid rgba(64, 91, 131, 0.35);
+  padding-top: 6px;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.chat-input-row input {
+  flex: 1;
+}
+
+.chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.suggestion-chip {
+  border: 1px solid rgba(18, 181, 166, 0.45);
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: rgba(18, 181, 166, 0.1);
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.suggestion-chip:hover {
+  background: rgba(18, 181, 166, 0.22);
+  transform: translateY(-1px);
+}
+
+/* ================================================================
+   NOTIFICATION FEED
+================================================================ */
+
+.notification-feed {
+  display: grid;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.noti-item {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 8px;
+  align-items: baseline;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border-left: 3px solid var(--border);
+  background: rgba(12, 20, 35, 0.78);
+  font-size: 12px;
+}
+
+.noti-item.noti-crisis, .noti-item.noti-alert {
+  border-left-color: var(--danger);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.noti-item.noti-system {
+  border-left-color: var(--muted);
+}
+
+.noti-ts {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.noti-type {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--accent-2);
+  white-space: nowrap;
+}
+
+.noti-msg {
+  word-break: break-word;
+}
+
+.noti-data {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(7,12,22,0.7);
+  border-radius: 8px;
+  padding: 6px 8px;
+  max-height: 80px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
