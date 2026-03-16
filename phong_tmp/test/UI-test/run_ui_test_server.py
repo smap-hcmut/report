@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Serve the SMAP UI test page on localhost:3001."""
+"""Serve the SMAP UI test page on localhost:3005."""
 
 from __future__ import annotations
 

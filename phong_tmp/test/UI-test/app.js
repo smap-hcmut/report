@@ -2,12 +2,12 @@
   "use strict";
 
   const CFG = {
-    identity: "https://smap-api.tantai.dev/identity",
+    identity: "https://smap-api.tantai.dev/identity/api/v1",
     project: "https://smap-api.tantai.dev/project/api/v1",
     ingest: "https://smap-api.tantai.dev/ingest/api/v1",
-    knowledge: "https://smap-api.tantai.dev/knowledge/api/v1",
+    knowledge: "https://smap-api.tantai.dev/knowledge/api/v1/knowledge",
     scraper: "https://smap-api.tantai.dev/scraper/api/v1",
-    notificationWs: "wss://smap-api.tantai.dev/notification/ws",
+    notificationWs: "wss://smap-api.tantai.dev/notification/api/v1/ws",
   };
 
   const CRISIS_SAMPLE = {
@@ -262,6 +262,13 @@
         notification_ws: CFG.notificationWs,
         ui_origin: window.location.origin,
         redirect_target: redirectTarget,
+        swagger_docs: {
+          identity: "https://smap-api.tantai.dev/identity/swagger/index.html",
+          project: "https://smap-api.tantai.dev/project/swagger/index.html",
+          ingest: "https://smap-api.tantai.dev/ingest/swagger/index.html",
+          knowledge: "https://smap-api.tantai.dev/knowledge/swagger/index.html",
+          scraper: "https://smap-api.tantai.dev/scraper/docs",
+        },
       },
       null,
       2
