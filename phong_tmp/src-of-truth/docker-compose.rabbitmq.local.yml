@@ -1,0 +1,24 @@
+services:
+  rabbitmq_local:
+    image: rabbitmq:3.13-management-alpine
+    container_name: smap-rabbitmq-local
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: "21042004"
+      RABBITMQ_DEFAULT_VHOST: /
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit disk_free_limit 50000000 -rabbit vm_memory_high_watermark 0.4"
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - smap_rabbitmq_local_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  smap_rabbitmq_local_data:
+    driver: local
