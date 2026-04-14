@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="980" viewBox="0 0 1700 980">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #475569; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; fill: #334155; }
+      .meta { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 700; fill: #475569; }
+      .boundary { fill: #f8fafc; stroke: #94a3b8; stroke-width: 2.5; stroke-dasharray: 10 8; }
+      .node { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2.5; }
+      .store { fill: #ecfdf5; stroke: #16a34a; stroke-width: 2.5; }
+      .ext { fill: #fef2f2; stroke: #dc2626; stroke-width: 2.5; }
+      .edge { stroke: #64748b; stroke-width: 2.3; fill: none; marker-end: url(#arrow); }
+      .tag { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.3; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="58" class="title">Figure 5.4. analysis-srv Component View</text>
+  <text x="48" y="88" class="subtitle">Level 3 view of ingestion, pipeline execution, persistence, and downstream publishing inside the analytics service.</text>
+
+  <rect x="50" y="130" width="1600" height="760" rx="22" class="boundary"/>
+  <text x="80" y="164" class="label">analysis-srv [Python + aiokafka + SQLAlchemy]</text>
+
+  <rect x="120" y="250" width="300" height="140" rx="18" class="node"/>
+  <text x="270" y="298" text-anchor="middle" class="label">Kafka Consumer</text>
+  <text x="270" y="330" text-anchor="middle" class="body">consumes `smap.collector.output`</text>
+  <text x="270" y="358" text-anchor="middle" class="meta">aiokafka consumer group</text>
+
+  <rect x="510" y="250" width="320" height="140" rx="18" class="node"/>
+  <text x="670" y="298" text-anchor="middle" class="label">UAP Adapter</text>
+  <text x="670" y="330" text-anchor="middle" class="body">parses ingest payload into</text>
+  <text x="670" y="356" text-anchor="middle" class="body">canonical internal batch objects</text>
+
+  <rect x="920" y="220" width="420" height="180" rx="18" class="node"/>
+  <text x="1130" y="272" text-anchor="middle" class="label">Analytics Pipeline</text>
+  <text x="1130" y="304" text-anchor="middle" class="body">normalization, dedup, spam, threads</text>
+  <text x="1130" y="330" text-anchor="middle" class="body">NLP enrichment, enrichment, review</text>
+  <text x="1130" y="356" text-anchor="middle" class="body">reporting and crisis-related stages</text>
+  <text x="1130" y="388" text-anchor="middle" class="meta">PipelineConfig controls stage enablement</text>
+
+  <rect x="420" y="510" width="260" height="130" rx="18" class="store"/>
+  <text x="550" y="556" text-anchor="middle" class="label">PostgreSQL</text>
+  <text x="550" y="586" text-anchor="middle" class="body">`post_insight`, run manifest,</text>
+  <text x="550" y="612" text-anchor="middle" class="body">outbox and analytics persistence</text>
+
+  <rect x="760" y="510" width="280" height="130" rx="18" class="store"/>
+  <text x="900" y="556" text-anchor="middle" class="label">Redis / MinIO</text>
+  <text x="900" y="586" text-anchor="middle" class="body">cache, health checks, raw lookup,</text>
+  <text x="900" y="612" text-anchor="middle" class="body">and batch replay support</text>
+
+  <rect x="1120" y="510" width="230" height="130" rx="18" class="node"/>
+  <text x="1235" y="556" text-anchor="middle" class="label">Signal Evaluator</text>
+  <text x="1235" y="586" text-anchor="middle" class="body">computes crisis-related</text>
+  <text x="1235" y="612" text-anchor="middle" class="body">scores and escalation hints</text>
+
+  <rect x="1410" y="510" width="190" height="130" rx="18" class="ext"/>
+  <text x="1505" y="556" text-anchor="middle" class="label">knowledge-srv</text>
+  <text x="1505" y="586" text-anchor="middle" class="body">consumes published outputs</text>
+  <text x="1505" y="612" text-anchor="middle" class="body">for indexing and RAG</text>
+
+  <path d="M420 320 L510 320" class="edge"/>
+  <path d="M830 320 L920 320" class="edge"/>
+  <path d="M1050 400 L620 510" class="edge"/>
+  <path d="M1130 400 L900 510" class="edge"/>
+  <path d="M1220 400 L1235 510" class="edge"/>
+  <path d="M1340 330 L1410 330 L1410 560" class="edge"/>
+
+  <rect x="440" y="292" width="80" height="22" rx="6" class="tag"/>
+  <text x="480" y="307" text-anchor="middle" class="body">parse</text>
+  <rect x="850" y="292" width="80" height="22" rx="6" class="tag"/>
+  <text x="890" y="307" text-anchor="middle" class="body">adapt</text>
+  <rect x="690" y="455" width="150" height="22" rx="6" class="tag"/>
+  <text x="765" y="470" text-anchor="middle" class="body">store structured insights</text>
+  <rect x="955" y="455" width="135" height="22" rx="6" class="tag"/>
+  <text x="1022" y="470" text-anchor="middle" class="body">persist runtime results</text>
+  <rect x="1275" y="455" width="110" height="22" rx="6" class="tag"/>
+  <text x="1330" y="470" text-anchor="middle" class="body">derive signals</text>
+  <rect x="1395" y="302" width="120" height="22" rx="6" class="tag"/>
+  <text x="1455" y="317" text-anchor="middle" class="body">publish topics</text>
+</svg>

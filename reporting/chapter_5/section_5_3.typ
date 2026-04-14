@@ -932,7 +932,7 @@ WebSocket Service áp dụng các design patterns sau:
 
 - Graceful Shutdown: Close connections gracefully, unsubscribe từ topics, và wait for in-flight messages. Không mất messages trong quá trình shutdown.
 
-==== 5.3.5.7 Dependencies 
+==== 5.3.5.7 Dependencies
 
 Internal Dependencies:
 
@@ -1030,7 +1030,7 @@ Luồng này được kích hoạt khi project đang executing theo UC-06:
 
 #context (
   align(center)[
-    #image("../images/data-flow/progress.png", width: 90%)
+    // #image("../images/data-flow/progress.png", width: 90%)
   ]
 )
 #context (align(center)[_Hình #image_counter.display(): Luồng Real-time Progress Updates Flow_])

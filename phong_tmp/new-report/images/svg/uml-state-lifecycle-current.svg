@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1880" height="980" viewBox="0 0 1880 980">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #475569; }
+      .section { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #334155; }
+      .edge { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .state { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2.5; }
+      .good { fill: #ecfdf5; stroke: #16a34a; stroke-width: 2.5; }
+      .warn { fill: #fff7ed; stroke: #f97316; stroke-width: 2.5; }
+      .bad { fill: #fef2f2; stroke: #dc2626; stroke-width: 2.5; }
+      .boundary { fill: #f8fafc; stroke: #94a3b8; stroke-width: 2.5; stroke-dasharray: 10 8; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="58" class="title">Figure 5.9. UML State Model of Key Lifecycles</text>
+  <text x="48" y="88" class="subtitle">Current-state project lifecycle and business crisis status shown as separate, readable state models.</text>
+
+  <rect x="70" y="160" width="820" height="700" rx="22" class="boundary"/>
+  <text x="100" y="198" class="section">Project lifecycle</text>
+  <circle cx="170" cy="430" r="22" fill="#0f172a"/>
+  <rect x="330" y="390" width="180" height="84" rx="16" class="state"/>
+  <rect x="610" y="390" width="180" height="84" rx="16" class="state"/>
+  <rect x="610" y="600" width="180" height="84" rx="16" class="state"/>
+  <rect x="320" y="760" width="200" height="84" rx="16" class="bad"/>
+  <text x="420" y="440" text-anchor="middle" class="label">PENDING</text>
+  <text x="700" y="440" text-anchor="middle" class="label">ACTIVE</text>
+  <text x="700" y="650" text-anchor="middle" class="label">PAUSED</text>
+  <text x="420" y="810" text-anchor="middle" class="label">ARCHIVED</text>
+
+  <path d="M192 430 L330 430" class="edge"/>
+  <path d="M510 430 L610 430" class="edge"/>
+  <path d="M700 474 L700 600" class="edge"/>
+  <path d="M610 640 L530 490" class="edge"/>
+  <path d="M420 474 L420 760" class="edge"/>
+  <text x="560" y="410" class="body">readiness passed / activate</text>
+  <text x="722" y="540" class="body">pause</text>
+  <text x="550" y="575" class="body">resume</text>
+  <text x="438" y="620" class="body">archive / stop</text>
+
+  <rect x="1010" y="160" width="800" height="700" rx="22" class="boundary"/>
+  <text x="1040" y="198" class="section">Business crisis status</text>
+  <circle cx="1110" cy="430" r="22" fill="#0f172a"/>
+  <rect x="1240" y="390" width="190" height="84" rx="16" class="good"/>
+  <rect x="1540" y="390" width="190" height="84" rx="16" class="warn"/>
+  <rect x="1390" y="640" width="210" height="84" rx="16" class="bad"/>
+  <text x="1335" y="440" text-anchor="middle" class="label">NORMAL</text>
+  <text x="1635" y="440" text-anchor="middle" class="label">WARNING</text>
+  <text x="1495" y="690" text-anchor="middle" class="label">CRITICAL</text>
+
+  <path d="M1132 430 L1240 430" class="edge"/>
+  <path d="M1430 430 L1540 430" class="edge"/>
+  <path d="M1635 474 L1635 560 L1600 640" class="edge"/>
+  <path d="M1390 682 L1270 560 L1240 474" class="edge"/>
+  <text x="1468" y="410" class="body">negative spike / threshold crossed</text>
+  <text x="1650" y="565" class="body">escalation</text>
+  <text x="1235" y="585" class="body">recovery or operator reset</text>
+</svg>

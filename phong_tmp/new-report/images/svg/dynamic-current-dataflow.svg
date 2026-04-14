@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="760" viewBox="0 0 1680 760">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #475569; }
+      .step { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #ffffff; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 17px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #334155; }
+      .edge { stroke: #475569; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+      .chip { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .node { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2.4; }
+      .artifact { fill: #ecfdf5; stroke: #16a34a; stroke-width: 2.4; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="58" class="title">Figure 5.3. Current End-to-End Dataflow</text>
+  <text x="48" y="88" class="subtitle">A simplified current-state flow from project control to crawl execution, analytics processing, and knowledge indexing.</text>
+
+  <g transform="translate(80,270)">
+    <circle cx="45" cy="45" r="34" fill="#0284c7"/>
+    <text x="45" y="52" text-anchor="middle" class="step">1</text>
+    <rect x="105" y="5" width="220" height="86" rx="16" class="node"/>
+    <text x="215" y="40" text-anchor="middle" class="label">project-srv</text>
+    <text x="215" y="64" text-anchor="middle" class="body">business control and lifecycle</text>
+  </g>
+
+  <g transform="translate(390,270)">
+    <circle cx="45" cy="45" r="34" fill="#0284c7"/>
+    <text x="45" y="52" text-anchor="middle" class="step">2</text>
+    <rect x="105" y="5" width="220" height="86" rx="16" class="node"/>
+    <text x="215" y="40" text-anchor="middle" class="label">ingest-srv</text>
+    <text x="215" y="64" text-anchor="middle" class="body">datasource, targets, dry run, UAP</text>
+  </g>
+
+  <g transform="translate(700,270)">
+    <circle cx="45" cy="45" r="34" fill="#0284c7"/>
+    <text x="45" y="52" text-anchor="middle" class="step">3</text>
+    <rect x="105" y="5" width="220" height="86" rx="16" class="node"/>
+    <text x="215" y="40" text-anchor="middle" class="label">scapper-srv</text>
+    <text x="215" y="64" text-anchor="middle" class="body">FastAPI surface and crawl worker</text>
+  </g>
+
+  <g transform="translate(1010,270)">
+    <circle cx="45" cy="45" r="34" fill="#0284c7"/>
+    <text x="45" y="52" text-anchor="middle" class="step">4</text>
+    <rect x="105" y="5" width="220" height="86" rx="16" class="node"/>
+    <text x="215" y="40" text-anchor="middle" class="label">analysis-srv</text>
+    <text x="215" y="64" text-anchor="middle" class="body">consumer-based NLP analytics</text>
+  </g>
+
+  <g transform="translate(1320,270)">
+    <circle cx="45" cy="45" r="34" fill="#0284c7"/>
+    <text x="45" y="52" text-anchor="middle" class="step">5</text>
+    <rect x="105" y="5" width="220" height="86" rx="16" class="node"/>
+    <text x="215" y="40" text-anchor="middle" class="label">knowledge-srv</text>
+    <text x="215" y="64" text-anchor="middle" class="body">indexing, search, chat, reports</text>
+  </g>
+
+  <path d="M405 315 L495 315" class="edge"/>
+  <path d="M715 315 L805 315" class="edge"/>
+  <path d="M1025 315 L1115 315" class="edge"/>
+  <path d="M1335 315 L1425 315" class="edge"/>
+
+  <rect x="430" y="275" width="120" height="22" rx="6" class="chip"/>
+  <text x="490" y="290" text-anchor="middle" class="body">internal HTTP</text>
+  <rect x="740" y="275" width="120" height="22" rx="6" class="chip"/>
+  <text x="800" y="290" text-anchor="middle" class="body">RabbitMQ tasks</text>
+  <rect x="1040" y="275" width="130" height="22" rx="6" class="chip"/>
+  <text x="1105" y="290" text-anchor="middle" class="body">Kafka UAP feed</text>
+  <rect x="1350" y="275" width="150" height="22" rx="6" class="chip"/>
+  <text x="1425" y="290" text-anchor="middle" class="body">Kafka analytics topics</text>
+
+  <rect x="690" y="520" width="300" height="96" rx="18" class="artifact"/>
+  <text x="840" y="558" text-anchor="middle" class="label">MinIO raw artifacts</text>
+  <text x="840" y="584" text-anchor="middle" class="body">claim-check storage referenced by completion messages</text>
+  <path d="M910 360 C910 420, 880 450, 860 520" class="edge"/>
+</svg>

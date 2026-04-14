@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="980" viewBox="0 0 1760 980">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #475569; }
+      .lane { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #334155; }
+      .edge { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="58" class="title">Figure 5.9. Deployment View (Current / Partial)</text>
+  <text x="48" y="88" class="subtitle">Deployment-oriented view showing workload separation evidenced in the repository, without claiming a full production topology.</text>
+
+  <rect x="70" y="150" width="1620" height="150" rx="20" fill="#eff6ff" stroke="#60a5fa" stroke-width="2.4"/>
+  <text x="100" y="188" class="lane">Client and Edge</text>
+  <rect x="210" y="214" width="260" height="56" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <rect x="620" y="214" width="340" height="56" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="340" y="248" text-anchor="middle" class="label">Browser / Dashboard</text>
+  <text x="790" y="248" text-anchor="middle" class="label">Discord / WebSocket consumers</text>
+  <path d="M470 242 L620 242" class="edge"/>
+
+  <rect x="70" y="350" width="1620" height="230" rx="20" fill="#f8fafc" stroke="#94a3b8" stroke-width="2.4" stroke-dasharray="10 8"/>
+  <text x="100" y="388" class="lane">Application Workloads</text>
+  <rect x="130" y="430" width="200" height="88" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="370" y="430" width="200" height="88" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="610" y="430" width="220" height="88" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="870" y="430" width="220" height="88" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="1130" y="430" width="230" height="88" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="1400" y="430" width="220" height="88" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="230" y="464" text-anchor="middle" class="label">identity-api</text>
+  <text x="230" y="490" text-anchor="middle" class="body">Go API workload</text>
+  <text x="470" y="464" text-anchor="middle" class="label">project-api</text>
+  <text x="470" y="490" text-anchor="middle" class="body">Go API workload</text>
+  <text x="720" y="464" text-anchor="middle" class="label">ingest-api / scheduler</text>
+  <text x="720" y="490" text-anchor="middle" class="body">Go control and runtime workload</text>
+  <text x="980" y="464" text-anchor="middle" class="label">analysis-consumer</text>
+  <text x="980" y="490" text-anchor="middle" class="body">Python analytics worker</text>
+  <text x="1245" y="464" text-anchor="middle" class="label">knowledge-api / consumer</text>
+  <text x="1245" y="490" text-anchor="middle" class="body">Go indexing and retrieval workload</text>
+  <text x="1510" y="464" text-anchor="middle" class="label">notification-api</text>
+  <text x="1510" y="490" text-anchor="middle" class="body">Go realtime delivery workload</text>
+
+  <rect x="70" y="640" width="1620" height="180" rx="20" fill="#ecfdf5" stroke="#4ade80" stroke-width="2.4"/>
+  <text x="100" y="678" class="lane">Infrastructure</text>
+  <rect x="130" y="710" width="180" height="60" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <rect x="360" y="710" width="180" height="60" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <rect x="590" y="710" width="180" height="60" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <rect x="820" y="710" width="180" height="60" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <rect x="1050" y="710" width="180" height="60" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <rect x="1280" y="710" width="180" height="60" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <text x="220" y="746" text-anchor="middle" class="label">PostgreSQL</text>
+  <text x="450" y="746" text-anchor="middle" class="label">Redis</text>
+  <text x="680" y="746" text-anchor="middle" class="label">Kafka</text>
+  <text x="910" y="746" text-anchor="middle" class="label">RabbitMQ</text>
+  <text x="1140" y="746" text-anchor="middle" class="label">MinIO</text>
+  <text x="1370" y="746" text-anchor="middle" class="label">Qdrant</text>
+
+  <rect x="1180" y="860" width="340" height="86" rx="18" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="1350" y="895" text-anchor="middle" class="label">External AI Providers</text>
+  <text x="1350" y="922" text-anchor="middle" class="body">Gemini, Voyage, and Maestro</text>
+
+  <path d="M790 270 L790 430" class="edge"/>
+  <path d="M720 518 L680 710" class="edge"/>
+  <path d="M720 518 L910 710" class="edge"/>
+  <path d="M980 518 L1140 710" class="edge"/>
+  <path d="M1245 518 L1370 710" class="edge"/>
+  <path d="M1510 518 L450 710" class="edge" stroke-dasharray="8 6"/>
+  <path d="M1350 860 L1245 770" class="edge"/>
+</svg>

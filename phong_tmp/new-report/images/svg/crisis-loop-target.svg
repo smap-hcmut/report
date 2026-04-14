@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="900" viewBox="0 0 1700 900">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #475569; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; fill: #334155; }
+      .meta { font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 700; fill: #7c2d12; }
+      .node { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2.5; }
+      .out { fill: #ecfdf5; stroke: #16a34a; stroke-width: 2.5; }
+      .warn { fill: #fff7ed; stroke: #f97316; stroke-width: 2.5; stroke-dasharray: 10 8; }
+      .edge { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .tag { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="58" class="title">Figure 5.8. Crisis Adaptive Crawl Loop (Target / Partial)</text>
+  <text x="48" y="88" class="subtitle">Target-state design kept separate from the current runtime so future contracts are not confused with implemented behavior.</text>
+
+  <rect x="110" y="150" width="1480" height="120" rx="18" class="warn"/>
+  <text x="850" y="204" text-anchor="middle" class="label">Target-state only</text>
+  <text x="850" y="236" text-anchor="middle" class="meta">Do not interpret every edge here as fully implemented current runtime.</text>
+
+  <rect x="180" y="370" width="320" height="160" rx="18" class="node"/>
+  <text x="340" y="420" text-anchor="middle" class="label">project-srv</text>
+  <text x="340" y="454" text-anchor="middle" class="body">owns final business decision</text>
+  <text x="340" y="480" text-anchor="middle" class="body">for crisis state and crawl policy</text>
+
+  <rect x="690" y="370" width="320" height="160" rx="18" class="node"/>
+  <text x="850" y="420" text-anchor="middle" class="label">ingest-srv</text>
+  <text x="850" y="454" text-anchor="middle" class="body">applies crawl mode changes</text>
+  <text x="850" y="480" text-anchor="middle" class="body">to execution runtime</text>
+
+  <rect x="1200" y="370" width="320" height="160" rx="18" class="node"/>
+  <text x="1360" y="420" text-anchor="middle" class="label">analysis-srv</text>
+  <text x="1360" y="454" text-anchor="middle" class="body">emits signals and candidate crisis events</text>
+  <text x="1360" y="480" text-anchor="middle" class="body">based on processed windows</text>
+
+  <rect x="690" y="670" width="320" height="150" rx="18" class="out"/>
+  <text x="850" y="720" text-anchor="middle" class="label">notification-srv</text>
+  <text x="850" y="754" text-anchor="middle" class="body">receives crisis alerts and routes</text>
+  <text x="850" y="780" text-anchor="middle" class="body">them to user-facing channels</text>
+
+  <path d="M1200 450 L500 450" class="edge"/>
+  <path d="M500 485 L690 485" class="edge"/>
+  <path d="M360 530 L760 670" class="edge"/>
+
+  <rect x="770" y="402" width="190" height="22" rx="6" class="tag"/>
+  <text x="865" y="417" text-anchor="middle" class="body">analysis.signal / crisis candidate</text>
+  <rect x="520" y="506" width="210" height="22" rx="6" class="tag"/>
+  <text x="625" y="521" text-anchor="middle" class="body">project.crawl_mode.change_requested</text>
+  <rect x="520" y="610" width="220" height="22" rx="6" class="tag"/>
+  <text x="630" y="625" text-anchor="middle" class="body">project.alert.* or project.crisis.*</text>
+</svg>

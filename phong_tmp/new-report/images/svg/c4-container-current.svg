@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1180" viewBox="0 0 1800 1180">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 32px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 16px; fill: #475569; }
+      .boundary { fill: #f8fafc; stroke: #94a3b8; stroke-width: 2.5; stroke-dasharray: 10 8; }
+      .service { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2.5; }
+      .infra { fill: #ecfdf5; stroke: #16a34a; stroke-width: 2.5; }
+      .msg { fill: #fff7ed; stroke: #f97316; stroke-width: 2.5; }
+      .ext { fill: #fef2f2; stroke: #dc2626; stroke-width: 2.5; }
+      .h1 { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .h2 { font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #334155; }
+      .meta { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 700; fill: #475569; }
+      .edge { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .rel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .legend { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #334155; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="50" y="60" class="title">Figure 5.2. C4 Container View of SMAP</text>
+  <text x="50" y="92" class="subtitle">Current-state container view with clearer separation of business control, ingest runtime, analytics, knowledge, and delivery layers.</text>
+
+  <rect x="40" y="130" width="1710" height="620" rx="22" class="boundary"/>
+  <text x="70" y="162" class="h1">SMAP Platform boundary</text>
+
+  <rect x="80" y="220" width="200" height="120" rx="16" class="service"/>
+  <text x="180" y="256" text-anchor="middle" class="h2">identity-srv</text>
+  <text x="180" y="282" text-anchor="middle" class="body">OAuth2, JWT, session, RBAC</text>
+  <text x="180" y="306" text-anchor="middle" class="meta">Go + Gin</text>
+
+  <rect x="340" y="220" width="210" height="120" rx="16" class="service"/>
+  <text x="445" y="256" text-anchor="middle" class="h2">project-srv</text>
+  <text x="445" y="282" text-anchor="middle" class="body">campaign, project, crisis config</text>
+  <text x="445" y="306" text-anchor="middle" class="meta">Go + Gin + SQLBoiler</text>
+
+  <rect x="610" y="220" width="210" height="120" rx="16" class="service"/>
+  <text x="715" y="256" text-anchor="middle" class="h2">ingest-srv</text>
+  <text x="715" y="282" text-anchor="middle" class="body">datasource, targets, dry run, UAP</text>
+  <text x="715" y="306" text-anchor="middle" class="meta">Go + Gin + RabbitMQ + Kafka</text>
+
+  <rect x="880" y="220" width="220" height="120" rx="16" class="service"/>
+  <text x="990" y="256" text-anchor="middle" class="h2">scapper-srv</text>
+  <text x="990" y="282" text-anchor="middle" class="body">FastAPI app + worker in lifespan</text>
+  <text x="990" y="306" text-anchor="middle" class="meta">Python + FastAPI + aio-pika</text>
+
+  <rect x="1160" y="220" width="220" height="120" rx="16" class="service"/>
+  <text x="1270" y="256" text-anchor="middle" class="h2">analysis-srv</text>
+  <text x="1270" y="282" text-anchor="middle" class="body">NLP analytics consumer pipeline</text>
+  <text x="1270" y="306" text-anchor="middle" class="meta">Python + aiokafka + SQLAlchemy</text>
+
+  <rect x="1440" y="220" width="220" height="120" rx="16" class="service"/>
+  <text x="1550" y="256" text-anchor="middle" class="h2">knowledge-srv</text>
+  <text x="1550" y="282" text-anchor="middle" class="body">indexing, search, chat, reports</text>
+  <text x="1550" y="306" text-anchor="middle" class="meta">Go + Gin + Qdrant client</text>
+
+  <rect x="1440" y="420" width="220" height="120" rx="16" class="service"/>
+  <text x="1550" y="456" text-anchor="middle" class="h2">notification-srv</text>
+  <text x="1550" y="482" text-anchor="middle" class="body">WebSocket and Discord delivery</text>
+  <text x="1550" y="506" text-anchor="middle" class="meta">Go + Gin + Gorilla WebSocket</text>
+
+  <rect x="140" y="470" width="200" height="96" rx="16" class="infra"/>
+  <text x="240" y="506" text-anchor="middle" class="h2">PostgreSQL</text>
+  <text x="240" y="532" text-anchor="middle" class="body">business and analytics schemas</text>
+
+  <rect x="400" y="470" width="200" height="96" rx="16" class="infra"/>
+  <text x="500" y="506" text-anchor="middle" class="h2">Redis</text>
+  <text x="500" y="532" text-anchor="middle" class="body">session, cache, Pub/Sub ingress</text>
+
+  <rect x="660" y="470" width="200" height="96" rx="16" class="msg"/>
+  <text x="760" y="506" text-anchor="middle" class="h2">Kafka</text>
+  <text x="760" y="532" text-anchor="middle" class="body">analytics data plane topics</text>
+
+  <rect x="920" y="470" width="200" height="96" rx="16" class="msg"/>
+  <text x="1020" y="506" text-anchor="middle" class="h2">RabbitMQ</text>
+  <text x="1020" y="532" text-anchor="middle" class="body">crawl tasks and completion queue</text>
+
+  <rect x="1180" y="470" width="200" height="96" rx="16" class="infra"/>
+  <text x="1280" y="506" text-anchor="middle" class="h2">MinIO</text>
+  <text x="1280" y="532" text-anchor="middle" class="body">raw and report artifacts</text>
+
+  <rect x="140" y="620" width="200" height="96" rx="16" class="infra"/>
+  <text x="240" y="656" text-anchor="middle" class="h2">Qdrant</text>
+  <text x="240" y="682" text-anchor="middle" class="body">vector collections and search</text>
+
+  <rect x="420" y="820" width="320" height="110" rx="18" class="ext"/>
+  <text x="580" y="858" text-anchor="middle" class="h2">External AI Services</text>
+  <text x="580" y="884" text-anchor="middle" class="body">Gemini for generation, Voyage for embeddings,</text>
+  <text x="580" y="904" text-anchor="middle" class="body">Maestro for notebook automation</text>
+
+  <path d="M280 280 L340 280" class="edge"/>
+  <path d="M550 280 L610 280" class="edge"/>
+  <path d="M820 280 L880 280" class="edge"/>
+  <path d="M1100 280 L1160 280" class="edge"/>
+  <path d="M1380 280 L1440 280" class="edge"/>
+  <path d="M715 340 L715 470" class="edge"/>
+  <path d="M990 340 L1020 470" class="edge"/>
+  <path d="M1270 340 L1280 470" class="edge"/>
+  <path d="M500 566 L500 420 L1440 420" class="edge"/>
+  <path d="M1280 566 L1280 620 L340 620" class="edge"/>
+  <path d="M1550 540 L1550 820 L740 820" class="edge"/>
+
+  <rect x="288" y="248" width="90" height="22" rx="6" class="rel"/>
+  <text x="333" y="263" text-anchor="middle" class="legend">auth boundary</text>
+  <rect x="560" y="248" width="110" height="22" rx="6" class="rel"/>
+  <text x="615" y="263" text-anchor="middle" class="legend">HTTP control</text>
+  <rect x="840" y="248" width="120" height="22" rx="6" class="rel"/>
+  <text x="900" y="263" text-anchor="middle" class="legend">dispatch tasks</text>
+  <rect x="1115" y="248" width="120" height="22" rx="6" class="rel"/>
+  <text x="1175" y="263" text-anchor="middle" class="legend">Kafka UAP</text>
+  <rect x="1388" y="248" width="120" height="22" rx="6" class="rel"/>
+  <text x="1448" y="263" text-anchor="middle" class="legend">analytics topics</text>
+
+  <rect x="736" y="392" width="90" height="22" rx="6" class="rel"/>
+  <text x="781" y="407" text-anchor="middle" class="legend">publish UAP</text>
+  <rect x="986" y="388" width="90" height="22" rx="6" class="rel"/>
+  <text x="1031" y="403" text-anchor="middle" class="legend">completion</text>
+  <rect x="1234" y="392" width="90" height="22" rx="6" class="rel"/>
+  <text x="1279" y="407" text-anchor="middle" class="legend">store raw</text>
+  <rect x="900" y="610" width="170" height="22" rx="6" class="rel"/>
+  <text x="985" y="625" text-anchor="middle" class="legend">Redis Pub/Sub to delivery layer</text>
+  <rect x="900" y="816" width="170" height="22" rx="6" class="rel"/>
+  <text x="985" y="831" text-anchor="middle" class="legend">generation and notebook tooling</text>
+
+  <text x="50" y="1080" class="subtitle">Legend: blue = internal service, green = storage/infrastructure, orange = messaging, red = external dependency.</text>
+</svg>

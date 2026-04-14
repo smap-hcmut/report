@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 32px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 16px; fill: #475569; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; fill: #334155; }
+      .meta { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 700; fill: #475569; }
+      .user { fill: #fff7ed; stroke: #f97316; stroke-width: 2.5; }
+      .system { fill: #e0f2fe; stroke: #0284c7; stroke-width: 3; }
+      .ext { fill: #fef2f2; stroke: #dc2626; stroke-width: 2.5; }
+      .out { fill: #ecfdf5; stroke: #16a34a; stroke-width: 2.5; }
+      .edge { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .note { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="60" class="title">Figure 5.1. C4 Context View of SMAP</text>
+  <text x="48" y="92" class="subtitle">Current context view showing primary users, external systems, and the platform boundary.</text>
+
+  <rect x="640" y="260" width="520" height="320" rx="22" class="system"/>
+  <text x="900" y="312" text-anchor="middle" class="label">SMAP Platform</text>
+  <text x="900" y="346" text-anchor="middle" class="body">social listening, analytics, knowledge,</text>
+  <text x="900" y="372" text-anchor="middle" class="body">reporting, and crisis notification</text>
+  <text x="900" y="414" text-anchor="middle" class="meta">[Software System] Go + Python microservices</text>
+  <text x="900" y="462" text-anchor="middle" class="body">Core bounded contexts</text>
+  <text x="900" y="488" text-anchor="middle" class="body">identity, project, ingest, analytics, knowledge, notification</text>
+
+  <rect x="120" y="260" width="320" height="150" rx="18" class="user"/>
+  <text x="280" y="308" text-anchor="middle" class="label">Agency / Brand Team</text>
+  <text x="280" y="340" text-anchor="middle" class="body">creates campaigns and projects,</text>
+  <text x="280" y="366" text-anchor="middle" class="body">reviews dashboards and reports</text>
+  <text x="280" y="394" text-anchor="middle" class="meta">[Primary user]</text>
+
+  <rect x="120" y="500" width="320" height="150" rx="18" class="user"/>
+  <text x="280" y="548" text-anchor="middle" class="label">Analyst / PR Team</text>
+  <text x="280" y="580" text-anchor="middle" class="body">investigates trends, alerts,</text>
+  <text x="280" y="606" text-anchor="middle" class="body">search results, and narratives</text>
+  <text x="280" y="634" text-anchor="middle" class="meta">[Primary user]</text>
+
+  <rect x="1320" y="180" width="320" height="120" rx="18" class="ext"/>
+  <text x="1480" y="226" text-anchor="middle" class="label">Google OAuth2</text>
+  <text x="1480" y="256" text-anchor="middle" class="body">external identity provider for login</text>
+  <text x="1480" y="282" text-anchor="middle" class="meta">[External system]</text>
+
+  <rect x="1320" y="360" width="320" height="150" rx="18" class="ext"/>
+  <text x="1480" y="406" text-anchor="middle" class="label">TikTok / Facebook / YouTube</text>
+  <text x="1480" y="438" text-anchor="middle" class="body">social platforms crawled through</text>
+  <text x="1480" y="464" text-anchor="middle" class="body">the ingest and crawler runtime</text>
+  <text x="1480" y="492" text-anchor="middle" class="meta">[External systems]</text>
+
+  <rect x="1320" y="570" width="320" height="150" rx="18" class="ext"/>
+  <text x="1480" y="616" text-anchor="middle" class="label">Gemini / Voyage / Maestro</text>
+  <text x="1480" y="648" text-anchor="middle" class="body">generation, embeddings, and</text>
+  <text x="1480" y="674" text-anchor="middle" class="body">notebook automation dependencies</text>
+  <text x="1480" y="702" text-anchor="middle" class="meta">[External AI services]</text>
+
+  <rect x="690" y="760" width="420" height="140" rx="18" class="out"/>
+  <text x="900" y="806" text-anchor="middle" class="label">Browser Dashboards / Discord</text>
+  <text x="900" y="838" text-anchor="middle" class="body">receive realtime updates, alerts,</text>
+  <text x="900" y="864" text-anchor="middle" class="body">and report-oriented outputs</text>
+  <text x="900" y="892" text-anchor="middle" class="meta">[Delivery channels]</text>
+
+  <path d="M440 335 C530 335, 560 380, 640 400" class="edge"/>
+  <path d="M440 575 C530 565, 560 500, 640 460" class="edge"/>
+  <path d="M1160 340 C1220 300, 1260 260, 1320 240" class="edge"/>
+  <path d="M1160 420 C1220 420, 1260 430, 1320 435" class="edge"/>
+  <path d="M1160 500 C1220 560, 1260 610, 1320 645" class="edge"/>
+  <path d="M900 580 C900 660, 900 690, 900 760" class="edge"/>
+
+  <rect x="500" y="318" width="130" height="22" rx="6" class="note"/><text x="565" y="333" text-anchor="middle" class="body">uses dashboard</text>
+  <rect x="500" y="538" width="160" height="22" rx="6" class="note"/><text x="580" y="553" text-anchor="middle" class="body">uses search and alerts</text>
+  <rect x="1190" y="286" width="130" height="22" rx="6" class="note"/><text x="1255" y="301" text-anchor="middle" class="body">authentication</text>
+  <rect x="1185" y="404" width="135" height="22" rx="6" class="note"/><text x="1252" y="419" text-anchor="middle" class="body">collect social data</text>
+  <rect x="1180" y="590" width="140" height="22" rx="6" class="note"/><text x="1250" y="605" text-anchor="middle" class="body">AI generation tools</text>
+  <rect x="950" y="670" width="155" height="22" rx="6" class="note"/><text x="1027" y="685" text-anchor="middle" class="body">notifications and outputs</text>
+</svg>

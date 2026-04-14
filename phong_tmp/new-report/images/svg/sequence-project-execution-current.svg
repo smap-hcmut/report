@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1040" viewBox="0 0 1760 1040">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #475569; }
+      .head { font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #1e293b; }
+      .life { stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 8 6; }
+      .msg { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .ret { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); stroke-dasharray: 6 5; }
+      .act { fill: #e2e8f0; stroke: #94a3b8; stroke-width: 1; }
+      .box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="58" class="title">Figure 5.6. UML Sequence of Project Execution (Current)</text>
+  <text x="48" y="88" class="subtitle">Current execution path from project activation to raw artifact handoff and downstream analytics publication.</text>
+
+  <rect x="70" y="130" width="140" height="46" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="300" y="130" width="170" height="46" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="560" y="130" width="170" height="46" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="820" y="130" width="140" height="46" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <rect x="1070" y="130" width="170" height="46" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="1330" y="130" width="140" height="46" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <rect x="1560" y="130" width="170" height="46" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="140" y="159" text-anchor="middle" class="head">User</text>
+  <text x="385" y="159" text-anchor="middle" class="head">project-srv</text>
+  <text x="645" y="159" text-anchor="middle" class="head">ingest-srv</text>
+  <text x="890" y="159" text-anchor="middle" class="head">RabbitMQ</text>
+  <text x="1155" y="159" text-anchor="middle" class="head">scapper-srv</text>
+  <text x="1400" y="159" text-anchor="middle" class="head">MinIO</text>
+  <text x="1645" y="159" text-anchor="middle" class="head">analysis-srv</text>
+
+  <line x1="140" y1="176" x2="140" y2="940" class="life"/>
+  <line x1="385" y1="176" x2="385" y2="940" class="life"/>
+  <line x1="645" y1="176" x2="645" y2="940" class="life"/>
+  <line x1="890" y1="176" x2="890" y2="940" class="life"/>
+  <line x1="1155" y1="176" x2="1155" y2="940" class="life"/>
+  <line x1="1400" y1="176" x2="1400" y2="940" class="life"/>
+  <line x1="1645" y1="176" x2="1645" y2="940" class="life"/>
+
+  <rect x="378" y="230" width="14" height="80" class="act"/>
+  <rect x="638" y="340" width="14" height="260" class="act"/>
+  <rect x="1148" y="470" width="14" height="120" class="act"/>
+  <rect x="1638" y="720" width="14" height="90" class="act"/>
+
+  <path d="M140 250 L385 250" class="msg"/>
+  <rect x="210" y="222" width="105" height="22" rx="6" class="box"/>
+  <text x="262" y="237" text-anchor="middle" class="body">executeProject()</text>
+
+  <path d="M385 350 L645 350" class="msg"/>
+  <rect x="425" y="322" width="180" height="22" rx="6" class="box"/>
+  <text x="515" y="337" text-anchor="middle" class="body">internal activation / readiness call</text>
+
+  <path d="M645 430 L890 430" class="msg"/>
+  <rect x="695" y="402" width="145" height="22" rx="6" class="box"/>
+  <text x="767" y="417" text-anchor="middle" class="body">publish crawl tasks</text>
+
+  <path d="M890 510 L1155 510" class="msg"/>
+  <rect x="960" y="482" width="125" height="22" rx="6" class="box"/>
+  <text x="1022" y="497" text-anchor="middle" class="body">deliver task</text>
+
+  <path d="M1155 570 L1400 570" class="msg"/>
+  <rect x="1215" y="542" width="125" height="22" rx="6" class="box"/>
+  <text x="1277" y="557" text-anchor="middle" class="body">upload raw artifact</text>
+
+  <path d="M1155 620 L890 620" class="msg"/>
+  <rect x="960" y="592" width="125" height="22" rx="6" class="box"/>
+  <text x="1022" y="607" text-anchor="middle" class="body">completion metadata</text>
+
+  <path d="M645 710 L1645 710" class="msg"/>
+  <rect x="990" y="682" width="310" height="22" rx="6" class="box"/>
+  <text x="1145" y="697" text-anchor="middle" class="body">publish `smap.collector.output` to the analytics lane</text>
+
+  <path d="M1645 760 L1645 760" class="msg"/>
+  <rect x="1470" y="734" width="150" height="22" rx="6" class="box"/>
+  <text x="1545" y="749" text-anchor="middle" class="body">run analytics pipeline</text>
+
+  <path d="M1645 840 L140 840" class="ret"/>
+  <rect x="775" y="812" width="235" height="22" rx="6" class="box"/>
+  <text x="892" y="827" text-anchor="middle" class="body">downstream outputs and user-facing effects</text>
+</svg>

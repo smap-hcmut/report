@@ -1,0 +1,13 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {"id":"t1","type":"text","x":40,"y":30,"width":920,"height":40,"angle":0,"strokeColor":"#0f172a","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"strokeStyle":"solid","roughness":0,"opacity":100,"groupIds":[],"frameId":null,"roundness":null,"seed":801,"version":1,"versionNonce":801,"isDeleted":false,"boundElements":null,"updated":1760400000000,"link":null,"locked":false,"text":"Figure 5.9. Deployment View (Current / Partial)","fontSize":28,"fontFamily":2,"textAlign":"left","verticalAlign":"middle","containerId":null,"originalText":"Figure 5.9. Deployment View (Current / Partial)","autoResize":false,"lineHeight":1.2},
+    {"id":"l1","type":"rectangle","x":80,"y":140,"width":1580,"height":120,"angle":0,"strokeColor":"#60a5fa","backgroundColor":"#eff6ff","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":0,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":802,"version":1,"versionNonce":802,"isDeleted":false,"boundElements":null,"updated":1760400000000,"link":null,"locked":false},
+    {"id":"l2","type":"rectangle","x":80,"y":320,"width":1580,"height":200,"angle":0,"strokeColor":"#94a3b8","backgroundColor":"#f8fafc","fillStyle":"solid","strokeWidth":2,"strokeStyle":"dashed","roughness":0,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":803,"version":1,"versionNonce":803,"isDeleted":false,"boundElements":null,"updated":1760400000000,"link":null,"locked":false},
+    {"id":"l3","type":"rectangle","x":80,"y":580,"width":1580,"height":160,"angle":0,"strokeColor":"#4ade80","backgroundColor":"#ecfdf5","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":0,"opacity":100,"groupIds":[],"frameId":null,"roundness":{"type":3},"seed":804,"version":1,"versionNonce":804,"isDeleted":false,"boundElements":null,"updated":1760400000000,"link":null,"locked":false}
+  ],
+  "appState": {"viewBackgroundColor": "#ffffff", "gridSize": null},
+  "files": {}
+}

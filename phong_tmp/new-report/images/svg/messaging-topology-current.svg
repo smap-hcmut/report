@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="980" viewBox="0 0 1700 980">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #475569; }
+      .lane { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #334155; }
+      .edge { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="58" class="title">Figure 5.7. Messaging Topology (Current)</text>
+  <text x="48" y="88" class="subtitle">Current communication mechanisms grouped by control plane, crawl runtime, analytics data plane, and notification ingress.</text>
+
+  <rect x="70" y="140" width="1560" height="140" rx="18" fill="#eff6ff" stroke="#60a5fa" stroke-width="2.4"/>
+  <text x="100" y="178" class="lane">Control Plane</text>
+  <rect x="180" y="205" width="230" height="54" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <rect x="560" y="205" width="230" height="54" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="295" y="238" text-anchor="middle" class="label">project-srv</text>
+  <text x="675" y="238" text-anchor="middle" class="label">ingest-srv</text>
+  <path d="M410 232 L560 232" class="edge"/>
+  <rect x="440" y="198" width="120" height="22" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="500" y="213" text-anchor="middle" class="body">internal HTTP</text>
+
+  <rect x="70" y="330" width="1560" height="190" rx="18" fill="#fff7ed" stroke="#fb923c" stroke-width="2.4"/>
+  <text x="100" y="368" class="lane">Crawl Runtime</text>
+  <rect x="140" y="395" width="200" height="60" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="470" y="382" width="360" height="86" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="960" y="395" width="230" height="60" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <text x="240" y="430" text-anchor="middle" class="label">ingest-srv</text>
+  <text x="650" y="415" text-anchor="middle" class="label">RabbitMQ</text>
+  <text x="650" y="438" text-anchor="middle" class="body">request queues: `tiktok_tasks`, `facebook_tasks`, `youtube_tasks`</text>
+  <text x="650" y="458" text-anchor="middle" class="body">completion queue: `ingest_task_completions`</text>
+  <text x="1075" y="430" text-anchor="middle" class="label">scapper-srv</text>
+  <path d="M340 425 L470 425" class="edge"/>
+  <path d="M830 425 L960 425" class="edge"/>
+  <path d="M960 445 L830 445" class="edge"/>
+
+  <rect x="70" y="570" width="1560" height="200" rx="18" fill="#fff7ed" stroke="#fb923c" stroke-width="2.4"/>
+  <text x="100" y="608" class="lane">Analytics Data Plane</text>
+  <rect x="130" y="640" width="210" height="60" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="450" y="624" width="420" height="92" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="980" y="640" width="210" height="60" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="1300" y="640" width="230" height="60" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <text x="235" y="675" text-anchor="middle" class="label">ingest-srv</text>
+  <text x="660" y="655" text-anchor="middle" class="label">Kafka</text>
+  <text x="660" y="678" text-anchor="middle" class="body">`smap.collector.output`, `analytics.batch.completed`,</text>
+  <text x="660" y="698" text-anchor="middle" class="body">`analytics.insights.published`, `analytics.report.digest`</text>
+  <text x="1085" y="675" text-anchor="middle" class="label">analysis-srv</text>
+  <text x="1415" y="675" text-anchor="middle" class="label">knowledge-srv</text>
+  <path d="M340 670 L450 670" class="edge"/>
+  <path d="M870 670 L980 670" class="edge"/>
+  <path d="M1190 670 L1300 670" class="edge"/>
+
+  <rect x="70" y="820" width="1560" height="110" rx="18" fill="#ecfdf5" stroke="#4ade80" stroke-width="2.4"/>
+  <text x="100" y="858" class="lane">Notification Ingress</text>
+  <rect x="220" y="855" width="260" height="48" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <rect x="620" y="845" width="320" height="58" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <rect x="1080" y="855" width="250" height="48" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <text x="350" y="884" text-anchor="middle" class="label">backend publishers</text>
+  <text x="780" y="870" text-anchor="middle" class="label">Redis Pub/Sub channels</text>
+  <text x="780" y="890" text-anchor="middle" class="body">project, campaign, alert, and system scopes</text>
+  <text x="1205" y="884" text-anchor="middle" class="label">notification-srv</text>
+  <path d="M480 879 L620 879" class="edge"/>
+  <path d="M940 879 L1080 879" class="edge"/>
+</svg>
