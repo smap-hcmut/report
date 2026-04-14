@@ -1,0 +1,35 @@
+@startuml AD_analytics_to_knowledge_current
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+title Activity Diagram: Analytics to Knowledge Loop (Current-State)
+
+|Ingest Service|
+start
+:Publish UAP record to smap.collector.output;
+
+|Analysis Service|
+:Consume Kafka message;
+:Resolve domain overlay;
+:Run pipeline stages;
+:Persist post_insight;
+:Publish analytics.* topics;
+
+|Knowledge Service|
+:Consume downstream topics;
+:Index documents into vector store;
+
+|User|
+:Query search or chat;
+
+|Knowledge Service|
+:Retrieve indexed context;
+:Build answer or return search results;
+
+|User|
+:Consume answer / insights;
+stop
+@enduml

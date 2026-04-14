@@ -1,0 +1,112 @@
+@startuml AD_project_lifecycle_current
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+skinparam activity {
+  FontSize 11
+  RoundCorner 8
+}
+
+skinparam decision {
+  FontSize 10
+}
+
+skinparam swimlane {
+  TitleFontSize 12
+  TitleFontStyle bold
+}
+
+title Activity Diagram: Project Lifecycle (Current-State)
+
+|User|
+start
+:Create campaign/project;
+
+|Project Service|
+:Persist project with status PENDING;
+
+|User|
+:Configure datasource and targets;
+:Trigger dryrun when needed;
+
+|Ingest Service|
+:Persist datasource / target / dryrun evidence;
+
+|User|
+if (Activate project?) then (Yes)
+  :Click Activate;
+
+  |Project Service|
+  :Check project status eligibility;
+  :Call ingest activation-readiness\nvia internal HTTP;
+
+  |Ingest Service|
+  :Evaluate datasource / target / dryrun readiness;
+
+  if (Readiness passed?) then (No)
+    :Return readiness blocked error;
+    stop
+  endif
+
+  :Activate project datasources;
+
+  |Project Service|
+  :Update project status -> ACTIVE;
+  :Publish project.lifecycle.activated;
+else (No)
+  stop
+endif
+
+|User|
+if (Pause project?) then (Yes)
+  :Click Pause;
+
+  |Project Service|
+  :Call ingest pause via internal HTTP;
+
+  |Ingest Service|
+  :Pause active datasources and cancel runtime;
+
+  |Project Service|
+  :Update project status -> PAUSED;
+  :Publish project.lifecycle.paused;
+endif
+
+|User|
+if (Resume project?) then (Yes)
+  :Click Resume;
+
+  |Project Service|
+  :Call ingest activation-readiness\nfor resume;
+
+  |Ingest Service|
+  :Re-check readiness;
+  if (Resume readiness passed?) then (No)
+    :Return blocked error;
+    stop
+  endif
+
+  :Resume paused datasources;
+
+  |Project Service|
+  :Update project status -> ACTIVE;
+  :Publish project.lifecycle.resumed;
+endif
+
+|User|
+if (Archive project?) then (Yes)
+  :Click Archive;
+
+  |Project Service|
+  if (Current status = ACTIVE?) then (Yes)
+    :Call ingest pause first;
+  endif
+  :Update project status -> ARCHIVED;
+  :Publish project.lifecycle.archived;
+endif
+
+stop
+@enduml

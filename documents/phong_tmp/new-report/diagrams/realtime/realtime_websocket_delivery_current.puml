@@ -1,0 +1,47 @@
+@startuml
+title Dataflow: WebSocket Delivery and Redis Routing (Current-State)
+
+autonumber
+skinparam Style strictuml
+
+actor "Web Client" as client
+participant "WS HTTP Handler" as handler
+participant "JWT Manager" as jwt
+participant "WS UseCase" as uc
+participant "Hub" as hub
+participant "Redis Subscriber" as subscriber
+database "Redis Pub/Sub" as redis #LightPink
+participant "Alert UseCase" as alert_uc
+
+client -> handler : GET /ws?project_id=...\n(token query or auth cookie)
+activate handler
+handler -> handler : processUpgradeRequest()
+handler -> jwt : Verify(token)
+jwt --> handler : user_id
+handler -> handler : Upgrade to WebSocket
+handler -> uc : Register(conn, user_id)
+uc -> hub : register connection
+uc -> client : start readPump / writePump
+handler --> client : 101 Switching Protocols
+deactivate handler
+
+redis -> subscriber : message on channel pattern
+subscriber -> uc : ProcessMessage(channel, payload)
+uc -> uc : parse channel + detect type + transform payload
+
+alt Crisis / Onboarding / Campaign event
+  uc -> alert_uc : Dispatch... (async)
+end
+
+uc -> hub : routeMessage(parsed, outputBytes)
+hub --> client : WebSocket frame
+
+note right of redis
+Channel patterns from current contract:
+- project:{project_id}:user:{user_id}
+- campaign:{campaign_id}:user:{user_id}
+- alert:crisis:user:{user_id}
+- system:{subtype}
+end note
+
+@enduml

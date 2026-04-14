@@ -1,0 +1,57 @@
+@startuml
+title Dataflow: Project Lifecycle Control (Current-State)
+
+autonumber
+skinparam Style strictuml
+
+actor "Authenticated User" as user
+participant "Project HTTP Handler" as handler
+participant "Project UseCase" as project_uc
+database "project.projects\nPostgreSQL" as project_db #LightCyan
+participant "Ingest Client\n(internal HTTP)" as ingest_client
+participant "Ingest Internal API" as ingest_api
+participant "Datasource UseCase\nproject_lifecycle.go" as ds_uc
+database "ingest.data_sources\nPostgreSQL" as ingest_db #LightCyan
+queue "Kafka Producer" as kafka #LightBlue
+
+user -> handler : POST /api/v1/projects/:project_id/activate
+activate handler
+handler -> project_uc : Activate(project_id)
+activate project_uc
+
+project_uc -> project_db : Detail(project_id)
+project_db --> project_uc : current project
+
+project_uc -> ingest_client : GET /api/v1/internal/projects/:id/activation-readiness?command=activate
+ingest_client -> ingest_api : internal HTTP request
+ingest_api -> ds_uc : GetActivationReadiness(project_id, activate)
+ds_uc -> ingest_db : ListDataSources / ListTargets / latest dryrun
+ingest_db --> ds_uc : readiness evidence
+ds_uc --> ingest_api : readiness result
+ingest_api --> ingest_client : 200 OK
+ingest_client --> project_uc : CanProceed = true
+
+project_uc -> ingest_client : POST /api/v1/internal/projects/:id/activate
+ingest_client -> ingest_api : internal HTTP request
+ingest_api -> ds_uc : Activate(project_id)
+ds_uc -> ingest_db : UpdateProjectDataSourcesLifecycle("activate")
+ingest_db --> ds_uc : affected datasource count
+ds_uc --> ingest_api : lifecycle output
+ingest_api --> ingest_client : 200 OK
+ingest_client --> project_uc : activated
+
+project_uc -> project_db : UpdateStatus(PENDING -> ACTIVE)
+project_db --> project_uc : updated project
+
+project_uc -> kafka : Publish project.lifecycle.activated
+note right
+Kafka event is emitted after local transition.
+It is not the primary control path to ingest-srv.
+end note
+
+project_uc --> handler : ActivateOutput
+deactivate project_uc
+handler --> user : HTTP 200 OK
+deactivate handler
+
+@enduml

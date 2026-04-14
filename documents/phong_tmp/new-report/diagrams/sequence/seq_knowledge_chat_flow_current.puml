@@ -1,0 +1,37 @@
+@startuml
+title Sequence: Knowledge Chat Flow (Current-State)
+
+autonumber
+
+actor User
+participant "Chat Handler" as Handler
+participant "Chat UseCase" as ChatUC
+database "Conversation Repo" as ConversationRepo
+participant "Search UseCase" as SearchUC
+participant "Embedding UseCase" as EmbeddingUC
+database "Redis Cache" as Redis
+database "Qdrant" as Qdrant
+participant "LLM Client" as LLM
+
+User -> Handler : POST /api/v1/knowledge/chat
+Handler -> ChatUC : Chat(campaign_id, message, filters)
+ChatUC -> ConversationRepo : create/load conversation
+ChatUC -> SearchUC : Search(query, filters)
+SearchUC -> Redis : get cached search results
+
+alt cache miss
+  SearchUC -> EmbeddingUC : Generate(query)
+  EmbeddingUC --> SearchUC : vector
+  SearchUC -> Qdrant : search per-project collections
+  Qdrant --> SearchUC : results
+  SearchUC -> Redis : save cache
+end
+
+SearchUC --> ChatUC : search output
+ChatUC -> LLM : Generate(prompt)
+LLM --> ChatUC : answer
+ChatUC -> ConversationRepo : save user and assistant messages
+ChatUC --> Handler : answer + citations + suggestions
+Handler --> User : HTTP 200
+
+@enduml

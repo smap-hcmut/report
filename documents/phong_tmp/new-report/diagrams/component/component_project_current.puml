@@ -1,0 +1,79 @@
+@startuml
+
+title Component Diagram for Project Service (Current-State)
+
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #A80036
+
+database "PostgreSQL\nproject schema" as postgres <<System>>
+database "Redis\ndomain registry" as redis <<System>>
+node "Ingest Service\ninternal APIs" as ingest_svc <<System>>
+queue "Kafka Broker" as kafka <<System>>
+
+package "Project Service" as project_svc {
+
+  package "Delivery" as delivery {
+    [Project HTTP Handlers] as project_http <<component>>
+    [Campaign HTTP Handlers] as campaign_http <<component>>
+    [Crisis HTTP Handlers] as crisis_http <<component>>
+  }
+
+  package "UseCase" as usecase {
+    [Project UseCase] as project_uc <<UseCase>>
+    [Campaign UseCase] as campaign_uc <<UseCase>>
+    [Crisis UseCase] as crisis_uc <<UseCase>>
+  }
+
+  package "Infrastructure" as infra {
+    [Project Repository] as project_repo <<Repository>>
+    [Campaign Repository] as campaign_repo <<Repository>>
+    [Crisis Repository] as crisis_repo <<Repository>>
+    [Domain Repository] as domain_repo <<Repository>>
+    [Ingest Client] as ingest_client <<component>>
+    [Lifecycle Event Publisher] as lifecycle_pub <<component>>
+  }
+}
+
+project_http --> project_uc
+campaign_http --> campaign_uc
+crisis_http --> crisis_uc
+
+project_uc --> project_repo
+project_uc --> domain_repo
+project_uc --> campaign_uc
+project_uc --> ingest_client
+project_uc --> lifecycle_pub
+
+campaign_uc --> campaign_repo
+crisis_uc --> crisis_repo
+crisis_uc --> project_uc
+
+project_repo -[#green]> postgres : CRUD project.projects
+campaign_repo -[#green]> postgres : CRUD campaign
+crisis_repo -[#green]> postgres : CRUD crisis config
+domain_repo -[#red]> redis : read active domains
+ingest_client -[#blue]> ingest_svc : internal HTTP\nactivation-readiness / activate / pause / resume
+lifecycle_pub -[#orange]> kafka : publish project.lifecycle.*
+
+note right of project_uc
+Current lifecycle path:
+- public API in project-srv
+- internal HTTP to ingest-srv
+- local status update in project DB
+- Kafka event as secondary propagation lane
+end note
+
+legend right
+  |= Color |= Protocol |
+  | <#green> | PostgreSQL |
+  | <#red> | Redis |
+  | <#blue> | Internal HTTP |
+  | <#orange> | Kafka |
+  | <#black> | Internal Call |
+endlegend
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+title Authentication Policy: Protected, Internal, and WebSocket Route Handling
+
+autonumber
+skinparam Style strictuml
+
+actor "Client / Service" as client
+participant "Gin Route" as route
+participant "Middleware" as mw
+participant "WS Handler" as ws_handler
+participant "WS Request Processor" as ws_req
+participant "JWT Manager" as jwt
+
+client -> route : HTTP request
+
+alt Protected route via mw.Auth()
+  route -> mw : route guard
+  mw -> mw : extract bearer token or auth cookie
+  mw -> jwt : Verify(token)
+  jwt --> mw : auth payload
+  mw --> route : allow request
+else Internal route via mw.InternalAuth()
+  route -> mw : route guard
+  mw -> mw : validate X-Internal-Key
+  mw --> route : allow internal request
+else WebSocket route /ws
+  route -> ws_handler : HandleWebSocket()
+  ws_handler -> ws_req : processUpgradeRequest()
+  ws_req -> ws_req : token query or auth cookie
+  ws_req -> jwt : Verify(token)
+  jwt --> ws_req : auth payload
+  ws_req --> ws_handler : allow upgrade
+else Invalid credentials
+  mw --> route : reject request
+end
+
+route --> client : success or auth error
+
+@enduml

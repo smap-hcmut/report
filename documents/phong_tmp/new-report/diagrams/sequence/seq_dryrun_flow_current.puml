@@ -1,0 +1,30 @@
+@startuml
+title Sequence: Datasource Dryrun (Current-State)
+
+autonumber
+
+actor User
+participant "Dryrun Handler" as Handler
+participant "Dryrun UseCase" as DryrunUC
+database "Ingest DB" as IngestDB
+queue "RabbitMQ Producer" as Producer
+queue "Dryrun Task Queue" as TaskQueue
+participant "Scapper Worker" as Worker
+queue "Dryrun Completion Queue" as CompletionQueue
+participant "Dryrun Completion Consumer" as Consumer
+
+User -> Handler : POST /datasources/:id/dryrun
+Handler -> DryrunUC : Trigger(source_id, target_id)
+DryrunUC -> IngestDB : validate source / target
+DryrunUC -> IngestDB : create dryrun_result RUNNING
+DryrunUC -> Producer : publish dryrun dispatch
+Producer -> TaskQueue : persistent task message
+TaskQueue -> Worker : consume sample crawl task
+Worker -> CompletionQueue : publish completion metadata
+CompletionQueue -> Consumer : dryrun completion
+Consumer -> IngestDB : update dryrun_result + datasource status
+User -> Handler : GET /datasources/:id/dryrun/latest or /history
+Handler -> IngestDB : read persisted dryrun result
+Handler --> User : latest/history response
+
+@enduml

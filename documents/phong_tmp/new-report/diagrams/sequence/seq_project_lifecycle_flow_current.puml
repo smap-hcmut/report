@@ -1,0 +1,44 @@
+@startuml
+title Sequence: Project Lifecycle Activation (Current-State)
+
+autonumber
+
+actor User
+participant "Project Handler" as ProjectHandler
+participant "Project UseCase" as ProjectUC
+database "Project DB" as ProjectDB
+participant "Ingest Client" as IngestClient
+participant "Ingest Internal API" as IngestAPI
+participant "Datasource Lifecycle UseCase" as DatasourceUC
+database "Ingest DB" as IngestDB
+queue "Kafka Publisher" as Kafka
+
+User -> ProjectHandler : POST /projects/:project_id/activate
+ProjectHandler -> ProjectUC : Activate(project_id)
+ProjectUC -> ProjectDB : Detail(project)
+ProjectDB --> ProjectUC : current state
+
+ProjectUC -> IngestClient : GetActivationReadiness(project_id, activate)
+IngestClient -> IngestAPI : internal HTTP
+IngestAPI -> DatasourceUC : GetActivationReadiness()
+DatasourceUC -> IngestDB : inspect sources / targets / dryrun
+IngestDB --> DatasourceUC : readiness evidence
+DatasourceUC --> IngestAPI : can proceed
+IngestAPI --> IngestClient : readiness response
+IngestClient --> ProjectUC : can proceed
+
+ProjectUC -> IngestClient : Activate(project_id)
+IngestClient -> IngestAPI : internal HTTP
+IngestAPI -> DatasourceUC : Activate(project_id)
+DatasourceUC -> IngestDB : update project datasource lifecycle
+IngestDB --> DatasourceUC : affected count
+DatasourceUC --> IngestAPI : lifecycle output
+IngestAPI --> IngestClient : success
+IngestClient --> ProjectUC : success
+
+ProjectUC -> ProjectDB : update project status ACTIVE
+ProjectUC -> Kafka : publish project.lifecycle.activated
+ProjectUC --> ProjectHandler : ActivateOutput
+ProjectHandler --> User : HTTP 200
+
+@enduml

@@ -1,0 +1,22 @@
+@startuml
+title Dataflow: Project Creation (Current-State)
+
+autonumber
+skinparam Style strictuml
+
+actor "Authenticated User" as user
+participant "Project HTTP Handler" as handler
+participant "Project UseCase" as uc
+database "Redis\ndomain registry" as redis #LightPink
+database "project.projects\nPostgreSQL" as postgres #LightCyan
+
+user -> handler : POST /campaigns/:id/projects
+handler -> uc : Create(campaign_id, project input)
+uc -> redis : validate domain_type_code
+redis --> uc : domain registry result
+uc -> postgres : INSERT project.projects\nstatus=PENDING, config_status=DRAFT
+postgres --> uc : created project row
+uc --> handler : project output
+handler --> user : HTTP 200/201 response
+
+@enduml

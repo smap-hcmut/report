@@ -1,0 +1,42 @@
+@startuml
+title Component Diagram for Identity Service (Current-State)
+
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+
+cloud "OAuth Provider" as oauth <<System>>
+database "PostgreSQL\nidentity schema" as postgres <<System>>
+database "Redis\nsession/blacklist" as redis <<System>>
+
+package "Identity Service" {
+  package "Delivery" {
+    [OAuth Handlers] as oauth_handlers
+    [Protected Auth Handlers] as protected_handlers
+    [Internal Auth Routes] as internal_routes
+  }
+  package "UseCase" {
+    [Authentication UseCase] as auth_uc
+    [Session UseCase] as session_uc
+  }
+  package "Infrastructure" {
+    [User Repository] as user_repo
+    [JWT Manager] as jwt_mgr
+    [Session Manager] as session_mgr
+  }
+}
+
+oauth_handlers --> auth_uc
+protected_handlers --> auth_uc
+internal_routes --> jwt_mgr
+auth_uc --> oauth
+auth_uc --> user_repo
+auth_uc --> jwt_mgr
+auth_uc --> session_mgr
+session_uc --> session_mgr
+
+user_repo -[#green]> postgres : users / jwt_keys / audit_logs
+session_mgr -[#red]> redis : sessions / blacklist
+
+@enduml

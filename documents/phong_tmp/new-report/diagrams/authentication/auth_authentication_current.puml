@@ -1,0 +1,41 @@
+@startuml
+title Authentication Boundary (Current-State)
+
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+
+cloud "OAuth Provider" as oauth <<System>>
+database "Redis / Session Store" as redis <<System>>
+database "PostgreSQL\nidentity schema" as postgres <<System>>
+node "Other Services" as internal_clients <<System>>
+
+package "Identity Service" {
+  [OAuth Handlers] as oauth_handlers
+  [Auth UseCase] as auth_uc
+  [JWT Manager] as jwt_mgr
+  [Session Manager] as session_mgr
+  [User Repository] as user_repo
+  [Internal Validate Route] as validate_route
+}
+
+oauth_handlers --> auth_uc
+auth_uc --> oauth : code exchange / profile fetch
+auth_uc --> user_repo
+auth_uc --> session_mgr
+auth_uc --> jwt_mgr
+session_mgr -[#red]> redis : session / blacklist
+user_repo -[#green]> postgres : users / jwt_keys / audit_logs
+validate_route --> jwt_mgr
+internal_clients -[#blue]> validate_route : POST /authentication/internal/validate
+
+note right of auth_uc
+Current auth boundary supports:
+- OAuth login + callback
+- cookie/JWT session
+- protected /me and /logout
+- internal token validation for service-to-service calls
+end note
+
+@enduml

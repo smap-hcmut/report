@@ -1,0 +1,42 @@
+@startuml AD_dryrun_current
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+title Activity Diagram: Datasource Dryrun (Current-State)
+
+|User|
+start
+:Select datasource and target;
+:Trigger dryrun;
+
+|Ingest Service|
+:Validate source status and target;
+if (Source status allowed?) then (No)
+  :Return dryrun not allowed;
+  stop
+endif
+
+:Create dryrun_result with status RUNNING;
+:Mark datasource dryrun status running;
+:Publish dryrun dispatch to RabbitMQ;
+
+|Scapper Worker|
+:Consume task and fetch sample data;
+:Store result and publish dryrun completion;
+
+|Ingest Service|
+:Consume completion;
+if (Completion success?) then (Yes)
+  :Update dryrun_result with samples and status COMPLETED;
+  :Update datasource readiness evidence;
+else (No)
+  :Update dryrun_result with FAILED status;
+endif
+
+|User|
+:Read latest or history dryrun result;
+stop
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+title Sequence: Notification Alert Flow (Current-State)
+
+autonumber
+
+participant "Backend Service" as Backend
+database "Redis Pub/Sub" as Redis
+participant "Redis Subscriber" as Subscriber
+participant "WebSocket UseCase" as WSUC
+participant "Alert UseCase" as AlertUC
+participant "Hub" as Hub
+cloud "Discord" as Discord
+actor "Web Client" as Client
+
+Backend -> Redis : publish message on scoped channel
+Redis -> Subscriber : subscribed message
+Subscriber -> WSUC : ProcessMessage(channel, payload)
+WSUC -> WSUC : parse channel + detect type + transform payload
+
+alt crisis / onboarding / campaign type
+  WSUC -> AlertUC : Dispatch...
+  AlertUC -> Discord : send rich embed
+end
+
+WSUC -> Hub : routeMessage(parsed, outputBytes)
+Hub --> Client : WebSocket frame
+
+@enduml

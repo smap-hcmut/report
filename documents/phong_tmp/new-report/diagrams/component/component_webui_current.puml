@@ -1,0 +1,42 @@
+@startuml
+title Component Diagram for Web UI (Current-State)
+
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+
+node "Identity Service" as identity_svc <<System>>
+node "Project Service" as project_svc <<System>>
+node "Knowledge Service" as knowledge_svc <<System>>
+node "Notification Service" as notification_svc <<System>>
+
+package "Web UI (Next.js + React)" {
+  [Next.js Pages] as pages
+  [Project Dashboard / Report Wizard] as dashboard
+  [API Service Layer] as api_layer
+  [Context / State Layers] as contexts
+  [WebSocket Hook + Service] as ws_client
+  [i18n Resources] as i18n
+}
+
+pages --> dashboard
+pages --> contexts
+dashboard --> api_layer
+dashboard --> ws_client
+pages --> i18n
+
+api_layer -[#blue]> identity_svc : auth endpoints
+api_layer -[#blue]> project_svc : campaign/project/datasource flows
+api_layer -[#blue]> knowledge_svc : search/chat/report APIs
+ws_client -[#purple]> notification_svc : GET /ws
+
+note right of dashboard
+Evidence in current source includes:
+- project report wizard
+- dashboard and trend pages
+- websocket hook/service
+- i18n and test tooling
+end note
+
+@enduml

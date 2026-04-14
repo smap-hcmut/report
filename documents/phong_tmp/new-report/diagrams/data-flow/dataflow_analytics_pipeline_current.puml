@@ -1,0 +1,51 @@
+@startuml
+title Dataflow: Analytics Pipeline (Current-State)
+
+autonumber
+skinparam Style strictuml
+
+queue "Kafka\nsmap.collector.output" as kafka_in #LightBlue
+participant "ConsumerServer" as consumer
+participant "UAPRecord Parser" as parser
+participant "Domain Registry" as domain_registry
+participant "Ingestion UseCase" as ingestion_uc
+participant "Pipeline UseCase" as pipeline_uc
+participant "Thread Pool\n(asyncio.to_thread)" as thread_pool
+participant "PostInsight UseCase" as post_insight_uc
+database "schema_analysis.post_insight" as analysis_db #LightCyan
+participant "Contract Publisher" as contract_pub
+queue "Kafka\nanalytics.* topics" as kafka_out #LightBlue
+participant "Knowledge Indexing Consumer" as knowledge_consumer
+database "Qdrant / Knowledge Storage" as knowledge_store #LightGreen
+
+kafka_in -> consumer : KafkaMessage
+consumer -> parser : decode + parse envelope
+parser -> parser : auto-detect ingest flat vs legacy UAP
+parser --> consumer : UAPRecord
+
+consumer -> domain_registry : lookup(domain_type_code)
+domain_registry --> consumer : ontology overlay
+
+consumer -> ingestion_uc : from_kafka([uap_record])
+ingestion_uc --> consumer : IngestedBatchBundle
+
+consumer -> thread_pool : asyncio.to_thread(pipeline_uc.run)
+thread_pool -> pipeline_uc : run(bundle, RunContext, config)
+pipeline_uc --> thread_pool : PipelineRunResult
+thread_pool --> consumer : result
+
+consumer -> post_insight_uc : create NLP fact rows
+post_insight_uc -> analysis_db : persist post_insight
+
+consumer -> contract_pub : publish_one(uap, insight_message)
+contract_pub -> kafka_out : analytics.batch.completed / analytics.insights.published / analytics.report.digest
+
+kafka_out -> knowledge_consumer : downstream indexing messages
+knowledge_consumer -> knowledge_store : index documents / update retrieval state
+
+note right of consumer
+Current flow keeps analytics off the HTTP path.
+Domain routing is resolved from domain_type_code before pipeline execution.
+end note
+
+@enduml

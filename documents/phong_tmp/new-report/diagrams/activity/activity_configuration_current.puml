@@ -1,0 +1,36 @@
+@startuml AD_configuration_current
+skinparam backgroundColor white
+skinparam defaultFontName "Arial"
+skinparam defaultFontSize 11
+skinparam monochrome true
+skinparam shadowing false
+
+title Activity Diagram: Configuration Flow (Current-State)
+
+|User|
+start
+:Create campaign;
+:Create project;
+
+|Project Service|
+:Persist project with status PENDING\nand config_status DRAFT;
+
+|User|
+:Create datasource;
+:Create crawl targets;
+:Adjust crawl mode if needed;
+
+|Ingest Service|
+:Persist datasource and targets;
+
+|User|
+if (Need crisis monitoring?) then (Yes)
+  :Configure crisis rules;
+  |Project Service|
+  :Upsert crisis config;
+endif
+
+|User|
+:Review readiness inputs;
+stop
+@enduml

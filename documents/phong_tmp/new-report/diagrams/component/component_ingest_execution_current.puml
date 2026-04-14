@@ -1,0 +1,93 @@
+@startuml
+
+title Component Diagram for Ingest Execution Plane (Current-State)
+
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #A80036
+
+database "PostgreSQL\ningest schema" as postgres <<System>>
+queue "RabbitMQ" as rabbitmq <<System>>
+database "MinIO / Object Storage" as minio <<System>>
+node "Project Service\ninternal API" as project_svc <<System>>
+queue "Kafka\nsmap.collector.output" as kafka <<System>>
+
+package "Ingest Service" as ingest_svc {
+
+  package "Delivery" as delivery {
+    [Datasource HTTP Handlers] as datasource_http <<component>>
+    [Dryrun HTTP Handlers] as dryrun_http <<component>>
+    [Execution RabbitMQ Consumer] as exec_consumer <<component>>
+    [Execution RabbitMQ Producer] as exec_producer <<component>>
+  }
+
+  package "UseCase" as usecase {
+    [Datasource UseCase] as datasource_uc <<UseCase>>
+    [Dryrun UseCase] as dryrun_uc <<UseCase>>
+    [Execution UseCase] as execution_uc <<UseCase>>
+    [UAP UseCase] as uap_uc <<UseCase>>
+  }
+
+  package "Infrastructure" as infra {
+    [Datasource Repository] as datasource_repo <<Repository>>
+    [Dryrun Repository] as dryrun_repo <<Repository>>
+    [Execution Repository] as execution_repo <<Repository>>
+    [Project Client] as project_client <<component>>
+    [MinIO Client] as minio_client <<component>>
+    [Kafka Publisher] as kafka_pub <<component>>
+  }
+}
+
+datasource_http --> datasource_uc
+datasource_http --> execution_uc
+dryrun_http --> dryrun_uc
+exec_consumer --> execution_uc
+
+datasource_uc --> datasource_repo
+datasource_uc --> project_client
+datasource_uc --> execution_uc
+
+dryrun_uc --> dryrun_repo
+dryrun_uc --> datasource_uc
+
+execution_uc --> execution_repo
+execution_uc --> exec_producer
+execution_uc --> project_client
+execution_uc --> minio_client
+execution_uc --> uap_uc : consumer runtime only
+
+uap_uc --> kafka_pub
+
+datasource_repo -[#green]> postgres : datasource / target / lifecycle
+dryrun_repo -[#green]> postgres : dryrun results
+execution_repo -[#green]> postgres : scheduled_jobs / external_tasks / raw_batches
+exec_producer -[#blue]> rabbitmq : task dispatch
+exec_consumer -[#blue]> rabbitmq : completion consume
+project_client -[#purple]> project_svc : internal HTTP detail / domain context
+minio_client -[#brown]> minio : verify object / raw fetch
+kafka_pub -[#orange]> kafka : publish UAP
+
+note right of execution_uc
+Execution lane current-state:
+- create scheduled job + external task
+- publish RabbitMQ dispatch message
+- consume completion message
+- verify object storage
+- create raw batch
+- in consumer runtime, parse and publish UAP when parser is wired
+end note
+
+legend right
+  |= Color |= Protocol |
+  | <#green> | PostgreSQL |
+  | <#blue> | RabbitMQ |
+  | <#purple> | Internal HTTP |
+  | <#brown> | S3/MinIO |
+  | <#orange> | Kafka |
+  | <#black> | Internal Call |
+endlegend
+
+@enduml

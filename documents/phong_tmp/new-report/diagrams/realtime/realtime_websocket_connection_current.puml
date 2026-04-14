@@ -1,0 +1,37 @@
+@startuml
+title Dataflow: WebSocket Connection (Current-State)
+
+autonumber
+skinparam Style strictuml
+
+actor "Web Client" as client
+participant "WS Handler" as handler
+participant "Request Processor" as req_proc
+participant "JWT Manager" as jwt
+participant "WebSocket UseCase" as uc
+participant "Hub" as hub
+
+client -> handler : GET /ws\n(token query or auth cookie)
+activate handler
+handler -> req_proc : processUpgradeRequest()
+req_proc -> req_proc : bind query params
+req_proc -> req_proc : fallback to auth cookie if needed
+req_proc -> jwt : Verify(token)
+jwt --> req_proc : user_id
+req_proc --> handler : upgrade request + user_id
+
+handler -> handler : Upgrade HTTP -> WebSocket
+handler -> uc : Register(conn, user_id)
+uc -> hub : register connection
+uc -> client : start readPump/writePump
+handler --> client : 101 Switching Protocols
+deactivate handler
+
+note right of req_proc
+`project_id` is accepted in UpgradeReq,
+but current hub routing is user-based.
+The connection path should not imply
+an enforced project-scoped subscription filter.
+end note
+
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+title Dataflow: Knowledge Search and Chat (Current-State)
+
+autonumber
+skinparam Style strictuml
+
+actor "Authenticated User" as user
+participant "Chat Handler" as chat_handler
+participant "Chat UseCase" as chat_uc
+participant "Search UseCase" as search_uc
+participant "Embedding UseCase" as embedding_uc
+database "Redis Cache" as redis #LightPink
+database "Qdrant" as qdrant #LightGreen
+cloud "LLM Provider" as llm
+database "Conversation Store\nPostgreSQL" as postgres #LightCyan
+
+user -> chat_handler : POST /api/v1/knowledge/chat
+chat_handler -> chat_uc : Chat(campaign_id, message, filters)
+chat_uc -> postgres : create or load conversation
+chat_uc -> search_uc : Search(query, filters)
+search_uc -> redis : check search cache
+
+alt cache miss
+  search_uc -> embedding_uc : Generate(query)
+  embedding_uc --> search_uc : vector
+  search_uc -> qdrant : search per-project collections
+  qdrant --> search_uc : scored results
+  search_uc -> redis : save cached results
+end
+
+search_uc --> chat_uc : search output
+chat_uc -> llm : Generate(prompt with citations)
+llm --> chat_uc : answer
+chat_uc -> postgres : persist user + assistant messages
+chat_uc --> chat_handler : answer + citations + suggestions
+chat_handler --> user : HTTP 200 response
+
+@enduml

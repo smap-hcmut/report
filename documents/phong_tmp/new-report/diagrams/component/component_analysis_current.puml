@@ -1,0 +1,43 @@
+@startuml
+title Component Diagram for Analysis Service (Current-State)
+
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+
+queue "Kafka\nsmap.collector.output" as kafka_in <<System>>
+queue "Kafka\nanalytics.*" as kafka_out <<System>>
+database "PostgreSQL\nschema_analysis" as postgres <<System>>
+database "Redis Cache" as redis <<System>>
+
+package "Analysis Service" {
+  [ConsumerServer] as consumer
+  [ConsumerRegistry] as registry
+  [Ingestion UseCase] as ingestion_uc
+  [Pipeline UseCase] as pipeline_uc
+  [NLPBatchEnricher] as nlp_uc
+  [Contract Publisher] as contract_pub
+  [PostInsight UseCase] as post_insight_uc
+}
+
+kafka_in -[#blue]> consumer : consume UAP
+consumer --> registry
+consumer --> ingestion_uc
+consumer --> pipeline_uc
+pipeline_uc --> nlp_uc
+consumer --> post_insight_uc
+consumer --> contract_pub
+post_insight_uc -[#green]> postgres : persist insights
+contract_pub -[#blue]> kafka_out : publish analytics topics
+consumer -[#red]> redis : optional cache / health usage
+
+note right of pipeline_uc
+Current execution model:
+- parse UAP / ingest flat payload
+- resolve domain_type_code overlay
+- asyncio.to_thread(pipeline.run)
+- persist and publish per NLPFact
+end note
+
+@enduml

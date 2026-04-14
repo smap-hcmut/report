@@ -1,0 +1,34 @@
+@startuml
+title Sequence: Authentication Flow (Current-State)
+
+autonumber
+
+actor User
+participant Browser
+participant "Identity Handler" as Handler
+participant "Authentication UseCase" as UC
+participant "OAuth Provider" as Provider
+participant "Session Manager" as Session
+
+User -> Browser : click login
+Browser -> Handler : GET /authentication/login
+Handler -> UC : InitiateOAuthLogin()
+UC --> Handler : auth URL + state
+Handler --> Browser : set state cookie + redirect
+Browser -> Provider : OAuth authorization request
+Provider --> Browser : callback(code, state)
+Browser -> Handler : GET /authentication/callback
+Handler -> UC : ProcessOAuthCallback(code, state)
+UC -> Provider : exchange code for token/profile
+Provider --> UC : provider identity
+UC -> Session : create session
+Session --> UC : ok
+UC --> Handler : internal token
+
+alt development mode
+  Handler --> Browser : JSON token response
+else production mode
+  Handler --> Browser : HttpOnly cookie + redirect
+end
+
+@enduml

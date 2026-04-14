@@ -1,0 +1,38 @@
+@startuml
+title Authentication: User Login Flow (Current-State)
+
+autonumber
+skinparam Style strictuml
+
+actor "User" as user
+participant "Browser" as browser
+participant "Identity HTTP Handler" as handler
+participant "Authentication UseCase" as auth_uc
+participant "OAuth Provider" as oauth
+participant "Session Manager" as session_mgr
+
+user -> browser : Open login page
+browser -> handler : GET /authentication/login?redirect=/dashboard
+handler -> auth_uc : InitiateOAuthLogin()
+auth_uc --> handler : AuthURL + state
+handler -> browser : set oauth_state + redirect cookie
+handler --> oauth : HTTP 302 Redirect
+
+oauth --> browser : callback with code + state
+browser -> handler : GET /authentication/callback?code=...&state=...
+handler -> handler : processCallbackRequest()
+handler -> auth_uc : ProcessOAuthCallback(code, state)
+auth_uc -> oauth : exchange code for identity token
+oauth --> auth_uc : provider token + user profile
+auth_uc -> session_mgr : createSession(user_id, jti)
+session_mgr --> auth_uc : session created
+auth_uc --> handler : internal token
+
+alt development mode
+  handler --> browser : HTTP 200 JSON token response
+else production mode
+  handler -> browser : set HttpOnly auth cookie
+  handler --> browser : HTTP 302 redirect to dashboard
+end
+
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+title Dataflow: Crawl Runtime Dispatch and Completion (Current-State)
+
+autonumber
+skinparam Style strictuml
+
+actor "Scheduler / Manual Trigger" as trigger
+participant "Execution UseCase" as exec_uc
+participant "Project Client" as project_client
+participant "Project Internal API" as project_api
+database "ingest.scheduled_jobs\nexternal_tasks" as ingest_db #LightCyan
+queue "RabbitMQ Producer" as producer #LightBlue
+queue "Task Queue\n(tiktok/facebook/youtube)" as task_queue #LightBlue
+participant "Scapper Worker" as worker
+database "Object Storage\n(MinIO current supported path)" as storage #LightYellow
+queue "Completion Queue" as completion_queue #LightBlue
+participant "Completion Consumer" as completion_consumer
+participant "Execution UseCase" as completion_uc
+participant "UAP Parser / Publisher" as uap_uc
+queue "Kafka\nsmap.collector.output" as kafka #LightBlue
+
+trigger -> exec_uc : DispatchTarget(data_source_id, target_id)
+exec_uc -> project_client : Resolve project domain_type_code
+project_client -> project_api : GET /api/v1/internal/projects/:project_id
+project_api --> project_client : project detail
+project_client --> exec_uc : domain_type_code
+
+exec_uc -> ingest_db : CreateScheduledJob + CreateExternalTask
+exec_uc -> producer : PublishDispatch(task_id, queue, action, params)
+producer -> task_queue : persistent JSON dispatch message
+
+task_queue -> worker : task message
+worker -> worker : run TinLikeSub handler
+worker -> storage : save_result_data()
+worker -> completion_queue : publish_completion(task_id, storage_path, batch_id, checksum)
+
+completion_queue -> completion_consumer : completion message
+completion_consumer -> completion_uc : HandleCompletion()
+completion_uc -> storage : verifyMinIOObject(storage_bucket, storage_path)
+completion_uc -> ingest_db : CompleteTaskSuccess + create raw_batch
+completion_uc -> uap_uc : ParseAndStoreRawBatch(...)\nwhen parser is wired and mapping is supported
+uap_uc -> kafka : publish canonical UAP records
+
+note right of completion_queue
+Current queues:
+- ingest_task_completions
+- ingest_dryrun_completions
+end note
+
+note right of completion_uc
+Ingest deduplicates by task_id / batch_id,
+verifies object storage, then persists raw batch lineage.
+UAP parsing/publish happens in the consumer runtime,
+not as a direct API-response path.
+Current success path in execution completion is object-storage based.
+end note
+
+@enduml

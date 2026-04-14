@@ -1,0 +1,36 @@
+@startuml
+title Sequence: Analytics Pipeline Flow (Current-State)
+
+autonumber
+
+queue "Kafka\nsmap.collector.output" as KafkaIn
+participant "ConsumerServer" as Consumer
+participant "UAP Parser" as Parser
+participant "Domain Registry" as DomainRegistry
+participant "Ingestion UseCase" as IngestionUC
+participant "Pipeline UseCase" as PipelineUC
+participant "Thread Pool" as ThreadPool
+participant "PostInsight UseCase" as PostInsightUC
+database "PostgreSQL" as Postgres
+participant "Contract Publisher" as Publisher
+queue "Kafka\nanalytics.*" as KafkaOut
+participant "Knowledge Consumer" as KnowledgeConsumer
+
+KafkaIn -> Consumer : Kafka message
+Consumer -> Parser : parse UAP / ingest flat payload
+Parser --> Consumer : UAPRecord
+Consumer -> DomainRegistry : lookup(domain_type_code)
+DomainRegistry --> Consumer : ontology overlay
+Consumer -> IngestionUC : from_kafka([uap])
+IngestionUC --> Consumer : bundle
+Consumer -> ThreadPool : asyncio.to_thread(PipelineUC.run)
+ThreadPool -> PipelineUC : run(bundle, ctx, config)
+PipelineUC --> ThreadPool : pipeline result
+ThreadPool --> Consumer : nlp_facts
+Consumer -> PostInsightUC : create post_insight rows
+PostInsightUC -> Postgres : persist
+Consumer -> Publisher : publish_one(...)
+Publisher -> KafkaOut : analytics.* topics
+KafkaOut -> KnowledgeConsumer : downstream indexing
+
+@enduml

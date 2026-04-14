@@ -1,0 +1,35 @@
+@startuml
+title Component Diagram for Knowledge Service (Current-State)
+
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+
+database "Qdrant" as qdrant <<System>>
+database "PostgreSQL\nknowledge schema" as postgres <<System>>
+database "Redis Cache" as redis <<System>>
+queue "Kafka\nanalytics.*" as kafka <<System>>
+cloud "LLM Provider" as llm <<System>>
+
+package "Knowledge Service" {
+  [Search HTTP Handlers] as search_http
+  [Chat HTTP Handlers] as chat_http
+  [Indexing Consumer] as indexing_consumer
+  [Search UseCase] as search_uc
+  [Chat UseCase] as chat_uc
+  [Notebook / Report Modules] as notebook_modules
+}
+
+search_http --> search_uc
+chat_http --> chat_uc
+chat_uc --> search_uc
+indexing_consumer -[#blue]> kafka : consume analytics topics
+indexing_consumer -[#green]> qdrant : update vector documents
+search_uc -[#green]> qdrant : semantic retrieval
+search_uc -[#red]> redis : cache search results
+chat_uc -[#green]> postgres : conversations / messages
+chat_uc -[#purple]> llm : generate answer
+notebook_modules --> search_uc
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+title Component Diagram for Notification Service (Current-State)
+
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam DefaultFontName "Arial"
+
+database "Redis Pub/Sub" as redis <<System>>
+cloud "Discord Webhook" as discord <<System>>
+node "Web Clients" as web_clients <<System>>
+
+package "Notification Service" {
+  [WebSocket HTTP Handler] as ws_http
+  [WebSocket UseCase] as ws_uc
+  [Hub] as hub
+  [Redis Subscriber] as subscriber
+  [Alert UseCase] as alert_uc
+  [JWT Manager] as jwt_mgr
+}
+
+web_clients -[#blue]> ws_http : GET /ws
+ws_http --> jwt_mgr : verify token/cookie
+ws_http --> ws_uc : Register()
+ws_uc --> hub : manage active connections
+subscriber -[#red]> redis : psubscribe channel patterns
+subscriber --> ws_uc : ProcessMessage(channel, payload)
+ws_uc --> hub : routeMessage()
+ws_uc --> alert_uc : Dispatch... (crisis/onboarding/campaign)
+alert_uc -[#purple]> discord : send rich embeds
+hub -[#blue]> web_clients : WebSocket frames
+
+@enduml
