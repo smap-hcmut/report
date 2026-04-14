@@ -11,22 +11,35 @@ Từ nhu cầu đó, SMAP được xây dựng như một hệ thống phân tí
 
 == 1.2 Mục tiêu đề tài
 
-Đề tài tập trung vào việc thiết kế và hiện thực hóa một nền tảng phân tích dữ liệu truyền thông xã hội, với ưu tiên hàng đầu là tính vững chắc của kiến trúc phần mềm và khả năng mở rộng hệ thống và không đi sâu vào nghiên cứu phát triển các mô hình học máy phức tạp. Cụ thể, hệ thống được xây dựng để tự động hóa quy trình kỹ thuật, kết nối các luồng dữ liệu nhằm rút ngắn Time-to-Insight, cho phép chuyển đổi nhanh chóng dữ liệu thô thành các chỉ số có ý nghĩa. Về khía cạnh phân tích, SMAP tích hợp các mô hình Aspect-Based Sentiment Analysis cho tiếng Việt như một module xử lý chức năng, phục vụ việc hiển thị các chỉ số về sức khỏe thương hiệu và phân tích cạnh tranh trên Dashboard. Trọng tâm cốt lõi của đồ án nằm ở việc giải quyết bài toán hiệu năng thông qua kiến trúc Microservices kết hợp Event-driven, sử dụng cơ chế giao tiếp qua message broker để đảm bảo tính độc lập và khả năng mở rộng linh hoạt cho từng dịch vụ. Qua đó, SMAP hướng đến giá trị thực tiễn của một sản phẩm phần mềm hoàn chỉnh, đề cao tính tổ chức và thiết kế hệ thống phân tán trong bối cảnh dữ liệu lớn
+=== 1.2.1 Mục tiêu tổng quát
+
+Mục tiêu tổng quát của đề tài là xây dựng một hệ thống phân tích dữ liệu mạng xã hội phục vụ nhu cầu vận hành nội bộ, có khả năng thu thập dữ liệu từ nhiều nguồn, chuẩn hóa và xử lý dữ liệu, từ đó hỗ trợ phân tích, tổng hợp thông tin và khai thác thông tin theo ngữ cảnh. Trọng tâm chính của đồ án là kiến trúc phần mềm, tổ chức luồng dữ liệu và sự phối hợp giữa các thành phần trong hệ thống, thay vì đi sâu vào việc nghiên cứu hoặc đề xuất các mô hình học máy mới.
+
+=== 1.2.2 Mục tiêu cụ thể
+
+Các mục tiêu cụ thể của đề tài bao gồm:
+
+- Hỗ trợ thiết lập và quản lý các đối tượng phân tích cần thiết để làm cơ sở cho quá trình theo dõi và xử lý dữ liệu.
+- Hỗ trợ thu thập và chuẩn bị dữ liệu từ các nguồn mạng xã hội theo quy trình có kiểm soát.
+- Hỗ trợ xử lý và phân tích dữ liệu theo hướng bất đồng bộ để tạo ra các kết quả có cấu trúc phục vụ tra cứu, tổng hợp thông tin và hỗ trợ ra quyết định.
+- Hỗ trợ tìm kiếm, tra cứu và khai thác thông tin theo ngữ cảnh từ dữ liệu và kết quả phân tích đã được xử lý.
+- Hỗ trợ cập nhật thông tin và tín hiệu quan trọng theo hướng gần thời gian thực trong quá trình vận hành hệ thống.
+- Xây dựng hệ thống theo hướng có cấu trúc rõ ràng, thuận lợi cho vận hành, bảo trì và nâng cấp sau này.
 
 == 1.3 Phạm vi đề tài
 === 1.3.1 Phạm vi ứng dụng
-Hệ thống SMAP - Social Media Analytics Platform được định hướng là một nền tảng phân tích và khai thác dữ liệu mạng xã hội có tính linh hoạt cao, cho phép ứng dụng trong nhiều bối cảnh và quy mô tổ chức khác nhau.
+Hệ thống SMAP được xây dựng nhằm hỗ trợ nhu cầu theo dõi, phân tích và tổng hợp thông tin từ mạng xã hội trong phạm vi vận hành nội bộ. Người dùng đích của hệ thống là các nhóm nội bộ như chuyên viên phân tích dữ liệu truyền thông xã hội, bộ phận theo dõi thương hiệu, marketing, nghiên cứu thị trường, truyền thông và các cấp quản lý có nhu cầu khai thác thông tin để hỗ trợ ra quyết định.
 
-Mục tiêu của nền tảng không giới hạn ở một lĩnh vực cụ thể, mà hướng đến tự động hóa toàn bộ quy trình phân tích thông tin xã hội, giúp rút ngắn thời gian từ khi dữ liệu xuất hiện đến khi tạo ra insight có thể hành động.
+Phạm vi ứng dụng của hệ thống tập trung vào việc hỗ trợ quan sát dữ liệu, nhận diện tín hiệu đáng chú ý, tổng hợp kết quả phân tích và cung cấp thông tin phục vụ công tác theo dõi, đánh giá và ra quyết định.
 
 === 1.3.2 Phạm vi dữ liệu
-Nguồn dữ liệu được sử dụng trong dự án bao gồm các bài đăng, bình luận và phản hồi công khai được thu thập từ những nền tảng mạng xã hội phổ biến như TikTok, YouTube và Facebook.
+Nguồn dữ liệu được sử dụng trong hệ thống bao gồm các bài đăng, bình luận và phản hồi công khai được thu thập từ các nền tảng mạng xã hội như TikTok, YouTube và Facebook.
 
-Phương pháp thu thập dữ liệu được thực hiện kết hợp giữa việc sử dụng API chính thức và kỹ thuật Web Scraping. Thông tin được thu thập và phân tích là dữ liệu công khai, được người dùng tự tạo ra trên mạng xã hội. Vì vậy, mặc dù đảm bảo tính ổn định về thời gian trong xử lý và phản ánh nguyên trạng nội dung gốc, chúng tôi không thể xác nhận tính xác thực tuyệt đối của từng mẫu dữ liệu. Độ chính xác của phân tích phản ánh chính xác dữ liệu đầu vào được cung cấp.
+Trong phạm vi của đồ án, dữ liệu được xem là đầu vào phục vụ cho quá trình thu thập, xử lý và phân tích thông tin. Hệ thống tập trung vào việc tổ chức luồng xử lý và khai thác giá trị từ dữ liệu đầu vào, không đặt mục tiêu xác minh tính xác thực tuyệt đối của từng nội dung phát sinh trên các nền tảng mạng xã hội.
 
 === 1.3.3 Phạm vi kỹ thuật
-Về mặt kỹ thuật, dự án SMAP được kiến trúc lại theo mô hình Distributed System vận hành dựa trên cơ chế Event-Driven Choreography. Thay vì sử dụng mô hình điều phối tập trung truyền thống, các dịch vụ trong SMAP hoạt động độc lập và phối hợp nhịp nhàng thông qua chuỗi sự kiện, đảm bảo tính Loose Coupling tối đa.
+Về mặt kỹ thuật, đồ án tập trung vào việc xây dựng một hệ thống phân tán gồm nhiều thành phần chuyên biệt, trong đó dữ liệu được thu thập từ các nguồn mạng xã hội, chuẩn hóa, xử lý phân tích và cung cấp cho người dùng thông qua các cơ chế lưu trữ, truyền tin và thông báo phù hợp. Phạm vi kỹ thuật của đề tài bao gồm tổ chức kiến trúc hệ thống, thiết kế luồng xử lý dữ liệu và làm rõ cách các thành phần trong hệ thống phối hợp với nhau thông qua cả cơ chế giao tiếp đồng bộ lẫn bất đồng bộ.
 
-Hệ thống áp dụng các mẫu thiết kế nâng cao như Claim-Check Pattern, tối ưu hóa băng thông Message Queue bằng cách offload dữ liệu tải trọng lớn sang MinIO Data Lake và chiến lược Atomic Stream Processing. Cách tiếp cận này không chỉ giải quyết triệt để bài toán Asymmetric Workload giữa khâu thu thập và khâu phân tích AI, mà còn đảm bảo khả năng chịu lỗi..
+Đồ án không đi sâu vào việc nghiên cứu các mô hình học máy mới hay tối ưu thuật toán ở mức học thuật. Trọng tâm chính là làm rõ cách hệ thống được tổ chức và hiện thực để hỗ trợ thiết lập đối tượng theo dõi, thu thập dữ liệu, xử lý phân tích, khai thác thông tin theo ngữ cảnh và cung cấp thông tin phục vụ công tác theo dõi, đánh giá và ra quyết định.
 
-Trong bối cảnh triển khai trên Cluster Kubernetes giới hạn tài nguyên, các dịch vụ được thiết kế hoàn toàn Stateless, cho phép Horizontal Scaling linh hoạt và tận dụng tối đa phần cứng thông qua cơ chế lập lịch thông minh của Kubernetes.
+Ngoài ra, đồ án cũng xem xét các yếu tố hỗ trợ triển khai và vận hành như container hóa, tổ chức môi trường thực thi và khả năng mở rộng của từng thành phần, nhưng không đặt mục tiêu mô tả chi tiết toàn bộ hạ tầng triển khai như một tài liệu vận hành hoàn chỉnh.
