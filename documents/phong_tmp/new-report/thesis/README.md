@@ -49,4 +49,4 @@ Thư mục này là nhánh làm việc dành riêng cho bản luận văn 7 chư
 - mọi công nghệ đều phải có file bằng chứng
 - khi mô tả tính năng cụ thể, phải chỉ ra file và hàm hiện thực
 - chưa có bằng chứng thì không khẳng định như fact
-- frontend stack hiện chưa được xác nhận vì workspace hiện tại không có `package.json`
+- frontend stack có bằng chứng trực tiếp trong `web-ui/package.json`, nhưng chỉ nên khẳng định đến mức đã được đối chiếu rõ từ source

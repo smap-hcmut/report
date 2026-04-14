@@ -6,10 +6,10 @@ Giữ lại shell Typst cũ để phục vụ nộp chính thức, nhưng tái c
 
 ## Input Truth
 
-- `document/reporting/main.typ`
-- `document/reporting/config.typ`
-- `document/reporting/counters.typ`
-- `report/thesis/thesis_master.md`
+- `report_SMAP/final-report/main.typ`
+- `report_SMAP/final-report/config.typ`
+- `report_SMAP/final-report/counters.typ`
+- `report_SMAP/phong_tmp/new-report/thesis/thesis_master.md`
 - Kết quả audit từ Phase 1
 
 ## Việc phải làm

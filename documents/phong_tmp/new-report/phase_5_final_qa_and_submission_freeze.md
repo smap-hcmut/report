@@ -7,7 +7,7 @@ Khóa bản nộp cuối cùng sau khi shell, nội dung và hiện vật hỗ t
 ## Input Truth
 
 - Bản Typst đã migrate xong từ Phase 2-4
-- `report/thesis/submission_checklist.md`
+- `report_SMAP/phong_tmp/new-report/thesis/submission_checklist.md`
 - Source code hiện tại
 - Các báo cáo kiểm thử mới nhất
 

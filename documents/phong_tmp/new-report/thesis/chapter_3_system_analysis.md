@@ -18,7 +18,7 @@ Nguồn thứ hai là các README của từng service. Các README này không 
 
 Nguồn thứ ba là các file route và handler, dùng để xác nhận trực tiếp các use case đã được hiện thực ở mức API hoặc delivery layer. Ví dụ, login flow có thể được xác nhận qua route `/login`, `/callback`, `/me`, `/logout` trong `identity-srv`, trong khi project lifecycle có thể được xác nhận qua các route `activate`, `pause`, `resume`, `archive` trong `project-srv`.
 
-Nguồn thứ tư là các contract docs và gap docs, tiêu biểu như `../notification-srv/documents/contracts.md`, `../scapper-srv/RABBITMQ.md`, và `../document/gap/007_reporting_execution_and_transport_contract_mismatch.md`. Các file này giúp tách biệt rõ giữa current-state và target-state, đồng thời ngăn việc luận văn lặp lại transport model cũ đã không còn phản ánh đúng hiện trạng.
+Nguồn thứ tư là các contract docs và gap docs, tiêu biểu như `../notification-srv/documents/contracts.md`, `../scapper-srv/RABBITMQ.md`, và `../../src-of-truth/4-implementation-gap-checklist.md`. Các file này giúp tách biệt rõ giữa current-state và target-state, đồng thời ngăn việc luận văn lặp lại transport model cũ đã không còn phản ánh đúng hiện trạng.
 
 ### 3.1.3 Lớp minh họa từ mã nguồn
 
@@ -26,6 +26,7 @@ Các bằng chứng quan trọng dùng để tổng hợp yêu cầu bao gồm:
 
 - `../identity-srv/internal/authentication/delivery/http/routes.go`, nơi route login, callback, logout và me được định nghĩa.
 - `../project-srv/internal/project/delivery/http/routes.go`, nơi route tạo project trong campaign, xem danh sách project, kiểm tra điều kiện kích hoạt, activate, pause, resume, archive và delete được hiện thực.
+- `../project-srv/internal/project/usecase/lifecycle.go` và `../project-srv/pkg/microservice/ingest/usecase.go`, nơi current lifecycle control được nối từ `project-srv` sang internal APIs của `ingest-srv`.
 - `../project-srv/internal/crisis/delivery/http/routes.go`, nơi route quản lý crisis config được định nghĩa.
 - `../ingest-srv/internal/datasource/delivery/http/routes.go` và `../ingest-srv/internal/dryrun/delivery/http/routes.go`, nơi route quản lý datasource, target và dry run được hiện thực.
 - `../knowledge-srv/internal/search/delivery/http/routes.go` và `../knowledge-srv/internal/chat/delivery/http/routes.go`, nơi search và chat workflows được công bố ở lớp HTTP.
@@ -75,7 +76,8 @@ Sự phân nhóm này khớp chặt với kiến trúc nhiều lớp của hệ 
 ### 3.2.4 Lớp minh họa từ mã nguồn
 
 - FR-01 được hiện thực tại `../identity-srv/internal/authentication/delivery/http/routes.go` qua các route `/login`, `/callback`, `/logout`, `/me`; logic chính nằm tại `../identity-srv/internal/authentication/delivery/http/oauth.go` qua `OAuthLogin`, `OAuthCallback` và tại `handlers.go` qua `Logout`, `GetMe`.
-- FR-02 và FR-03 được hiện thực tại `../project-srv/internal/project/delivery/http/routes.go` thông qua các route `POST /campaigns/:id/projects`, `GET /campaigns/:id/projects`, `GET /projects/:project_id`, `PUT /projects/:project_id`, `POST /projects/:project_id/activate`, `pause`, `resume`, `archive`, `unarchive`, `DELETE /projects/:project_id`.
+- FR-02 được hiện thực chủ yếu tại `../project-srv/internal/project/delivery/http/routes.go` thông qua các route `POST /campaigns/:id/projects`, `GET /campaigns/:id/projects`, `GET /projects/:project_id`, `PUT /projects/:project_id`, `DELETE /projects/:project_id`.
+- FR-03 được hiện thực qua hai lớp: route lifecycle ở `../project-srv/internal/project/delivery/http/routes.go`, và lifecycle control plane ở `../project-srv/internal/project/usecase/lifecycle.go` kết hợp với `../ingest-srv/internal/datasource/usecase/project_lifecycle.go`.
 - FR-04 được hiện thực tại `../project-srv/internal/crisis/delivery/http/routes.go` qua các route `PUT/GET/DELETE /projects/:project_id/crisis-config`.
 - FR-05, FR-06, FR-07 được hiện thực tại `../ingest-srv/internal/datasource/delivery/http/routes.go` và `../ingest-srv/internal/dryrun/delivery/http/routes.go`.
 - FR-09 được hiện thực tại `../analysis-srv/internal/consumer/server.py` qua `ConsumerServer._handle_message` và `../analysis-srv/internal/pipeline/usecase/usecase.py` qua hàm `run`.
@@ -90,12 +92,12 @@ Table 3.2 links each functional requirement to the service, file and implementat
 | --- | --- | --- | --- |
 | FR-01 | `identity-srv` | `../identity-srv/internal/authentication/delivery/http/oauth.go` | `OAuthLogin`, `OAuthCallback` |
 | FR-02 | `project-srv` | `../project-srv/internal/project/delivery/http/routes.go` | campaign/project CRUD routes |
-| FR-03 | `project-srv`, `ingest-srv` | `../project-srv/internal/project/delivery/http/routes.go`, `../ingest-srv/internal/datasource/usecase/project_lifecycle.go` | `Activate`, `Pause`, `Resume` |
+| FR-03 | `project-srv`, `ingest-srv` | `../project-srv/internal/project/usecase/lifecycle.go`, `../project-srv/pkg/microservice/ingest/usecase.go`, `../ingest-srv/internal/datasource/usecase/project_lifecycle.go` | `Activate`, `Pause`, `Resume`, readiness control |
 | FR-04 | `project-srv` | `../project-srv/internal/crisis/delivery/http/routes.go` | `PUT/GET/DELETE crisis-config` |
 | FR-05 | `ingest-srv` | `../ingest-srv/internal/datasource/delivery/http/routes.go` | datasource CRUD routes |
 | FR-06 | `ingest-srv` | `../ingest-srv/internal/datasource/delivery/http/routes.go` | target create/list/update/activate/deactivate |
 | FR-07 | `ingest-srv` | `../ingest-srv/internal/dryrun/delivery/http/routes.go` | `Trigger`, `GetLatest`, `ListHistory` |
-| FR-08 | `ingest-srv`, `scapper-srv` | `../scapper-srv/app/publisher.py`, `../scapper-srv/RABBITMQ.md` | `publish_task`, `publish_completion` |
+| FR-08 | `ingest-srv`, `scapper-srv` | `../ingest-srv/internal/execution/delivery/rabbitmq/producer/producer.go`, `../ingest-srv/internal/execution/usecase/consumer.go`, `../scapper-srv/app/worker.py`, `../scapper-srv/app/publisher.py` | `PublishDispatch`, `HandleCompletion`, `publish_completion` |
 | FR-09 | `analysis-srv` | `../analysis-srv/internal/consumer/server.py`, `../analysis-srv/internal/pipeline/usecase/usecase.py` | `_handle_message`, `run` |
 | FR-10 | `knowledge-srv` | `../knowledge-srv/internal/search/usecase/search.go`, `../knowledge-srv/internal/chat/usecase/chat.go` | `Search`, `Chat` |
 | FR-11 | `notification-srv` | `../notification-srv/internal/websocket/delivery/http/handlers.go` | `HandleWebSocket` |
@@ -138,7 +140,7 @@ Table 3.4 summarizes the non-functional requirements that can be inferred and ev
 | NFR-02 | Security | Hệ thống phải hỗ trợ OAuth2 login, JWT, cookie-based session và internal service authentication | `identity-srv/config/auth-config.yaml`, `notification-srv/documents/contracts.md` |
 | NFR-03 | Availability | Workloads quan trọng phải có health check hoặc probe để phát hiện lỗi runtime | `analysis-srv/apps/consumer/deployment.yaml` |
 | NFR-04 | Scalability | Analytics consumer phải có khả năng scale theo CPU và workload | `analysis-srv/manifests/hpa.yaml` |
-| NFR-05 | Data Integrity | Các flow bất đồng bộ phải dùng correlation keys hoặc canonical contracts | `scapper-srv/RABBITMQ.md`, `3-event-contracts.md` |
+| NFR-05 | Data Integrity | Các flow bất đồng bộ phải dùng correlation keys hoặc canonical contracts | `scapper-srv/RABBITMQ.md`, `ingest-srv/internal/execution/usecase/consumer.go`, `../../src-of-truth/3-event-contracts.md` |
 | NFR-06 | Modularity | Các bounded contexts phải được tách thành service/module độc lập | cấu trúc thư mục + `go.mod` / `pyproject.toml` riêng |
 | NFR-07 | Observability | Hệ thống phải hỗ trợ logging có cấu hình và metrics ở ít nhất một số workload | `analysis-srv/pyproject.toml`, `shared-libs/go/go.mod`, `knowledge-srv/go.mod` |
 
@@ -156,6 +158,7 @@ Về tính sẵn sàng và khả năng mở rộng, các Docker Compose stacks v
 - `../analysis-srv/manifests/hpa.yaml` định nghĩa autoscaling dựa trên CPU, `minReplicas: 1`, `maxReplicas: 3`.
 - `../identity-srv/config/auth-config.yaml` định nghĩa `oauth2`, `jwt`, `cookie`, `session`, `blacklist`, `internal.service_keys`.
 - `../scapper-srv/RABBITMQ.md` quy định `task_id` là correlation key và completion envelope phải idempotent theo `task_id`.
+- `../ingest-srv/internal/execution/usecase/consumer.go` thể hiện ingest dùng `task_id`, `batch_id`, `storage_bucket`, `storage_path` và kiểm tra duplicate/raw-batch existence để bảo toàn tính nhất quán khi nhận completion.
 
 ### 3.3.5 Stakeholder-to-Requirement Traceability Matrix
 

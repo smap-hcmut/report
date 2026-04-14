@@ -2,11 +2,11 @@
 
 ## Mục tiêu
 
-Migrate nội dung từ `report/thesis` sang shell Typst đã được tái cấu trúc ở Phase 2. Đây là phase lớn nhất, tập trung vào nội dung học thuật và factual correctness.
+Migrate nội dung từ `report_SMAP/phong_tmp/new-report/thesis` sang shell Typst tại `report_SMAP/final-report` sau khi khung Typst đã được tái cấu trúc ở Phase 2. Đây là phase lớn nhất, tập trung vào nội dung học thuật và factual correctness.
 
 ## Input Truth
 
-- `report/thesis/*.md`
+- `report_SMAP/phong_tmp/new-report/thesis/*.md`
 - Kết quả audit Phase 1
 - Kết quả shell restructure Phase 2
 - Source code hiện tại của các service

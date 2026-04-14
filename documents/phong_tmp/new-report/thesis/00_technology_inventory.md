@@ -77,11 +77,20 @@ Danh sách dưới đây chỉ bao gồm các công nghệ được xác nhận 
 | Auto scaling | HorizontalPodAutoscaler | `../analysis-srv/manifests/hpa.yaml` |
 | Registry | Harbor-style image registry | `../analysis-srv/apps/consumer/deployment.yaml` |
 
+## 8.1 Frontend và web client
+
+| Nhóm | Công nghệ | Bằng chứng |
+| --- | --- | --- |
+| Frontend framework | Next.js `15.x` | `../web-ui/package.json`, `../web-ui/next.config.ts` |
+| UI runtime | React `19.x` | `../web-ui/package.json` |
+| Internationalization | `next-i18next`, `react-i18next`, `i18next` | `../web-ui/package.json` |
+| Styling | Tailwind CSS | `../web-ui/package.json` |
+| Frontend testing | Jest, Testing Library | `../web-ui/package.json` |
+
 ## 9. Công nghệ chưa được xác nhận trực tiếp
 
 Các hạng mục sau chưa nên được coi là fact của hệ thống tại thời điểm hiện tại:
 
-- frontend framework cụ thể như Next.js, React, Vue, vì workspace hiện tại không có `package.json`
 - CI/CD implementation cụ thể như GitHub Actions, GitLab CI hoặc Jenkins, vì không tìm thấy `.github/workflows/*` hay pipeline manifests tương ứng
 
-Hai điểm này cần được ghi rõ trong luận văn để tránh vi phạm nguyên tắc “bằng chứng mã nguồn”.
+Điểm này cần được ghi rõ trong luận văn để tránh vi phạm nguyên tắc “bằng chứng mã nguồn”.

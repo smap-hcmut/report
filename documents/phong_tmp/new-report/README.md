@@ -4,7 +4,7 @@ Updated: 2026-04-14
 
 ## 1. Mục đích
 
-Thư mục `report/` là bộ báo cáo kiến trúc kỹ thuật của workspace SMAP. Tài liệu này dùng mẫu hình thức của `../document/reporting/` làm chuẩn trình bày, nhưng toàn bộ kết luận kiến trúc được viết lại theo `current-state` của repo hiện tại.
+Thư mục này là bộ báo cáo kiến trúc kỹ thuật của workspace SMAP. Tài liệu này dùng shell Typst trong `../../final-report/` làm chuẩn trình bày, nhưng toàn bộ kết luận kiến trúc được viết lại theo `current-state` của repo hiện tại.
 
 Report này không phải bản sao của luận văn cũ. Mục tiêu của nó là:
 
@@ -49,7 +49,7 @@ Thư mục `diagram/` cũ được xem là `legacy` và không còn là nguồn 
 
 ## 6. Ghi chú quan trọng
 
-Report cũ trong `../document/reporting/` có giá trị rất lớn về mặt khung trình bày, nhưng một phần nội dung transport và execution flow đã lệch so với hệ hiện tại. Tài liệu này chủ động sửa lại những điểm đó, đặc biệt ở các luồng:
+Report cũ trong `../../final-report/` có giá trị rất lớn về mặt khung trình bày, nhưng một phần nội dung transport và execution flow đã lệch so với hệ hiện tại. Tài liệu này chủ động sửa lại những điểm đó, đặc biệt ở các luồng:
 
 - `project-srv -> ingest-srv`: current nghiêng về internal HTTP control plane
 - `ingest-srv <-> scapper-srv`: RabbitMQ cho crawl runtime

@@ -4,8 +4,8 @@
 
 Khóa lại hai nguồn sự thật trước khi chỉnh report nộp chính thức:
 
-- `report/thesis/*.md` là `content truth`
-- `document/reporting/*.typ` là `layout truth`
+- `report_SMAP/phong_tmp/new-report/thesis/*.md` là `content truth`
+- `report_SMAP/final-report/*.typ` là `layout truth`
 
 Phase này không sửa nội dung nộp ngay. Mục tiêu là audit để biết:
 
@@ -15,8 +15,8 @@ Phase này không sửa nội dung nộp ngay. Mục tiêu là audit để biế
 
 ## Input Truth
 
-- Bộ nội dung mẫu mới: `report/thesis`
-- Bộ Typst nộp cũ: `document/reporting`
+- Bộ nội dung mẫu mới: `report_SMAP/phong_tmp/new-report/thesis`
+- Bộ Typst nộp cũ: `report_SMAP/final-report`
 - Source code hiện tại của các service liên quan
 - Các báo cáo kiểm thử gần đây như `e2e-report.md`, `final-report.md`
 
@@ -24,9 +24,9 @@ Phase này không sửa nội dung nộp ngay. Mục tiêu là audit để biế
 
 ### 1. Chốt vai trò của hai nguồn tài liệu
 
-- Xác nhận `report/thesis` là nguồn nội dung chuẩn để migrate.
-- Xác nhận `document/reporting` chỉ là shell dàn trang và cấu trúc Typst.
-- Không xem nội dung cũ trong `document/reporting` là nguồn sự thật nếu trái source hiện tại.
+- Xác nhận `report_SMAP/phong_tmp/new-report/thesis` là nguồn nội dung chuẩn để migrate.
+- Xác nhận `report_SMAP/final-report` chỉ là shell dàn trang và cấu trúc Typst.
+- Không xem nội dung cũ trong `report_SMAP/final-report` là nguồn sự thật nếu trái source hiện tại.
 
 ### 2. Lập bảng đối chiếu current-state
 
@@ -52,7 +52,7 @@ Checklist audit tối thiểu:
 Phải có một checklist rõ các nhóm nội dung cũ không được kéo sang bản nộp:
 
 - claim về survey hoặc user research nếu không có artifact chính thức
-- claim về frontend stack cụ thể nếu source hiện tại không xác nhận
+- claim về frontend stack vượt quá mức source hiện tại xác nhận
 - claim về CI/CD implementation nếu không có workflow/manifests thật
 - claim về deployment topology cũ không còn đúng với current source
 - service/component cũ không còn là owner hiện tại
@@ -84,8 +84,8 @@ Tạo bảng mapping tối thiểu:
 
 ## Checklist hoàn thành
 
-- [ ] Đã chốt `report/thesis` là `content truth`
-- [ ] Đã chốt `document/reporting` là `layout truth`
+- [ ] Đã chốt `report_SMAP/phong_tmp/new-report/thesis` là `content truth`
+- [ ] Đã chốt `report_SMAP/final-report` là `layout truth`
 - [ ] Đã có bảng mapping chapter cũ sang chapter mới
 - [ ] Đã liệt kê hết các nhóm claim cũ không được giữ
 - [ ] Đã đánh dấu được các khu vực `keep / rewrite / drop`

@@ -6,13 +6,13 @@ Chuẩn hóa toàn bộ hiện vật hỗ trợ để bản nộp chính thức 
 
 ## Input Truth
 
-- `report/thesis/images/...`
-- `report/thesis/list_of_figures.md`
-- `report/thesis/list_of_tables.md`
-- `report/thesis/references.md`
-- `report/thesis/00_technology_inventory.md`
-- `report/thesis/01_source_evidence_matrix.md`
-- `document/reporting/images/...`
+- `report_SMAP/phong_tmp/new-report/thesis/images/...`
+- `report_SMAP/phong_tmp/new-report/thesis/list_of_figures.md`
+- `report_SMAP/phong_tmp/new-report/thesis/list_of_tables.md`
+- `report_SMAP/phong_tmp/new-report/thesis/references.md`
+- `report_SMAP/phong_tmp/new-report/thesis/00_technology_inventory.md`
+- `report_SMAP/phong_tmp/new-report/thesis/01_source_evidence_matrix.md`
+- `report_SMAP/final-report/images/...`
 
 ## Việc phải làm
 
@@ -20,8 +20,8 @@ Chuẩn hóa toàn bộ hiện vật hỗ trợ để bản nộp chính thức 
 
 Quy tắc chọn hình:
 
-- ưu tiên hình trong `report/thesis/images/...`
-- chỉ tái dùng hình cũ trong `document/reporting/images` nếu:
+- ưu tiên hình trong `report_SMAP/phong_tmp/new-report/thesis/images/...`
+- chỉ tái dùng hình cũ trong `report_SMAP/final-report/images/...` nếu:
   - nội dung còn đúng với current implementation
   - chất lượng đủ để nộp
   - không mâu thuẫn với chapter text mới

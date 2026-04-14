@@ -94,7 +94,7 @@ File này dùng để điều phối việc viết tuần tự các chương cò
 
 ### 5.5 User Interface Gallery
 
-- hiện chưa có frontend source trong workspace; cần xác nhận từ người dùng nếu muốn bổ sung hình giao diện bên ngoài repo
+- workspace đã có frontend source trong `web-ui`; chỉ nên chọn các page hoặc flow có evidence rõ để đưa vào gallery
 
 ## 5. Chapter 6: Evaluation & Testing
 

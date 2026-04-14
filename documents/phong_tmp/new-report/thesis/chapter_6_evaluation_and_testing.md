@@ -165,7 +165,7 @@ Table 6.7 identifies the main threats that may limit how broadly the evaluation 
 | --- | --- | --- |
 | Internal validity | một số yêu cầu được suy ra từ code và docs hơn là từ SRS chính thức | có thể làm cách diễn đạt requirement mang tính tái cấu trúc hơn là phản ánh tài liệu gốc |
 | Construct validity | benchmark định lượng chưa có đầy đủ trong repo | phần hiệu năng chỉ kết luận ở mức readiness indicators, không phải controlled experiments |
-| External validity | frontend source và CI/CD artifacts chưa hiện diện trong workspace | các kết luận chủ yếu mạnh ở backend, runtime và integration architecture |
+| External validity | frontend source đã hiện diện trong workspace, nhưng phần đánh giá hiện vẫn thiên mạnh về backend, runtime và integration architecture; CI/CD artifacts vẫn chưa rõ | các kết luận mạnh nhất vẫn nằm ở backend contracts, service interactions và vận hành tích hợp |
 | Artifact maturity | một số contract là canonical nhưng rollout runtime chưa đồng đều | một số kết luận cần tiếp tục được hiểu là current/partial thay vì universal deployment fact |
 
 ## 6.4 Tổng kết chương

@@ -176,14 +176,16 @@ Trong một luận văn phần mềm, frontend technologies thường bao gồm 
 
 ### 2.4.2 Lớp phân tích trên dự án SMAP
 
-Tại thời điểm khảo sát workspace hiện tại, không tìm thấy `package.json` nào trong toàn bộ thư mục dự án. Do đó, không có đủ bằng chứng để khẳng định hệ thống đang dùng React, Next.js, Vue, CSR, SSR hay state management cụ thể nào.
+Workspace hiện tại có frontend source rõ ràng trong thư mục `../web-ui`. File `package.json` và `next.config.ts` cho thấy hệ thống đang dùng `Next.js 15`, `React 19`, cấu hình `i18n` với `next-i18next`, cùng các dependency giao diện như `framer-motion`, `react-chartjs-2`, `recharts` và `reactflow`. Đây là bằng chứng đủ mạnh để khẳng định hệ thống có một web client hiện thực độc lập, chứ không chỉ là một browser role được suy ra từ backend contracts.
 
-Điều này không có nghĩa là hệ thống không có frontend, mà chỉ có nghĩa rằng frontend source code không hiện diện trong phạm vi workspace đang được phân tích. Vì vậy, Chương 2 chỉ có thể ghi nhận frontend là một external client role hoặc dashboard consumer, thay vì mô tả stack kỹ thuật cụ thể.
+Tuy nhiên, không nên suy diễn quá mức từ `package.json` sang toàn bộ kiến trúc frontend. Mã nguồn hiện tại cho phép xác nhận framework, i18n, test tooling và sự hiện diện của các page/hook/component chính, nhưng chưa đủ để khóa một kết luận đầy đủ về state architecture toàn cục hoặc mọi quyết định rendering ở cấp hệ thống. Vì vậy, phần này chỉ nên dừng ở mức các công nghệ và interaction surfaces có bằng chứng trực tiếp.
 
 ### 2.4.3 Lớp minh họa từ mã nguồn
 
-- Kết quả quét `**/package.json` trong workspace không trả về file nào.
-- `../notification-srv/README.md` và `../notification-srv/documents/contracts.md` chỉ xác nhận sự tồn tại của browser dashboards và WebSocket clients, không xác nhận frontend implementation stack.
+- `../web-ui/package.json` xác nhận `next`, `react`, `next-i18next`, `jest`, `tailwindcss` và các thư viện UI/charting.
+- `../web-ui/next.config.ts` xác nhận frontend được cấu hình như một ứng dụng `Next.js` với `i18n` và `standalone output`.
+- `../web-ui/pages/projects/[project_id]/report-wizard.tsx` cho thấy có UI flow cho report wizard và dashboard-derived export surface.
+- `../web-ui/hooks/useProjectWebSocket.ts` và `../web-ui/services/websocketService.ts` xác nhận WebSocket client logic ở phía frontend.
 
 ## 2.5 Database & Storage
 
