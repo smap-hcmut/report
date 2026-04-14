@@ -3,11 +3,11 @@
 
 == 1.1 Giới thiệu đề tài
 
-Trong thời đại số, sự tồn tại và phổ biến của các nền tảng truyền thông xã hội đã tạo ra một môi trường mà trong đó thông tin được tạo ra và lan truyền với tần suất cao mỗi ngày. Các tương tác của người dùng trên những nền tảng này hình thành một tập dữ liệu phi cấu trúc có quy mô lớn, phản ánh hành vi người dùng và xu hướng thị trường. Nguồn dữ liệu này có vai trò quan trọng trong việc hỗ trợ doanh nghiệp phân tích nhu cầu khách hàng và xây dựng chiến lược cạnh tranh.
+Trong bối cảnh chuyển đổi số, dữ liệu mạng xã hội ngày càng trở thành một nguồn thông tin quan trọng cho hoạt động theo dõi thương hiệu, phân tích xu hướng và hỗ trợ ra quyết định. Tuy nhiên, giá trị của nguồn dữ liệu này không chỉ nằm ở việc thu thập số lượng lớn bài đăng hay bình luận, mà còn nằm ở khả năng chuẩn hóa, phân tích và chuyển hóa dữ liệu thành thông tin có thể sử dụng trong thực tế.
 
-Tuy nhiên, thách thức đặt ra nằm ở việc xử lý và khai thác hiệu quả khối lượng dữ liệu nói trên. Dữ liệu thô nếu không được tổ chức và phân tích phù hợp sẽ khó chuyển hóa thành thông tin có giá trị sử dụng. Do đó, thực tiễn đặt ra nhu cầu về một quy trình có khả năng chuyển đổi dữ liệu mạng xã hội thành thông tin có ý nghĩa, phục vụ việc nhận diện xu hướng và phân tích cảm xúc người dùng một cách có hệ thống.
+Các hệ thống social listening hiện đại vì vậy không còn dừng ở mức hiển thị biểu đồ hay thống kê đơn giản. Chúng cần hỗ trợ một chuỗi xử lý gồm thu thập dữ liệu từ nhiều nguồn, xử lý và phân tích nội dung, lưu trữ kết quả có cấu trúc, khai thác thông tin theo ngữ cảnh, cũng như cung cấp cơ chế thông báo kịp thời khi xuất hiện tín hiệu quan trọng.
 
-Từ yêu cầu đó, đề tài tập trung nghiên cứu và phát triển hệ thống SMAP - Social Media Analytics Platform. Hệ thống được thiết kế nhằm tự động hóa các bước chính trong quy trình phân tích dữ liệu mạng xã hội, bao gồm thu thập dữ liệu từ nhiều nền tảng, xử lý ngôn ngữ tự nhiên cho tiếng Việt và trực quan hóa kết quả phân tích nhằm hỗ trợ ra quyết định. SMAP hướng tới việc cung cấp một nền tảng phân tích dữ liệu có tính ứng dụng cao, đáp ứng đồng thời yêu cầu kỹ thuật và nhu cầu khai thác thông tin trong thực tiễn.
+Từ nhu cầu đó, SMAP được xây dựng như một hệ thống phân tích dữ liệu mạng xã hội phục vụ mục đích vận hành nội bộ. Hệ thống được tổ chức thành nhiều thành phần với vai trò chuyên biệt, hỗ trợ luồng xử lý từ ngữ cảnh nghiệp vụ, thu thập dữ liệu, phân tích, khai thác thông tin theo ngữ cảnh, đến thông báo thời gian thực. Đây cũng là cơ sở để luận văn tập trung vào việc phân tích kiến trúc và hiện thực của hệ thống thay vì chỉ mô tả bài toán ở mức ý tưởng.
 
 == 1.2 Mục tiêu đề tài
 
@@ -30,4 +30,3 @@ Về mặt kỹ thuật, dự án SMAP được kiến trúc lại theo mô hìn
 Hệ thống áp dụng các mẫu thiết kế nâng cao như Claim-Check Pattern, tối ưu hóa băng thông Message Queue bằng cách offload dữ liệu tải trọng lớn sang MinIO Data Lake và chiến lược Atomic Stream Processing. Cách tiếp cận này không chỉ giải quyết triệt để bài toán Asymmetric Workload giữa khâu thu thập và khâu phân tích AI, mà còn đảm bảo khả năng chịu lỗi..
 
 Trong bối cảnh triển khai trên Cluster Kubernetes giới hạn tài nguyên, các dịch vụ được thiết kế hoàn toàn Stateless, cho phép Horizontal Scaling linh hoạt và tận dụng tối đa phần cứng thông qua cơ chế lập lịch thông minh của Kubernetes.
-
