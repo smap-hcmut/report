@@ -243,7 +243,7 @@ Các tiêu chí được lựa chọn gồm:
     stroke: 0.5pt,
     align: (center + horizon, center + horizon, center + horizon, center + horizon, center + horizon, center + horizon, center + horizon, center + horizon),
     fill: (col, row) => {
-      let grey-rows = (0, 1, 7, 13, 19, 25, 31)
+      let grey-rows = (0, 1, 7, 13)
       if row in grey-rows {
         luma(230)
       } else {
@@ -260,7 +260,7 @@ Các tiêu chí được lựa chọn gồm:
     [*Khai thác thông tin theo ngữ cảnh*],
     [*Giá trị tham chiếu với SMAP*],
 
-    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em), fill: luma(240))[1. Phạm vi dữ liệu],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em), fill: luma(240))[1. Hệ thống tại Việt Nam],
     [], [], [], [], [], [], [],
 
     [Buzzmetrics], [Mạng xã hội và dữ liệu liên quan theo hướng nghiên cứu], [Có, nhưng thiên về dịch vụ], [Mạnh ở insight chuyên sâu], [Có thể hỗ trợ theo dự án], [Thấp], [Gián tiếp qua báo cáo chuyên gia], [Nhấn mạnh giá trị của insight chất lượng],
@@ -269,7 +269,7 @@ Các tiêu chí được lựa chọn gồm:
     [Kompa], [Dữ liệu và phân tích theo hướng rộng], [Có], [Nhấn mạnh công nghệ dữ liệu], [Có đề cập], [Trung bình], [Có tiềm năng cao], [Tham chiếu tốt cho chiều sâu công nghệ phân tích],
     [Commsights / Andi], [Media intelligence đa nguồn], [Khá mạnh], [Mạnh ở tổng hợp báo cáo], [Có], [Thấp đến trung bình], [Chủ yếu qua báo cáo], [Tham chiếu cho tổng hợp thông tin đa nguồn],
 
-    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em), fill: luma(240))[2. Theo dõi và cập nhật],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em), fill: luma(240))[2. Hệ thống toàn cầu],
     [], [], [], [], [], [], [],
 
     [Talkwalker], [Rất rộng, quy mô toàn cầu], [Rất mạnh], [Rất mạnh], [Mạnh], [Cao], [Khá mạnh], [Chuẩn tham chiếu cho nền tảng tổng thể],
@@ -278,7 +278,7 @@ Các tiêu chí được lựa chọn gồm:
     [YouScan], [Rộng, nổi bật ở hình ảnh], [Mạnh], [Khá mạnh], [Có], [Cao], [Có yếu tố tương tác trực quan], [Tham chiếu cho hướng mở rộng đa phương tiện],
     [Meltwater], [Media intelligence và social listening], [Mạnh], [Khá mạnh], [Rất mạnh], [Cao], [Ở mức khai thác báo cáo và theo dõi], [Tham chiếu cho cảnh báo và quản lý khủng hoảng],
 
-    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em), fill: luma(240))[3. Mức độ phù hợp với SMAP],
+    table.cell(align: center + horizon, inset: (x: 0.3em, y: 0.5em), fill: luma(240))[3. Dòng đối chiếu SMAP],
     [], [], [], [], [], [], [],
 
     [SMAP], [Tập trung vào nguồn dữ liệu phục vụ vận hành nội bộ], [Có], [Tập trung vào xử lý, tổng hợp và khai thác thông tin], [Có định hướng hỗ trợ], [Phù hợp cho nhóm người dùng chuyên môn nội bộ], [Có, theo định hướng khai thác thông tin theo ngữ cảnh], [Hệ thống nội bộ tập trung vào luồng xử lý và giá trị sử dụng thực tế],
