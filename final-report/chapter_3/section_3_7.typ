@@ -28,8 +28,10 @@ Phương pháp tạo mã có nhiều lợi ích. Mã được tạo có thể đ
 
 === 3.7.3 Python và FastAPI
 
-Python là một ngôn ngữ lập trình đa năng, được biết đến với cú pháp rõ ràng và hệ sinh thái phong phú. Python đặc biệt mạnh trong khoa học dữ liệu, học máy, và scripting. Trong bối cảnh của SMAP, Python được sử dụng cho Analytics Service và Speech2Text Service, nơi cần tận dụng các thư viện AI/ML như PyTorch, PhoBERT, và Whisper.
+Python là một ngôn ngữ lập trình đa năng, được biết đến với cú pháp rõ ràng và hệ sinh thái phong phú. Python đặc biệt mạnh trong khoa học dữ liệu, học máy, và scripting. Trong bối cảnh của SMAP, Python được sử dụng cho analysis-srv và scrapper service, nơi cần tận dụng các thư viện xử lý dữ liệu, AI/ML và cơ chế worker bất đồng bộ.
 
-FastAPI là một web framework hiện đại cho Python, được thiết kế để xây dựng API với hiệu suất cao. FastAPI sử dụng gợi ý kiểu Python để tự động xác thực, tuần tự hóa, và tài liệu hóa. FastAPI có hiệu suất tương đương với Node.js và Go nhờ sử dụng Starlette và Pydantic.
+FastAPI là một web framework hiện đại cho Python, được thiết kế để xây dựng API với hiệu suất cao. FastAPI sử dụng gợi ý kiểu Python để tự động xác thực, tuần tự hóa, và tài liệu hóa. FastAPI có hiệu suất tốt nhờ sử dụng Starlette và Pydantic, đồng thời phù hợp với các service cần kết hợp API layer với các luồng xử lý bất đồng bộ.
 
-Hỗ trợ bất đồng bộ trong FastAPI cho phép xử lý các request đồng thời một cách hiệu quả. Python asyncio được tích hợp sẵn, cho phép các thao tác I/O không chặn. Điều này quan trọng cho các service cần xử lý nhiều request đồng thời như các endpoint API.
+Hỗ trợ bất đồng bộ trong FastAPI cho phép xử lý các request đồng thời một cách hiệu quả. Python asyncio được tích hợp sẵn, cho phép các thao tác I/O không chặn. Điều này quan trọng đối với các service vừa cung cấp API vừa phải phối hợp với worker runtime hoặc các pipeline xử lý dữ liệu.
+
+Những lựa chọn công nghệ backend trên phản ánh hướng tiếp cận đa ngôn ngữ của SMAP: Go và Gin phù hợp với các service điều phối, API và business control plane, trong khi Python và FastAPI phù hợp hơn với các thành phần thiên về analytics pipeline và scrapper runtime.

@@ -1,79 +1,85 @@
 #import "../counters.typ": table_counter
 
-== 3.5 Database Technologies
+== 3.5 Data Storage Technologies
 
 === 3.5.1 PostgreSQL
 
-PostgreSQL là một hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở, được biết đến với độ tin cậy cao, tính năng phong phú, và tuân thủ chuẩn SQL. PostgreSQL được phát triển từ năm 1986 tại Đại học California, Berkeley, và đã trở thành một trong những hệ thống cơ sở dữ liệu phổ biến nhất cho các ứng dụng doanh nghiệp. PostgreSQL hỗ trợ cả truy vấn SQL quan hệ và JSON phi quan hệ, làm cho nó trở thành một cơ sở dữ liệu đối tượng-quan hệ linh hoạt.
+PostgreSQL là một hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở, được biết đến với độ tin cậy cao, tính năng phong phú và tuân thủ chuẩn SQL. PostgreSQL hỗ trợ cả truy vấn quan hệ truyền thống lẫn dữ liệu bán cấu trúc thông qua JSONB, nhờ đó phù hợp với nhiều kiểu bài toán trong các hệ thống doanh nghiệp và hệ thống phân tán hiện đại.
 
-Tuân thủ ACID là một trong những điểm mạnh chính của PostgreSQL. ACID là viết tắt của Atomicity - tính nguyên tử, Consistency - tính nhất quán, Isolation - tính cô lập, và Durability - tính bền vững. Tính nguyên tử đảm bảo các giao dịch hoàn thành đầy đủ hoặc không hoàn thành gì cả. Tính nhất quán đảm bảo cơ sở dữ liệu luôn ở trạng thái hợp lệ. Tính cô lập đảm bảo các giao dịch đồng thời không ảnh hưởng lẫn nhau. Tính bền vững đảm bảo dữ liệu đã commit không bị mất ngay cả khi hệ thống gặp sự cố. Các đảm bảo ACID đảm bảo tính toàn vẹn và độ tin cậy của dữ liệu, đặc biệt quan trọng cho các ứng dụng tài chính, thương mại điện tử, và bất kỳ hệ thống nào cần tính nhất quán mạnh. PostgreSQL triển khai ACID thông qua Kiểm soát Đồng thời Đa phiên bản, cho phép đồng thời cao mà không cần khóa.
+Tuân thủ ACID là một trong những điểm mạnh chính của PostgreSQL. ACID là viết tắt của Atomicity, Consistency, Isolation và Durability, giúp đảm bảo các giao dịch được xử lý an toàn và dữ liệu duy trì tính toàn vẹn ngay cả khi hệ thống gặp sự cố. PostgreSQL triển khai ACID thông qua cơ chế kiểm soát đồng thời đa phiên bản, cho phép đồng thời cao mà không cần phụ thuộc hoàn toàn vào khóa truyền thống.
 
-Hỗ trợ JSONB là một tính năng độc đáo làm cho PostgreSQL linh hoạt hơn các cơ sở dữ liệu quan hệ truyền thống. JSONB là định dạng JSON nhị phân được PostgreSQL lưu trữ hiệu quả và hỗ trợ đánh chỉ mục. Điều này cho phép lưu trữ dữ liệu bán cấu trúc trong cơ sở dữ liệu quan hệ mà vẫn có thể truy vấn hiệu quả. JSONB hỗ trợ các toán tử đặc biệt để truy vấn dữ liệu JSON. Chỉ mục GIN có thể được tạo trên các cột JSONB để tăng tốc truy vấn.
+Trong thực tế, PostgreSQL đặc biệt phù hợp cho các dữ liệu nghiệp vụ có cấu trúc rõ ràng, yêu cầu ràng buộc chặt chẽ và cần truy vấn quan hệ ổn định. Đây cũng là lớp lưu trữ quan hệ chủ đạo trong nhiều service của SMAP, nơi các metadata, trạng thái nghiệp vụ, lịch sử thao tác và dữ liệu phân tích được duy trì lâu dài.
 
-=== 3.5.2 MongoDB
+=== 3.5.2 Redis
 
-MongoDB là một cơ sở dữ liệu NoSQL hướng tài liệu, lưu trữ dữ liệu dưới dạng tài liệu giống JSON thay vì hàng và cột như cơ sở dữ liệu quan hệ. MongoDB được thiết kế cho khả năng mở rộng, tính linh hoạt, và hiệu suất với dữ liệu bán cấu trúc. Mỗi tài liệu có thể có cấu trúc khác nhau, cho phép phát triển lược đồ dễ dàng mà không cần di chuyển. MongoDB được phát hành năm 2009 và đã trở thành một trong những cơ sở dữ liệu NoSQL phổ biến nhất.
+Redis là một hệ thống lưu trữ dữ liệu trong bộ nhớ, thường được sử dụng như cache, session store, coordination layer hoặc message infrastructure nhẹ. Redis hỗ trợ nhiều cấu trúc dữ liệu như string, hash, list, set và sorted set, cho phép thực hiện các thao tác nhanh với độ trễ rất thấp.
 
-Lược đồ linh hoạt là một trong những lợi ích lớn nhất của MongoDB. Không giống như cơ sở dữ liệu quan hệ yêu cầu định nghĩa lược đồ trước, MongoDB cho phép chèn tài liệu với cấu trúc khác nhau vào cùng một bộ sưu tập. Điều này rất hữu ích khi cấu trúc dữ liệu không cố định hoặc phát triển theo thời gian.
+Vì dữ liệu được xử lý chủ yếu trong RAM, Redis có hiệu suất rất cao và phù hợp với các trường hợp cần phản hồi nhanh. Tuy nhiên, Redis thường không được xem là lớp lưu trữ nghiệp vụ chính cho dữ liệu quan hệ dài hạn, mà đóng vai trò hỗ trợ cho các nhu cầu như cache, session management, rate limiting, blacklist token hoặc pub/sub thời gian thực.
 
-Mở rộng theo chiều ngang là một điểm mạnh khác của MongoDB. MongoDB hỗ trợ sharding, phân phối dữ liệu trên nhiều server. Mỗi shard chứa một tập con của dữ liệu, và bộ định tuyến MongoDB định tuyến truy vấn đến đúng shard. Điều này cho phép mở rộng ra ngoài bằng cách thêm server thay vì mở rộng lên bằng cách nâng cấp phần cứng.
+Trong ngữ cảnh của SMAP, Redis có giá trị ở tính linh hoạt hơn là ở vai trò cơ sở dữ liệu trung tâm. Nó phù hợp cho các luồng cần hiệu năng cao như session/token blacklist trong xác thực, cache kết quả tìm kiếm, và fanout thông điệp thời gian thực cho notification layer.
 
-=== 3.5.3 Redis
+=== 3.5.3 Qdrant
 
-Redis là một kho lưu trữ cấu trúc dữ liệu trong bộ nhớ được sử dụng như cơ sở dữ liệu, bộ nhớ đệm, và message broker. Redis lưu trữ tất cả dữ liệu trong RAM, cho phép các thao tác đọc và ghi cực nhanh với độ trễ dưới millisecond. Redis hỗ trợ nhiều cấu trúc dữ liệu như chuỗi, hash, danh sách, tập hợp, tập hợp có thứ tự, bitmap, hyperloglog, và chỉ mục không gian địa lý. Redis được phát hành năm 2009 và đã trở thành tiêu chuẩn thực tế cho bộ nhớ đệm và các ứng dụng thời gian thực.
+Qdrant là một vector database được thiết kế để lưu trữ và truy vấn embedding vector với hiệu năng cao. Khác với cơ sở dữ liệu quan hệ truyền thống, Qdrant tối ưu cho các bài toán semantic search, similarity search và retrieval dựa trên khoảng cách vector.
 
-Lưu trữ trong bộ nhớ là lý do Redis có hiệu suất xuất sắc. Tất cả dữ liệu được lưu trữ trong RAM, không có I/O đĩa cho các thao tác đọc. Redis có thể xử lý hàng triệu thao tác mỗi giây trên phần cứng tiêu chuẩn. Điều này làm cho Redis lý tưởng cho bộ nhớ đệm, lưu trữ phiên, và phân tích thời gian thực.
+Trong các hệ thống hiện đại có tích hợp xử lý ngôn ngữ tự nhiên hoặc hỏi đáp theo ngữ cảnh, vector database đóng vai trò quan trọng vì nó cho phép ánh xạ văn bản thành vector và tìm các nội dung gần nghĩa thay vì chỉ dựa vào khớp từ khóa. Nhờ đó, hệ thống có thể hỗ trợ các truy vấn ngữ nghĩa, tìm kiếm theo ngữ cảnh và các luồng khai thác thông tin nâng cao.
 
-Cấu trúc dữ liệu phong phú phân biệt Redis với các kho key-value đơn giản. Chuỗi cho các giá trị đơn giản và bộ đếm. Hash cho các đối tượng với nhiều trường. Danh sách cho hàng đợi và ngăn xếp. Tập hợp cho các bộ sưu tập duy nhất. Tập hợp có thứ tự cho bảng xếp hạng và hàng đợi ưu tiên. Mỗi cấu trúc dữ liệu có các thao tác được tối ưu hóa, cho phép các thao tác phức tạp trong các lệnh đơn.
+Đối với SMAP, Qdrant phù hợp với lớp khai thác thông tin theo ngữ cảnh, nơi dữ liệu đã qua xử lý và phân tích cần được lập chỉ mục để phục vụ semantic search, chat và các khả năng truy vấn dựa trên embedding. Vì vậy, Qdrant không thay thế PostgreSQL hay Redis, mà bổ sung một lớp lưu trữ tối ưu cho dữ liệu vector.
 
-Các tùy chọn bền vững cho phép Redis lưu dữ liệu xuống đĩa để khôi phục sau khi khởi động lại. Ảnh chụp RDB tạo ảnh chụp tại thời điểm của tập dữ liệu. Log AOF ghi lại mọi thao tác ghi. Cả hai có thể được kết hợp để cân bằng giữa hiệu suất và tính bền vững.
+=== 3.5.4 MinIO
 
-=== 3.5.4 Polyglot Persistence
+MinIO là một hệ thống object storage tương thích S3, phù hợp cho việc lưu trữ các file và artifact kích thước lớn như raw payload, file báo cáo, batch outputs hoặc các tài nguyên trung gian trong pipeline dữ liệu. Khác với cơ sở dữ liệu quan hệ hay vector database, MinIO không tối ưu cho truy vấn nghiệp vụ chi tiết, mà tối ưu cho lưu trữ và truy xuất đối tượng.
 
-Polyglot Persistence là phương pháp kiến trúc sử dụng nhiều công nghệ cơ sở dữ liệu khác nhau trong cùng một ứng dụng, mỗi cơ sở dữ liệu được chọn dựa trên trường hợp sử dụng cụ thể. Thay vì sử dụng một cơ sở dữ liệu cho tất cả dữ liệu, polyglot persistence chọn công cụ phù hợp cho từng công việc: cơ sở dữ liệu quan hệ cho dữ liệu có cấu trúc, cơ sở dữ liệu tài liệu cho lược đồ linh hoạt, kho key-value cho bộ nhớ đệm. Phương pháp này tối ưu hóa hiệu suất, khả năng mở rộng, và năng suất của nhà phát triển bằng cách tận dụng điểm mạnh của mỗi loại cơ sở dữ liệu.
+Object storage đặc biệt hữu ích trong các hệ thống xử lý dữ liệu nhiều giai đoạn vì nó giúp tách phần dữ liệu tải trọng lớn khỏi các message hoặc metadata điều phối. Cách tiếp cận này làm cho các lane xử lý bất đồng bộ gọn hơn, đồng thời giữ lại được artifact gốc để truy vết, kiểm tra hoặc xử lý lại khi cần.
 
-#context (align(center)[_Bảng #table_counter.display(): So sánh các Database Technologies_])
+Trong SMAP, MinIO phù hợp với nhu cầu lưu raw crawl artifacts, kết quả trung gian và các tài liệu đầu ra như report bundles. Nó đóng vai trò là lớp lưu trữ file/object, bổ sung cho PostgreSQL, Redis và Qdrant trong kiến trúc lưu trữ tổng thể của hệ thống.
+
+=== 3.5.5 Polyglot Persistence
+
+Polyglot Persistence là phương pháp sử dụng nhiều công nghệ lưu trữ khác nhau trong cùng một hệ thống, trong đó mỗi công nghệ được lựa chọn dựa trên kiểu dữ liệu và nhu cầu truy cập cụ thể. Thay vì cố gắng giải quyết mọi bài toán bằng một cơ sở dữ liệu duy nhất, hệ thống tận dụng điểm mạnh của từng loại lưu trữ để tối ưu cho từng lớp chức năng.
+
+Trong thực tế, một hệ thống có thể dùng cơ sở dữ liệu quan hệ cho metadata và giao dịch, cache hoặc in-memory store cho hiệu năng và điều phối, vector database cho semantic retrieval, và object storage cho các file hoặc artifact dung lượng lớn. Cách tiếp cận này giúp tối ưu hóa hiệu năng, khả năng mở rộng và tính phù hợp của từng lớp dữ liệu.
+
+#context (align(center)[_Bảng #table_counter.display(): So sánh các công nghệ lưu trữ dữ liệu_])
 #table_counter.step()
 
 #text(size: 10pt)[
   #set par(justify: false)
   #table(
-    columns: (1.2fr, 1.3fr, 1.3fr, 1.3fr),
+    columns: (1.15fr, 1.2fr, 1.2fr, 1.2fr, 1.2fr),
     stroke: 0.5pt,
-    align: (left, left, left, left),
+    align: (left, left, left, left, left),
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Tiêu chí*],
     table.cell(align: center + horizon)[*PostgreSQL*],
-    table.cell(align: center + horizon)[*MongoDB*],
     table.cell(align: center + horizon)[*Redis*],
+    table.cell(align: center + horizon)[*Qdrant*],
+    table.cell(align: center + horizon)[*MinIO*],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[Data Model],
-    table.cell(align: center + horizon)[Relational, tables và rows],
-    table.cell(align: center + horizon)[Document, JSON-like],
-    table.cell(align: center + horizon)[Key-Value, Data Structures],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Loại dữ liệu],
+    table.cell(align: center + horizon)[Dữ liệu quan hệ và metadata],
+    table.cell(align: center + horizon)[Cache, session, pub/sub],
+    table.cell(align: center + horizon)[Embedding vector và semantic index],
+    table.cell(align: center + horizon)[File, object, raw artifacts],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[Consistency],
-    table.cell(align: center + horizon)[Mạnh, ACID],
-    table.cell(align: center + horizon)[Eventual, có thể điều chỉnh],
-    table.cell(align: center + horizon)[Eventual, in-memory],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Mô hình truy cập],
+    table.cell(align: center + horizon)[SQL và transaction],
+    table.cell(align: center + horizon)[Key-value / in-memory operations],
+    table.cell(align: center + horizon)[Similarity search theo vector],
+    table.cell(align: center + horizon)[Object read/write],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[Scalability],
-    table.cell(align: center + horizon)[Vertical và Read Replicas],
-    table.cell(align: center + horizon)[Horizontal, Sharding],
-    table.cell(align: center + horizon)[Horizontal, Clustering],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Điểm mạnh],
+    table.cell(align: center + horizon)[Tính nhất quán và truy vấn quan hệ mạnh],
+    table.cell(align: center + horizon)[Độ trễ thấp và hiệu năng cao],
+    table.cell(align: center + horizon)[Tối ưu cho semantic search],
+    table.cell(align: center + horizon)[Lưu trữ artifact lớn và bền vững],
 
-    table.cell(align: center + horizon, inset: (y: 1em))[Performance],
-    table.cell(align: center + horizon)[Tốt, disk-based],
-    table.cell(align: center + horizon)[Rất tốt, disk-based],
-    table.cell(align: center + horizon)[Xuất sắc, in-memory],
-
-    table.cell(align: center + horizon, inset: (y: 0.6em))[Use Cases],
-    table.cell(align: center + horizon)[Structured data, transactions],
-    table.cell(align: center + horizon)[Semi-structured, flexible schema],
-    table.cell(align: center + horizon)[Caching, real-time, sessions],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[Vai trò trong SMAP],
+    table.cell(align: center + horizon)[Lưu trữ nghiệp vụ và metadata chính],
+    table.cell(align: center + horizon)[Session, cache và realtime fanout],
+    table.cell(align: center + horizon)[Tìm kiếm và khai thác thông tin theo ngữ cảnh],
+    table.cell(align: center + horizon)[Lưu raw results và outputs],
   )
 ]
 
-Polyglot persistence có nhiều lợi ích. Tối ưu hóa hiệu suất cho phép chọn cơ sở dữ liệu tối ưu cho từng khối lượng công việc. Tính linh hoạt về khả năng mở rộng cho phép mở rộng từng cơ sở dữ liệu độc lập. Năng suất của nhà phát triển tăng khi sử dụng cơ sở dữ liệu phù hợp với mô hình dữ liệu. Tối ưu hóa chi phí cho phép sử dụng lưu trữ rẻ hơn cho dữ liệu ít quan trọng hơn.
-
-Tuy nhiên, polyglot persistence cũng có những thách thức. Độ phức tạp vận hành tăng khi phải quản lý nhiều hệ thống cơ sở dữ liệu. Tính nhất quán dữ liệu khó đảm bảo khi dữ liệu được phân tán trên các cơ sở dữ liệu. Chuyên môn của nhóm cần thiết cho mỗi công nghệ cơ sở dữ liệu. Độ phức tạp tích hợp khi cần kết hợp dữ liệu từ nhiều nguồn.
+Với SMAP, cách tiếp cận polyglot persistence phản ánh đúng bản chất của hệ thống đa dịch vụ: không có một loại lưu trữ nào tối ưu cho mọi nhu cầu. PostgreSQL phù hợp cho metadata và dữ liệu nghiệp vụ, Redis phù hợp cho cache và coordination nhẹ, Qdrant phù hợp cho semantic retrieval, còn MinIO phù hợp cho object storage. Sự kết hợp này tạo ra một kiến trúc lưu trữ linh hoạt và bám sát nhu cầu xử lý thực tế của hệ thống.

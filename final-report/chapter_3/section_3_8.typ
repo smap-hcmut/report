@@ -6,7 +6,7 @@ Next.js là một React framework được phát triển bởi Vercel, cung cấ
 
 Server-Side Rendering cho phép render các React component trên server và gửi HTML đến client. Điều này cải thiện thời gian tải trang ban đầu và SEO vì các công cụ tìm kiếm có thể lập chỉ mục nội dung. SSR đặc biệt quan trọng cho các trang có nhiều nội dung và ứng dụng cần SEO tốt.
 
-App Router là hệ thống định tuyến mới trong Next.js 13+, sử dụng định tuyến dựa trên hệ thống file với React Server Components. App Router cho phép bố cục lồng nhau, trạng thái tải, và ranh giới lỗi được định nghĩa một cách khai báo. Server Components giảm kích thước bundle JavaScript bằng cách render component trên server.
+Next.js hỗ trợ định tuyến dựa trên hệ thống file và có thể được tổ chức theo nhiều chiến lược khác nhau tùy theo giai đoạn phát triển của dự án. Trong current frontend workspace của SMAP, có thể quan sát thấy cả các route theo `pages/` lẫn các route theo `src/app/`, cho thấy frontend đang tồn tại ở trạng thái chuyển tiếp hoặc kết hợp nhiều cách tổ chức routing. Điều này phản ánh tính linh hoạt của Next.js trong việc hỗ trợ mở rộng và tái cấu trúc dần frontend theo nhu cầu thực tế.
 
 API Routes cho phép tạo các endpoint API trong cùng ứng dụng Next.js. Điều này hữu ích cho mẫu backend-for-frontend, nơi frontend cần lớp API để tổng hợp dữ liệu từ nhiều service. API Routes có thể xử lý xác thực, chuyển đổi dữ liệu, và bộ nhớ đệm.
 
@@ -38,4 +38,18 @@ Phương pháp utility-first có nghĩa là styling được thực hiện bằn
 
 Thiết kế responsive được tích hợp sẵn với các tiền tố responsive. Các class như md:flex chỉ áp dụng trên màn hình trung bình trở lên. Điều này làm cho thiết kế responsive dễ dàng và có thể dự đoán được.
 
-Tùy chỉnh thông qua file cấu hình cho phép định nghĩa màu sắc, khoảng cách, phông chữ, và breakpoint tùy chỉnh. Tailwind có thể được điều chỉnh cho hệ thống thiết kế của dự án. Tích hợp PurgeCSS loại bỏ các style không sử dụng trong bản build sản xuất.
+Tùy chỉnh thông qua file cấu hình cho phép định nghĩa màu sắc, khoảng cách, phông chữ, và breakpoint tùy chỉnh. Tailwind có thể được điều chỉnh cho hệ thống thiết kế của dự án, đồng thời hỗ trợ tốt cho việc xây dựng các giao diện có nhiều biến thể thành phần.
+
+=== 3.8.5 Electron và khả năng đóng gói desktop
+
+Electron là một nền tảng cho phép xây dựng ứng dụng desktop đa nền tảng bằng công nghệ web như HTML, CSS và JavaScript. Electron kết hợp Chromium để hiển thị giao diện và Node.js để cung cấp khả năng truy cập hệ thống ở phía desktop runtime. Nhờ đó, cùng một codebase frontend có thể được sử dụng để phát hành ứng dụng desktop bên cạnh phiên bản web.
+
+Trong current implementation của SMAP, frontend không chỉ dừng ở web application thuần túy mà còn có dấu hiệu đóng gói desktop thông qua Electron. Điều này đặc biệt hữu ích khi hệ thống cần một hình thức triển khai thuận tiện cho người dùng cuối, đồng thời vẫn tận dụng được toàn bộ stack giao diện dựa trên Next.js, React và TypeScript.
+
+=== 3.8.6 Tích hợp BI và Metabase
+
+Trong các hệ thống phân tích dữ liệu, lớp giao diện không chỉ đảm nhiệm hiển thị trang nghiệp vụ mà còn thường tích hợp các công cụ BI hoặc dashboard chuyên dụng để hỗ trợ truy vấn và trực quan hóa. Một hướng tiếp cận phổ biến là frontend cung cấp lớp tích hợp trung gian để truy xuất dữ liệu từ công cụ BI và đưa kết quả vào trải nghiệm sử dụng chung của hệ thống.
+
+Đối với SMAP, current frontend source cho thấy có tích hợp với Metabase thông qua các hook và API route riêng. Điều này cho thấy frontend không chỉ đóng vai trò giao diện thao tác, mà còn là nơi kết nối giữa trải nghiệm người dùng với các lớp báo cáo và khai thác dữ liệu có cấu trúc hơn.
+
+Những công nghệ trên là cơ sở để hình thành frontend hiện tại của SMAP: một lớp giao diện dựa trên Next.js, React, TypeScript và Tailwind CSS, có hỗ trợ i18n, có khả năng tích hợp BI, và có hướng triển khai trên cả web lẫn desktop thông qua Electron.
