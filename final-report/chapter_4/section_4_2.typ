@@ -2,109 +2,85 @@
 #import "../counters.typ": image_counter, table_counter
 
 == 4.2 Functional Requirements
-Căn cứ vào các mục tiêu nghiệp vụ của Marketing Analyst (A-01) và các ràng buộc kỹ thuật từ các nền tảng mạng xã hội (A-02) đã phân tích tại mục 4.1, chúng tôi đã xác định các yêu cầu chức năng cần thiết để hiện thực hóa hệ thống. Các chức năng này được chia thành 3 nhóm chính: thu thập dữ liệu, phân tích dữ liệu và báo cáo trực quan.
+
+Căn cứ vào nhóm người dùng và tác nhân hệ thống đã xác định ở mục 4.1, cùng với các capability được thể hiện trong current implementation, phần này tổng hợp các yêu cầu chức năng cốt lõi của SMAP. Thay vì mô tả hệ thống theo từng màn hình hay theo luồng giao diện chi tiết, các yêu cầu ở đây được viết ở mức capability để có thể ánh xạ trực tiếp sang service boundaries, API routes và các module hiện thực của hệ thống.
+
+Các yêu cầu chức năng được chia thành ba nhóm lớn. Nhóm thứ nhất là các capability phục vụ thiết lập và quản lý ngữ cảnh nghiệp vụ, bao gồm xác thực, campaign/project, datasource, crawl target và crisis configuration. Nhóm thứ hai là các capability điều phối và xử lý dữ liệu, bao gồm lifecycle control, dry run, crawl runtime orchestration và analytics processing. Nhóm thứ ba là các capability phục vụ khai thác kết quả, bao gồm tìm kiếm và hỏi đáp theo ngữ cảnh, thông báo thời gian thực và các internal validation flows phục vụ liên thông giữa các service.
+
 #pagebreak()
 #context (align(center)[_Bảng #table_counter.display(): Functional Requirements_])
 #table_counter.step()
+
 #text()[
   #set par(justify: false)
   #table(
-    columns: (0.08fr, 1fr),
+    columns: (0.12fr, 0.32fr, 1fr, 0.18fr),
     stroke: 0.5pt,
-    align: (left + top, left + top),
+    align: (left + top, left + top, left + top, center + top),
+
     table.cell(align: center + horizon, inset: (y: 0.8em))[*ID*],
+    table.cell(align: center + horizon)[*Tên yêu cầu*],
     table.cell(align: center + horizon)[*Mô tả*],
+    table.cell(align: center + horizon)[*Mức ưu tiên*],
 
-    // FR-1: Cấu hình Project (UC-01)
-    align(center + horizon)[FR-1],
-    table.cell(align: horizon, inset: (
-      y: 0.6em,
-    ))[Hệ thống cho phép Marketing Analyst tạo và cấu hình Project mới để theo dõi thương hiệu. Project bao gồm: \
-      (1) Thông tin cơ bản: tên, mô tả, khoảng thời gian theo dõi; \
-      (2) Từ khóa thương hiệu; \
-      (3) Đối thủ cạnh tranh; \
-      (4) Nền tảng mạng xã hội; \
-      (5) Chạy thử nghiệm trích xuất mẫu kết quả, kèm chỉ số tương tác để xác thực độ phủ; hỗ trợ thử nghiệm lặp lại. \
-      (6) Hệ thống xác thực tất cả thông tin trước khi lưu và hiển thị thời gian xử lý ước tính dựa trên số lượng từ khóa, platform và bài viết mong muốn.\
-      (7) Project chỉ chạy khi user thực hiện khởi chạy.],
+    align(center + horizon)[FR-01],
+    [User Authentication],
+    [Hệ thống phải cho phép người dùng đăng nhập bằng cơ chế xác thực hiện có, duy trì phiên truy cập và truy xuất thông tin người dùng hiện tại để sử dụng các chức năng nghiệp vụ.],
+    [Cao],
 
-    // FR-2: Thực thi & Giám sát Project (UC-03)
-    align(center + horizon)[FR-2],
-    table.cell(align: horizon, inset: (
-      y: 0.6em,
-    ))[Hệ thống cho phép Marketing Analyst khởi chạy Project từ trạng thái Draft và theo dõi tiến độ xử lý theo thời gian thực. Quá trình xử lý diễn ra qua các pha:\
-      (1) Thu thập dữ liệu (Crawling): thu thập bài viết và comments từ các platform đã chọn; \
-      (2) Phân tích dữ liệu (Analyzing): chạy pipeline AI để phân tích sentiment, keywords, aspects;\
-      (3) Tổng hợp kết quả (Aggregating): tính toán KPI và metrics; \
-      (4) Hoàn tất (Finalizing): cập nhật trạng thái và thông báo người dùng. Hệ thống hiển thị tiến độ real-time bao gồm: giai đoạn hiện tại, phần trăm hoàn thành, thời gian đã xử lý, và số lượng bài viết theo từng platform. \
+    align(center + horizon)[FR-02],
+    [Campaign and Project Management],
+    [Hệ thống phải cho phép tạo, xem, cập nhật và xóa campaign/project để thiết lập ngữ cảnh nghiệp vụ cho toàn bộ quá trình theo dõi và xử lý dữ liệu.],
+    [Cao],
 
-      Khi hoàn tất, hệ thống tự động cập nhật trạng thái và thông báo người dùng qua nhiều kênh.],
+    align(center + horizon)[FR-03],
+    [Project Lifecycle Control],
+    [Hệ thống phải cho phép kiểm tra điều kiện kích hoạt và thay đổi trạng thái project như activate, pause, resume, archive và unarchive theo luồng điều phối hiện tại.],
+    [Cao],
 
-    // FR-3: Quản lý danh sách Projects (UC-05)
-    align(center + horizon)[FR-3],
-    table.cell(align: horizon, inset: (
-      y: 0.6em,
-    ))[Hệ thống cung cấp giao diện quản lý danh sách Projects của Marketing Analyst. Danh sách hiển thị các Project kèm thông tin: tên; trạng thái (draft, process, completed, failed, cancelled); thời gian tạo.\
+    align(center + horizon)[FR-04],
+    [Crisis Configuration Management],
+    [Hệ thống phải cho phép cấu hình, xem và xóa các rule hoặc cấu hình giám sát khủng hoảng gắn với từng project.],
+    [Cao],
 
-      Người dùng có thể: \
-      (1) Lọc Projects theo trạng thái;\
-      (2) Tìm kiếm theo tên;\
-      (3) Sắp xếp theo thời gian. \
-      Chỉnh sửa Project chỉ được phép khi Project ở trạng thái Draft. Projects đang chạy không thể chỉnh sửa, chỉ có thể xem tiến độ hoặc hủy. Hệ thống tự động điều hướng người dùng đến trang phù hợp dựa trên trạng thái Project: \
-      (1) Draft - trang chỉnh sửa; \
-      (2) Đang chạy - trang giám sát; \
-      (3) Hoàn tất/Thất bại/Đã hủy - trang dashboard. \
+    align(center + horizon)[FR-05],
+    [Datasource Management],
+    [Hệ thống phải cho phép tạo và quản lý datasource, bao gồm xem chi tiết, cập nhật, lưu trữ trạng thái và thực hiện các thao tác quản lý vòng đời phù hợp.],
+    [Cao],
 
-      Người dùng có thể xóa Project, hệ thống sẽ đánh dấu đã xóa nhưng vẫn giữ lại dữ liệu trong một khoảng thời gian nhất định cho mục đích audit và tuân thủ.],
+    align(center + horizon)[FR-06],
+    [Crawl Target Management],
+    [Hệ thống phải cho phép tạo và quản lý crawl target theo các kiểu đầu vào mà hệ thống hiện hỗ trợ, làm cơ sở cho việc thu thập dữ liệu từ các nền tảng mạng xã hội.],
+    [Cao],
 
-    // FR-4: Xem kết quả & So sánh (UC-04)
-    align(center + horizon)[FR-4],
-    table.cell(align: horizon, inset: (
-      y: 0.6em,
-    ))[Hệ thống cung cấp dashboard trực quan để Marketing Analyst xem kết quả phân tích và so sánh với đối thủ. Dashboard hiển thị: \
-      (1) KPI tổng quan: tổng số bài viết, phân bố sentiment, các chỉ số tương tác; \
-      (2) Biểu đồ sentiment trend theo thời gian; \
-      (3) Phân tích theo khía cạnh với sentiment breakdown; \
-      (4) So sánh với đối thủ bao gồm so sánh sentiment, engagement, và share of voice. \
+    align(center + horizon)[FR-07],
+    [Dry Run Validation],
+    [Hệ thống phải cho phép thực hiện dry run để kiểm tra đầu vào thu thập dữ liệu và truy xuất kết quả dry run gần nhất hoặc lịch sử dry run phục vụ đánh giá trước khi vận hành chính thức.],
+    [Cao],
 
-      Người dùng có thể lọc kết quả theo platform, sentiment, khoảng thời gian, và khía cạnh. Hệ thống hỗ trợ drilldown: click vào khía cạnh để xem các bài viết liên quan, click vào bài viết để xem nội dung đầy đủ và comments.],
+    align(center + horizon)[FR-08],
+    [Crawl Runtime Orchestration],
+    [Hệ thống phải hỗ trợ publish crawl task, tiếp nhận completion metadata, liên kết raw artifact với quá trình ingest và điều phối lane thu thập dữ liệu bất đồng bộ.],
+    [Cao],
 
-    // FR-5: Xuất báo cáo (UC-06)
-    align(center + horizon)[FR-5],
-    table.cell(align: horizon, inset: (
-      y: 0.6em,
-    ))[Hệ thống cho phép Marketing Analyst xuất báo cáo từ dashboard. Người dùng có thể chọn nội dung báo cáo (KPIs, Sentiment Analysis, Aspect Analysis, So sánh đối thủ, Raw Data) và khoảng thời gian. \
+    align(center + horizon)[FR-09],
+    [Analytics Processing],
+    [Hệ thống phải tiếp nhận dữ liệu đầu vào đã chuẩn hóa, thực thi pipeline phân tích và tạo ra các kết quả phân tích có cấu trúc để phục vụ các lớp downstream.],
+    [Cao],
 
-      Báo cáo được gắn metadata bao gồm: phiên bản phân tích, thời điểm xuất, bộ lọc đã áp dụng, khoảng thời gian, và định dạng. Hệ thống xử lý báo cáo bất đồng bộ và cung cấp link tải khi hoàn tất.],
+    align(center + horizon)[FR-10],
+    [Knowledge Search and Chat],
+    [Hệ thống phải hỗ trợ tìm kiếm, tra cứu và hỏi đáp theo ngữ cảnh trên dữ liệu và kết quả phân tích đã được lập chỉ mục.],
+    [Cao],
 
-    // FR-6: Phát hiện trend tự động (UC-07)
-    align(center + horizon)[FR-6],
-    table.cell(align: horizon, inset: (
-      y: 0.6em,
-    ))[Hệ thống tự động phát hiện trend để Marketing Analyst theo dõi các xu hướng mới nổi trên mạng xã hội định kỳ (hàng ngày, hàng tuần). Hệ thống tự động thực hiện: \
-      (1) Thu thập nội dung trend (nhạc, từ khóa, hashtag) từ các platform đã được cấu hình trong Project;\
-      (2) Chuẩn hóa metadata bao gồm: tiêu đề, platform, thời gian, chỉ số tương tác (views, likes, comments, shares, saves);\
-      (3) Tính toán điểm số dựa trên engagement và velocity để xếp hạng trends; \
-      (4) Lưu lại mỗi lần chạy với thông tin: thời gian chạy, platform, danh sách trends đã xếp hạng, và điểm số. \
-      Hệ thống cung cấp Trend Dashboard để Marketing Analyst xem danh sách trends đã xếp hạng với các chức năng: \
-      (1) Lọc theo platform, khoảng thời gian, điểm số tối thiểu; \
-      (2) Sắp xếp theo điểm số hoặc thời gian phát hiện; \
-      (3) Xem chi tiết từng trend bao gồm metadata đầy đủ và các bài viết liên quan.],
+    align(center + horizon)[FR-11],
+    [Realtime Notification],
+    [Hệ thống phải hỗ trợ kết nối thời gian thực và đẩy các loại thông báo cần thiết như tiến độ xử lý, sự kiện chiến dịch hoặc cảnh báo tới người dùng phù hợp.],
+    [Trung bình],
 
-    // FR-7: Phát hiện khủng hoảng (UC-08)
-    align(center + horizon)[FR-7],
-    table.cell(align: horizon, inset: (
-      y: 0.6em,
-    ))[Hệ thống cung cấp chức năng giám sát khủng hoảng chủ động. Marketing Analyst có thể thiết lập các chủ đề giám sát với cấu hình: \
-      (1) Tên thương hiệu/chủ đề cần bảo vệ; \
-      (2) Từ khóa; \
-      (3) Nền tảng theo dõi; \
-      (4) Ngưỡng cảnh báo; \
-
-      Hệ thống tự động quét dữ liệu mới nhất theo chu kỳ định sẵn (ví dụ: mỗi 3 tiếng) thông qua cron job. Khi phát hiện nội dung vi phạm ngưỡng an toàn, hệ thống: \
-      (1) Tạo cảnh báo; \
-      (2) Gửi thông báo tức thì đến user qua các kênh thông báo; \
-      (3) Lưu trữ các bài viết vi phạm để tối ưu storage. \
-    ],
+    align(center + horizon)[FR-12],
+    [Internal Service Validation],
+    [Hệ thống phải hỗ trợ các internal route hoặc cơ chế kiểm tra phục vụ liên thông an toàn giữa các service, ví dụ token validation hoặc internal lookup.],
+    [Trung bình],
   )
 ]
