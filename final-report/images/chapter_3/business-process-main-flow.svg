@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #475569; }
+      .lane-title { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .node-title { font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: 700; fill: #0f172a; }
+      .node-body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #334155; }
+      .edge { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="58" class="title">Figure 3.2. Main Business Process of SMAP</text>
+  <text x="48" y="88" class="subtitle">A cleaned activity-style view of the current process from business setup to knowledge delivery.</text>
+
+  <rect x="70" y="140" width="1460" height="150" rx="18" fill="#eff6ff" stroke="#60a5fa" stroke-width="2.4"/>
+  <text x="100" y="178" class="lane-title">Business Configuration</text>
+  <rect x="130" y="205" width="250" height="58" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <rect x="470" y="205" width="260" height="58" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <rect x="830" y="205" width="260" height="58" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="255" y="232" text-anchor="middle" class="node-title">Create Campaign / Project</text>
+  <text x="255" y="250" text-anchor="middle" class="node-body">establish business context</text>
+  <text x="600" y="232" text-anchor="middle" class="node-title">Define Brand and Domain</text>
+  <text x="600" y="250" text-anchor="middle" class="node-body">set entity and domain_type_code</text>
+  <text x="960" y="232" text-anchor="middle" class="node-title">Set Crisis Configuration</text>
+  <text x="960" y="250" text-anchor="middle" class="node-body">keywords, volume, sentiment, influencer rules</text>
+
+  <rect x="70" y="340" width="1460" height="170" rx="18" fill="#fff7ed" stroke="#fb923c" stroke-width="2.4"/>
+  <text x="100" y="378" class="lane-title">Ingest Preparation</text>
+  <rect x="150" y="410" width="250" height="64" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="500" y="410" width="260" height="64" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="870" y="410" width="280" height="64" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <text x="275" y="438" text-anchor="middle" class="node-title">Create Datasource</text>
+  <text x="275" y="458" text-anchor="middle" class="node-body">choose platform and runtime settings</text>
+  <text x="630" y="438" text-anchor="middle" class="node-title">Create Crawl Targets</text>
+  <text x="630" y="458" text-anchor="middle" class="node-body">keywords, profiles, or post URLs</text>
+  <text x="1010" y="438" text-anchor="middle" class="node-title">Run Dry Run / Readiness Check</text>
+  <text x="1010" y="458" text-anchor="middle" class="node-body">validate target and data-source readiness</text>
+
+  <rect x="70" y="560" width="1460" height="180" rx="18" fill="#fff7ed" stroke="#fb923c" stroke-width="2.4"/>
+  <text x="100" y="598" class="lane-title">Execution and Analytics</text>
+  <rect x="120" y="635" width="240" height="68" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="420" y="635" width="240" height="68" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="720" y="635" width="240" height="68" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <rect x="1020" y="635" width="260" height="68" rx="12" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+  <text x="240" y="662" text-anchor="middle" class="node-title">Activate Project / Datasource</text>
+  <text x="240" y="682" text-anchor="middle" class="node-body">transition to executable runtime state</text>
+  <text x="540" y="662" text-anchor="middle" class="node-title">Publish Crawl Tasks</text>
+  <text x="540" y="682" text-anchor="middle" class="node-body">dispatch platform-specific jobs</text>
+  <text x="840" y="662" text-anchor="middle" class="node-title">Normalize Raw Data to UAP</text>
+  <text x="840" y="682" text-anchor="middle" class="node-body">create canonical analytics payload</text>
+  <text x="1150" y="662" text-anchor="middle" class="node-title">Run NLP Analytics Pipeline</text>
+  <text x="1150" y="682" text-anchor="middle" class="node-body">publish batch, insights, and digest outputs</text>
+
+  <rect x="70" y="790" width="1460" height="140" rx="18" fill="#ecfdf5" stroke="#4ade80" stroke-width="2.4"/>
+  <text x="100" y="828" class="lane-title">Knowledge and Delivery</text>
+  <rect x="220" y="845" width="260" height="58" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <rect x="620" y="845" width="280" height="58" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <rect x="1040" y="845" width="280" height="58" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <text x="350" y="872" text-anchor="middle" class="node-title">Index Knowledge in Qdrant</text>
+  <text x="350" y="890" text-anchor="middle" class="node-body">store vectors and semantic metadata</text>
+  <text x="760" y="872" text-anchor="middle" class="node-title">Search, Chat, and Reporting</text>
+  <text x="760" y="890" text-anchor="middle" class="node-body">consume indexed knowledge assets</text>
+  <text x="1180" y="872" text-anchor="middle" class="node-title">Push Realtime Alerts</text>
+  <text x="1180" y="890" text-anchor="middle" class="node-body">deliver WebSocket or Discord notifications</text>
+
+  <path d="M380 234 L470 234" class="edge"/>
+  <path d="M730 234 L830 234" class="edge"/>
+  <path d="M960 263 L960 340 L275 340 L275 410" class="edge"/>
+  <path d="M400 442 L500 442" class="edge"/>
+  <path d="M760 442 L870 442" class="edge"/>
+  <path d="M1010 474 L1010 560 L240 560 L240 635" class="edge"/>
+  <path d="M360 669 L420 669" class="edge"/>
+  <path d="M660 669 L720 669" class="edge"/>
+  <path d="M960 669 L1020 669" class="edge"/>
+  <path d="M1280 669 L1280 790 L350 790 L350 845" class="edge"/>
+  <path d="M480 874 L620 874" class="edge"/>
+  <path d="M900 874 L1040 874" class="edge"/>
+</svg>

@@ -11,14 +11,13 @@
   )
 
   // --- THIẾT LẬP ĐOẠN VĂN ---
+  // Khoảng cách giữa các khối/đoạn (dùng block thay vì par.spacing để tương thích preview dùng Typst cũ)
+  set block(spacing: 1em)
   set par(
     justify: true, // Căn đều 2 bên (Bắt buộc với báo cáo)
-    
+
     // 0.8em ~ 1.3 line spacing (Vừa mắt, không quá thưa)
-    leading: 0.8em, 
-  
-  // Khoảng cách đoạn vừa đủ để tách biệt
-    spacing: 1em,
+    leading: 0.8em,
   )
 
   // --- THIẾT LẬP TRANG & HEADER ---
@@ -52,7 +51,7 @@
   set heading(numbering: none)
   show heading: it => {
     // Thiết lập khoảng cách chung cho tất cả heading
-    set block(above: 1.5em, below: 1em, sticky: true)
+    set block(above: 1.5em, below: 1em)
     
     if it.level == 1 {
       // --- CẤP 1 (VÍ DỤ: 1. GIỚI THIỆU) ---

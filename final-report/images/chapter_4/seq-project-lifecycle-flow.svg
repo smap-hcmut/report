@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #475569; }
+      .head { font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: 700; fill: #0f172a; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #1e293b; }
+      .life { stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 8 6; }
+      .msg { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="48" y="58" class="title">Figure 4.4. Sequence Diagram of Project Lifecycle Control</text>
+  <text x="48" y="88" class="subtitle">A user-triggered project activation flow passing through the business control layer and the ingest execution layer.</text>
+
+  <rect x="80" y="130" width="140" height="46" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="400" y="130" width="170" height="46" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="820" y="130" width="170" height="46" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <rect x="1210" y="130" width="180" height="46" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="150" y="159" text-anchor="middle" class="head">User</text>
+  <text x="485" y="159" text-anchor="middle" class="head">project-srv</text>
+  <text x="905" y="159" text-anchor="middle" class="head">ingest-srv</text>
+  <text x="1300" y="159" text-anchor="middle" class="head">PostgreSQL</text>
+
+  <line x1="150" y1="176" x2="150" y2="840" class="life"/>
+  <line x1="485" y1="176" x2="485" y2="840" class="life"/>
+  <line x1="905" y1="176" x2="905" y2="840" class="life"/>
+  <line x1="1300" y1="176" x2="1300" y2="840" class="life"/>
+
+  <path d="M150 240 L485 240" class="msg"/>
+  <rect x="255" y="212" width="125" height="22" rx="6" class="box"/>
+  <text x="317" y="227" text-anchor="middle" class="body">POST /projects/:id/activate</text>
+
+  <path d="M485 340 L1300 340" class="msg"/>
+  <rect x="770" y="312" width="245" height="22" rx="6" class="box"/>
+  <text x="892" y="327" text-anchor="middle" class="body">update project status and readiness evidence</text>
+
+  <path d="M485 450 L905 450" class="msg"/>
+  <rect x="610" y="422" width="170" height="22" rx="6" class="box"/>
+  <text x="695" y="437" text-anchor="middle" class="body">internal project activation call</text>
+
+  <path d="M905 560 L1300 560" class="msg"/>
+  <rect x="1015" y="532" width="175" height="22" rx="6" class="box"/>
+  <text x="1102" y="547" text-anchor="middle" class="body">activate datasource/runtime records</text>
+
+  <path d="M905 670 L485 670" class="msg"/>
+  <rect x="615" y="642" width="160" height="22" rx="6" class="box"/>
+  <text x="695" y="657" text-anchor="middle" class="body">lifecycle result and counts</text>
+
+  <path d="M485 780 L150 780" class="msg"/>
+  <rect x="260" y="752" width="115" height="22" rx="6" class="box"/>
+  <text x="317" y="767" text-anchor="middle" class="body">activation response</text>
+</svg>

@@ -1,12 +1,12 @@
 // === main.typ: Entry point tài liệu SMAP ===
 #import "config.typ" as cf
 
-// Dòng lệnh này có nghĩa là: "Hãy lấy toàn bộ nội dung file này, 
+// Dòng lệnh này có nghĩa là: "Hãy lấy toàn bộ nội dung file này,
 // đưa vào hàm cf.conf để xử lý (áp dụng font, lề, header...)"
 #show: cf.conf
 
 // Import & khởi tạo counter dùng cho bảng và hình ảnh
-#import "counters.typ": table_counter, image_counter
+#import "counters.typ": image_counter, table_counter
 #context table_counter.step()
 #context image_counter.step()
 
@@ -20,7 +20,7 @@
 #set page(numbering: none)
 #outline(
   title: [Mục lục],
-  depth: 4
+  depth: 4,
 )
 #pagebreak()
 
@@ -45,7 +45,7 @@
 // Chương 6: Tổng kết
 #include "chapter_6/index.typ"
 #pagebreak()
-// Chương 7: tài liệu tham khảo 
+// Chương 7: tài liệu tham khảo
 #include "chapter_7/index.typ"
 // Chương 8: Phụ lục
 #include "chapter_8/index.typ"
