@@ -1,65 +1,66 @@
 // Import counter dùng chung
 #import "../counters.typ": image_counter, table_counter
 
-== 4.5 Sơ đồ hoạt động
+== 4.5 Sơ đồ hoạt động và luồng xử lý chính
 
-=== 4.5.1 Vòng đời Project từ cấu hình đến xem kết quả và xuất báo cáo
+Phần này sử dụng các sơ đồ current-state để mô tả các luồng hoạt động chính của hệ thống SMAP. Mục tiêu của các sơ đồ không phải là minh họa giao diện người dùng chi tiết, mà là làm rõ cách các capability cốt lõi của hệ thống được tổ chức và vận hành từ góc nhìn quy trình nghiệp vụ và luồng xử lý kỹ thuật.
 
-Sơ đồ này mô tả vòng đời Project theo luồng nghiệp vụ chính, bắt đầu từ cấu hình (UC-01), kiểm tra từ khóa bằng dry-run (UC-02), khởi chạy và theo dõi tiến độ xử lý (UC-03), xem kết quả phân tích trên dashboard (UC-04), và kết thúc ở bước xuất báo cáo (UC-06). Ở mức tổng quan, sơ đồ tập trung vào các quyết định nghiệp vụ quan trọng (lưu cấu hình hay dry-run, trạng thái Project, và export bất đồng bộ), đồng thời lược bỏ các nhánh lỗi kỹ thuật chi tiết nhằm làm nổi bật dòng chảy tác vụ của người dùng và phản hồi tương ứng của hệ thống.
+=== 4.5.1 Tổng quan use case của hệ thống
 
-#pad(left: 150pt)[#image("../images/activity/1.png", width: 50%)]
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động vòng đời Project_])
+Hình dưới đây trình bày sơ đồ use case tổng quát của SMAP theo current-state. Sơ đồ giúp nhìn nhanh các nhóm tương tác chính giữa người dùng nội bộ, hệ thống runtime và các capability cốt lõi như xác thực, quản lý project, dry run, lifecycle control, search/chat và notification.
+
+#pad(left: 40pt)[#image("../../documents/phong_tmp/new-report/thesis/images/chapter_3/overall-use-case-diagram.svg", width: 85%)]
+#context (align(center)[_Hình #image_counter.display(): Tổng quan use case của hệ thống_])
 #image_counter.step()
 
+=== 4.5.2 Quy trình nghiệp vụ chính của hệ thống
 
-=== 4.5.2 Chi tiết quy trình cấu hình Project và xác thực dữ liệu (UC-01)
+Sơ đồ này mô tả quy trình nghiệp vụ chính của SMAP ở mức activity-style current-state. Quy trình bắt đầu từ lớp business configuration, chuyển qua lớp ingest preparation, sau đó đi vào analytics processing, knowledge indexing và cuối cùng là consumption/delivery.
 
-Sơ đồ này chi tiết hóa wizard cấu hình Project trong UC-01, bao gồm các bước thu thập thông tin cơ bản, cấu hình thương hiệu và bộ từ khóa, khai báo đối thủ, lựa chọn nền tảng theo dõi, và bước tổng quan trước khi lưu.
-#pad(left: 40pt)[#image("../images/activity/2.png", width: 90%)]
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-01_])
+#pad(left: 40pt)[#image("../../documents/phong_tmp/new-report/thesis/images/chapter_3/business-process-main-flow.svg", width: 85%)]
+#context (align(center)[_Hình #image_counter.display(): Quy trình nghiệp vụ chính của hệ thống_])
 #image_counter.step()
 
+=== 4.5.3 Quy trình xác thực người dùng
 
-=== 4.5.3 Luồng kiểm tra từ khóa trước khi lưu (UC-02)
+Sơ đồ này mô tả luồng xác thực người dùng trong current-state, từ bước truy cập login cho tới khi hệ thống thiết lập được phiên làm việc hợp lệ. Đây là flow quan trọng vì nó là điểm vào cho toàn bộ các protected routes và các tương tác người dùng với hệ thống.
 
-Sơ đồ này mô tả nhánh tùy chọn Dry-run trong quá trình cấu hình, nhằm giúp người dùng đánh giá nhanh chất lượng từ khóa dựa trên một mẫu dữ liệu nhỏ từ các nền tảng đã chọn.
-
-#pad(left: 40pt)[#image("../images/activity/dry.png", width: 90%)]
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-02_])
+#pad(left: 20pt)[#image("../../documents/phong_tmp/new-report/thesis/images/chapter_4/seq-authentication-flow.svg", width: 95%)]
+#context (align(center)[_Hình #image_counter.display(): Quy trình xác thực người dùng_])
 #image_counter.step()
 
+=== 4.5.4 Quy trình điều khiển vòng đời project
 
-=== 4.5.4 Chi tiết quy trình khởi chạy và theo dõi tiến độ Project (UC-03)
+Sơ đồ này mô tả cách project được kiểm tra readiness và chuyển trạng thái trong kiến trúc hiện tại của SMAP. Điểm đáng chú ý là lifecycle control diễn ra qua một control plane gồm `project-srv` và các internal APIs của `ingest-srv`, thay vì hoàn toàn đi theo event-driven orchestration.
 
-Sơ đồ này minh họa quy trình khởi chạy Project và theo dõi tiến độ xử lý theo thời gian thực.
-
-#pad(left: 10pt)[#image("../images/activity/4.png", width: 100%)]
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-03_])
+#pad(left: 20pt)[#image("../../documents/phong_tmp/new-report/thesis/images/chapter_4/seq-project-lifecycle-flow.svg", width: 95%)]
+#context (align(center)[_Hình #image_counter.display(): Quy trình điều khiển vòng đời project_])
 #image_counter.step()
 
+=== 4.5.5 Quy trình dry run và kiểm tra readiness
 
-=== 4.5.5 Quy trình xuất báo cáo bất đồng bộ (UC-06)
+Sơ đồ này minh họa use case dry run trong current-state, nơi người dùng cấu hình datasource và crawl target, sau đó chạy một luồng kiểm tra thử để tạo bằng chứng readiness trước khi kích hoạt project hoặc lane runtime chính thức.
 
-Sơ đồ này mô tả quy trình xuất báo cáo dưới dạng tác vụ nền. Sau khi người dùng gửi yêu cầu export từ dashboard, hệ thống ghi nhận yêu cầu, tạo job và đưa vào hàng đợi để xử lý bất đồng bộ.
-
-#pad(left: 20pt)[#image("../images/activity/5.png", width: 100%)]
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-06_])
+#pad(left: 20pt)[#image("../../documents/phong_tmp/new-report/thesis/images/chapter_4/seq-dryrun-flow.svg", width: 95%)]
+#context (align(center)[_Hình #image_counter.display(): Quy trình dry run và kiểm tra readiness_])
 #image_counter.step()
 
+=== 4.5.6 Quy trình analytics đến knowledge
 
-=== 4.5.6 Quy trình phát hiện Trend tự động (UC-07)
-Sơ đồ mô tả quy trình hệ thống tự động thu thập và xếp hạng trending content theo chu kỳ
+Sơ đồ này mô tả lane xử lý bất đồng bộ quan trọng của hệ thống, nơi dữ liệu đã chuẩn hóa được tiêu thụ bởi analytics runtime, đi qua pipeline xử lý và sau đó được phát hành downstream để phục vụ knowledge layer. Đây là một trong những luồng kỹ thuật cốt lõi thể hiện rõ multi-stage processing trong current architecture của SMAP.
 
-
-#pad(left: 10pt)[#image("../images/activity/6.png", width: 100%)]
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-07_])
+#pad(left: 20pt)[#image("../../documents/phong_tmp/new-report/thesis/images/chapter_4/seq-analytics-pipeline-flow.svg", width: 95%)]
+#context (align(center)[_Hình #image_counter.display(): Quy trình analytics đến knowledge_])
 #image_counter.step()
 
+=== 4.5.7 Quy trình tìm kiếm, hỏi đáp và thông báo thời gian thực
 
-=== 4.5.7 Quy trình cấu hình và giám sát khủng hoảng (UC-08)
+Hai sơ đồ dưới đây thể hiện hai lớp delivery quan trọng của hệ thống. Một mặt, knowledge layer hỗ trợ người dùng tìm kiếm và hỏi đáp theo ngữ cảnh trên dữ liệu đã được index. Mặt khác, notification layer hỗ trợ đẩy cảnh báo và cập nhật thời gian thực tới người dùng thông qua các kênh tương tác phù hợp.
 
-Sơ đồ này mô tả hai pha chính của chức năng Crisis Monitor: (1) người dùng cấu hình chủ đề giám sát (từ khóa bao gồm/loại trừ, nền tảng, ngưỡng cảnh báo, kênh nhận thông báo) và kích hoạt monitor; (2) hệ thống chạy tác vụ nền theo lịch để quét dữ liệu mới, đánh giá điều kiện vượt ngưỡng, tạo cảnh báo và gửi thông báo tức thì. Luồng này khác với Project ở chỗ giám sát diễn ra liên tục theo thời gian thực/near real-time và chỉ lưu các trường hợp “hit” để tối ưu lưu trữ.
+#pad(left: 20pt)[#image("../../documents/phong_tmp/new-report/thesis/images/chapter_4/seq-knowledge-chat-flow.svg", width: 95%)]
+#context (align(center)[_Hình #image_counter.display(): Quy trình tìm kiếm và hỏi đáp theo ngữ cảnh_])
+#image_counter.step()
 
-#image("../images/activity/7.png")
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-08_])
+#pad(left: 20pt)[#image("../../documents/phong_tmp/new-report/thesis/images/chapter_4/seq-notification-alert-flow.svg", width: 95%)]
+#context (align(center)[_Hình #image_counter.display(): Quy trình thông báo thời gian thực_])
 #image_counter.step()
