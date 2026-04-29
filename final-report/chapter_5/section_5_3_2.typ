@@ -83,7 +83,7 @@ Luồng xử lý chính của Analytics Service có thể chia thành hai flow: 
 Luồng này bắt đầu khi dữ liệu chuẩn hóa được publish vào analytics data plane:
 
 #align(center)[
-  #image("../images/data-flow/analytics_ingestion.png", width: 95%)
+  #image("../images/chapter_5/seq-analytics-intake-flow.svg", width: 95%)
   #context (align(center)[_Hình #image_counter.display(): Luồng Kafka intake trong Analytics Service_])
   #image_counter.step()
 ]
@@ -100,7 +100,7 @@ Luồng này bắt đầu khi dữ liệu chuẩn hóa được publish vào ana
 Sau khi intake hoàn tất, service chuyển sang pipeline execution flow:
 
 #align(center)[
-  #image("../images/data-flow/analytics-pipeline.png", width: 95%)
+  #image("../images/chapter_5/seq-analytics-pipeline-flow.svg", width: 95%)
   #context (align(center)[_Hình #image_counter.display(): Luồng analytics pipeline trong Analytics Service_])
   #image_counter.step()
 ]

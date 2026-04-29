@@ -16,7 +16,7 @@ Ba động lực chính chi phối quyết định kiến trúc của SMAP là:
 
 ==== 5.2.1.2 Đánh giá các lựa chọn
 
-Trong phạm vi của đồ án, ba phong cách kiến trúc thường được xem xét gồm Monolithic Architecture, Modular Monolith và Microservices Architecture. Mỗi phong cách có ưu điểm riêng, nhưng mức độ phù hợp với current SMAP là khác nhau.
+Trong phạm vi của đồ án, ba phong cách kiến trúc thường được xem xét gồm Monolithic Architecture, Modular Monolith và Microservices Architecture. Mỗi phong cách có ưu điểm riêng, nhưng mức độ phù hợp với SMAP là khác nhau.
 
 #context (align(center)[_Bảng #table_counter.display(): So sánh các lựa chọn kiến trúc ở mức định tính_])
 #table_counter.step()
@@ -38,28 +38,29 @@ Trong phạm vi của đồ án, ba phong cách kiến trúc thường được 
     [Phù hợp đa runtime], [Thấp], [Thấp], [Cao],
     [Cô lập lỗi giữa các lane], [Thấp], [Trung bình], [Cao],
     [Độ đơn giản triển khai ban đầu], [Cao], [Trung bình], [Thấp],
-    [Phù hợp với current SMAP], [Thấp], [Trung bình], [Cao],
+    [Phù hợp với SMAP], [Thấp], [Trung bình], [Cao],
   )
 ]
 
-Monolithic Architecture có lợi thế về độ đơn giản trong giai đoạn đầu, nhưng không phù hợp khi hệ thống cần tách rõ nhiều lane xử lý có tính chất khác nhau. Modular Monolith cải thiện tổ chức code tốt hơn, nhưng vẫn không giải quyết triệt để bài toán polyglot runtime, fault isolation và scale theo từng vai trò runtime. Trong khi đó, Microservices Architecture phù hợp hơn với current SMAP vì cho phép phân tách business context, execution plane, analytics pipeline, retrieval và notification thành các thành phần có thể phát triển, triển khai và mở rộng tương đối độc lập.
+Monolithic Architecture có lợi thế về độ đơn giản trong giai đoạn đầu, nhưng không phù hợp khi hệ thống cần tách rõ nhiều lane xử lý có tính chất khác nhau. Modular Monolith cải thiện tổ chức code tốt hơn, nhưng vẫn không giải quyết triệt để bài toán polyglot runtime, fault isolation và scale theo từng vai trò runtime. Trong khi đó, Microservices Architecture phù hợp hơn với SMAP vì cho phép phân tách business context, execution plane, analytics pipeline, retrieval và notification thành các thành phần có thể phát triển, triển khai và mở rộng tương đối độc lập.
 
 ==== 5.2.1.3 Kết luận lựa chọn kiến trúc
 
-Từ các so sánh trên, Microservices Architecture là lựa chọn phù hợp nhất cho SMAP ở current-state. Lý do chính không nằm ở việc theo đuổi một mô hình kiến trúc phổ biến, mà ở chỗ cách tổ chức này phản hồi tốt nhất với các ràng buộc thật của hệ thống: nhiều bounded context, nhiều loại workload, nhiều công nghệ runtime và nhiều transport được chuyên biệt hóa theo từng lane xử lý.
+Từ các so sánh trên, Microservices Architecture là lựa chọn phù hợp nhất cho SMAP. Lý do chính không nằm ở việc theo đuổi một mô hình kiến trúc phổ biến, mà ở chỗ cách tổ chức này phản hồi tốt nhất với các ràng buộc thật của hệ thống: nhiều bounded context, nhiều loại workload, nhiều công nghệ runtime và nhiều transport được chuyên biệt hóa theo từng lane xử lý.
 
-=== 5.2.2 Kiến trúc tổng thể current-state
+=== 5.2.2 Kiến trúc tổng thể
 
-Hình dưới đây trình bày kiến trúc tổng thể của SMAP ở current-state.
+Hình dưới đây trình bày kiến trúc tổng thể của SMAP.
 
-#align(center)[#box(stroke: 1pt + gray, inset: 12pt, width: 100%)[
-  Placeholder figure: `c4-container-current.svg`\
-  Asset current-state sẽ được copy vào `final-report/images/` ở bước hoàn thiện.
-]]
-#context (align(center)[_Hình #image_counter.display(): Kiến trúc tổng thể current-state của SMAP_])
+#context (
+  align(center)[
+    #image("../images/diagram/c4-container-current.svg", width: 96%)
+  ]
+)
+#context (align(center)[_Hình #image_counter.display(): Kiến trúc tổng thể của SMAP_])
 #image_counter.step()
 
-Kiến trúc này cho thấy SMAP được chia thành sáu nhóm thành phần chính. `identity-srv` tạo security boundary cho toàn hệ thống. `project-srv` giữ business context và lifecycle của campaign/project. `ingest-srv` cùng `scapper-srv` hình thành execution plane để điều phối crawl và chuẩn hóa dữ liệu. `analysis-srv` xử lý pipeline AI/NLP. `knowledge-srv` xây dựng lớp semantic search và khai thác thông tin theo ngữ cảnh. `notification-srv` chịu trách nhiệm delivery theo thời gian thực. Ngoài ra, frontend hiện tại còn được tổ chức như một lớp giao diện đa vai trò, hỗ trợ web delivery, BI integration và desktop packaging khi cần.
+Kiến trúc này cho thấy SMAP được chia thành sáu nhóm thành phần chính. `identity-srv` tạo security boundary cho toàn hệ thống. `project-srv` giữ business context và lifecycle của campaign/project. `ingest-srv` cùng `scapper-srv` hình thành execution plane để điều phối crawl và chuẩn hóa dữ liệu. `analysis-srv` xử lý pipeline AI/NLP. `knowledge-srv` xây dựng lớp semantic search và khai thác thông tin theo ngữ cảnh. `notification-srv` chịu trách nhiệm delivery theo thời gian thực. Ngoài ra, frontend được tổ chức như một lớp giao diện đa vai trò, hỗ trợ web delivery, BI integration và desktop packaging khi cần.
 
 Một điểm quan trọng của kiến trúc này là không áp dụng một transport duy nhất cho toàn bộ hệ thống. Control plane giữa `project-srv` và `ingest-srv` nghiêng về internal HTTP. Crawl runtime dùng RabbitMQ. Analytics data plane dùng Kafka. Notification ingress dùng Redis Pub/Sub. Cách tổ chức này giúp mỗi lane xử lý sử dụng cơ chế giao tiếp phù hợp hơn với tính chất workload thay vì ép toàn bộ hệ thống chạy theo cùng một khuôn mẫu.
 
@@ -237,6 +238,6 @@ Một thiết kế tốt không chỉ chỉ ra có bao nhiêu service, mà còn 
 
 === 5.2.5 Tổng kết mục
 
-Kiến trúc tổng thể của SMAP nên được hiểu như một hệ thống đa service được tổ chức theo capability và workload specialization, thay vì như một tập hợp service được tách ra thuần túy vì lý do kỹ thuật. Giá trị của thiết kế hiện tại nằm ở chỗ nó tách rõ business context khỏi execution plane, tách analytics khỏi request path, và tách knowledge/delivery thành các lớp tiêu thụ riêng. Cùng với đó, việc chuyên biệt hóa transport và storage giúp mỗi lane xử lý được tối ưu theo đặc điểm thực tế của nó.
+Kiến trúc tổng thể của SMAP nên được hiểu như một hệ thống đa service được tổ chức theo capability và workload specialization, thay vì như một tập hợp service được tách ra thuần túy vì lý do kỹ thuật. Giá trị của thiết kế này nằm ở chỗ nó tách rõ business context khỏi execution plane, tách analytics khỏi request path, và tách knowledge/delivery thành các lớp tiêu thụ riêng. Cùng với đó, việc chuyên biệt hóa transport và storage giúp mỗi lane xử lý được tối ưu theo đặc điểm thực tế của nó.
 
 Những lựa chọn này tạo nền cho các mục tiếp theo của Chương 5, nơi từng service, từng lớp dữ liệu và từng mẫu giao tiếp sẽ được phân tích sâu hơn ở mức thiết kế chi tiết.

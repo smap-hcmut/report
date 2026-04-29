@@ -1,0 +1,46 @@
+@startuml
+title Completion Handling and UAP Publishing Flow
+hide footbox
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+
+participant "Completion queue" as CompletionQueue
+participant "CompletionConsumer" as Consumer
+participant "ExecutionUseCase" as Execution
+participant "MinIO" as MinIO
+participant "ExternalTaskRepo" as ExternalTaskRepo
+participant "RawBatchRepo" as RawBatchRepo
+participant "UAPPublisher" as UAPPublisher
+participant "Kafka topic\nUAP input" as UAPTopic
+
+CompletionQueue ->> Consumer : deliver completion envelope
+activate Consumer
+Consumer -> Execution : handleCompletion(task_id, metadata)
+activate Execution
+Execution -> MinIO : verify artifact metadata
+activate MinIO
+MinIO --> Execution : artifact metadata
+deactivate MinIO
+Execution -> ExternalTaskRepo : mark task completed
+activate ExternalTaskRepo
+ExternalTaskRepo --> Execution : completion persisted
+deactivate ExternalTaskRepo
+Execution -> RawBatchRepo : create raw batch lineage
+activate RawBatchRepo
+RawBatchRepo --> Execution : raw batch persisted
+deactivate RawBatchRepo
+
+opt canonical payload can be produced
+  Execution -> UAPPublisher : publishCanonicalBatch(raw_batch)
+  activate UAPPublisher
+  UAPPublisher ->> UAPTopic : UAP records
+  UAPPublisher --> Execution : publish accepted
+  deactivate UAPPublisher
+end
+
+Execution --> Consumer : completion handled
+deactivate Execution
+deactivate Consumer
+@enduml

@@ -1,0 +1,63 @@
+@startuml
+title Analytics to Knowledge Indexing Flow
+hide footbox
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+
+participant "Kafka topics\nanalytics.*" as AnalyticsTopics
+participant "IndexingConsumer" as Consumer
+participant "IndexingUseCase" as Indexing
+participant "EmbeddingUseCase" as Embedding
+participant "Qdrant" as Qdrant
+participant "TrackingRepo" as TrackingRepo
+participant "PostgreSQL" as PostgreSQL
+participant "CacheRepo" as CacheRepo
+participant "Redis" as Redis
+
+AnalyticsTopics ->> Consumer : deliver analytics event
+activate Consumer
+Consumer -> Indexing : index(event)
+activate Indexing
+
+alt batch.completed event
+  Indexing -> Embedding : embed documents
+  activate Embedding
+  Embedding --> Indexing : document vectors
+  deactivate Embedding
+  Indexing -> Qdrant : upsert project points
+  activate Qdrant
+  Qdrant --> Indexing : points indexed
+  deactivate Qdrant
+else insight or digest event
+  Indexing -> Embedding : embed insight artifact
+  activate Embedding
+  Embedding --> Indexing : insight vector
+  deactivate Embedding
+  Indexing -> Qdrant : upsert macro insight point
+  activate Qdrant
+  Qdrant --> Indexing : point indexed
+  deactivate Qdrant
+end
+
+Indexing -> TrackingRepo : update indexing status
+activate TrackingRepo
+TrackingRepo -> PostgreSQL : save tracking state
+activate PostgreSQL
+PostgreSQL --> TrackingRepo : persisted
+deactivate PostgreSQL
+TrackingRepo --> Indexing : tracking result
+deactivate TrackingRepo
+Indexing -> CacheRepo : invalidate search cache
+activate CacheRepo
+CacheRepo -> Redis : delete affected keys
+activate Redis
+Redis --> CacheRepo : cache cleared
+deactivate Redis
+CacheRepo --> Indexing : invalidation result
+deactivate CacheRepo
+Indexing --> Consumer : indexing result
+deactivate Indexing
+deactivate Consumer
+@enduml

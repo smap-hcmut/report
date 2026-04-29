@@ -13,6 +13,7 @@
 
 ## Ghi chú tạm thời
 
-- Mục này hiện chưa có diagram current-state riêng.
-- Nếu bổ sung sau, nên ưu tiên flow `ingest -> queue -> scapper -> storage -> completion` và một biến thể dryrun completion flow.
+- Đã bổ sung một SVG current-state cho flow `ingest -> queue -> scapper -> storage -> completion`.
+- Source của hình này hiện được giữ ở dạng PlantUML `.puml` và render ra `.svg` để nhúng vào report.
+- Biến thể dryrun completion flow hiện vẫn chưa có diagram riêng.
 - README của `scapper-srv` còn chứa một số status snapshot không hoàn toàn khớp source hiện tại, nên section này được bám chủ yếu vào code runtime và contract `RABBITMQ.md`.

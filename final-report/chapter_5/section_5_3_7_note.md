@@ -13,6 +13,7 @@
 
 ## Ghi chú tạm thời
 
-- Mục này hiện chưa gắn diagram current-state riêng.
-- Nếu về sau bổ sung hình, nên ưu tiên ba flow: analytics đến knowledge indexing, search/chat flow, và report generation flow.
+- Đã bổ sung một SVG current-state cho flow analytics đến knowledge indexing.
+- Source của hình này hiện được giữ ở dạng PlantUML `.puml` và render ra `.svg` để nhúng vào report.
+- Search/chat flow và report generation capability flow hiện vẫn mới được mô tả bằng văn bản.
 - Notebook-related narrative chưa được đẩy thành trọng tâm của mục này vì evidence code hiện tại trong workspace mạnh nhất vẫn là các path indexing, search, chat và report.

@@ -15,4 +15,6 @@
 
 ## Ghi chú tạm thời
 
-- Các hình đang dùng trong mục này hiện vẫn là asset cũ và cần được thay bằng diagram current-state tương ứng ở bước hoàn thiện sau.
+- Đã thay hai hình data flow bằng SVG current-state cho Kafka intake và pipeline execution.
+- Source của hai hình này hiện được giữ ở dạng PlantUML `.puml` và render ra `.svg` để nhúng vào report.
+- Component diagram của mục này hiện vẫn là asset cũ và nên được thay ở phase component diagrams.

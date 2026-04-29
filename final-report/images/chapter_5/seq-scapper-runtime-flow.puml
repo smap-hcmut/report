@@ -1,0 +1,52 @@
+@startuml
+title Canonical Crawl Execution and Completion Flow
+hide footbox
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+
+participant "Platform queue\ntiktok/facebook/youtube" as PlatformQueue
+participant "WorkerRuntime" as Worker
+participant "PlatformHandler" as Handler
+participant "TinLikeSub SDK" as SDK
+participant "StorageAdapter" as Storage
+participant "MinIO" as MinIO
+participant "Local output" as LocalOutput
+participant "CompletionPublisher" as Publisher
+participant "Completion queue\nexecution/dryrun" as CompletionQueue
+
+PlatformQueue ->> Worker : deliver task envelope
+activate Worker
+Worker -> Handler : dispatch(action, params)
+activate Handler
+Handler -> SDK : execute crawl action
+activate SDK
+SDK --> Handler : raw result bundle
+deactivate SDK
+Handler --> Worker : task result
+deactivate Handler
+Worker -> Storage : materialize raw artifact
+activate Storage
+
+alt production storage
+  Storage -> MinIO : write object
+  activate MinIO
+  MinIO --> Storage : storage metadata
+  deactivate MinIO
+else development storage
+  Storage -> LocalOutput : write JSON artifact
+  activate LocalOutput
+  LocalOutput --> Storage : local metadata
+  deactivate LocalOutput
+end
+
+Storage --> Worker : storage metadata
+deactivate Storage
+Worker -> Publisher : publish completion(storage metadata)
+activate Publisher
+Publisher ->> CompletionQueue : completion envelope
+Publisher --> Worker : publish accepted
+deactivate Publisher
+deactivate Worker
+@enduml

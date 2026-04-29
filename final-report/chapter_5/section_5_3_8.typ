@@ -2,16 +2,16 @@
 
 === 5.3.8 Scapper Worker Service
 
-Scapper Worker Service là runtime lane chịu trách nhiệm thực thi các crawl task bất đồng bộ trong execution plane của hệ thống SMAP. Service này tiếp nhận platform-specific task từ RabbitMQ, gọi TinLikeSub SDK để thực hiện các action crawl tương ứng, materialize raw artifact theo storage contract hiện tại, rồi phát hành completion envelope trở lại ingest runtime để lane ingest tiếp tục xử lý downstream.
+Scapper Worker Service là runtime lane chịu trách nhiệm thực thi các crawl task bất đồng bộ trong execution plane của hệ thống SMAP. Service này tiếp nhận platform-specific task từ RabbitMQ, gọi TinLikeSub SDK để thực hiện các action crawl tương ứng, materialize raw artifact theo storage contract của runtime, rồi phát hành completion envelope trở lại ingest runtime để lane ingest tiếp tục xử lý downstream.
 
-Khác với một worker thuần túy, current implementation của service còn cung cấp một lớp FastAPI mỏng để submit task, kiểm tra kết quả và giám sát health của runtime khi cần cho local hoặc dev workflow.
+Khác với một worker thuần túy, service còn cung cấp một lớp FastAPI mỏng để submit task, kiểm tra kết quả và giám sát health của runtime khi cần cho local hoặc dev workflow.
 
 Vai trò của Scapper Worker Service trong kiến trúc tổng thể:
 
 - RabbitMQ Crawl Consumer: Tiêu thụ các queue `tiktok_tasks`, `facebook_tasks` và `youtube_tasks`.
 - Platform Action Dispatcher: Định tuyến `action` sang handler phù hợp theo queue và platform.
 - SDK-Based Crawl Executor: Thực thi các action đơn lẻ hoặc composite flows như `full_flow` thông qua TinLikeSub SDK.
-- Raw Artifact Materializer: Ghi raw output xuống local storage hoặc MinIO theo runtime mode và storage contract hiện tại.
+- Raw Artifact Materializer: Ghi raw output xuống local storage hoặc MinIO theo runtime mode và storage contract của runtime.
 - Completion Publisher: Publish completion envelope về ingest completion queue tương ứng để giữ correlation giữa crawl lane và ingest lane.
 - Auxiliary Task API Surface: Cung cấp các route submit hoặc kiểm tra kết quả để hỗ trợ local hoặc debug workflow.
 
@@ -85,6 +85,12 @@ Luồng này phản ánh surface submit hiện có của service, hữu ích cho
 ===== b. Canonical Crawl Execution and Completion Flow
 
 Đây là luồng cốt lõi của service trong execution plane.
+
+#align(center)[
+  #image("../images/chapter_5/seq-scapper-runtime-flow.svg", width: 97%)
+  #context (align(center)[_Hình #image_counter.display(): Luồng canonical crawl execution và completion trong Scapper Worker Service_])
+  #image_counter.step()
+]
 
 1. Worker runtime consume message từ queue platform-specific như `tiktok_tasks`, `facebook_tasks` hoặc `youtube_tasks`; ở production lane, message này tương ứng với request envelope chuẩn từ `ingest-srv`.
 2. Registry xác định handler phù hợp theo `queue` và `action`; handler sau đó gọi TinLikeSub SDK để thực thi crawl action tương ứng.

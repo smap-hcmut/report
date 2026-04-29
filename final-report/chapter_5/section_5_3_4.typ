@@ -88,6 +88,12 @@ Flow này được kích hoạt khi người dùng yêu cầu kiểm tra readine
 
 Flow này là phần quan trọng nhất của execution plane hiện tại.
 
+#align(center)[
+  #image("../images/chapter_5/seq-ingest-completion-uap-flow.svg", width: 96%)
+  #context (align(center)[_Hình #image_counter.display(): Luồng completion handling và UAP publishing trong Ingest Service_])
+  #image_counter.step()
+]
+
 1. Ingest Service publish crawl task sang RabbitMQ.
 2. `scapper-srv` thực thi task và publish completion metadata trở lại.
 3. Ingest Service kiểm tra object storage, tạo `external_task` completion record và `raw_batch` lineage.

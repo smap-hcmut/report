@@ -27,7 +27,8 @@
 - `5.3.2 Analytics Service`
   - Đã có phần Data Flow.
   - Nội dung đã được kéo về đúng current implementation hơn.
-  - Tuy nhiên các hình `analytic-component-diagram.png`, `analytics_ingestion.png`, `analytics-pipeline.png` vẫn là asset cũ và cần thay sau.
+  - Hai hình data flow đã được thay bằng SVG current-state.
+  - Component diagram `analytic-component-diagram.png` vẫn là asset cũ và cần thay sau.
 
 - `5.3.3 Project Service`
   - Đã có phần Data Flow.
@@ -36,9 +37,8 @@
   - Flow crisis configuration hiện mới mô tả bằng văn bản, chưa có hình riêng.
 
 - `5.3.4 Ingest Service`
-  - Đã có phần Data Flow bằng văn bản.
-  - Chưa có hình Data Flow đi kèm như các mục khác.
-  - Nếu bổ sung sau, nên ưu tiên hình cho execution plane, dry run và completion handling + UAP publishing.
+  - Đã có hình current-state cho flow completion handling + UAP publishing.
+  - Các flow datasource-target management và dry run validation vẫn mới được mô tả bằng văn bản.
 
 - `5.3.5 Notification Service`
   - Đã có phần Data Flow.
@@ -51,13 +51,13 @@
 
 - `5.3.7 Knowledge Service`
   - Đã được bổ sung theo current implementation của `knowledge-srv`.
-  - Hiện mới mô tả bằng văn bản, chưa có diagram current-state riêng.
-  - Nếu bổ sung sau, nên ưu tiên flow analytics → knowledge indexing, search/chat và report generation.
+  - Đã có hình current-state cho flow analytics → knowledge indexing.
+  - Search/chat và report generation vẫn mới được mô tả bằng văn bản.
 
 - `5.3.8 Scapper Worker Service`
   - Đã được bổ sung theo current implementation của `scapper-srv`.
-  - Hiện mới mô tả bằng văn bản, chưa có diagram current-state riêng.
-  - Nếu bổ sung sau, nên ưu tiên flow queue dispatch, crawl execution, raw artifact materialization và completion publish.
+  - Đã có hình current-state cho canonical crawl execution và completion flow.
+  - Auxiliary submit API và dryrun completion variant vẫn mới được mô tả bằng văn bản.
 
 ### Tổng kết rà soát
 

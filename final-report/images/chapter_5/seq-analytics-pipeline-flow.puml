@@ -1,0 +1,38 @@
+@startuml
+title Analytics Pipeline Execution Flow
+hide footbox
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+
+participant "ConsumerServer" as Consumer
+participant "PipelineUseCase" as Pipeline
+participant "PipelineStages" as Stages
+participant "PostInsightUseCase" as PostInsight
+participant "PostgreSQL\nschema_analysis" as PostgreSQL
+participant "ContractPublisher" as Publisher
+participant "Kafka topics\nanalytics.*" as AnalyticsTopics
+
+Consumer -> Pipeline : runPipeline(bundle, context)
+activate Pipeline
+Pipeline -> Stages : execute normalization\nand NLP enrichment
+activate Stages
+Stages --> Pipeline : NLP facts and outputs
+deactivate Stages
+Pipeline -> PostInsight : persist insights(outputs)
+activate PostInsight
+PostInsight -> PostgreSQL : write analysis rows
+activate PostgreSQL
+PostgreSQL --> PostInsight : persisted row ids
+deactivate PostgreSQL
+PostInsight --> Pipeline : persistence result
+deactivate PostInsight
+Pipeline -> Publisher : publish analytics outputs
+activate Publisher
+Publisher ->> AnalyticsTopics : batch.completed\ninsights.published\nreport.digest
+Publisher --> Pipeline : publish accepted
+deactivate Publisher
+Pipeline --> Consumer : pipeline result
+deactivate Pipeline
+@enduml

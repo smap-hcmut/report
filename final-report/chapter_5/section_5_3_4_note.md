@@ -14,4 +14,6 @@
 
 ## Ghi chú tạm thời
 
-- Mục này hiện chưa gắn diagram mới; nếu về sau bổ sung hình, nên dùng diagram current-state bám execution plane và completion flow của `ingest-srv`.
+- Đã bổ sung một SVG current-state cho flow completion handling và UAP publishing.
+- Source của hình này hiện được giữ ở dạng PlantUML `.puml` và render ra `.svg` để nhúng vào report.
+- Các flow datasource-target management và dry run validation hiện vẫn mới được mô tả bằng văn bản.

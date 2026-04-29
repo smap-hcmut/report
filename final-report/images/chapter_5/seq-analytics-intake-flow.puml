@@ -1,0 +1,27 @@
+@startuml
+title Analytics Kafka Intake Flow
+hide footbox
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+
+participant "Kafka topic\nUAP input" as Kafka
+participant "ConsumerServer" as Consumer
+participant "IngestionAdapter" as Adapter
+participant "PipelineUseCase" as Pipeline
+
+Kafka ->> Consumer : deliver UAP record
+activate Consumer
+Consumer -> Consumer : decode envelope\nresolve domain_type_code
+Consumer -> Adapter : build bundle from payload
+activate Adapter
+Adapter --> Consumer : IngestedBatchBundle
+deactivate Adapter
+Consumer -> Consumer : create RunContext
+Consumer -> Pipeline : runPipeline(bundle, context)
+activate Pipeline
+Pipeline --> Consumer : accepted
+deactivate Pipeline
+deactivate Consumer
+@enduml
