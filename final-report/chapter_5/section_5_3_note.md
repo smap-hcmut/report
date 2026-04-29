@@ -1,18 +1,19 @@
-# Note - Section 5.3 (Mở đầu)
+# Note - Section 5.3
 
 ## Khác gì so với bản cũ
 
-- Bản cũ mở đầu mục 5.3 theo service set cũ, ưu tiên `Collector Service` và `Analytics Service`, sau đó mới tới `Project`, `Identity`, `WebSocket` và `Web UI`.
-- Cách mở đầu này không còn khớp với kiến trúc hiện tại đã chốt ở Chương 3 và Chương 5.2.
+- Bản cũ tổ chức mục 5.3 theo service set legacy như `Collector Service`, `Analytics Service`, `Project Service`, `WebSocket Service` và nhiều supporting services không còn khớp với current architecture.
+- Nội dung đi rất sâu vào component catalog, data flow, performance targets và diagram của các service cũ, kéo theo narrative không còn đồng bộ với Chương 3, Chương 4 và service ownership đã chốt ở mục 5.2.
+- Cách chia theo `Collector`, `Speech2Text`, `WebSocket` cũng làm lệch khỏi cách hệ thống hiện tại đang được tổ chức thành `identity-srv`, `project-srv`, `ingest-srv`, `analysis-srv`, `knowledge-srv`, `notification-srv` và `scapper-srv`.
 
 ## Bản hiện tại đã chỉnh gì
 
-- Viết lại phần mở đầu theo hướng trung tính hơn, bám các capability và runtime lane của hệ thống hiện tại.
-- Bỏ narrative ưu tiên theo service cũ.
-- Chốt lại rằng các phần sau của 5.3 sẽ đi theo các capability quan trọng như xác thực và session management, business context persistence, lifecycle control, analytics pipeline, knowledge retrieval và realtime delivery.
+- Viết lại toàn bộ mục 5.3 theo đúng tinh thần `Thiết kế chi tiết các dịch vụ`, tức tổ chức theo từng service và runtime boundary hiện tại.
+- Thay các service cũ bằng các service thực sự đang tồn tại trong current implementation.
+- Giữ mô tả ở mức thiết kế chi tiết: vai trò trong kiến trúc, thành phần chính, giao tiếp và quyết định thiết kế, thay vì đi sâu vào product flow legacy.
+- Tách rõ `identity-srv`, `project-srv`, `ingest-srv`, `analysis-srv`, `knowledge-srv`, `notification-srv` và `scapper-srv` để khớp với Chương 3 và 5.2.
 
 ## Ghi chú tạm thời
 
-- Các diagram đang nằm trong các mục con của `5.3` hiện vẫn là diagram cũ.
-- Ở bước hiện tại chỉ note lại để tránh dùng nhầm narrative cũ.
-- Các sơ đồ này sẽ được thay thế hoặc vẽ lại theo trạng thái hiện tại ở bước sau.
+- Các diagram cũ từng gắn với `5.3` không còn phù hợp với cấu trúc mới của mục này.
+- Nếu cần minh họa lại cho `5.3`, nên vẽ bộ diagram mới bám từng service hoặc từng runtime lane hiện tại.

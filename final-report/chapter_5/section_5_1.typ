@@ -61,8 +61,8 @@ Từ các architectural drivers trên, nhóm nguyên tắc thiết kế được
 
 Các nguyên tắc này không chỉ là lựa chọn mang tính lý thuyết, mà còn là khung dùng để đọc và giải thích các quyết định thiết kế ở những mục tiếp theo. Chúng giúp lý giải vì sao hệ thống không được tổ chức theo một khối thống nhất, vì sao nhiều loại storage cùng tồn tại, và vì sao mỗi lane xử lý lại gắn với một cơ chế giao tiếp khác nhau.
 
-=== 5.1.3 Liên hệ với current SMAP
+=== 5.1.3 Liên hệ với SMAP
 
-Trong current architecture của SMAP, các nguyên tắc trên được phản ánh khá rõ. `project-srv` giữ business context, trong khi `ingest-srv` đảm nhiệm execution plane. `analysis-srv` xử lý analytics pipeline ở lane bất đồng bộ tách khỏi request path. `knowledge-srv` và `notification-srv` tạo thành các lớp khai thác kết quả và delivery. Ở mức storage, hệ thống đồng thời sử dụng PostgreSQL, Redis, Qdrant và MinIO theo vai trò chuyên biệt. Ở mức giao tiếp, internal HTTP, RabbitMQ, Kafka và Redis Pub/Sub cùng tồn tại như các transport được chọn theo tính chất workload.
+Trong architecture của SMAP, các nguyên tắc trên được phản ánh khá rõ. `project-srv` giữ business context, trong khi `ingest-srv` đảm nhiệm execution plane. `analysis-srv` xử lý analytics pipeline ở lane bất đồng bộ tách khỏi request path. `knowledge-srv` và `notification-srv` tạo thành các lớp khai thác kết quả và delivery. Ở mức storage, hệ thống đồng thời sử dụng PostgreSQL, Redis, Qdrant và MinIO theo vai trò chuyên biệt. Ở mức giao tiếp, internal HTTP, RabbitMQ, Kafka và Redis Pub/Sub cùng tồn tại như các transport được chọn theo tính chất workload.
 
 Những đặc điểm này cho thấy thiết kế của SMAP không nên được đọc như một bản áp dụng máy móc của một pattern duy nhất, mà là kết quả của nhiều quyết định phối hợp để phản hồi trực tiếp với các yêu cầu và ràng buộc của hệ thống hiện tại. Đây cũng là cơ sở để các mục sau đi sâu vào kiến trúc tổng thể, dữ liệu, giao tiếp, triển khai và truy xuất nguồn gốc thiết kế.
