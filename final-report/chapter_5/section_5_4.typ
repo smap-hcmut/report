@@ -108,15 +108,13 @@ Qdrant được lựa chọn vì workload của Knowledge Service là semantic r
 
 === 5.4.2 Identity Service
 
-Identity Service quản lý authentication, authorization, và subscription management với 3 tables: users, plans, và subscriptions.
+Identity Service quản lý security data cho cơ chế xác thực OAuth2/JWT của hệ thống SMAP. Ở lớp lưu trữ bền vững, service này sử dụng ba bảng chính là `users`, `jwt_keys` và `audit_logs`. Các state runtime có vòng đời ngắn như session hoặc token blacklist được giữ ở Redis theo chiến lược lưu trữ đã nêu ở mục 5.4.1, nên không xuất hiện trong relational schema của service.
 
 ==== 5.4.2.1 Database Schema
 
-#align(center)[
-  #image("../images/erd/identity-erd.png", width: 60%)
-]
-#context (align(center)[_Hình #image_counter.display(): Database Schema - Identity Service_])
-#image_counter.step()
+Schema `identity` được tổ chức quanh ba nhóm dữ liệu. Nhóm thứ nhất là hồ sơ người dùng đã được xác thực qua identity provider, lưu trong `users`. Nhóm thứ hai là vòng đời khóa ký JWT, lưu trong `jwt_keys` để hỗ trợ phát hành token và key rotation. Nhóm thứ ba là dữ liệu truy vết xác thực và ủy quyền, lưu trong `audit_logs` như một audit trail cục bộ của security boundary này.
+
+Thiết kế này cho thấy Identity Service không theo mô hình username/password truyền thống, cũng không nhúng session runtime vào PostgreSQL như nguồn dữ liệu chính. Thay vào đó, PostgreSQL chỉ giữ các thực thể cần tính bền vững và truy vết lâu dài, còn session hoặc blacklist state được xử lý ở Redis layer.
 
 ==== 5.4.2.2 Table Catalog
 
@@ -133,30 +131,34 @@ Identity Service quản lý authentication, authorization, và subscription mana
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Key*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Indexes*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Constraints*],
+
     table.cell(align: center + horizon, inset: (y: 0.8em))[`users`],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông tin người dùng, authentication],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`id` (PK), `username` (UK)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`idx_users_username`],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`username` unique],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`plans`],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Định nghĩa subscription plans],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`id` (PK), `code` (UK)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`idx_plans_code`],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`code` unique],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`subscriptions`],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Quản lý subscription của users],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`id` (PK), `user_id` (FK), `plan_id` (FK)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`idx_subs_user_id`],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[FK to users, plans],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông tin tài khoản người dùng đã đăng nhập qua OAuth2 SSO],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`id` (PK), `email` (UK)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`idx_users_email`, `idx_users_is_active`],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`email` unique; `email`, `role_hash` not null],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`jwt_keys`],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Lưu cặp khóa ký JWT và trạng thái vòng đời của từng key],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`kid` (PK)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`idx_jwt_keys_status`, `idx_jwt_keys_created_at`],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`private_key`, `public_key`, `status` not null],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`audit_logs`],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Audit trail cho các sự kiện authentication và authorization],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`id` (PK), `user_id` (FK nội bộ)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`idx_audit_logs_user_id`, `idx_audit_logs_created_at`, `idx_audit_logs_action`],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[`action` not null; `user_id` tham chiếu `users.id`],
   )
 ]
 
 ==== 5.4.2.3 Design Decisions
 
-- Soft Delete: Tất cả tables có `deleted_at` timestamp cho audit trail và recovery.
-- Password Hashing: bcrypt với cost 10, không lưu plaintext.
-- Role Encryption: Role được hash (SHA256) thành `role_hash` để enhance security.
-- OTP Storage: OTP 6-digit và `otp_expired_at` lưu trong `users` table, expire sau 10 phút.
+- Email as Principal Identifier: `users.email` là định danh duy nhất của người dùng vì service bám cơ chế OAuth2 SSO thay vì username/password truyền thống.
+- Protected Role Storage: thông tin vai trò không được lưu dưới dạng role text đơn giản mà đi qua trường `role_hash`, giúp tách representation nghiệp vụ khỏi raw identity payload từ provider.
+- JWT Key Lifecycle Table: `jwt_keys` được tách riêng để service có thể quản lý active, rotating và retired keys mà không trộn với bảng người dùng.
+- Append-Only Audit Trail: `audit_logs` giữ dữ liệu truy vết authentication/authorization ở PostgreSQL để phục vụ audit và phân tích vận hành lâu dài.
+- Redis as Runtime Complement: session lookup và token blacklist là state ngắn hạn ở Redis, còn PostgreSQL chỉ giữ các thực thể bảo mật cần tính bền vững.
 
 === 5.4.3 Project Service
 

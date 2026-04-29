@@ -3,6 +3,10 @@
 ## Đã chỉnh trong lượt này
 
 - Chỉ chỉnh `5.4.1 Chiến lược lựa chọn Storage`.
+- Đã rewrite `5.4.2 Identity Service` theo schema thật của `identity-srv`.
+- Đã thay mô tả cũ `users/plans/subscriptions` bằng `users`, `jwt_keys`, `audit_logs`.
+- Đã bỏ ERD ảnh cũ của `5.4.2` khỏi report chính vì không còn khớp schema hiện tại.
+- Đã bổ sung lại table catalog và design decisions theo mô hình OAuth2/JWT + audit trail + Redis runtime complement.
 - Bổ sung tiêu chí đánh giá storage trước khi đưa ra lựa chọn.
 - Bổ sung bảng trade-off giữa PostgreSQL, MongoDB, Neo4j, Redis, MinIO/S3-compatible object storage, Qdrant và phương án lưu raw payload trực tiếp trong message queue.
 - Bỏ MongoDB khỏi storage stack của report chính.
@@ -13,7 +17,6 @@
 
 ## Chưa chỉnh trong lượt này
 
-- `5.4.2 Identity Service` vẫn đang lệch schema thật; cần thay `plans/subscriptions/password/OTP` bằng `users`, `jwt_keys`, `audit_logs`.
 - `5.4.3 Project Service` vẫn đang thiếu `campaigns` và `projects_crisis_config`.
 - `5.4.4 Analytics Service` vẫn đang dùng bảng cũ `post_analytics`, `post_comments`, `crawl_errors`; cần đổi sang `post_insight`, `analytics_outbox`, `analytics_run_manifest`.
 - Chưa thêm mục riêng cho `Ingest Service` data design.
