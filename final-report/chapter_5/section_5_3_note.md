@@ -40,19 +40,23 @@
   - Chưa có hình Data Flow đi kèm như các mục khác.
   - Nếu bổ sung sau, nên ưu tiên hình cho execution plane, dry run và completion handling + UAP publishing.
 
-- `5.3.5 WebSocket Service`
+- `5.3.5 Notification Service`
   - Đã có phần Data Flow.
-  - Nội dung vẫn còn bám service set và narrative cũ.
-  - Các hình `websocket-component-diagram.png`, `webSocket_connection.png`, `real-time.png` là asset cũ và cần thay sau.
+  - Nội dung đã được kéo về đúng current implementation hơn.
+  - Chưa có diagram current-state riêng; nếu thay hình sau, nên dùng flow Redis → notification → WebSocket/Discord delivery.
 
-- `5.3.6 Web UI`
-  - Đã có phần Data Flow nhưng chưa hoàn chỉnh: flow thứ hai chỉ còn caption, chưa có hình thực sự.
-  - Toàn bộ phần component, data flow và UI gallery vẫn đang bám narrative cũ.
-  - Các hình `webui-component-diagram.png`, `authen.png`, các hình UI và `trend.png` là asset cũ và cần thay sau.
+- `5.3.6 Frontend Application`
+  - Đã được viết lại theo current implementation hơn, nhưng vẫn cần review thêm trước khi chốt.
+  - Chưa có diagram current-state riêng cho các flow frontend, realtime và BI integration.
+
+- `5.3.7 Knowledge Service`
+  - Đã được bổ sung theo current implementation của `knowledge-srv`.
+  - Hiện mới mô tả bằng văn bản, chưa có diagram current-state riêng.
+  - Nếu bổ sung sau, nên ưu tiên flow analytics → knowledge indexing, search/chat và report generation.
 
 ### Tổng kết rà soát
 
-- Các mục đã được kéo về current implementation tốt hơn: `5.3.1`, `5.3.2`, `5.3.3`, `5.3.4`.
-- Các mục còn lệch mạnh hoặc còn bám asset cũ: `5.3.5`, `5.3.6`.
+- Các mục đã được kéo về current implementation tốt hơn: `5.3.1`, `5.3.2`, `5.3.3`, `5.3.4`, `5.3.5`, `5.3.7`.
+- Mục còn cần review thêm trước khi chốt: `5.3.6`.
 - Chưa có mục nào trong `5.3` có bộ diagram mới hoàn chỉnh bám current-state như `4.5`.
 - Khi hoàn thiện sau, nên thay diagram theo từng service hoặc runtime lane, thay vì tiếp tục dùng asset legacy hiện tại.

@@ -33,3 +33,6 @@ Mục này được tổ chức theo các capability và runtime lane quan trọ
 
 #import "section_5_3_6.typ" as section_5_3_6
 #section_5_3_6
+
+#import "section_5_3_7.typ" as section_5_3_7
+#section_5_3_7
