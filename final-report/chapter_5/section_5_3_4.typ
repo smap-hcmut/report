@@ -1,190 +1,129 @@
 #import "../counters.typ": image_counter, table_counter
 
-=== 5.3.4 Identity Service
+=== 5.3.4 Ingest Service
 
-Identity Service là service quản lý authentication và authorization trong hệ thống SMAP, cung cấp JWT-based authentication, role-based access control, và user management. Service này đóng vai trò Utility service trong kiến trúc tổng thể, được sử dụng bởi tất cả các services khác để verify user identity và permissions.
+Ingest Service là dịch vụ giữ execution plane của hệ thống ở lớp ingest. Dịch vụ này chịu trách nhiệm quản lý datasource, crawl target, dry run, external task, raw batch và quá trình chuẩn hóa dữ liệu đầu vào sang UAP trước khi chuyển tiếp xuống analytics data plane.
 
-Vai trò của Identity Service trong kiến trúc tổng thể:
+Vai trò của Ingest Service trong kiến trúc tổng thể:
 
-- Authentication Provider: Cung cấp login, registration, và JWT token generation.
-- Authorization Provider: Role-based access control (USER, ADMIN) và permission checking.
-- User Management: CRUD operations cho user accounts và profiles.
-- Session Management: HttpOnly cookie-based session management với refresh tokens.
+- Datasource Owner: Quản lý metadata và vòng đời của datasource.
+- Target Manager: Quản lý crawl target theo keyword, profile và post.
+- Dry Run Runtime: Thực hiện kiểm tra readiness trước khi chạy chính thức.
+- Execution Plane: Publish task, nhận completion và tạo raw batch lineage.
+- UAP Publisher: Chuẩn hóa dữ liệu đầu vào và phát hành sang lane phân tích downstream.
 
-Service này đáp ứng các NFRs về Security (Authentication & Authorization) và liên quan đến tất cả Use Cases (user phải authenticated để sử dụng hệ thống).
+Service này đáp ứng trực tiếp FR-05 về Datasource Management, FR-06 về Crawl Target Management, FR-07 về Dry Run Validation và FR-08 về Crawl Runtime Orchestration. Ở mức use case, nó liên quan trực tiếp đến UC-03 về Configure Datasource and Run Dry Run và UC-04 về Control Project Lifecycle.
 
-==== 5.3.4.1 Component Diagram - C4 Level 3
+==== 5.3.4.1 Thành phần chính
 
-Identity Service được tổ chức theo Clean Architecture với 4 layers chính:
+Ở mức thiết kế chi tiết, Ingest Service có thể được nhìn qua năm cụm thành phần chính.
 
-#align(center)[
-  #image("../images/component/identity-component-diagram.png", width: 100%)
-  #context (
-    align(
-      center,
-    )[_Hình #image_counter.display(): Biểu đồ thành phần của Identity Service - Clean Architecture 4 layers_]
-  )
-  #image_counter.step()
-]
-
-==== 5.3.4.2 Component Catalog
-
-#context (align(center)[_Bảng #table_counter.display(): Component Catalog - Identity Service_])
+#context (align(center)[_Bảng #table_counter.display(): Thành phần chính của Ingest Service_])
 #table_counter.step()
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.18fr, 0.32fr, 0.20fr, 0.20fr, 0.18fr),
+    columns: (0.22fr, 0.40fr, 0.20fr, 0.18fr),
     stroke: 0.5pt,
-    align: (left, left, left, left, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    align: (left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Thành phần*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Trách nhiệm chính*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input / Output*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AuthHandler],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP request handlers cho authentication operations],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP requests (POST)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP responses (JSON)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP Framework (Go)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Datasource Handler],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Xử lý HTTP routes cho datasource CRUD, target management và các internal lifecycle endpoints],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP request / JSON response],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Gin + HTTP handler],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Auth \ Middleware],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[JWT validation từ HttpOnly cookie, set scope trong context],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP request với cookie],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Context với scope],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[JWT Library],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Authentication \ UseCase],
-    table.cell(align: center + horizon, inset: (
-      y: 0.8em,
-    ))[Business logic cho authentication: login, register, OTP verification],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[LoginInput, RegisterInput],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[LoginOutput với JWT],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Datasource UseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Điều phối business rules cho datasource, target và project lifecycle runtime],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Datasource input / lifecycle output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[User \ UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Business logic cho user management: CRUD, password change],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[CreateInput, UpdateInput],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[UserOutput],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[DryRun UseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Khởi chạy dry run, ghi nhận kết quả và duy trì readiness evidence],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Dry run request / latest-history output],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[UseCase + RabbitMQ producer],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Password \ Encrypter],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Password hashing và verification],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Plain password],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Hashed password],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Hashing Library],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Execution UseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Publish crawl task, nhận completion, kiểm tra object storage và tạo raw batch lineage],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Task payload / completion metadata],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQ + MinIO client],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[JWT \ Manager],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[JWT token generation và validation],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[User claims],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[JWT token string],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[JWT Library],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[User \ Repository],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Database data access layer cho users],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[SQL queries],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[User entities],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[SQL ORM (Go)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[UAP Publisher],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Chuẩn hóa raw batch thành UAP và phát hành sang analytics data plane],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Raw batch / UAP records],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka publishing layer],
   )
 ]
 
-==== 5.3.4.3 Data Flow
+==== 5.3.4.2 Data Flow
 
-Luồng xử lý chính của Identity Service được chia thành 3 flows: User Registration, User Login, và JWT Validation.
+Luồng xử lý chính của Ingest Service có thể chia thành ba flow quan trọng: datasource & target management, dry run validation và completion handling + UAP publishing.
 
-===== a. User Registration Flow
+===== a. Datasource and Target Management Flow
 
-Luồng này được kích hoạt khi user đăng ký tài khoản mới:
+Flow này bắt đầu khi người dùng tạo datasource, thêm crawl target hoặc chỉnh sửa các tham số vận hành liên quan.
 
-#align(center)[
-  #image("../images/data-flow/user_registration_flow.png", width: 80%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng User Registration Flow_])
-  #image_counter.step()
-]
+Ở flow này, service thực hiện các bước chính sau:
 
-===== b. User Login Flow
+1. nhận request tạo hoặc cập nhật datasource;
+2. lưu metadata của datasource và target trong persistence layer;
+3. áp dụng các business rules liên quan đến trạng thái và loại target;
+4. chuẩn bị dữ liệu đầu vào cho dry run hoặc lifecycle control ở các bước tiếp theo.
 
-Luồng này được kích hoạt khi user đăng nhập:
+===== b. Dry Run Validation Flow
 
-#align(center)[
-  #image("../images/data-flow/user_login.png", width: 80%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng User Login Flow_])
-  #image_counter.step()
-]
+Flow này được kích hoạt khi người dùng yêu cầu kiểm tra readiness trước khi chạy chính thức.
 
-===== c. JWT Validation Flow
+Ở flow này, Ingest Service:
 
-Luồng này được kích hoạt cho mỗi authenticated request:
+1. tạo một dry run request cho datasource tương ứng;
+2. publish task sang crawler runtime nếu cần lấy mẫu hoặc xác nhận dữ liệu;
+3. nhận kết quả dry run và ghi vào `dryrun_results`;
+4. duy trì bằng chứng readiness để dùng cho lifecycle control ở `project-srv`.
 
-#align(center)[
-  #image("../images/data-flow/auth_middleware.png", width: 80%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng JWT Validation - Auth Middleware_])
-  #image_counter.step()
-]
+===== c. Completion Handling and UAP Publishing Flow
 
-==== 5.3.4.4 Design Patterns áp dụng
+Flow này là phần quan trọng nhất của execution plane hiện tại.
 
-Identity Service áp dụng các design patterns sau:
+1. Ingest Service publish crawl task sang RabbitMQ.
+2. `scapper-srv` thực thi task và publish completion metadata trở lại.
+3. Ingest Service kiểm tra object storage, tạo `external_task` completion record và `raw_batch` lineage.
+4. Nếu flow phù hợp, service parse và chuẩn hóa dữ liệu sang UAP.
+5. Kết quả được publish sang analytics data plane để `analysis-srv` tiếp tục tiêu thụ.
 
-- Clean Architecture: 4 layers Delivery → UseCase → Domain → Infrastructure với dependency inversion. Testability cao, maintainability tốt.
+==== 5.3.4.3 Design Patterns áp dụng
 
-- Repository Pattern: UserRepository cho database. Abstract data access qua interfaces, business logic không phụ thuộc vào database cụ thể.
+Ingest Service áp dụng các design patterns sau:
 
-- Strategy Pattern: PasswordEncrypter có thể switch hashing algorithm. Encrypter interface với HashPassword() và CheckPasswordHash() methods.
+- Repository Pattern: Tách truy cập datasource, dryrun, execution và raw batch persistence khỏi business logic.
+- Control Plane / Execution Plane Separation: Lifecycle control được giữ rõ ở lớp business/runtime control, trong khi task execution được đẩy sang lane bất đồng bộ.
+- Task Queue Pattern: RabbitMQ được dùng cho crawl task dispatch và completion handling.
+- Idempotent Completion Handling: `task_id` và lineage metadata được dùng để chống xử lý trùng completion.
+- Canonical Publishing Pattern: Sau khi dữ liệu được chuẩn hóa, service phát hành UAP để các lane downstream có thể tiêu thụ nhất quán.
 
-- HttpOnly Cookie Pattern: JWT token được set trong HttpOnly cookie thay vì localStorage. Bảo vệ khỏi XSS attacks.
+==== 5.3.4.4 Key Decisions
 
-- Role-Based Access Control: User model có Role field, JWT token chứa role claim. Middleware check role từ JWT payload, enforce permissions.
+- Giữ ownership của datasource, target, dry run, external task và raw batch trong một service boundary duy nhất.
+- Dùng internal HTTP từ `project-srv` sang `ingest-srv` cho readiness và lifecycle control.
+- Dùng RabbitMQ cho crawl runtime thay vì ép toàn bộ flow vào synchronous control.
+- Chỉ publish sang analytics data plane sau khi completion và raw batch lineage đã được xác nhận ở mức cần thiết.
 
-==== 5.3.4.5 Performance Targets
-
-#context (align(center)[_Bảng #table_counter.display(): Performance Targets - Identity Service_])
-#table_counter.step()
-#block(width: 100%)[
-  #set par(justify: false)
-  #table(
-    columns: (0.40fr, 0.30fr, 0.30fr),
-    stroke: 0.5pt,
-    align: (left, center, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*NFR Traceability*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Auth Check Latency],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 10ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Login Latency],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Registration Latency],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-3],
-  )
-]
-
-==== 5.3.4.6 Key Decisions
-
-- Secure Password Hashing: Sử dụng industry-standard hashing algorithm. Balance giữa security và performance, đủ mạnh để resist brute-force attacks.
-
-- HttpOnly Cookie cho JWT: Set JWT token trong HttpOnly cookie thay vì localStorage. Bảo vệ khỏi XSS attacks và CSRF protection.
-
-- OTP-based Email Verification: Sử dụng OTP cho email verification thay vì magic links. OTP đơn giản hơn, không cần email template phức tạp.
-
-- Async Email Sending: Publish email events đến message queue thay vì gửi email trực tiếp. Không block request handler, improve response time.
-
-- Role-Based Access Control: JWT token chứa role claim, middleware enforce permissions dựa trên role. Fine-grained access control.
-
-==== 5.3.4.7 Dependencies
+==== 5.3.4.5 Dependencies
 
 Internal Dependencies:
 
-- UserUseCase: Quản lý user accounts và profiles.
-- PasswordEncrypter: Hash và verify passwords.
-- JWTManager: Generate và validate JWT tokens.
-- RabbitMQProducer: Publish email events.
+- Datasource UseCase: quản lý datasource, target và lifecycle runtime.
+- DryRun UseCase: quản lý flow dry run và readiness evidence.
+- Execution UseCase: quản lý task dispatch, completion handling và raw batch lineage.
+- UAP layer: chuẩn hóa và phát hành dữ liệu downstream.
 
 External Dependencies:
 
-- Relational Database (PostgreSQL): User data persistence.
-- Message Queue (RabbitMQ): Email event publishing (async email sending).
-- Consumer Service: Process email events (OTP sending via SMTP).
+- PostgreSQL: lưu datasource, target, dryrun, scheduled job, external task và raw batch.
+- RabbitMQ: task dispatch và completion lane.
+- MinIO: object storage cho raw artifacts và completion verification.
+- `project-srv`: lifecycle control plane và project context.
+- `analysis-srv`: downstream consumer của UAP analytics input.
