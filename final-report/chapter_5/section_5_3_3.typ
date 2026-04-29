@@ -2,21 +2,20 @@
 
 === 5.3.3 Project Service
 
-Project Service là service quản lý vòng đời của các dự án phân tích thương hiệu và đối thủ cạnh tranh trong hệ thống SMAP. Service này đóng vai trò Aggregator trong kiến trúc tổng thể, quản lý project metadata, orchestrate execution flow, và publish events để trigger các services khác.
+Project Service là dịch vụ giữ business context của hệ thống SMAP. Dịch vụ này sở hữu campaign, project và crisis configuration, đồng thời quản lý vòng đời nghiệp vụ của project trước khi các lane runtime phía sau được kích hoạt. Đây là service trung tâm của business control plane, nơi các thao tác của người dùng được chuyển thành trạng thái nghiệp vụ rõ ràng trước khi đi vào execution flow.
 
 Vai trò của Project Service trong kiến trúc tổng thể:
 
-- Project Management: CRUD operations cho projects, competitors, và keywords.
-- Execution Orchestrator: Khởi tạo và điều phối quá trình crawl dữ liệu cho UC-03.
-- State Coordinator: Quản lý project state trong distributed cache (initialization, không update trực tiếp).
-- Event Publisher: Publish project events để trigger Collector Service.
-- Webhook Receiver: Nhận progress callbacks từ Collector Service và publish đến Pub/Sub.
+- Business Context Owner: Quản lý campaign, project và các metadata nghiệp vụ gắn với đối tượng theo dõi.
+- Lifecycle Control Layer: Điều khiển activate, pause, resume, archive và unarchive theo vòng đời nghiệp vụ của project.
+- Crisis Configuration Owner: Lưu trữ và quản lý các cấu hình giám sát khủng hoảng theo project.
+- Internal Control Client: Gọi internal HTTP sang `ingest-srv` để kiểm tra readiness hoặc điều khiển runtime tương ứng.
 
-Service này đáp ứng FR-1 về Cấu hình Project và FR-2 về Thực thi và Giám sát Project, liên quan trực tiếp đến UC-01 về Cấu hình Project và UC-03 về Execution.
+Service này đáp ứng trực tiếp FR-02 về Campaign and Project Management, FR-03 về Project Lifecycle Control và FR-04 về Crisis Configuration Management. Ở mức use case, nó liên quan trực tiếp đến UC-02 về Create Campaign and Project, UC-04 về Control Project Lifecycle và UC-08 về Manage Crisis Configuration.
 
 ==== 5.3.3.1 Component Diagram - C4 Level 3
 
-Project Service được tổ chức theo Clean Architecture với 4 layers chính:
+Project Service được tổ chức theo hướng tách biệt rõ delivery, usecase và persistence layer. Trọng tâm của service không nằm ở task runtime mà ở việc giữ trạng thái nghiệp vụ, điều phối lifecycle control và nối business context với các internal services liên quan.
 
 #align(center)[
   #image("../images/component/project-component-diagram.png", width: 100%)
@@ -31,158 +30,127 @@ Project Service được tổ chức theo Clean Architecture với 4 layers chí
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.20fr, 0.32fr, 0.20fr, 0.20fr, 0.18fr),
+    columns: (0.22fr, 0.34fr, 0.22fr, 0.22fr),
     stroke: 0.5pt,
-    align: (left, left, left, left, left),
+    align: (left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input / Output*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectHandler],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP request handlers cho project CRUD và execution],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP requests],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP responses (JSON)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP Framework (Go)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Project Handler],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Xử lý HTTP routes cho project CRUD, lifecycle control và internal detail lookup],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP request / JSON response],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Gin + HTTP handler],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectUseCase],
-    table.cell(align: center + horizon, inset: (
-      y: 0.8em,
-    ))[Business logic cho project management và execution orchestration],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[CreateInput, ExecuteInput],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectOutput, status],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Project UseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Điều phối business logic cho project, campaign relation và metadata handling],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Create / update input, detail/list output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[StateUseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Quản lý project state trong distributed cache],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectID, state updates],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectState],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cache Client (Go)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Lifecycle UseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kiểm tra readiness, gọi internal HTTP tới ingest và cập nhật trạng thái project],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Project state / lifecycle command],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[UseCase + internal client],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Webhook \ UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Transform progress callbacks → Pub/Sub messages],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Progress Callback],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pub/Sub publish],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pub/Sub Client],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Crisis Config UseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Quản lý cấu hình giám sát khủng hoảng gắn với project],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Project ID / config payload],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Go domain logic],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQ \ Producer],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Publish project events đến message queue],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ProjectCreated Event],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Message published],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AMQP Client (Go)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Project Repository],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Lưu project, campaign relation và cập nhật trạng thái nghiệp vụ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[SQL queries / project rows],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[PostgreSQL repository],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project \ Repository],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Database data access layer cho projects],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[SQL queries],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project entities],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[SQL ORM (Go)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Ingest Client],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Giao tiếp internal HTTP với `ingest-srv` cho readiness và lifecycle control],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Project ID / HTTP response],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Internal HTTP client],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[State \ Repository],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cache data access layer cho project state],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cache commands],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cache responses],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cache Client (Go)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Lifecycle Event Publisher],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Phát hành lifecycle event sau khi transition nghiệp vụ thành công],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Lifecycle payload / published event],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka producer],
   )
 ]
 
 ==== 5.3.3.3 Data Flow
 
-Luồng xử lý chính của Project Service được chia thành 3 flows: Project Creation, Project Execution, và Progress Callback Handling.
+Luồng xử lý chính của Project Service có thể nhìn qua ba flow quan trọng: project creation flow, lifecycle control flow và crisis configuration flow.
 
 ===== a. Project Creation Flow
 
-Luồng này được kích hoạt khi user tạo project mới theo UC-01:
+Luồng này được kích hoạt khi người dùng tạo campaign hoặc project mới:
 
 #align(center)[
   #image("../images/data-flow/project_create.png", width: 100%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng Project Creation Flow - UC-01_])
+  #context (align(center)[_Hình #image_counter.display(): Luồng Project Creation Flow_])
   #image_counter.step()
 ]
 
-===== b. Project Execution Flow
+Ở flow này, service thực hiện các bước chính sau:
 
-Luồng này được kích hoạt khi user execute project theo UC-03:
+1. nhận request tạo campaign hoặc project;
+2. kiểm tra dữ liệu đầu vào và domain context tương ứng;
+3. lưu project với business metadata đầy đủ;
+4. trả về trạng thái nghiệp vụ ban đầu cho các bước cấu hình tiếp theo.
+
+===== b. Project Lifecycle Control Flow
+
+Luồng này được kích hoạt khi người dùng yêu cầu activate, pause, resume hoặc archive project:
 
 #align(center)[
   #image("../images/data-flow/execute_project.png", width: 100%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng Project Execution Flow - UC-03_])
+  #context (align(center)[_Hình #image_counter.display(): Luồng Project Lifecycle Control Flow_])
   #image_counter.step()
 ]
 
-===== c. Progress Callback Flow
+Ở flow này, `project-srv` không trực tiếp thực thi runtime mà:
 
-Luồng này xử lý progress callbacks từ Collector Service:
+1. kiểm tra trạng thái hiện tại của project;
+2. gọi internal HTTP sang `ingest-srv` để kiểm tra readiness hoặc điều khiển runtime;
+3. cập nhật `project.status` cục bộ nếu transition hợp lệ;
+4. phát hành lifecycle event như một lane lan truyền hậu chuyển trạng thái.
 
-#align(center)[
-  #image("../images/data-flow/webhook_callback.png", width: 100%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng Progress Callback Flow_])
-  #image_counter.step()
-]
+===== c. Crisis Configuration Flow
+
+Luồng này xử lý việc tạo, cập nhật hoặc xóa cấu hình giám sát khủng hoảng gắn với từng project:
+
+- người dùng gửi cấu hình crisis liên quan đến project;
+- service kiểm tra project context và tính hợp lệ của payload;
+- `project-srv` lưu hoặc cập nhật dữ liệu crisis configuration trong persistence layer;
+- cấu hình này sau đó trở thành đầu vào cho các lane giám sát tương ứng.
 
 ==== 5.3.3.4 Design Patterns áp dụng
 
 Project Service áp dụng các design patterns sau:
 
-- Clean Architecture: 4 layers Delivery → UseCase → Domain → Infrastructure với dependency inversion. Testability cao, maintainability tốt.
+- Clean Architecture: giữ ranh giới rõ giữa delivery, usecase và persistence layer.
+- Repository Pattern: tách truy cập dữ liệu project và crisis configuration khỏi business logic.
+- Control Plane Pattern: lifecycle control được giữ ở lớp nghiệp vụ thay vì bị đẩy sang execution runtime.
+- Internal Service Client Pattern: dùng internal HTTP client để điều phối readiness và lifecycle giữa `project-srv` và `ingest-srv`.
+- Event Publishing Pattern: phát lifecycle event sau khi business transition thành công để downstream consumers có thể phản ứng tiếp.
 
-- Repository Pattern: ProjectRepository cho database, StateRepository cho cache. Abstract data access qua interfaces, business logic không phụ thuộc vào storage cụ thể.
+==== 5.3.3.5 Key Decisions
 
-- Event-Driven Architecture: Producer publish project events. Decoupling giữa services, async processing, và resilience.
+- Xem project như business context owner, không phải runtime executor.
+- Giữ lifecycle control ở `project-srv`, còn runtime execution state ở `ingest-srv`.
+- Dùng internal HTTP cho lifecycle control plane để giữ phản hồi đồng bộ ở các thao tác quan trọng.
+- Chỉ phát lifecycle event sau khi trạng thái nghiệp vụ đã được cập nhật thành công.
 
-- Distributed State Management: StateUseCase quản lý project state trong distributed cache. Single Source of Truth cho project progress, real-time updates qua Pub/Sub.
-
-- Explicit Execution Pattern: Project được tạo với status="draft", chỉ execute khi user explicitly call Execute(). User có thể review và edit configuration trước khi execute.
-
-==== 5.3.3.5 Performance Targets
-
-#context (align(center)[_Bảng #table_counter.display(): Performance Targets - Project Service_])
-#table_counter.step()
-#block(width: 100%)[
-  #set par(justify: false)
-  #table(
-    columns: (0.40fr, 0.30fr, 0.30fr),
-    stroke: 0.5pt,
-    align: (left, center, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*NFR Traceability*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project Creation Latency],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project Execution Latency],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Progress Callback Latency],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 100ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-P1],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Concurrent Projects],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[≥ 50 projects],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-2],
-  )
-]
-
-==== 5.3.3.6 Key Decisions
-
-- Draft Status Pattern: Project được tạo với status="draft", không kích hoạt bất kỳ processing nào. Cho phép user review và edit configuration trước khi execute.
-
-- Explicit Execution: Tách biệt "configuration" và "execution" thành 2 operations riêng biệt. User có thể tạo nhiều projects và execute sau.
-
-- Duplicate Execution Prevention: Check cache state trước khi execute, return error nếu project đang executing. Tránh duplicate processing và inconsistent state.
-
-- Rollback Logic: Nếu message queue publish fails sau khi đã update database và init cache, rollback cả hai. Đảm bảo consistency.
-
-==== 5.3.3.7 Dependencies
+==== 5.3.3.6 Dependencies
 
 Internal Dependencies:
 
-- StateUseCase: Quản lý project state trong distributed cache.
-- RabbitMQProducer: Publish project events.
-- SamplingUseCase: Dry-run functionality.
+- Project UseCase: điều phối CRUD và metadata logic.
+- Lifecycle UseCase: xử lý readiness và lifecycle transitions.
+- Crisis Config UseCase: xử lý cấu hình giám sát khủng hoảng.
+- Project Repository: lưu project metadata và trạng thái nghiệp vụ.
 
 External Dependencies:
 
-- Relational Database (PostgreSQL): Project metadata persistence.
-- Distributed Cache (Redis): State management và Pub/Sub.
-- Message Queue (RabbitMQ): Event publishing.
-- Identity Service: User authentication (JWT validation).
+- PostgreSQL: lưu campaign, project và crisis configuration.
+- Redis domain registry: hỗ trợ tra cứu domain context khi cần.
+- `ingest-srv`: nhận internal HTTP call cho readiness và lifecycle control.
+- Kafka producer: phát lifecycle event cho các consumer downstream.
