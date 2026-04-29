@@ -3,7 +3,7 @@
 
 == 4.4 Use Case
 
-Sau khi xác định các yêu cầu chức năng và phi chức năng, phần này trình bày các use case cốt lõi của hệ thống SMAP ở mức đủ để mô tả cách hệ thống được sử dụng và vận hành. Khác với cách đặc tả theo product flow cũ, các use case ở đây được viết ở mức capability, bám current implementation và có thể nối trực tiếp sang service boundaries, API routes hoặc runtime flows tương ứng.
+Sau khi xác định các yêu cầu chức năng và phi chức năng, phần này trình bày các use case cốt lõi của hệ thống SMAP ở mức đủ để mô tả cách hệ thống được sử dụng và vận hành. Các use case ở đây được viết ở mức capability, bám current implementation và có thể nối trực tiếp sang service boundaries, API routes hoặc runtime flows tương ứng.
 
 #context (align(center)[_Bảng #table_counter.display(): Danh sách Use Case_])
 #table_counter.step()

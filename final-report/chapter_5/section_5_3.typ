@@ -3,7 +3,7 @@
 
 == 5.3 Thiết kế chi tiết các dịch vụ
 
-Mục 5.2 đã trình bày kiến trúc tổng thể của hệ thống SMAP ở cấp độ Container hay C4 Level 2, mô tả các services như các hộp đen với trách nhiệm và công nghệ của chúng. Mục này đi sâu vào cấp độ Component hay C4 Level 3, mở hộp từng service để làm rõ cấu trúc nội bộ, các components bên trong, cách chúng tương tác và các design patterns được áp dụng.
+Mục 5.2 đã trình bày kiến trúc tổng thể của hệ thống SMAP ở cấp độ container và ranh giới trách nhiệm giữa các service. Mục này đi sâu hơn vào các thành phần cốt lõi ở mức thiết kế chi tiết, nhằm làm rõ cách các capability quan trọng của hệ thống được hiện thực bên trong từng service hoặc runtime lane tương ứng.
 
 Mục đích của mục này là:
 
@@ -15,8 +15,7 @@ Mục đích của mục này là:
 
 - Cung cấp traceability đến requirements: Liên kết với NFRs và Acceptance Criteria ở Chapter 4.
 
-
-Mục này được tổ chức theo thứ tự ưu tiên, bắt đầu với các services phức tạp và quan trọng nhất là Collector Service và Analytics Service, sau đó đến các services hỗ trợ gồm Project, Identity, WebSocket và Web UI.
+Mục này được tổ chức theo các capability và runtime lane quan trọng của hệ thống. Các phần ưu tiên trước hết là xác thực và session management, business context persistence, lifecycle control, analytics pipeline, knowledge retrieval và realtime delivery.
 
 === 5.3.1 Collector Service
 
@@ -1214,4 +1213,3 @@ Giao diện hệ thống SMAP được thiết kế tuân theo các nguyên tắ
 - Performance: Tối ưu hóa loading time với lazy loading cho images và code splitting cho các components lớn.
 
 - Feedback: Cung cấp phản hồi trực quan cho mọi hành động của người dùng thông qua loading states, success messages và error notifications.
-
