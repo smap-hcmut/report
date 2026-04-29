@@ -54,9 +54,14 @@
   - Hiện mới mô tả bằng văn bản, chưa có diagram current-state riêng.
   - Nếu bổ sung sau, nên ưu tiên flow analytics → knowledge indexing, search/chat và report generation.
 
+- `5.3.8 Scapper Worker Service`
+  - Đã được bổ sung theo current implementation của `scapper-srv`.
+  - Hiện mới mô tả bằng văn bản, chưa có diagram current-state riêng.
+  - Nếu bổ sung sau, nên ưu tiên flow queue dispatch, crawl execution, raw artifact materialization và completion publish.
+
 ### Tổng kết rà soát
 
-- Các mục đã được kéo về current implementation tốt hơn: `5.3.1`, `5.3.2`, `5.3.3`, `5.3.4`, `5.3.5`, `5.3.7`.
+- Các mục đã được kéo về current implementation tốt hơn: `5.3.1`, `5.3.2`, `5.3.3`, `5.3.4`, `5.3.5`, `5.3.7`, `5.3.8`.
 - Mục còn cần review thêm trước khi chốt: `5.3.6`.
 - Chưa có mục nào trong `5.3` có bộ diagram mới hoàn chỉnh bám current-state như `4.5`.
 - Khi hoàn thiện sau, nên thay diagram theo từng service hoặc runtime lane, thay vì tiếp tục dùng asset legacy hiện tại.
