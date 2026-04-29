@@ -2,20 +2,20 @@
 
 === 5.3.2 Analytics Service
 
-Analytics Service là service phức tạp nhất trong hệ thống SMAP về mặt AI/ML, chịu trách nhiệm xử lý NLP pipeline để phân tích sentiment, intent, keywords, và impact của social media content. Service này consume events từ Crawler Services, fetch raw data từ object storage, chạy qua pipeline 5 bước, và persist kết quả vào database.
+Analytics Service là dịch vụ chịu trách nhiệm cho analytics pipeline của hệ thống SMAP. Dịch vụ này vận hành như một consumer runtime bất đồng bộ, tiếp nhận dữ liệu đã được chuẩn hóa từ analytics data plane, thực thi các bước xử lý NLP, lưu kết quả phân tích có cấu trúc và phát hành các đầu ra downstream để các lớp khác tiếp tục tiêu thụ.
 
 Vai trò của Analytics Service trong kiến trúc tổng thể:
 
-- NLP Pipeline Orchestrator: Điều phối 5 bước xử lý: Preprocessing → Intent → Keyword → Sentiment → Impact.
-- Batch Processor: Xử lý batches từ object storage để tối ưu throughput.
-- Event Consumer: Consume data collection events và publish analysis completion events.
-- Result Persister: Lưu kết quả phân tích vào relational database với schema linh hoạt.
+- Kafka Consumer Runtime: Tiêu thụ dữ liệu đầu vào từ analytics data plane.
+- Pipeline Orchestrator: Điều phối các bước normalization, enrichment và NLP processing.
+- Result Persister: Lưu các thực thể phân tích có cấu trúc vào persistence layer.
+- Downstream Publisher: Phát hành các topic analytics phục vụ knowledge indexing và các lớp tiêu thụ phía sau.
 
-Service này đáp ứng FR-2 (Analyzing phase) và liên quan trực tiếp đến UC-03 (Analytics Pipeline execution).
+Service này đáp ứng trực tiếp FR-09 về Analytics Processing và liên quan trực tiếp đến UC-05 về Execute Analytics and Build Knowledge.
 
 ==== 5.3.2.1 Component Diagram - C4 Level 3
 
-Analytics Service được tổ chức theo Clean Architecture với 5 layers chính:
+Analytics Service được tổ chức quanh consumer runtime và pipeline processing layer. Ở đây, trọng tâm không nằm ở một HTTP request path truyền thống, mà ở khả năng intake message, thực thi pipeline và phát hành kết quả downstream.
 
 #context (
   align(center)[
@@ -34,167 +34,115 @@ Analytics Service được tổ chức theo Clean Architecture với 5 layers ch
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.20fr, 0.30fr, 0.20fr, 0.20fr, 0.18fr),
+    columns: (0.22fr, 0.34fr, 0.22fr, 0.22fr),
     stroke: 0.5pt,
-    align: (left, left, left, left, left),
+    align: (left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input / Output*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[EventConsumer],
-    table.cell(align: center + horizon, inset: (
-      y: 0.8em,
-    ))[Consume data collection events, download batches, process items],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Message Queue event],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Trigger orchestrator],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AMQP Consumer (Python)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ConsumerServer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Tiếp nhận message từ Kafka, parse dữ liệu và điều phối intake flow],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka message / parsed input bundle],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Python async + Kafka consumer],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics \ Orchestrator],
-    table.cell(align: center + horizon, inset: (
-      y: 0.8em,
-    ))[Coordinate 5-step NLP pipeline, apply skip logic, aggregate results],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Atomic JSON post],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[PostAnalytics payload],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Python async],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Ingestion Adapter],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Chuyển UAP hoặc ingest flat payload sang `IngestedBatchBundle` dùng cho pipeline],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Parsed record / pipeline-ready bundle],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Adapter layer],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Text \ Preprocessor],
-    table.cell(align: center + horizon, inset: (
-      y: 0.8em,
-    ))[Merge content sources, normalize Vietnamese text, detect spam],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Raw text],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[PreprocessingResult],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Text Processing],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[PipelineUseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Wrapper điều phối `run_pipeline()` với `RunContext` và cấu hình runtime],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Batch bundle / pipeline result],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Python usecase layer],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[IntentClassifier],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Classify intent (7 categories), gatekeeper cho skip logic],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Clean text],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[IntentResult],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pattern-based],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[NLP Pipeline Stages],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thực thi các bước normalization, dedup, spam, thread topology và NLP enrichment],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[MentionRecord / NLPFact / analytics outputs],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pipeline modules],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Keyword \ Extractor],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Extract keywords với aspect mapping (hybrid approach)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Clean text],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[KeywordResult],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[NLP Framework],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[PostInsight UseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Lưu các kết quả phân tích có cấu trúc vào PostgreSQL],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[NLPFact / persisted insight rows],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Persistence layer],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Sentiment \ Analyzer],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Overall + aspect-based sentiment với context windowing],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Clean text, keywords],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[SentimentResult],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Transformer Model],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Impact \ Calculator],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Calculate ImpactScore (0-100), RiskLevel, engagement scores],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Interaction, sentiment],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ImpactResult],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Python logic],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics \ Repository],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Persist PostAnalytics vào database],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[PostAnalytics payload],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Database INSERT],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[SQL ORM (Python)],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Storage \ Adapter],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Download batch files từ object storage, decompress, parse],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Object key],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[List of items],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[S3 Client],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Contract Publisher],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Phát hành `analytics.*` topics cho downstream consumers],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Insight outputs / Kafka topics],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka producer],
   )
 ]
 
 ==== 5.3.2.3 Data Flow
 
-Luồng xử lý chính của Analytics Service được chia thành 2 flows: Event Consumption và NLP Pipeline Execution.
+Luồng xử lý chính của Analytics Service có thể chia thành hai flow: Kafka intake flow và pipeline execution flow.
 
-===== a. Event Consumption Flow
+===== a. Kafka Intake Flow
 
-Luồng này được kích hoạt khi Crawler Services publish data collection events:
+Luồng này bắt đầu khi dữ liệu chuẩn hóa được publish vào analytics data plane:
 
 #align(center)[
   #image("../images/data-flow/analytics_ingestion.png", width: 95%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng xử lý Event → Batch Ingestion trong Analytics Service_])
+  #context (align(center)[_Hình #image_counter.display(): Luồng Kafka intake trong Analytics Service_])
   #image_counter.step()
 ]
 
-===== b. NLP Pipeline Execution Flow
+Ở flow này, `ConsumerServer` thực hiện các bước chính sau:
+
+1. nhận Kafka message từ topic đầu vào;
+2. decode và parse dữ liệu theo định dạng UAP hoặc ingest flat payload;
+3. route domain bằng `domain_type_code` và tạo `RunContext`;
+4. chuyển dữ liệu sang `IngestedBatchBundle` để sẵn sàng cho pipeline.
+
+===== b. Pipeline Execution Flow
+
+Sau khi intake hoàn tất, service chuyển sang pipeline execution flow:
 
 #align(center)[
   #image("../images/data-flow/analytics-pipeline.png", width: 95%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng NLP Pipeline cho từng post trong Analytics Service_])
+  #context (align(center)[_Hình #image_counter.display(): Luồng analytics pipeline trong Analytics Service_])
   #image_counter.step()
 ]
+
+Ở flow này, pipeline được chạy theo kiểu consumer-based processing:
+
+1. `PipelineUseCase` gọi `run_pipeline()` với `asyncio.to_thread` để tránh block event loop;
+2. các stage xử lý tạo ra `NLPFact` và các analytics outputs;
+3. kết quả được persist vào PostgreSQL thông qua `post_insight` layer;
+4. các contract outputs được publish ra các topic downstream;
+5. `knowledge-srv` tiêu thụ các topic này để tiếp tục indexing.
 
 ==== 5.3.2.4 Design Patterns áp dụng
 
 Analytics Service áp dụng các design patterns sau:
 
-- Pipeline Pattern: AnalyticsOrchestrator điều phối 5 steps tuần tự: Preprocessing → Intent → Keyword → Sentiment → Impact. Mỗi step là một module độc lập với interface rõ ràng. Dễ test từng step độc lập, dễ thay đổi implementation của một step mà không ảnh hưởng steps khác.
+- Consumer-Based Processing: Dịch vụ vận hành như một consumer runtime tách khỏi request-response path.
+- Pipeline Pattern: Các bước xử lý được tổ chức thành một pipeline nhiều stage có thứ tự rõ ràng.
+- Thread Offloading Pattern: Phần xử lý nặng được đẩy qua `asyncio.to_thread` để giảm nguy cơ block event loop.
+- Port and Adapter Pattern: Intake, persistence và publishing được tách qua các adapter hoặc usecase tương ứng.
+- Downstream Contract Publishing: Kết quả phân tích không kết thúc trong service mà được phát hành tiếp cho các lane downstream.
 
-- Strategy Pattern: KeywordExtractor sử dụng hybrid strategy kết hợp dictionary-based và statistical methods. Flexibility trong keyword extraction, có thể thêm strategies mới mà không thay đổi orchestrator.
+==== 5.3.2.5 Key Decisions
 
-- Skip Logic Pattern: IntentClassifier và TextPreprocessor kết hợp để skip spam/seeding/noise posts. Early return bypass expensive AI steps. Tiết kiệm compute resources và improve throughput.
+- Chọn Kafka làm đầu vào chính cho analytics data plane thay vì RabbitMQ task queue.
+- Tách pipeline processing khỏi HTTP path để phù hợp với workload NLP nặng.
+- Giữ `PipelineUseCase` như một wrapper mỏng quanh `run_pipeline()` để đơn giản hóa orchestration layer.
+- Persist `post_insight` và publish `analytics.*` outputs như hai trách nhiệm liên tiếp nhưng tách biệt.
 
-- Port and Adapter Pattern: Interfaces định nghĩa contracts, implementations trong infrastructure layer. Orchestrator depends on repository interface, không phụ thuộc database cụ thể.
-
-- Batch Processing Pattern: EventConsumer download batches từ object storage và process parallel. Tối ưu throughput, giảm overhead của multiple storage calls.
-
-==== 5.3.2.5 Performance Targets
-
-#context (align(center)[_Bảng #table_counter.display(): Performance Targets - Analytics Service_])
-#table_counter.step()
-#block(width: 100%)[
-  #set par(justify: false)
-  #table(
-    columns: (0.40fr, 0.30fr, 0.30fr),
-    stroke: 0.5pt,
-    align: (left, center, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*NFR Traceability*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[NLP Pipeline Latency (p95)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 700ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Throughput (per worker)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[≥ 70 items/min],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-2],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Batch Processing Time],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 10s/batch],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-P2],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Memory Usage],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 4GB],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-R1],
-  )
-]
-
-==== 5.3.2.6 Key Decisions
-
-- Model Optimization: Sử dụng optimized model runtime thay vì native framework. Inference nhanh hơn trên CPU, memory footprint nhỏ hơn.
-
-- Skip Logic: Skip expensive AI steps cho spam/seeding/noise posts. Tiết kiệm thời gian xử lý, improve throughput.
-
-- Batch Processing: Process batches từ object storage thay vì từng item riêng lẻ. Giảm overhead, tối ưu network bandwidth.
-
-- Hybrid Keyword Extraction: Kết hợp dictionary-based và statistical extraction. Dictionary cho domain-specific keywords, statistical cho general keywords.
-
-- Context Windowing: Sử dụng context windowing technique cho aspect-based sentiment analysis. Model cần context xung quanh keyword để predict sentiment chính xác.
-
-==== 5.3.2.7 Dependencies
+==== 5.3.2.6 Dependencies
 
 Internal Dependencies:
 
-- TextPreprocessor: Text normalization và spam detection.
-- IntentClassifier: Skip logic và intent classification.
-- KeywordExtractor: Keyword extraction và aspect mapping.
-- SentimentAnalyzer: Sentiment analysis (overall + aspect-based).
-- ImpactCalculator: Impact score và risk level calculation.
-- AnalyticsRepository: Result persistence.
+- ConsumerRegistry: wiring các dependency runtime cho consumer server.
+- PipelineUseCase: điều phối chạy pipeline.
+- IngestionUseCase: chuyển dữ liệu intake sang bundle xử lý.
+- PostInsight UseCase: lưu kết quả phân tích.
+- Contract Publisher: phát hành các topic downstream.
 
 External Dependencies:
 
-- Message Queue (RabbitMQ): Event consumption.
-- Object Storage (MinIO): Raw data storage (batches, compressed).
-- Relational Database (PostgreSQL): Result persistence.
-- AI Model: Pre-trained Vietnamese sentiment model.
+- Kafka: analytics data plane đầu vào và các topic downstream đầu ra.
+- PostgreSQL: persistence cho các thực thể phân tích.
+- Knowledge Service: downstream consumer của các analytics topics.
+- Runtime config và domain registry: định tuyến ontology theo `domain_type_code`.
