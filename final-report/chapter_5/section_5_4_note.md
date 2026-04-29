@@ -5,7 +5,7 @@
 - Chỉ chỉnh `5.4.1 Chiến lược lựa chọn Storage`.
 - Đã rewrite `5.4.2 Identity Service` theo schema thật của `identity-srv`.
 - Đã thay mô tả cũ `users/plans/subscriptions` bằng `users`, `jwt_keys`, `audit_logs`.
-- Đã bỏ ERD ảnh cũ của `5.4.2` khỏi report chính vì không còn khớp schema hiện tại.
+- Đã thay ERD ảnh cũ của `5.4.2` bằng hình mới bám schema hiện tại của `identity-srv`.
 - Đã bổ sung lại table catalog và design decisions theo mô hình OAuth2/JWT + audit trail + Redis runtime complement.
 - Bổ sung tiêu chí đánh giá storage trước khi đưa ra lựa chọn.
 - Bổ sung bảng trade-off giữa PostgreSQL, MongoDB, Neo4j, Redis, MinIO/S3-compatible object storage, Qdrant và phương án lưu raw payload trực tiếp trong message queue.

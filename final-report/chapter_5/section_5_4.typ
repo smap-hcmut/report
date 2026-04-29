@@ -37,45 +37,67 @@ Các phương án lưu trữ được so sánh theo sáu tiêu chí chính:
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Vai trò trong SMAP*],
 
     table.cell(align: horizon, inset: (y: 0.8em))[PostgreSQL],
-    table.cell(align: horizon, inset: (y: 0.8em))[Metadata nghiệp vụ, lineage, analytics rows, conversation/report tracking],
-    table.cell(align: horizon, inset: (y: 0.8em))[ACID, schema rõ ràng, FK nội bộ schema, index mạnh, JSONB cho metadata linh hoạt],
-    table.cell(align: horizon, inset: (y: 0.8em))[Không tối ưu cho raw artifact lớn hoặc vector similarity search; cross-service FK vẫn phải tránh],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Metadata nghiệp vụ, lineage, analytics rows, conversation/report tracking],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[ACID, schema rõ ràng, FK nội bộ schema, index mạnh, JSONB cho metadata linh hoạt],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Không tối ưu cho raw artifact lớn hoặc vector similarity search; cross-service FK vẫn phải tránh],
     table.cell(align: horizon, inset: (y: 0.8em))[Storage chính cho dữ liệu có cấu trúc],
 
     table.cell(align: horizon, inset: (y: 0.8em))[MongoDB],
-    table.cell(align: horizon, inset: (y: 0.8em))[Document payload linh hoạt, dữ liệu bán cấu trúc thay đổi thường xuyên],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Document payload linh hoạt, dữ liệu bán cấu trúc thay đổi thường xuyên],
     table.cell(align: horizon, inset: (y: 0.8em))[Schema linh hoạt, dễ lưu document theo platform],
-    table.cell(align: horizon, inset: (y: 0.8em))[Tăng thêm một database vận hành; raw crawl artifact vẫn phù hợp hơn với object storage; metadata quan hệ vẫn cần constraint],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Tăng thêm một database vận hành; raw crawl artifact vẫn phù hợp hơn với object storage; metadata quan hệ vẫn cần constraint],
     table.cell(align: horizon, inset: (y: 0.8em))[Không chọn làm storage chính],
 
     table.cell(align: horizon, inset: (y: 0.8em))[Neo4j],
     table.cell(align: horizon, inset: (y: 0.8em))[Graph traversal, relationship discovery, entity graph nhiều bậc],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mạnh khi quan hệ giữa actor, topic, campaign và entity là trung tâm của truy vấn],
-    table.cell(align: horizon, inset: (y: 0.8em))[Các quan hệ chính của SMAP vẫn được xử lý tốt bằng relational model và vector retrieval; thêm Neo4j làm tăng chi phí vận hành],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Mạnh khi quan hệ giữa actor, topic, campaign và entity là trung tâm của truy vấn],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Các quan hệ chính của SMAP vẫn được xử lý tốt bằng relational model và vector retrieval; thêm Neo4j làm tăng chi phí vận hành],
     table.cell(align: horizon, inset: (y: 0.8em))[Không chọn cho phạm vi hiện tại],
 
     table.cell(align: horizon, inset: (y: 0.8em))[Redis],
     table.cell(align: horizon, inset: (y: 0.8em))[Session, cache, registry nhỏ, Pub/Sub, state ngắn hạn],
     table.cell(align: horizon, inset: (y: 0.8em))[Latency thấp, TTL, atomic operations, phù hợp dữ liệu tạm],
-    table.cell(align: horizon, inset: (y: 0.8em))[Không thay thế durable database; dữ liệu cần có nguồn bền vững để tái tạo khi cache mất],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Không thay thế durable database; dữ liệu cần có nguồn bền vững để tái tạo khi cache mất],
     table.cell(align: horizon, inset: (y: 0.8em))[Cache/session/PubSub layer],
 
     table.cell(align: horizon, inset: (y: 0.8em))[MinIO / S3-compatible object storage],
     table.cell(align: horizon, inset: (y: 0.8em))[Raw crawl artifacts, report artifacts, file output],
     table.cell(align: horizon, inset: (y: 0.8em))[Lưu object lớn tốt, tách payload khỏi queue, API S3-compatible],
-    table.cell(align: horizon, inset: (y: 0.8em))[Không phù hợp cho query nghiệp vụ trực tiếp; cần metadata lineage trong database quan hệ],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Không phù hợp cho query nghiệp vụ trực tiếp; cần metadata lineage trong database quan hệ],
     table.cell(align: horizon, inset: (y: 0.8em))[Object storage chính],
 
     table.cell(align: horizon, inset: (y: 0.8em))[Qdrant],
     table.cell(align: horizon, inset: (y: 0.8em))[Embedding, semantic search, RAG retrieval],
     table.cell(align: horizon, inset: (y: 0.8em))[Vector similarity search, payload filter, collection theo project],
-    table.cell(align: horizon, inset: (y: 0.8em))[Không thay thế metadata store; cần đồng bộ với PostgreSQL tracking và indexing status],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Không thay thế metadata store; cần đồng bộ với PostgreSQL tracking và indexing status],
     table.cell(align: horizon, inset: (y: 0.8em))[Vector store cho Knowledge Service],
 
     table.cell(align: horizon, inset: (y: 0.8em))[Lưu raw payload trực tiếp trong message queue],
     table.cell(align: horizon, inset: (y: 0.8em))[Task nhỏ, event metadata ngắn],
     table.cell(align: horizon, inset: (y: 0.8em))[Đơn giản vì consumer nhận đủ dữ liệu từ message],
-    table.cell(align: horizon, inset: (y: 0.8em))[Làm message lớn, khó retry/replay artifact, tăng áp lực broker và memory],
+    table.cell(align: horizon, inset: (
+      y: 0.8em,
+    ))[Làm message lớn, khó retry/replay artifact, tăng áp lực broker và memory],
     table.cell(align: horizon, inset: (y: 0.8em))[Không dùng cho raw artifact lớn],
   )
 ]
@@ -112,6 +134,12 @@ Identity Service quản lý security data cho cơ chế xác thực OAuth2/JWT c
 
 ==== 5.4.2.1 Database Schema
 
+#align(center)[
+  #image("../images/erd/identity-erd-current.svg", width: 78%)
+]
+#context (align(center)[_Hình #image_counter.display(): Database Schema - Identity Service_])
+#image_counter.step()
+
 Schema `identity` được tổ chức quanh ba nhóm dữ liệu. Nhóm thứ nhất là hồ sơ người dùng đã được xác thực qua identity provider, lưu trong `users`. Nhóm thứ hai là vòng đời khóa ký JWT, lưu trong `jwt_keys` để hỗ trợ phát hành token và key rotation. Nhóm thứ ba là dữ liệu truy vết xác thực và ủy quyền, lưu trong `audit_logs` như một audit trail cục bộ của security boundary này.
 
 Thiết kế này cho thấy Identity Service không theo mô hình username/password truyền thống, cũng không nhúng session runtime vào PostgreSQL như nguồn dữ liệu chính. Thay vào đó, PostgreSQL chỉ giữ các thực thể cần tính bền vững và truy vết lâu dài, còn session hoặc blacklist state được xử lý ở Redis layer.
@@ -123,7 +151,7 @@ Thiết kế này cho thấy Identity Service không theo mô hình username/pas
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.2fr, 0.25fr, 0.20fr, 0.3fr, 0.2fr),
+    columns: (0.2fr, 0.25fr, 0.20fr, 0.43fr, 0.2fr),
     stroke: 0.5pt,
     align: (left, left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Table*],
@@ -147,7 +175,9 @@ Thiết kế này cho thấy Identity Service không theo mô hình username/pas
     table.cell(align: center + horizon, inset: (y: 0.8em))[`audit_logs`],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Audit trail cho các sự kiện authentication và authorization],
     table.cell(align: center + horizon, inset: (y: 0.8em))[`id` (PK), `user_id` (FK nội bộ)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[`idx_audit_logs_user_id`, `idx_audit_logs_created_at`, `idx_audit_logs_action`],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[`idx_audit_logs_user_id`, `idx_audit_logs_created_at`, `idx_audit_logs_action`],
     table.cell(align: center + horizon, inset: (y: 0.8em))[`action` not null; `user_id` tham chiếu `users.id`],
   )
 ]
