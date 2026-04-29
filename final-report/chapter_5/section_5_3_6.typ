@@ -11,10 +11,10 @@ Vai trò của Frontend Application trong kiến trúc tổng thể:
 - Auth Session Bridge: Điều phối OAuth redirect, kiểm tra session và xử lý cookie trên frontend domain.
 - Analytics and BI Gateway: Gọi Metabase từ server-side route handlers để lấy dữ liệu analytics phục vụ dashboard và query builder.
 - Knowledge Assistant Client: Gửi chat request và suggestion request đến `knowledge-srv`, đồng thời hiển thị câu trả lời, citation và gợi ý truy vấn.
-- Report Workflow Surface: Cung cấp UI, route handlers và polling state cho report list, report detail, process tracking, post review và lazy comment loading.
+- Auxiliary Report Workflow Surface: Cung cấp UI, local proxy mocks và polling state cho report list, report detail, process tracking, post review và lazy comment loading ở mức frontend workflow phụ trợ.
 - Desktop Shell: Đóng gói Next.js standalone server trong Electron để phân phối cùng một web UI dưới dạng desktop runtime.
 
-Frontend Application hỗ trợ trực tiếp các use case có tương tác người dùng như cấu hình campaign/project, quản lý datasource, xem analytics dashboard, khai thác knowledge assistant, tạo hoặc xem report và nhận notification trong giao diện.
+Frontend Application hỗ trợ trực tiếp các use case có tương tác người dùng như cấu hình campaign/project, quản lý datasource, xem analytics dashboard, khai thác knowledge assistant và nhận notification trong giao diện. Ngoài các use case đã traceable ở Chương 4, frontend còn có một workflow report phụ trợ ở mức UI và local proxy mocks.
 
 ==== 5.3.6.1 Thành phần chính
 
@@ -121,7 +121,7 @@ Luồng này bắt đầu khi người dùng mở assistant panel trong campaign
 
 ===== e. Report Workflow Flow
 
-Luồng này bao phủ report list, generate action, process tracking và post review.
+Luồng này bao phủ report list, generate action, process tracking và post review cho một workflow report phụ trợ ở phía frontend.
 
 1. Reports tab gọi `useReports()` theo `activeCampaignId` để lấy danh sách report.
 2. Generate Report modal gửi request tạo report qua `reportsApi.generateCompetitor()` với campaign, competitor URLs, platforms, sections và giới hạn số post.
@@ -129,6 +129,8 @@ Luồng này bao phủ report list, generate action, process tracking và post r
 4. `useReportProcess()` polling process endpoint mỗi 3 giây khi job đang ở trạng thái non-terminal và dừng khi job hoàn tất, failed hoặc cancelled.
 5. Report detail và review modal lazy-load posts/comments theo trang để tránh tải toàn bộ dữ liệu review trong một request.
 6. Cancel và retry action cập nhật report job store, invalidate query liên quan và làm mới UI state.
+
+Luồng này khác với knowledge-side report endpoints của `knowledge-srv`. Trong implementation hiện tại, frontend report workflow trên đang đi qua các local Next.js mock routes dưới `/api/proxy/reports/*`, chưa phải một backend capability lõi đã được trace trong bộ FR/UC của Chương 4.
 
 ===== f. Notification Presentation Flow
 
@@ -156,7 +158,7 @@ Frontend Application áp dụng các design patterns sau:
 - Chọn Next.js App Router để kết hợp page routing, server-side route handlers và web UI trong cùng một frontend boundary.
 - Đưa browser request qua `/api/proxy/*` để giảm CORS complexity và giữ cookie/session behavior nhất quán giữa local, web và desktop runtime.
 - Giữ Metabase access ở server-side route handlers nhằm không đưa Metabase credentials/session xuống browser.
-- Dùng TanStack Query cho server state để có cache, invalidation, polling và pagination thống nhất giữa dashboard, reports và detail views.
+- Dùng TanStack Query cho server state để có cache, invalidation, polling và pagination thống nhất giữa dashboard, workflow report phụ trợ và detail views.
 - Dùng Zustand cho state tương tác cục bộ như auth persistence, selected scope, notifications và report job tracking.
 - Theo dõi report process bằng polling có điều kiện, phù hợp với trạng thái long-running job mà không yêu cầu persistent push connection trong frontend.
 - Đóng gói desktop bằng Electron trên cùng Next.js standalone server để tránh duy trì một UI codebase riêng.
@@ -168,7 +170,7 @@ Internal Dependencies:
 - App routes, layouts, providers và feature components trong Next.js App Router.
 - API configuration, API client và catch-all proxy route `/api/proxy/[...path]`.
 - Auth store, notification store, scope provider, assistant provider và report jobs store.
-- TanStack Query hooks cho campaigns, projects, datasources, analytics, knowledge và reports.
+- TanStack Query hooks cho campaigns, projects, datasources, analytics, knowledge và workflow report phụ trợ.
 - Analytics route handlers và Metabase client server-side.
 - Electron main process, preload script và standalone server packaging scripts.
 
@@ -178,6 +180,7 @@ External Dependencies:
 - `identity-srv` cho OAuth login, logout và current-user validation.
 - `project-srv` cho campaign/project management và lifecycle actions.
 - `ingest-srv` cho datasource, target và dry run operations.
-- `knowledge-srv` cho chat, suggestions, knowledge reports và insight-facing endpoints.
+- `knowledge-srv` cho chat, suggestions, knowledge-side report endpoints và insight-facing endpoints.
+- Local Next.js mock routes dưới `/api/proxy/reports/*` cho workflow report phụ trợ hiện tại của frontend.
 - Metabase cho analytics query, metadata, saved cards và dataset access.
 - Electron runtime cho desktop packaging.

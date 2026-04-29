@@ -3,31 +3,108 @@
 
 == 5.4 Thiết kế cơ sở dữ liệu
 
-Section này mô tả thiết kế cơ sở dữ liệu của hệ thống SMAP, bao gồm chiến lược lựa chọn database, Database Schema cho từng service, và các patterns quản lý dữ liệu phân tán.
+Section này mô tả thiết kế dữ liệu của hệ thống SMAP, bao gồm chiến lược lựa chọn storage, schema dữ liệu theo từng service và các pattern quản lý dữ liệu phân tán.
 
-=== 5.4.1 Chiến lược lựa chọn Database
+=== 5.4.1 Chiến lược lựa chọn Storage
 
-Hệ thống SMAP áp dụng nguyên tắc Polyglot Persistence với Database per Service pattern, trong đó mỗi service sở hữu và quản lý database riêng. Điều này đảm bảo khả năng mở rộng độc lập, tự do lựa chọn công nghệ, và khả năng cô lập lỗi.
+Thiết kế dữ liệu của SMAP không thể dựa trên một database duy nhất vì hệ thống có nhiều loại workload khác nhau: dữ liệu nghiệp vụ cần transaction, raw crawl artifact có kích thước thay đổi, metadata bán cấu trúc cần linh hoạt, dữ liệu truy hồi ngữ nghĩa cần vector index, và notification/session/cache cần latency thấp. Vì vậy, lựa chọn storage được đánh giá theo từng nhóm nhu cầu trước khi chốt kiến trúc lưu trữ cuối cùng.
 
-==== 5.4.1.1 Tổng quan Database
+==== 5.4.1.1 Tiêu chí đánh giá
 
-Kiến trúc lưu trữ dữ liệu của hệ thống được thiết kế theo mô hình polyglot persistence, bao gồm ba thành phần chính:
+Các phương án lưu trữ được so sánh theo sáu tiêu chí chính:
 
-- PostgreSQL được sử dụng cho các dịch vụ Identity, Project và Analytics, đảm nhiệm lưu trữ dữ liệu nghiệp vụ cốt lõi và dữ liệu phân tích.
+- Transactional consistency: mức độ phù hợp với dữ liệu cần ACID, constraint, index và transaction.
+- Semi-structured flexibility: khả năng lưu metadata hoặc payload có cấu trúc thay đổi theo platform/domain.
+- Large artifact handling: khả năng lưu raw crawl output hoặc report artifact mà không làm phình message queue hoặc bảng quan hệ.
+- Retrieval model: mức độ phù hợp với relational query, cache lookup, graph traversal hoặc semantic vector search.
+- Operational complexity: số lượng hệ thống phải vận hành, backup, monitor và migrate.
+- Service ownership: khả năng giữ ranh giới dữ liệu theo service boundary và tránh coupling trực tiếp giữa các bounded context.
 
-- Redis được triển khai như một kho lưu trữ trạng thái tạm thời, phục vụ các chức năng theo dõi tiến trình và trao đổi sự kiện thời gian thực giữa các thành phần hệ thống.
+==== 5.4.1.2 So sánh các phương án lưu trữ
 
-- MinIO đóng vai trò là hệ thống object storage để lưu trữ các tệp dữ liệu theo batch phát sinh trong quá trình xử lý.
+#context (align(center)[_Bảng #table_counter.display(): So sánh các phương án lưu trữ cho SMAP_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: false)
+  #table(
+    columns: (0.18fr, 0.24fr, 0.26fr, 0.24fr, 0.18fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Phương án*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Workload phù hợp*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Điểm mạnh*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Trade-off*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Vai trò trong SMAP*],
 
-- MongoDB được sử dụng như lớp lưu trữ tạm thời cho dữ liệu thu thập từ các nền tảng mạng xã hội, hỗ trợ ghi/đọc nhanh và linh hoạt đối với dữ liệu bán cấu trúc trước khi dữ liệu được chuẩn hóa và chuyển sang các tầng lưu trữ phục vụ phân tích.
+    table.cell(align: horizon, inset: (y: 0.8em))[PostgreSQL],
+    table.cell(align: horizon, inset: (y: 0.8em))[Metadata nghiệp vụ, lineage, analytics rows, conversation/report tracking],
+    table.cell(align: horizon, inset: (y: 0.8em))[ACID, schema rõ ràng, FK nội bộ schema, index mạnh, JSONB cho metadata linh hoạt],
+    table.cell(align: horizon, inset: (y: 0.8em))[Không tối ưu cho raw artifact lớn hoặc vector similarity search; cross-service FK vẫn phải tránh],
+    table.cell(align: horizon, inset: (y: 0.8em))[Storage chính cho dữ liệu có cấu trúc],
 
-==== 5.4.1.2 Lý do lựa chọn
+    table.cell(align: horizon, inset: (y: 0.8em))[MongoDB],
+    table.cell(align: horizon, inset: (y: 0.8em))[Document payload linh hoạt, dữ liệu bán cấu trúc thay đổi thường xuyên],
+    table.cell(align: horizon, inset: (y: 0.8em))[Schema linh hoạt, dễ lưu document theo platform],
+    table.cell(align: horizon, inset: (y: 0.8em))[Tăng thêm một database vận hành; raw crawl artifact vẫn phù hợp hơn với object storage; metadata quan hệ vẫn cần constraint],
+    table.cell(align: horizon, inset: (y: 0.8em))[Không chọn làm storage chính],
 
-PostgreSQL được sử dụng nhờ khả năng ACID compliance, đáp ứng yêu cầu nghiêm ngặt của các cơ chế authentication và authorization. Hệ thống foreign keys và các constraints hỗ trợ duy trì data consistency giữa các thực thể dữ liệu. Đồng thời, việc hỗ trợ kiểu dữ liệu JSONB cho phép lưu trữ các dữ liệu linh hoạt như competitor_keywords_map và aspects_breakdown mà không làm ảnh hưởng đến cấu trúc schema tổng thể.
+    table.cell(align: horizon, inset: (y: 0.8em))[Neo4j],
+    table.cell(align: horizon, inset: (y: 0.8em))[Graph traversal, relationship discovery, entity graph nhiều bậc],
+    table.cell(align: horizon, inset: (y: 0.8em))[Mạnh khi quan hệ giữa actor, topic, campaign và entity là trung tâm của truy vấn],
+    table.cell(align: horizon, inset: (y: 0.8em))[Các quan hệ chính của SMAP vẫn được xử lý tốt bằng relational model và vector retrieval; thêm Neo4j làm tăng chi phí vận hành],
+    table.cell(align: horizon, inset: (y: 0.8em))[Không chọn cho phạm vi hiện tại],
 
-Redis được lựa chọn nhờ khả năng sub-millisecond latency, đáp ứng yêu cầu real-time progress tracking và thỏa mãn tiêu chí AC-3 về Performance. Các atomic operations hỗ trợ cập nhật trạng thái phân tán  một cách an toàn, tránh xảy ra race conditions trong môi trường đồng thời. Bên cạnh đó, cơ chế TTL cho phép tự động auto-expire state, giúp quản lý vòng đời dữ liệu tạm thời một cách hiệu quả.
+    table.cell(align: horizon, inset: (y: 0.8em))[Redis],
+    table.cell(align: horizon, inset: (y: 0.8em))[Session, cache, registry nhỏ, Pub/Sub, state ngắn hạn],
+    table.cell(align: horizon, inset: (y: 0.8em))[Latency thấp, TTL, atomic operations, phù hợp dữ liệu tạm],
+    table.cell(align: horizon, inset: (y: 0.8em))[Không thay thế durable database; dữ liệu cần có nguồn bền vững để tái tạo khi cache mất],
+    table.cell(align: horizon, inset: (y: 0.8em))[Cache/session/PubSub layer],
 
-MinIO được sử dụng để lưu trữ các batch files có kích thước từ 50–500KB, vốn không phù hợp để truyền tải trực tiếp qua message queue. Cơ chế lifecycle policy cho phép tự động xóa các tệp sau 7 ngày, góp phần quản lý dung lượng lưu trữ hiệu quả. Đồng thời, việc hỗ trợ S3-compatible API mang lại tính flexibility, cho phép hệ thống dễ dàng mở rộng hoặc thay thế hạ tầng lưu trữ khi cần thiết.
+    table.cell(align: horizon, inset: (y: 0.8em))[MinIO / S3-compatible object storage],
+    table.cell(align: horizon, inset: (y: 0.8em))[Raw crawl artifacts, report artifacts, file output],
+    table.cell(align: horizon, inset: (y: 0.8em))[Lưu object lớn tốt, tách payload khỏi queue, API S3-compatible],
+    table.cell(align: horizon, inset: (y: 0.8em))[Không phù hợp cho query nghiệp vụ trực tiếp; cần metadata lineage trong database quan hệ],
+    table.cell(align: horizon, inset: (y: 0.8em))[Object storage chính],
+
+    table.cell(align: horizon, inset: (y: 0.8em))[Qdrant],
+    table.cell(align: horizon, inset: (y: 0.8em))[Embedding, semantic search, RAG retrieval],
+    table.cell(align: horizon, inset: (y: 0.8em))[Vector similarity search, payload filter, collection theo project],
+    table.cell(align: horizon, inset: (y: 0.8em))[Không thay thế metadata store; cần đồng bộ với PostgreSQL tracking và indexing status],
+    table.cell(align: horizon, inset: (y: 0.8em))[Vector store cho Knowledge Service],
+
+    table.cell(align: horizon, inset: (y: 0.8em))[Lưu raw payload trực tiếp trong message queue],
+    table.cell(align: horizon, inset: (y: 0.8em))[Task nhỏ, event metadata ngắn],
+    table.cell(align: horizon, inset: (y: 0.8em))[Đơn giản vì consumer nhận đủ dữ liệu từ message],
+    table.cell(align: horizon, inset: (y: 0.8em))[Làm message lớn, khó retry/replay artifact, tăng áp lực broker và memory],
+    table.cell(align: horizon, inset: (y: 0.8em))[Không dùng cho raw artifact lớn],
+  )
+]
+
+Từ bảng so sánh trên, SMAP chọn chiến lược polyglot persistence thay vì ép toàn bộ dữ liệu vào một database duy nhất. PostgreSQL giữ phần dữ liệu bền vững có cấu trúc; Redis giữ cache/session/state ngắn hạn; MinIO giữ artifact; Qdrant giữ vector index. MongoDB và Neo4j không được chọn làm thành phần lõi vì workload hiện tại chưa cần document database hoặc graph database riêng vượt quá khả năng kết hợp PostgreSQL JSONB, object storage và vector retrieval.
+
+==== 5.4.1.3 Tổng quan Storage Stack
+
+Kiến trúc lưu trữ của SMAP gồm các nhóm thành phần chính sau:
+
+- PostgreSQL được sử dụng làm relational database chính cho metadata và dữ liệu nghiệp vụ có cấu trúc. Các schema chính gồm `identity`, `project`, `ingest`, `schema_analysis` và `knowledge`, tương ứng với dữ liệu người dùng, campaign/project, datasource/runtime lineage, analytics insights và knowledge metadata.
+
+- Redis được sử dụng cho các state ngắn hạn và truy cập nhanh như session/auth state, token/session mapping, domain registry, search cache, embedding/search result cache và Redis Pub/Sub cho notification delivery.
+
+- MinIO đóng vai trò object storage cho raw crawl artifacts, storage metadata của ingest runtime và các artifact báo cáo. Service xử lý chỉ trao đổi metadata hoặc reference qua message/event thay vì truyền toàn bộ raw payload qua queue.
+
+- Qdrant được sử dụng làm vector store cho Knowledge Service. Các analytics outputs sau khi được index sẽ trở thành vector points để phục vụ semantic search, RAG chat và các truy vấn tri thức theo campaign/project scope.
+
+- Local filesystem `output/` được sử dụng trong scapper runtime ở development mode như một biến thể triển khai của raw artifact storage, trong khi production mode dùng MinIO.
+
+==== 5.4.1.4 Lý do lựa chọn
+
+PostgreSQL phù hợp với các dữ liệu cần tính nhất quán và truy vấn quan hệ như user, JWT key, audit log, campaign, project, datasource, crawl target, external task, raw batch lineage, analytics insight, indexing status, conversation và report metadata. Khả năng hỗ trợ transaction, index, foreign key, enum và JSONB giúp mỗi service vừa giữ được cấu trúc dữ liệu rõ ràng, vừa có đủ độ linh hoạt cho các trường metadata bán cấu trúc.
+
+Redis được lựa chọn cho các dữ liệu có vòng đời ngắn hoặc cần latency thấp. Trong SMAP, Redis không thay thế database quan hệ mà bổ sung cho các nhu cầu như session lookup, blacklist/session mapping, cache kết quả search, cache mapping campaign-project, cache domain registry và Pub/Sub notification. TTL và atomic operations giúp giảm tải database chính cho các dữ liệu tạm thời hoặc được tính lại từ nguồn dữ liệu bền vững.
+
+MinIO được sử dụng cho các artifact có kích thước hoặc vòng đời không phù hợp để lưu trực tiếp trong message body hoặc bảng quan hệ. Scapper runtime ghi raw result thành artifact, Ingest Service nhận completion metadata, kiểm tra object metadata và tạo `raw_batches` lineage trước khi parse hoặc publish dữ liệu chuẩn hóa. Với S3-compatible API, MinIO cũng phù hợp cho các artifact báo cáo hoặc file output cần được truy xuất lại.
+
+Qdrant được lựa chọn vì workload của Knowledge Service là semantic retrieval thay vì relational lookup. Vector embeddings, payload filters và collection theo project cho phép hệ thống tìm kiếm theo ngữ nghĩa trên kết quả analytics, trong khi PostgreSQL vẫn giữ phần tracking metadata như indexed documents, conversations, messages và reports.
 
 === 5.4.2 Identity Service
 

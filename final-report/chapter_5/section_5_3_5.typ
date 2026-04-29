@@ -2,11 +2,11 @@
 
 === 5.3.5 Notification Service
 
-Notification Service là dịch vụ chịu trách nhiệm cho lớp realtime delivery và alert dispatch của hệ thống SMAP. Dịch vụ này tiếp nhận message từ Redis Pub/Sub, định tuyến đến WebSocket clients, và trong các trường hợp phù hợp sẽ xây dựng alert payload để gửi sang các kênh bên ngoài như Discord.
+Notification Service là dịch vụ chịu trách nhiệm cho realtime delivery capability và alert dispatch của hệ thống SMAP. Dịch vụ này tiếp nhận message từ Redis Pub/Sub, định tuyến đến các realtime connections tương thích khi có, và trong các trường hợp phù hợp sẽ xây dựng alert payload để gửi sang các kênh bên ngoài như Discord.
 
 Vai trò của Notification Service trong kiến trúc tổng thể:
 
-- WebSocket Delivery Hub: Quản lý kết nối WebSocket và đẩy message đến người dùng theo scope phù hợp.
+- WebSocket Delivery Hub: Quản lý kết nối WebSocket và đẩy message đến realtime clients tương thích theo scope phù hợp.
 - Redis Ingress Consumer: Tiếp nhận message từ các backend publishers qua channel patterns.
 - Alert Dispatch Layer: Chuyển các message loại alert thành thông điệp giàu ngữ nghĩa cho kênh bên ngoài.
 - Connection Lifecycle Manager: Kiểm soát upgrade, register và vòng đời kết nối realtime.
@@ -62,11 +62,11 @@ Service này đáp ứng trực tiếp FR-11 về Realtime Notification và liê
 
 ==== 5.3.5.2 Data Flow
 
-Notification Service có hai luồng xử lý chính: connection establishment và realtime/alert delivery.
+Notification Service có hai luồng xử lý chính: connection establishment và realtime/alert delivery. Các luồng dưới đây mô tả delivery capability của service khi có client tương thích kết nối vào kênh realtime; chúng không mặc định đồng nghĩa rằng mọi frontend runtime hiện tại đều đã tiêu thụ trực tiếp luồng này.
 
 ===== a. WebSocket Connection Flow
 
-Flow này bắt đầu khi client mở kết nối `GET /ws`.
+Flow này bắt đầu khi một realtime-capable client mở kết nối `GET /ws`.
 
 Ở flow này, service thực hiện các bước chính sau:
 
@@ -83,7 +83,7 @@ Flow này bắt đầu khi backend publisher phát message vào Redis channels.
 
 1. Redis subscriber nhận message từ channel pattern phù hợp;
 2. message được parse, phân loại và route theo loại sự kiện;
-3. nếu là realtime update, message được đẩy đến WebSocket clients phù hợp;
+3. nếu là realtime update, message được đẩy đến các WebSocket connections phù hợp đang hoạt động;
 4. nếu là alert, service có thể dựng payload và dispatch sang Discord hoặc kênh tương ứng.
 
 ==== 5.3.5.3 Design Patterns áp dụng
@@ -114,5 +114,5 @@ External Dependencies:
 
 - Redis Pub/Sub: nguồn message đầu vào từ backend publishers.
 - Discord webhook/client: kênh nhận cảnh báo bên ngoài.
-- Frontend clients: bên tiêu thụ WebSocket messages.
+- Realtime-capable clients: bên tiêu thụ WebSocket messages khi có kết nối tương thích.
 - Identity/JWT layer: nguồn xác minh token trước khi upgrade connection.

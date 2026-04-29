@@ -64,7 +64,6 @@ Kiến trúc này cho thấy SMAP được chia thành sáu nhóm thành phần 
 
 Một điểm quan trọng của kiến trúc này là không áp dụng một transport duy nhất cho toàn bộ hệ thống. Control plane giữa `project-srv` và `ingest-srv` nghiêng về internal HTTP. Crawl runtime dùng RabbitMQ. Analytics data plane dùng Kafka. Notification ingress dùng Redis Pub/Sub. Cách tổ chức này giúp mỗi lane xử lý sử dụng cơ chế giao tiếp phù hợp hơn với tính chất workload thay vì ép toàn bộ hệ thống chạy theo cùng một khuôn mẫu.
 
-==== Architecture Decision Matrix
 
 #context (align(center)[_Bảng #table_counter.display(): Các quyết định kiến trúc chính_])
 #table_counter.step()
@@ -136,7 +135,7 @@ Một thiết kế tốt không chỉ chỉ ra có bao nhiêu service, mà còn 
     [project CRUD, datasource CRUD, websocket delivery],
     [owner của analytics pipeline],
     [`knowledge-srv`],
-    [semantic search, chat, indexed documents, conversations],
+    [semantic search, chat, indexed documents, conversations, knowledge-side report artifacts],
     [crawl orchestration, project lifecycle control],
     [owner của retrieval và knowledge consumption],
     [`notification-srv`],

@@ -14,9 +14,9 @@ Các yêu cầu chức năng được chia thành ba nhóm lớn. Nhóm thứ nh
 #text()[
   #set par(justify: false)
   #table(
-    columns: (0.12fr, 0.32fr, 1fr, 0.18fr),
+    columns: (0.2fr, 0.32fr, 1fr, 0.18fr),
     stroke: 0.5pt,
-    align: (left + top, left + top, left + top, center + top),
+    align: (left + top, center + horizon, left + horizon, center + horizon),
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[*ID*],
     table.cell(align: center + horizon)[*Tên yêu cầu*],

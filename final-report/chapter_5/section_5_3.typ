@@ -12,7 +12,7 @@ Mục đích của mục này là:
 
 - Giải thích các design patterns được áp dụng: Lý do chọn pattern và lợi ích mang lại.
 
-- Cung cấp traceability đến requirements: Liên kết với NFRs và Acceptance Criteria ở Chapter 4.
+- Cung cấp traceability đến requirements: Liên kết với FRs, NFRs và Use Cases ở Chapter 4.
 
 Mục này được tổ chức theo các capability và runtime lane quan trọng của hệ thống. Các phần ưu tiên trước hết là xác thực và session management, business context persistence, lifecycle control, analytics pipeline, knowledge retrieval và realtime delivery.
 
