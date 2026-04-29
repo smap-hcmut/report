@@ -1,155 +1,118 @@
 #import "../counters.typ": image_counter, table_counter
 
-=== 5.3.5 WebSocket Service
+=== 5.3.5 Notification Service
 
-WebSocket Service là service cung cấp real-time communication giữa hệ thống và clients (Web UI), cho phép push progress updates, notifications, và system status đến users mà không cần polling. Service này consume messages từ Pub/Sub và deliver đến WebSocket clients.
+Notification Service là dịch vụ chịu trách nhiệm cho lớp realtime delivery và alert dispatch của hệ thống SMAP. Dịch vụ này tiếp nhận message từ Redis Pub/Sub, định tuyến đến WebSocket clients, và trong các trường hợp phù hợp sẽ xây dựng alert payload để gửi sang các kênh bên ngoài như Discord.
 
-Vai trò của WebSocket Service trong kiến trúc tổng thể:
+Vai trò của Notification Service trong kiến trúc tổng thể:
 
-- Real-time Communication Hub: Cung cấp WebSocket connections cho clients.
-- Message Router: Route messages từ Pub/Sub topics đến đúng WebSocket connections.
-- Connection Manager: Quản lý lifecycle của WebSocket connections (connect, disconnect, heartbeat).
-- Progress Delivery: Deliver progress updates từ Collector Service đến Web UI clients.
+- WebSocket Delivery Hub: Quản lý kết nối WebSocket và đẩy message đến người dùng theo scope phù hợp.
+- Redis Ingress Consumer: Tiếp nhận message từ các backend publishers qua channel patterns.
+- Alert Dispatch Layer: Chuyển các message loại alert thành thông điệp giàu ngữ nghĩa cho kênh bên ngoài.
+- Connection Lifecycle Manager: Kiểm soát upgrade, register và vòng đời kết nối realtime.
 
-Service này đáp ứng FR-2 (Real-time progress tracking) và liên quan trực tiếp đến UC-06 (Progress updates).
+Service này đáp ứng trực tiếp FR-11 về Realtime Notification và liên quan trực tiếp đến UC-07 về Receive Realtime Alerts.
 
-==== 5.3.5.1 Component Diagram - C4 Level 3
+==== 5.3.5.1 Thành phần chính
 
-WebSocket Service được tổ chức theo Clean Architecture với 3 layers chính:
-
-#align(center)[
-  #image("../images/component/websocket-component-diagram.png", width: 100%)
-  #context (
-    align(
-      center,
-    )[_Hình #image_counter.display(): Biểu đồ thành phần của WebSocket Service - Clean Architecture 3 layers_]
-  )
-  #image_counter.step()
-]
-
-==== 5.3.5.2 Component Catalog
-
-#context (align(center)[_Bảng #table_counter.display(): Component Catalog - WebSocket Service_])
+#context (align(center)[_Bảng #table_counter.display(): Thành phần chính của Notification Service_])
 #table_counter.step()
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.18fr, 0.32fr, 0.20fr, 0.20fr, 0.18fr),
+    columns: (0.22fr, 0.40fr, 0.20fr, 0.18fr),
     stroke: 0.5pt,
-    align: (left, left, left, left, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Component*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Responsibility*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    align: (left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Thành phần*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Trách nhiệm chính*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Input / Output*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket \ Handler],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Handle WebSocket connections, upgrade HTTP → WebSocket],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP upgrade request],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket connection],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket Library (Go)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket Handler],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Xử lý HTTP upgrade request và thiết lập kết nối WebSocket],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Upgrade request / WebSocket connection],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Gin + Gorilla WebSocket],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Connection \ Manager],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Quản lý WebSocket connections với topic mapping],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Connection, topic],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Connection registry],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Request Processor],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Extract token, fallback cookie, validate request DTO và xác minh JWT trước khi upgrade],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Query params / user identity],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[JWT validation layer],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Connection Manager / Hub],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Đăng ký và quản lý vòng đời kết nối, route message đến client phù hợp],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Connection / routed output],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[In-memory connection registry],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Redis Subscriber],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Subscribe các channel pattern và tiếp nhận message từ backend publishers],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Channel / payload],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Redis Pub/Sub],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Message Router],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Transform payload và quyết định đẩy về WebSocket hay alert lane tương ứng],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Redis message / delivery output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Message \ Handler],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Route messages từ Pub/Sub → WebSocket connections],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pub/Sub messages],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket messages],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pub/Sub \ Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Subscribe to topics, receive messages],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Topic pattern],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Messages],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Pub/Sub Client (Go)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Alert UseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Xây dựng payload cảnh báo và dispatch ra Discord khi cần],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Alert input / Discord message],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Alert domain logic],
   )
 ]
 
-==== 5.3.5.3 Data Flow
+==== 5.3.5.2 Data Flow
 
-Luồng xử lý chính của WebSocket Service được chia thành 2 flows: Connection Establishment và Message Delivery.
+Notification Service có hai luồng xử lý chính: connection establishment và realtime/alert delivery.
 
-===== a. Connection Establishment Flow
+===== a. WebSocket Connection Flow
 
-Luồng này được kích hoạt khi client connect WebSocket:
+Flow này bắt đầu khi client mở kết nối `GET /ws`.
 
-#align(center)[
-  #image("../images/data-flow/webSocket_connection.png", width: 100%)
-  #context (align(center)[_Hình #image_counter.display(): Connection Establishment Flow của WebSocket Service_])
-  #image_counter.step()
-]
+Ở flow này, service thực hiện các bước chính sau:
 
-===== b. Message Delivery Flow
+1. nhận request upgrade với token query hoặc auth cookie;
+2. validate request DTO và xác minh JWT;
+3. upgrade HTTP connection thành WebSocket;
+4. đăng ký kết nối vào hub để sẵn sàng nhận message theo scope tương ứng.
 
-#align(center)[
-  #image("../images/data-flow/real-time.png", width: 100%)
-  #context (align(center)[_Hình #image_counter.display(): Message Delivery Flow của WebSocket Service_])
-  #image_counter.step()
-]
+===== b. Realtime and Alert Delivery Flow
 
-==== 5.3.5.4 Design Patterns áp dụng
+Flow này bắt đầu khi backend publisher phát message vào Redis channels.
 
-WebSocket Service áp dụng các design patterns sau:
+Ở flow này, service thực hiện các bước chính sau:
 
-- Observer Pattern: Pub/Sub subscribe to topics, receive messages khi có updates. Decoupling giữa publishers và subscribers, scalability với multiple WebSocket instances.
+1. Redis subscriber nhận message từ channel pattern phù hợp;
+2. message được parse, phân loại và route theo loại sự kiện;
+3. nếu là realtime update, message được đẩy đến WebSocket clients phù hợp;
+4. nếu là alert, service có thể dựng payload và dispatch sang Discord hoặc kênh tương ứng.
 
-- Connection Pooling: ConnectionManager quản lý multiple WebSocket connections. In-memory registry của connections với topic mapping, efficient lookup và broadcast.
+==== 5.3.5.3 Design Patterns áp dụng
 
-- Graceful Shutdown: Close WebSocket connections gracefully, unsubscribe từ topics, và wait for in-flight messages. Không mất messages trong quá trình shutdown.
+Notification Service áp dụng các design patterns sau:
 
-- Health Check Pattern: Shallow và Deep health checks. Shallow check cho HTTP server và connection, Deep check cho Pub/Sub working và message delivery.
+- Publish/Subscribe Ingress: nhận dữ liệu từ nhiều backend publishers qua Redis channel patterns.
+- Hub / Connection Registry Pattern: quản lý các kết nối đang sống và route message theo scope.
+- Delivery Routing Pattern: tách việc nhận message khỏi quyết định message đó đi về WebSocket hay alert lane khác.
+- Alert Formatting Pattern: xây dựng message giàu ngữ nghĩa trước khi gửi ra kênh bên ngoài như Discord.
 
-==== 5.3.5.5 Performance Targets
+==== 5.3.5.4 Key Decisions
 
-#context (align(center)[_Bảng #table_counter.display(): Performance Targets - WebSocket Service_])
-#table_counter.step()
-#block(width: 100%)[
-  #set par(justify: true)
-  #table(
-    columns: (0.40fr, 0.30fr, 0.30fr),
-    stroke: 0.5pt,
-    align: (left, center, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Metric*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Target*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*NFR Traceability*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket Latency (p95)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 100ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Connection Establishment],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 50ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-P1],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Concurrent Connections],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[≥ 1,000],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-2],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Message Throughput],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[≥ 5,000 msg/min],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[AC-2],
-  )
-]
+- Dùng Redis Pub/Sub làm notification ingress thay vì để backend services nói chuyện trực tiếp với từng WebSocket connection.
+- Xác thực ở bước upgrade để giữ security boundary rõ ràng cho realtime connection.
+- Tách riêng alert dispatch khỏi connection management để service hỗ trợ được nhiều loại delivery semantics trong cùng một boundary.
 
-==== 5.3.5.6 Key Decisions
-
-- Pub/Sub cho Message Routing: Sử dụng Pub/Sub thay vì direct WebSocket-to-WebSocket communication. Decoupling giữa publishers và WebSocket Service, scalability với multiple instances.
-
-- Topic-Based Routing: Sử dụng topic pattern để route messages đến đúng connections. Mỗi user chỉ nhận messages cho projects của họ.
-
-- Connection Registry: In-memory registry của WebSocket connections với topic mapping. Fast lookup và efficient broadcast.
-
-- Graceful Shutdown: Close connections gracefully, unsubscribe từ topics, và wait for in-flight messages. Không mất messages trong quá trình shutdown.
-
-==== 5.3.5.7 Dependencies
+==== 5.3.5.5 Dependencies
 
 Internal Dependencies:
 
-- ConnectionManager: Quản lý WebSocket connections.
-- MessageHandler: Route messages từ Pub/Sub đến WebSocket connections.
+- WebSocket handler và request processor cho connection flow.
+- Connection manager / hub cho lifecycle của WebSocket connections.
+- Message routing logic cho realtime updates và alerts.
+- Alert usecase cho Discord dispatch.
 
 External Dependencies:
 
-- Distributed Cache (Redis) Pub/Sub: Message consumption.
-- Project Service: Publish messages to Pub/Sub (progress callbacks).
-- Web UI: WebSocket clients connect và receive messages.
+- Redis Pub/Sub: nguồn message đầu vào từ backend publishers.
+- Discord webhook/client: kênh nhận cảnh báo bên ngoài.
+- Frontend clients: bên tiêu thụ WebSocket messages.
+- Identity/JWT layer: nguồn xác minh token trước khi upgrade connection.
