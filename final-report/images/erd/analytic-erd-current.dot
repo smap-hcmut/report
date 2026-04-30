@@ -1,0 +1,49 @@
+digraph AnalyticsERD {
+  graph [rankdir=TB, splines=polyline, nodesep=0.8, ranksep=0.9, pad=0.2, margin=0, bgcolor="white"];
+  node [shape=plain, margin=0, fontname="Arial"];
+  edge [color="#7f7f7f", penwidth=1.4, fontname="Arial", fontsize=12];
+
+  postinsight [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8f7cff">
+      <TR><TD BGCOLOR="#f5f2ff" COLSPAN="4"><FONT POINT-SIZE="16">POST_INSIGHT</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">id</TD><TD ALIGN="CENTER">PK</TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">varchar</TD><TD ALIGN="LEFT">project_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">External project ref</TD></TR>
+      <TR><TD ALIGN="LEFT">varchar</TD><TD ALIGN="LEFT">source_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">External source ref</TD></TR>
+      <TR><TD ALIGN="LEFT">text</TD><TD ALIGN="LEFT">content</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">timestamptz</TD><TD ALIGN="LEFT">content_created_at, ingested_at</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">varchar</TD><TD ALIGN="LEFT">platform</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">jsonb</TD><TD ALIGN="LEFT">uap_metadata, aspects, risk_factors</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">text[]</TD><TD ALIGN="LEFT">keywords</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">varchar/float</TD><TD ALIGN="LEFT">overall_sentiment, risk_level, scores</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">timestamptz</TD><TD ALIGN="LEFT">analyzed_at, indexed_at, created_at, updated_at</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+    </TABLE>
+  >];
+
+  outbox [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8f7cff">
+      <TR><TD BGCOLOR="#f5f2ff" COLSPAN="4"><FONT POINT-SIZE="16">ANALYTICS_OUTBOX</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">id</TD><TD ALIGN="CENTER">PK</TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">text</TD><TD ALIGN="LEFT">run_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">Logical correlation</TD></TR>
+      <TR><TD ALIGN="LEFT">text</TD><TD ALIGN="LEFT">topic</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">jsonb</TD><TD ALIGN="LEFT">payload</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">text</TD><TD ALIGN="LEFT">status</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">pending | sent | failed</TD></TR>
+      <TR><TD ALIGN="LEFT">text</TD><TD ALIGN="LEFT">error</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">timestamptz</TD><TD ALIGN="LEFT">created_at, sent_at</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+    </TABLE>
+  >];
+
+  manifest [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8f7cff">
+      <TR><TD BGCOLOR="#f5f2ff" COLSPAN="4"><FONT POINT-SIZE="16">ANALYTICS_RUN_MANIFEST</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">text</TD><TD ALIGN="LEFT">run_id</TD><TD ALIGN="CENTER">PK</TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">text</TD><TD ALIGN="LEFT">project_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">External project ref</TD></TR>
+      <TR><TD ALIGN="LEFT">text</TD><TD ALIGN="LEFT">campaign_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">External campaign ref</TD></TR>
+      <TR><TD ALIGN="LEFT">jsonb</TD><TD ALIGN="LEFT">data</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">Run manifest payload</TD></TR>
+      <TR><TD ALIGN="LEFT">timestamptz</TD><TD ALIGN="LEFT">updated_at</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+    </TABLE>
+  >];
+
+  { rank=same; outbox; manifest; }
+  outbox -> manifest [style=dashed, arrowhead=none, label="run_id correlation"];
+  postinsight -> outbox [style=invis];
+}

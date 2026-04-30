@@ -1,0 +1,79 @@
+digraph KnowledgeERD {
+  graph [rankdir=TB, splines=polyline, nodesep=0.8, ranksep=0.9, pad=0.2, margin=0, bgcolor="white"];
+  node [shape=plain, margin=0, fontname="Arial"];
+  edge [color="#7f7f7f", penwidth=1.4, fontname="Arial", fontsize=12];
+
+  docs [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8f7cff">
+      <TR><TD BGCOLOR="#f5f2ff" COLSPAN="4"><FONT POINT-SIZE="16">INDEXED_DOCUMENTS</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">id</TD><TD ALIGN="CENTER">PK</TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">analytics_id</TD><TD ALIGN="CENTER">UK</TD><TD ALIGN="LEFT">Indexed analytics record</TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">project_id, source_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">External refs</TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">qdrant_point_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">Vector point ref</TD></TR>
+      <TR><TD ALIGN="LEFT">varchar</TD><TD ALIGN="LEFT">collection_name, content_hash, status</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">int / text</TD><TD ALIGN="LEFT">retry_count, error_message</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">timestamptz</TD><TD ALIGN="LEFT">indexed_at, created_at, updated_at</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+    </TABLE>
+  >];
+
+  dlq [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8f7cff">
+      <TR><TD BGCOLOR="#f5f2ff" COLSPAN="4"><FONT POINT-SIZE="16">INDEXING_DLQ</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">id</TD><TD ALIGN="CENTER">PK</TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">analytics_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">Failed analytics record</TD></TR>
+      <TR><TD ALIGN="LEFT">jsonb</TD><TD ALIGN="LEFT">raw_payload</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">Replay/debug payload</TD></TR>
+      <TR><TD ALIGN="LEFT">varchar/text</TD><TD ALIGN="LEFT">error_type, error_message</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">int/bool</TD><TD ALIGN="LEFT">retry_count, max_retries, resolved</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">timestamptz</TD><TD ALIGN="LEFT">created_at, updated_at</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+    </TABLE>
+  >];
+
+  conv [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8f7cff">
+      <TR><TD BGCOLOR="#f5f2ff" COLSPAN="4"><FONT POINT-SIZE="16">CONVERSATIONS</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">id</TD><TD ALIGN="CENTER">PK</TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">varchar</TD><TD ALIGN="LEFT">campaign_id, user_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">Scoped conversation</TD></TR>
+      <TR><TD ALIGN="LEFT">varchar</TD><TD ALIGN="LEFT">title, status</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">ACTIVE | ARCHIVED</TD></TR>
+      <TR><TD ALIGN="LEFT">int</TD><TD ALIGN="LEFT">message_count</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">timestamptz</TD><TD ALIGN="LEFT">last_message_at, created_at, updated_at</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+    </TABLE>
+  >];
+
+  msg [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8f7cff">
+      <TR><TD BGCOLOR="#f5f2ff" COLSPAN="4"><FONT POINT-SIZE="16">MESSAGES</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">id</TD><TD ALIGN="CENTER">PK</TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">conversation_id</TD><TD ALIGN="CENTER">FK</TD><TD ALIGN="LEFT">Ref CONVERSATIONS.id</TD></TR>
+      <TR><TD ALIGN="LEFT">varchar/text</TD><TD ALIGN="LEFT">role, content</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">jsonb</TD><TD ALIGN="LEFT">citations, search_metadata, suggestions, filters_used</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">timestamptz</TD><TD ALIGN="LEFT">created_at</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+    </TABLE>
+  >];
+
+  reports [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8f7cff">
+      <TR><TD BGCOLOR="#f5f2ff" COLSPAN="4"><FONT POINT-SIZE="16">REPORTS</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">id</TD><TD ALIGN="CENTER">PK</TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">uuid</TD><TD ALIGN="LEFT">campaign_id, user_id</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT">Scope + requester</TD></TR>
+      <TR><TD ALIGN="LEFT">varchar</TD><TD ALIGN="LEFT">report_type, params_hash, status</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">jsonb</TD><TD ALIGN="LEFT">filters</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">text</TD><TD ALIGN="LEFT">file_url, error_message</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">int/bigint</TD><TD ALIGN="LEFT">file_size_bytes, total_docs_analyzed, sections_count, generation_time_ms</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+      <TR><TD ALIGN="LEFT">timestamptz</TD><TD ALIGN="LEFT">completed_at, created_at, updated_at</TD><TD ALIGN="CENTER"></TD><TD ALIGN="LEFT"></TD></TR>
+    </TABLE>
+  >];
+
+  qdrantnote [label=<
+    <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#8f7cff">
+      <TR><TD BGCOLOR="#f5f2ff"><FONT POINT-SIZE="16">QDRANT (external)</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">Collection per project: `proj_{project_id}`</TD></TR>
+      <TR><TD ALIGN="LEFT">Shared collection: `macro_insights`</TD></TR>
+    </TABLE>
+  >];
+
+  { rank=same; docs; dlq; }
+  { rank=same; conv; reports; }
+  conv -> msg [arrowhead=none, label="has many"];
+  docs -> qdrantnote [style=dashed, arrowhead=none, label="collection_name -> vector store"];
+  docs -> dlq [style=dashed, arrowhead=none, label="failed records may spill to DLQ"];
+}
