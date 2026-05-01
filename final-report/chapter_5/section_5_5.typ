@@ -3,17 +3,21 @@
 
 == 5.5 Sơ đồ tuần tự
 
-Sơ đồ tuần tự trong mục này minh họa các tương tác động giữa giao diện, các dịch vụ nghiệp vụ và các runtime lane của SMAP theo trình tự thời gian. Thay vì được đọc như một ánh xạ một-một tuyệt đối với từng bảng use case ở mục 4.4, các sơ đồ ở đây đóng vai trò lớp minh họa cho những mẫu tương tác quan trọng giữa business control plane, execution plane, analytics pipeline, knowledge retrieval và notification delivery.
+Sơ đồ tuần tự trong mục này minh họa các tương tác động giữa giao diện, các dịch vụ nghiệp vụ và các runtime lane của SMAP theo trình tự thời gian. Thay vì được đọc như một ánh xạ một-một tuyệt đối với từng bảng use case ở mục 4.4, các sơ đồ ở đây đóng vai trò lớp minh họa cho những interaction patterns quan trọng giữa business control plane, execution plane, analytics pipeline, knowledge retrieval và notification delivery.
 
 Ở góc nhìn kiến trúc hiện tại, các sơ đồ tập trung làm rõ cách các thành phần trao đổi qua internal HTTP, RabbitMQ, Kafka và Redis Pub/Sub, cũng như cách metadata hoặc artifacts đi qua PostgreSQL, Redis, MinIO và Qdrant theo từng luồng xử lý. Các nhãn UC trong các tiểu mục bên dưới được dùng như mã tham chiếu của từng sơ đồ trong bộ tài liệu hiện có.
 
-Các sơ đồ tuần tự được chia thành 3 nhóm minh họa chính:
+Các sơ đồ tuần tự trong mục này được tổ chức theo năm nhóm mục tiêu nghiệp vụ tương ứng với Chương 4:
 
-- Nhóm thiết lập và quản lý ngữ cảnh nghiệp vụ: các luồng tạo hoặc cấu hình project và quản lý danh sách theo dõi.
+- Thiết lập chiến dịch theo dõi.
 
-- Nhóm điều phối runtime và xử lý dữ liệu: các luồng dry run, kích hoạt hoặc theo dõi runtime, phân tích dữ liệu và hiển thị kết quả.
+- Vận hành chiến dịch theo dõi.
 
-- Nhóm delivery và khai thác đầu ra: các luồng báo cáo, cảnh báo, trend hoặc crisis monitoring, cùng các tương tác hướng người dùng ở lớp khai thác kết quả.
+- Tra cứu và hỏi đáp dữ liệu phân tích.
+
+- Theo dõi trạng thái và nhận cảnh báo.
+
+- Thiết lập và quản lý quy tắc cảnh báo khủng hoảng.
 
 #import "section_5_5_1.typ" as section_5_5_1
 #section_5_5_1
@@ -41,22 +45,6 @@ Các sơ đồ tuần tự được chia thành 3 nhóm minh họa chính:
 
 === Tổng kết
 
-Section này đã mô tả các Sequence Diagrams cho 8 Use Cases chính của hệ thống SMAP:
+Section này mô tả các sequence diagrams dùng để minh họa cách SMAP hiện thực hóa các mục tiêu nghiệp vụ đã xác định ở Chương 4. Ở mức kỹ thuật, các sơ đồ làm rõ những tương tác quan trọng giữa giao diện, project context, ingest runtime, analytics pipeline, knowledge retrieval và notification delivery.
 
-- UC-01 Cấu hình Project: Luồng tạo project với draft status.
-
-- UC-02 Dry-run: Sampling strategy để test keywords.
-
-- UC-03 Khởi chạy và Giám sát: Transaction-like flow với rollback mechanism.
-
-- UC-04 Xem kết quả: Dashboard aggregations và drilldown.
-
-- UC-05 Quản lý danh sách Projects: List view với filtering, sorting, status-based navigation và soft delete.
-
-- UC-06 Xuất báo cáo: Async export workflow với multiple formats (PDF, Excel, CSV) và MinIO storage.
-
-- UC-07 Trend Detection: Cron-based crawling với scoring.
-
-- UC-08 Crisis Detection: Triple-check logic với multi-channel alerting.
-
-Các sequence diagrams thể hiện rõ event-driven architecture, async processing patterns, và real-time communication mechanisms của hệ thống.
+Bên trong mỗi nhóm mục tiêu nghiệp vụ, một số sơ đồ có thể đi sâu vào các subflow kỹ thuật như readiness validation, dispatch thu thập, xử lý nền, truy hồi tri thức hoặc phát thông báo. Mục tiêu của phần này không phải lặp lại logic use case ở Chương 4, mà là cho thấy các thành phần hệ thống phối hợp với nhau như thế nào để tạo ra kết quả quan sát được đối với người dùng.

@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs>
+    <style>
+      .labelbox { fill: #ece9ff; stroke: #cfc8ff; stroke-width: 1; }
+      .lifeline { stroke: #d4ccff; stroke-width: 2; }
+      .msg { stroke: #333333; stroke-width: 1.6; fill: none; }
+      .ret { stroke: #555555; stroke-width: 1.3; stroke-dasharray: 5 4; fill: none; }
+      .note { fill: #fff4b8; stroke: #e1d27a; stroke-width: 1.2; }
+      .t { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #222222; }
+      .ts { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #222222; }
+      .step { fill: #333333; }
+      .steptext { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #ffffff; font-weight: bold; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" />
+    </marker>
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#555555" />
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="760" fill="#ffffff"/>
+
+  <rect class="labelbox" x="18" y="18" width="96" height="42" rx="2"/>
+  <rect class="labelbox" x="228" y="18" width="126" height="42" rx="2"/>
+  <rect class="labelbox" x="468" y="18" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="708" y="18" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="948" y="18" width="148" height="42" rx="2"/>
+
+  <text class="t" x="66" y="44" text-anchor="middle">User</text>
+  <text class="t" x="291" y="44" text-anchor="middle">Giao diện</text>
+  <text class="t" x="541" y="36" text-anchor="middle">Ingest Service</text>
+  <text class="ts" x="541" y="50" text-anchor="middle">(HTTP layer)</text>
+  <text class="t" x="781" y="36" text-anchor="middle">Datasource UseCase</text>
+  <text class="ts" x="781" y="50" text-anchor="middle">+ Target validation</text>
+  <text class="t" x="1022" y="36" text-anchor="middle">PostgreSQL</text>
+  <text class="ts" x="1022" y="50" text-anchor="middle">(data_sources, crawl_targets)</text>
+
+  <rect class="labelbox" x="18" y="700" width="96" height="42" rx="2"/>
+  <rect class="labelbox" x="228" y="700" width="126" height="42" rx="2"/>
+  <rect class="labelbox" x="468" y="700" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="708" y="700" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="948" y="700" width="148" height="42" rx="2"/>
+
+  <text class="t" x="66" y="726" text-anchor="middle">User</text>
+  <text class="t" x="291" y="726" text-anchor="middle">Giao diện</text>
+  <text class="t" x="541" y="718" text-anchor="middle">Ingest Service</text>
+  <text class="ts" x="541" y="732" text-anchor="middle">(HTTP layer)</text>
+  <text class="t" x="781" y="718" text-anchor="middle">Datasource UseCase</text>
+  <text class="ts" x="781" y="732" text-anchor="middle">+ Target validation</text>
+  <text class="t" x="1022" y="718" text-anchor="middle">PostgreSQL</text>
+  <text class="ts" x="1022" y="732" text-anchor="middle">(data_sources, crawl_targets)</text>
+
+  <line class="lifeline" x1="66" y1="60" x2="66" y2="700"/>
+  <line class="lifeline" x1="291" y1="60" x2="291" y2="700"/>
+  <line class="lifeline" x1="541" y1="60" x2="541" y2="700"/>
+  <line class="lifeline" x1="781" y1="60" x2="781" y2="700"/>
+  <line class="lifeline" x1="1022" y1="60" x2="1022" y2="700"/>
+
+  <circle class="step" cx="66" cy="98" r="8"/><text class="steptext" x="66" y="102" text-anchor="middle">1</text>
+  <line class="msg" x1="74" y1="98" x2="283" y2="98" marker-end="url(#arrow)"/>
+  <text class="t" x="180" y="92" text-anchor="middle">Mở cấu hình nguồn dữ liệu cho project</text>
+
+  <circle class="step" cx="291" cy="158" r="8"/><text class="steptext" x="291" y="162" text-anchor="middle">2</text>
+  <line class="msg" x1="299" y1="158" x2="533" y2="158" marker-end="url(#arrow)"/>
+  <text class="ts" x="416" y="146" text-anchor="middle">Tạo datasource theo loại nền tảng hoặc nguồn dữ liệu</text>
+
+  <circle class="step" cx="541" cy="214" r="8"/><text class="steptext" x="541" y="218" text-anchor="middle">3</text>
+  <line class="msg" x1="549" y1="214" x2="773" y2="214" marker-end="url(#arrow)"/>
+  <text class="ts" x="661" y="202" text-anchor="middle">Validate datasource input</text>
+
+  <circle class="step" cx="781" cy="250" r="8"/><text class="steptext" x="781" y="254" text-anchor="middle">4</text>
+  <line class="msg" x1="789" y1="250" x2="1014" y2="250" marker-end="url(#arrow)"/>
+  <text class="ts" x="902" y="238" text-anchor="middle">INSERT data_sources row</text>
+
+  <circle class="step" cx="1022" cy="274" r="8"/><text class="steptext" x="1022" y="278" text-anchor="middle">5</text>
+  <line class="ret" x1="1014" y1="274" x2="789" y2="274" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="902" y="268" text-anchor="middle">datasource_id</text>
+
+  <circle class="step" cx="291" cy="340" r="8"/><text class="steptext" x="291" y="344" text-anchor="middle">6</text>
+  <line class="msg" x1="299" y1="340" x2="533" y2="340" marker-end="url(#arrow)"/>
+  <text class="ts" x="416" y="328" text-anchor="middle">Thêm mục tiêu thu thập</text>
+  <text class="ts" x="416" y="342" text-anchor="middle">{keyword | profile | post URL}</text>
+
+  <circle class="step" cx="541" cy="394" r="8"/><text class="steptext" x="541" y="398" text-anchor="middle">7</text>
+  <line class="msg" x1="549" y1="394" x2="773" y2="394" marker-end="url(#arrow)"/>
+  <text class="ts" x="661" y="382" text-anchor="middle">Kiểm tra loại mục tiêu và dữ liệu đầu vào</text>
+
+  <circle class="step" cx="781" cy="430" r="8"/><text class="steptext" x="781" y="434" text-anchor="middle">8</text>
+  <line class="msg" x1="789" y1="430" x2="1014" y2="430" marker-end="url(#arrow)"/>
+  <text class="ts" x="902" y="418" text-anchor="middle">INSERT crawl_targets row</text>
+
+  <circle class="step" cx="1022" cy="454" r="8"/><text class="steptext" x="1022" y="458" text-anchor="middle">9</text>
+  <line class="ret" x1="1014" y1="454" x2="789" y2="454" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="902" y="448" text-anchor="middle">target metadata persisted</text>
+
+  <circle class="step" cx="541" cy="504" r="8"/><text class="steptext" x="541" y="508" text-anchor="middle">10</text>
+  <line class="ret" x1="533" y1="504" x2="299" y2="504" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="416" y="492" text-anchor="middle">datasource / target metadata + readiness state</text>
+
+  <circle class="step" cx="291" cy="552" r="8"/><text class="steptext" x="291" y="556" text-anchor="middle">11</text>
+  <line class="ret" x1="283" y1="552" x2="74" y2="552" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="180" y="540" text-anchor="middle">User quyết định có cần kiểm tra thử hay không</text>
+
+  <rect class="note" x="44" y="624" width="1040" height="48"/>
+  <text class="t" x="564" y="646" text-anchor="middle">Luồng này chỉ khai báo đầu vào cho chiến dịch: datasource, target và trạng thái cấu hình liên quan.</text>
+  <text class="t" x="564" y="662" text-anchor="middle">Runtime thu thập chính thức chỉ bắt đầu ở UC-02 sau khi readiness đạt yêu cầu.</text>
+</svg>

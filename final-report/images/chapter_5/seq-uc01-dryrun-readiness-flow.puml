@@ -1,0 +1,41 @@
+@startuml
+title UC-01 Part 3 - Dry Run and Readiness Flow
+hide footbox
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+
+participant "Giao diện" as UI
+participant "Ingest Service" as IngestService
+participant "RabbitMQ" as RabbitMQ
+participant "Scapper Worker" as Worker
+participant "MinIO" as MinIO
+participant "PostgreSQL" as PostgreSQL
+
+UI -> IngestService : trigger dry run(datasource_id, target_id)
+activate IngestService
+IngestService -> PostgreSQL : create dryrun result(RUNNING)
+activate PostgreSQL
+PostgreSQL --> IngestService : dryrun request persisted
+deactivate PostgreSQL
+IngestService ->> RabbitMQ : publish dryrun task
+
+RabbitMQ ->> Worker : deliver dryrun task
+activate Worker
+Worker -> Worker : collect sample or validate source access
+Worker -> MinIO : upload sample artifact if needed
+activate MinIO
+MinIO --> Worker : storage metadata
+deactivate MinIO
+Worker ->> RabbitMQ : publish dryrun completion
+deactivate Worker
+
+RabbitMQ ->> IngestService : deliver dryrun completion
+IngestService -> PostgreSQL : update latest result and readiness evidence
+activate PostgreSQL
+PostgreSQL --> IngestService : dryrun status persisted
+deactivate PostgreSQL
+IngestService --> UI : latest dry run result and readiness state
+deactivate IngestService
+@enduml

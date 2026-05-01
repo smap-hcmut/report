@@ -1,0 +1,30 @@
+@startuml
+title UC-01 Part 2 - Datasource and Target Configuration Flow
+hide footbox
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+
+participant "Giao diện" as UI
+participant "Ingest Service" as IngestService
+participant "PostgreSQL" as PostgreSQL
+
+UI -> IngestService : create datasource(project_id, source_type, config)
+activate IngestService
+IngestService -> IngestService : validate datasource input
+IngestService -> PostgreSQL : insert data source row
+activate PostgreSQL
+PostgreSQL --> IngestService : datasource persisted
+deactivate PostgreSQL
+
+UI -> IngestService : add crawl target(datasource_id, target_type, values)
+IngestService -> IngestService : validate target semantics
+IngestService -> PostgreSQL : insert crawl target row
+activate PostgreSQL
+PostgreSQL --> IngestService : target persisted
+deactivate PostgreSQL
+
+IngestService --> UI : datasource/target metadata and readiness state
+deactivate IngestService
+@enduml

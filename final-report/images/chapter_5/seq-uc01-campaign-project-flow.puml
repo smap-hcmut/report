@@ -1,0 +1,29 @@
+@startuml
+title UC-01 Part 1 - Campaign and Project Setup Flow
+hide footbox
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+
+participant "Giao diện" as UI
+participant "Project Service" as ProjectService
+participant "PostgreSQL" as PostgreSQL
+
+UI -> ProjectService : create campaign or select existing campaign
+activate ProjectService
+alt create new campaign
+  ProjectService -> PostgreSQL : insert campaign metadata
+  activate PostgreSQL
+  PostgreSQL --> ProjectService : campaign persisted
+  deactivate PostgreSQL
+end
+UI -> ProjectService : create project in campaign
+ProjectService -> ProjectService : validate business context
+ProjectService -> PostgreSQL : insert project metadata
+activate PostgreSQL
+PostgreSQL --> ProjectService : campaign_id, project_id, initial status
+deactivate PostgreSQL
+ProjectService --> UI : created campaign/project context
+deactivate ProjectService
+@enduml
