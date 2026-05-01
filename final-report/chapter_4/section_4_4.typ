@@ -45,7 +45,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     [Nhận các thông báo liên quan đến trạng thái xử lý, sự kiện chiến dịch hoặc cảnh báo quan trọng để kịp thời theo dõi và phản ứng.],
 
     [UC-05],
-    [Thiết lập quy tắc cảnh báo khủng hoảng],
+    [Thiết lập và quản lý quy tắc cảnh báo khủng hoảng],
     [Nhóm người dùng chuyên môn nội bộ],
     [FR-04],
     [Thiết lập và quản lý các quy tắc giám sát khủng hoảng như keyword, volume, sentiment hoặc influencer để hệ thống có cơ sở phát hiện và cảnh báo ở các luồng xử lý phía sau.],
@@ -231,7 +231,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(colspan: 3)[
       1. Nếu thao tác hợp lệ và thành công, trạng thái vận hành của chiến dịch được cập nhật theo yêu cầu của user.
       2. Nếu user chỉ kiểm tra readiness, hệ thống trả về kết quả đánh giá mà không thay đổi trạng thái vận hành.
-      3. Các lane thu thập hoặc xử lý nền liên quan được kích hoạt, tạm dừng hoặc giữ nguyên phù hợp với trạng thái mới.
+      3. Hoạt động thu thập dữ liệu của chiến dịch được bắt đầu, tạm dừng, tiếp tục hoặc giữ nguyên phù hợp với trạng thái mới.
       4. Nếu thao tác không hợp lệ hoặc readiness không đạt, trạng thái chiến dịch không bị thay đổi ngoài các thông tin lỗi hoặc cảnh báo cần hiển thị cho user.
     ],
 
@@ -242,7 +242,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       3. Hệ thống kiểm tra quyền thao tác và trạng thái hiện tại của chiến dịch.
       4. Hệ thống đánh giá readiness dựa trên cấu hình datasource, target, trạng thái cấu hình và kết quả dry run cần thiết.
       5. Nếu readiness đạt yêu cầu, user xác nhận thao tác kích hoạt.
-      6. Hệ thống chuyển chiến dịch sang trạng thái hoạt động và điều phối các thành phần thu thập dữ liệu liên quan.
+      6. Hệ thống chuyển chiến dịch sang trạng thái hoạt động và bắt đầu hoạt động thu thập dữ liệu tương ứng.
       7. Hệ thống ghi nhận trạng thái vận hành mới và trả kết quả thành công cho user.
       8. User có thể theo dõi trạng thái xử lý hoặc tiếp tục khai thác các thông tin liên quan ở các use case sau.
     ],
@@ -260,7 +260,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       Thay cho Bước 2 của luồng cơ bản:
       - P1. User chọn thao tác tạm dừng cho chiến dịch đang hoạt động.
       - P2. Hệ thống kiểm tra trạng thái hiện tại và quyền thao tác.
-      - P3. Hệ thống chuyển chiến dịch sang trạng thái tạm dừng và dừng các hoạt động nền phù hợp.
+      - P3. Hệ thống chuyển chiến dịch sang trạng thái tạm dừng và dừng hoạt động thu thập dữ liệu phù hợp.
       - P4. Hệ thống trả kết quả tạm dừng thành công cho user.
       - Kết thúc use case.
 
@@ -301,8 +301,8 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - 3.E.4. Không có thay đổi nào được áp dụng lên chiến dịch.
       - Kết thúc use case.
 
-      *Lỗi điều phối hoặc lưu trạng thái vận hành* \
-      Tại Bước 6 hoặc Bước 7 của luồng cơ bản, nếu hệ thống không thể điều phối hoạt động nền hoặc không thể lưu trạng thái mới:
+      *Lỗi áp dụng hoặc lưu trạng thái vận hành* \
+      Tại Bước 6 hoặc Bước 7 của luồng cơ bản, nếu hệ thống không thể áp dụng trạng thái vận hành hoặc không thể lưu trạng thái mới:
       - 7.E.1. Hệ thống thông báo thao tác vận hành chưa hoàn tất.
       - 7.E.2. Trạng thái chiến dịch được giữ nguyên hoặc được đưa về trạng thái an toàn gần nhất.
       - 7.E.3. User có thể tải lại trạng thái và thử lại sau.
@@ -468,7 +468,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
       - Primary Actor: Nhóm người dùng chuyên môn nội bộ
-      - Secondary Actor: System Runtime
+      - Secondary Actor: Không có
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Description*],
@@ -483,15 +483,15 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(colspan: 3, inset: (y: 0.6em), align: horizon)[
       1. User đã đăng nhập và có quyền xem campaign, project hoặc phạm vi cảnh báo tương ứng.
       2. Hệ thống có thông tin trạng thái hoặc sự kiện cảnh báo cần hiển thị cho user.
-      3. Nếu user muốn nhận realtime notification, phiên làm việc hoặc kết nối realtime của user đang hợp lệ.
+      3. Nếu user muốn nhận thông báo tức thời, phiên làm việc của user đang hợp lệ.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Postconditions*],
     table.cell(colspan: 3)[
       1. User nhìn thấy trạng thái hiện tại, lịch sử gần nhất hoặc thông báo liên quan đến phạm vi được chọn.
-      2. Cảnh báo hoặc notification phù hợp được hiển thị cho user nếu có sự kiện tương ứng.
+      2. Cảnh báo hoặc thông báo phù hợp được hiển thị cho user nếu có sự kiện tương ứng.
       3. Nếu không có sự kiện mới, hệ thống vẫn hiển thị trạng thái hiện tại hoặc thông báo không có cảnh báo mới.
-      4. Use case này không trực tiếp thay đổi trạng thái vận hành; các thao tác thay đổi trạng thái thuộc UC-02.
+      4. User có đủ thông tin để quyết định thao tác tiếp theo nếu cần.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Normal Flows*],
@@ -499,10 +499,10 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       1. User mở dashboard hoặc khu vực theo dõi của một campaign hay project.
       2. Hệ thống kiểm tra quyền truy cập và xác định phạm vi trạng thái cần hiển thị.
       3. Hệ thống hiển thị trạng thái hiện tại của các đối tượng liên quan như campaign, project, datasource hoặc tác vụ xử lý.
-      4. System Runtime phát sinh sự kiện trạng thái, lỗi hoặc cảnh báo nghiệp vụ trong phạm vi user được phép theo dõi.
-      5. Hệ thống xác định mức độ liên quan, loại thông báo và người nhận phù hợp.
-      6. Nếu user đang có phiên theo dõi phù hợp, hệ thống đẩy thông báo realtime tới giao diện.
-      7. Giao diện hiển thị notification hoặc cảnh báo với nội dung tóm tắt, mức độ nghiêm trọng và ngữ cảnh liên quan.
+      4. Khi có trạng thái mới, lỗi xử lý hoặc cảnh báo nghiệp vụ trong phạm vi user được phép theo dõi, hệ thống cập nhật nội dung cần thông báo.
+      5. Hệ thống phân loại thông báo theo loại sự kiện, mức độ nghiêm trọng và đối tượng liên quan.
+      6. Nếu user đang có phiên theo dõi hoặc nhận thông báo phù hợp, hệ thống hiển thị thông báo hoặc cảnh báo trên giao diện.
+      7. User xem nội dung tóm tắt gồm mức độ, thời điểm và campaign/project liên quan.
       8. User mở chi tiết cảnh báo hoặc điều hướng tới campaign/project liên quan để xem thêm thông tin.
       9. Hệ thống hiển thị chi tiết trạng thái hoặc cảnh báo để user quyết định thao tác tiếp theo ở use case phù hợp.
     ],
@@ -515,10 +515,10 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - S2. Hệ thống hiển thị trạng thái hiện tại và thời điểm cập nhật gần nhất.
       - Kết thúc use case.
 
-      *Không có kết nối realtime* \
+      *Không nhận được thông báo tức thời* \
       Tại Bước 6 của luồng cơ bản:
-      - R1. User không có kết nối realtime hợp lệ ở thời điểm thông báo được phát sinh.
-      - R2. Hệ thống không thể đẩy notification realtime cho phiên đó.
+      - R1. User không có phiên theo dõi hoặc nhận thông báo hợp lệ ở thời điểm thông báo được phát sinh.
+      - R2. Hệ thống không hiển thị thông báo tức thời cho phiên đó.
       - R3. User vẫn có thể xem trạng thái hiện tại khi tải lại hoặc mở lại màn hình theo dõi.
       - Kết thúc use case.
 
@@ -552,12 +552,12 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
-      Use case này bao phủ nhu cầu theo dõi và nhận biết sự kiện từ phía user. Việc hệ thống truyền notification qua WebSocket, Redis Pub/Sub hay cơ chế nội bộ khác thuộc phần thiết kế kỹ thuật; tại đây chỉ mô tả kết quả quan sát được trên giao diện hoặc kênh thông báo.
+      Use case này bao phủ nhu cầu theo dõi và nhận biết sự kiện từ phía user. Các thao tác thay đổi trạng thái vận hành thuộc UC-02. Chi tiết kỹ thuật về kênh truyền thông báo thuộc phần thiết kế hệ thống ở Chương 5.
     ],
   )
 ]
 
-=== 4.4.5 UC-05: Thiết lập quy tắc cảnh báo khủng hoảng
+=== 4.4.5 UC-05: Thiết lập và quản lý quy tắc cảnh báo khủng hoảng
 
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-05_])
 #table_counter.step()
@@ -570,7 +570,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     align: (left + top, left + top, left + top, left + top),
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Use Case name*],
-    table.cell(colspan: 3, align: center + horizon)[UC-05: Thiết lập quy tắc cảnh báo khủng hoảng],
+    table.cell(colspan: 3, align: center + horizon)[UC-05: Thiết lập và quản lý quy tắc cảnh báo khủng hoảng],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
     align(center + horizon)[Nhóm tác giả],
@@ -677,7 +677,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
-      Use case này chỉ bao phủ việc người dùng thiết lập quy tắc cảnh báo khủng hoảng. Việc phát hiện khủng hoảng trong runtime và việc phân phối cảnh báo cho user thuộc các luồng xử lý hệ thống và được user quan sát thông qua UC-04.
+      Use case này chỉ bao phủ việc người dùng thiết lập và quản lý quy tắc cảnh báo khủng hoảng. Việc phát hiện khủng hoảng trong runtime và việc phân phối cảnh báo cho user thuộc các luồng xử lý hệ thống và được user quan sát thông qua UC-04.
     ],
   )
 ]
