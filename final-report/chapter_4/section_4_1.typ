@@ -2,7 +2,7 @@
 
 == 4.1 Nhóm người dùng và tác nhân hệ thống
 
-Trong phạm vi của SMAP, việc xác định tác nhân hệ thống không dựa trên kết quả khảo sát người dùng trực tiếp, mà được tổng hợp từ phạm vi ứng dụng đã nêu ở Chương 1, từ nhóm chức năng của hệ thống, và từ các luồng tương tác thể hiện trong current implementation. Cách tiếp cận này giúp xác định rõ ai là người sử dụng chính của hệ thống, đâu là các tác nhân bên ngoài, và mỗi tác nhân tương tác với SMAP theo vai trò nào.
+Trong phạm vi của SMAP, việc xác định tác nhân hệ thống không dựa trên kết quả khảo sát người dùng trực tiếp, mà được tổng hợp từ phạm vi ứng dụng đã nêu ở Chương 1, từ nhóm chức năng của hệ thống, và từ các luồng tương tác. Cách tiếp cận này giúp xác định rõ ai là người sử dụng chính của hệ thống, đâu là các tác nhân bên ngoài, và mỗi tác nhân tương tác với SMAP theo vai trò nào.
 
 Nhìn ở mức tổng quát, SMAP phục vụ trước hết cho các nhóm người dùng chuyên môn nội bộ có nhu cầu theo dõi, phân tích và tổng hợp thông tin từ mạng xã hội. Bên cạnh đó, hệ thống còn phụ thuộc vào một số tác nhân kỹ thuật bên ngoài như nền tảng mạng xã hội là nguồn dữ liệu đầu vào và nhà cung cấp định danh hỗ trợ xác thực người dùng.
 
