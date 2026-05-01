@@ -5,7 +5,7 @@
 
 Căn cứ vào nhóm người dùng và tác nhân hệ thống đã xác định ở mục 4.1, phần này tổng hợp các yêu cầu chức năng cốt lõi của SMAP. Thay vì mô tả hệ thống theo từng màn hình hay theo chi tiết hiện thực, các yêu cầu ở đây được viết ở mức capability để có thể ánh xạ sang use case nghiệp vụ ở mục 4.4 và thiết kế kỹ thuật ở Chương 5.
 
-Các yêu cầu chức năng được chia thành ba nhóm lớn. Nhóm thứ nhất là các capability phục vụ thiết lập và quản lý ngữ cảnh nghiệp vụ, bao gồm xác thực, campaign/project, nguồn dữ liệu, mục tiêu thu thập, kiểm tra thử và cấu hình cảnh báo khủng hoảng. Nhóm thứ hai là các capability điều phối và xử lý dữ liệu, bao gồm điều khiển vòng đời vận hành, điều phối thu thập dữ liệu và xử lý phân tích. Nhóm thứ ba là các capability phục vụ khai thác kết quả, bao gồm tìm kiếm, hỏi đáp theo ngữ cảnh, thông báo tức thời và các cơ chế kiểm tra nội bộ phục vụ liên thông an toàn giữa các thành phần.
+Các yêu cầu chức năng được chia thành ba nhóm lớn. Nhóm thứ nhất là các capability phục vụ thiết lập và quản lý ngữ cảnh nghiệp vụ, bao gồm xác thực, campaign/project, nguồn dữ liệu, mục tiêu thu thập, kiểm tra thử và cấu hình cảnh báo khủng hoảng. Nhóm thứ hai là các capability điều phối và xử lý dữ liệu, bao gồm điều khiển vòng đời vận hành, điều phối thu thập dữ liệu và xử lý phân tích. Nhóm thứ ba là các capability phục vụ khai thác kết quả, bao gồm tìm kiếm, hỏi đáp theo ngữ cảnh, thông báo kịp thời và các cơ chế kiểm tra nội bộ phục vụ liên thông an toàn giữa các thành phần.
 
 #pagebreak()
 #context (align(center)[_Bảng #table_counter.display(): Yêu cầu chức năng_])

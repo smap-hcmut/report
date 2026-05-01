@@ -16,9 +16,9 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
   #table(
     columns: (0.2fr, 0.40fr, 0.34fr, 0.24fr, 0.68fr),
     stroke: 0.5pt,
-    align: (center + horizon, center + horizon, center + horizon, center + horizon, center + horizon),
+    align: (center + horizon, center + horizon, center + horizon, center + horizon, left + horizon),
 
-    table.header([*ID*], [*Tên Use Case*], [*Actor chính*], [*FR liên quan*], [*Mục tiêu nghiệp vụ*]),
+    table.header([*ID*], [*Tên Use Case*], [*Actor chính*], [*FR nghiệp vụ chính*], [*Mục tiêu nghiệp vụ*]),
 
     [UC-01],
     [Thiết lập chiến dịch theo dõi],
@@ -52,6 +52,8 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
   )
 ]
 
+Các yêu cầu FR-01, FR-09 và FR-12 đóng vai trò hỗ trợ cho các use case được bảo vệ: FR-01 là điều kiện xác thực trước khi người dùng thực hiện thao tác nghiệp vụ, FR-09 cung cấp dữ liệu phân tích cho các mục tiêu khai thác và cảnh báo, còn FR-12 bảo vệ liên thông nội bộ giữa các thành phần hệ thống. Vì vậy, các yêu cầu này không được tách thành use case người dùng độc lập trong bảng trên.
+
 === 4.4.1 UC-01: Thiết lập chiến dịch theo dõi
 
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-01_])
@@ -67,16 +69,6 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Use Case name*],
     table.cell(colspan: 3, align: center + horizon)[UC-01: Thiết lập chiến dịch theo dõi],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Date created*],
-    align(center + horizon)[29/04/2026],
-
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated*],
-    align(center + horizon)[29/04/2026],
-
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
       - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
@@ -89,7 +81,9 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     )[Người dùng thiết lập một chiến dịch theo dõi bằng cách tạo hoặc chọn campaign, tạo project trong campaign đó, khai báo nguồn dữ liệu, cấu hình mục tiêu thu thập và thực hiện kiểm tra thử khi cần để đánh giá khả năng thu thập dữ liệu trước khi vận hành chính thức. Use case này tập trung vào mục tiêu hoàn tất cấu hình đầu vào cho chiến dịch, không bao gồm bước kích hoạt vận hành hay xử lý phân tích phía sau.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
-    table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User muốn tạo một chiến dịch theo dõi mới hoặc bổ sung một project theo dõi vào campaign đã tồn tại.],
+    table.cell(colspan: 3, align: horizon, inset: (
+      y: 0.6em,
+    ))[User muốn tạo một chiến dịch theo dõi mới hoặc bổ sung một project theo dõi vào campaign đã tồn tại.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Preconditions*],
     table.cell(colspan: 3, inset: (y: 0.6em), align: horizon)[
@@ -173,7 +167,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - Kết thúc use case.
     ],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Phạm vi*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
       Use case này cố ý gom campaign, project, nguồn dữ liệu, mục tiêu thu thập và kiểm tra thử thành một mục tiêu nghiệp vụ thống nhất theo góc nhìn người dùng. Xác thực và phân quyền là điều kiện tiên quyết; kích hoạt vận hành, thu thập dữ liệu chính thức và xử lý phân tích thuộc các use case hoặc luồng hệ thống khác.
     ],
@@ -195,16 +189,6 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Use Case name*],
     table.cell(colspan: 3, align: center + horizon)[UC-02: Vận hành chiến dịch theo dõi],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Date created*],
-    align(center + horizon)[29/04/2026],
-
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated*],
-    align(center + horizon)[29/04/2026],
-
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
       - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
@@ -217,7 +201,9 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     )[Người dùng vận hành một chiến dịch theo dõi đã được thiết lập bằng cách kiểm tra mức độ sẵn sàng và thực hiện các thao tác như kích hoạt, tạm dừng, tiếp tục hoặc lưu trữ. Use case này bắt đầu khi cấu hình đầu vào đã có đủ thông tin cần thiết và tập trung vào việc chuyển chiến dịch từ trạng thái cấu hình sang trạng thái vận hành có kiểm soát.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
-    table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User muốn kiểm tra mức độ sẵn sàng hoặc thay đổi trạng thái vận hành của một chiến dịch theo dõi đã được thiết lập.],
+    table.cell(colspan: 3, align: horizon, inset: (
+      y: 0.6em,
+    ))[User muốn kiểm tra mức độ sẵn sàng hoặc thay đổi trạng thái vận hành của một chiến dịch theo dõi đã được thiết lập.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Preconditions*],
     table.cell(colspan: 3, inset: (y: 0.6em), align: horizon)[
@@ -316,7 +302,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - Kết thúc use case.
     ],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Phạm vi*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
       Use case này mô tả mục tiêu vận hành chiến dịch theo góc nhìn user, không mô tả chi tiết cách hệ thống hiện thực các thao tác vận hành. Các chi tiết kỹ thuật đó thuộc phần thiết kế hệ thống và luồng xử lý ở Chương 5.
     ],
@@ -338,16 +324,6 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Use Case name*],
     table.cell(colspan: 3, align: center + horizon)[UC-03: Tra cứu và hỏi đáp dữ liệu phân tích],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Date created*],
-    align(center + horizon)[29/04/2026],
-
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated*],
-    align(center + horizon)[29/04/2026],
-
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
       - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
@@ -360,7 +336,9 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     )[Người dùng tra cứu dữ liệu phân tích đã được hệ thống xử lý hoặc đặt câu hỏi theo ngữ cảnh chiến dịch để nhận câu trả lời có dẫn chứng. Use case này giúp người dùng khai thác dữ liệu đã thu thập và phân tích, thay vì mô tả cách hệ thống chuẩn bị hoặc lưu trữ dữ liệu ở phía sau.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
-    table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User nhập truy vấn tìm kiếm, đặt câu hỏi trong trợ lý dữ liệu hoặc mở lại một hội thoại phân tích đã có.],
+    table.cell(colspan: 3, align: horizon, inset: (
+      y: 0.6em,
+    ))[User nhập truy vấn tìm kiếm, đặt câu hỏi trong trợ lý dữ liệu hoặc mở lại một hội thoại phân tích đã có.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Preconditions*],
     table.cell(colspan: 3, inset: (y: 0.6em), align: horizon)[
@@ -440,7 +418,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - Kết thúc use case.
     ],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Phạm vi*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
       Use case này chỉ mô tả việc user khai thác dữ liệu phân tích. Các bước chuẩn bị dữ liệu phục vụ tra cứu, truy xuất ngữ cảnh hoặc sinh câu trả lời là chi tiết thiết kế kỹ thuật và không được tách thành use case người dùng riêng trong mục này.
     ],
@@ -462,16 +440,6 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Use Case name*],
     table.cell(colspan: 3, align: center + horizon)[UC-04: Theo dõi trạng thái và nhận cảnh báo],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Date created*],
-    align(center + horizon)[29/04/2026],
-
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated*],
-    align(center + horizon)[29/04/2026],
-
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
       - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
@@ -484,13 +452,15 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     )[Người dùng theo dõi trạng thái vận hành của chiến dịch, project hoặc nguồn dữ liệu và nhận các thông báo quan trọng khi có thay đổi trạng thái, lỗi xử lý hoặc cảnh báo nghiệp vụ. Use case này tập trung vào việc giúp user nắm tình hình và phản ứng kịp thời, không mô tả chi tiết cơ chế truyền sự kiện nội bộ.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
-    table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User mở màn hình theo dõi trạng thái hoặc hệ thống phát sinh thông báo, cảnh báo liên quan đến phạm vi user được phép theo dõi.],
+    table.cell(colspan: 3, align: horizon, inset: (
+      y: 0.6em,
+    ))[User mở màn hình theo dõi trạng thái hoặc hệ thống phát sinh thông báo, cảnh báo liên quan đến phạm vi user được phép theo dõi.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Preconditions*],
     table.cell(colspan: 3, inset: (y: 0.6em), align: horizon)[
       1. User đã đăng nhập và có quyền xem campaign, project hoặc phạm vi cảnh báo tương ứng.
       2. Hệ thống có thông tin trạng thái hoặc sự kiện cảnh báo cần hiển thị cho user.
-      3. Nếu user muốn nhận thông báo tức thời, phiên làm việc của user đang hợp lệ.
+      3. Nếu user muốn nhận thông báo trong phiên đang hoạt động, phiên làm việc của user đang hợp lệ.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Postconditions*],
@@ -522,10 +492,10 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - S2. Hệ thống hiển thị trạng thái hiện tại và thời điểm cập nhật gần nhất.
       - Kết thúc use case.
 
-      *Không nhận được thông báo tức thời* \
+      *Không có phiên nhận thông báo hợp lệ* \
       Tại Bước 6 của luồng cơ bản:
       - R1. User không có phiên theo dõi hoặc nhận thông báo hợp lệ ở thời điểm thông báo được phát sinh.
-      - R2. Hệ thống không hiển thị thông báo tức thời cho phiên đó.
+      - R2. Hệ thống không hiển thị thông báo cho phiên đó.
       - R3. User vẫn có thể xem trạng thái hiện tại khi tải lại hoặc mở lại màn hình theo dõi.
       - Kết thúc use case.
 
@@ -557,7 +527,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - Kết thúc use case.
     ],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Phạm vi*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
       Use case này bao phủ nhu cầu theo dõi và nhận biết sự kiện từ phía user. Các thao tác thay đổi trạng thái vận hành thuộc UC-02. Chi tiết kỹ thuật về kênh truyền thông báo thuộc phần thiết kế hệ thống ở Chương 5.
     ],
@@ -579,16 +549,6 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Use Case name*],
     table.cell(colspan: 3, align: center + horizon)[UC-05: Thiết lập và quản lý quy tắc cảnh báo khủng hoảng],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Created by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Date created*],
-    align(center + horizon)[29/04/2026],
-
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated by*],
-    align(center + horizon)[Nhóm tác giả],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Last updated*],
-    align(center + horizon)[29/04/2026],
-
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
       - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
@@ -601,7 +561,9 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     )[Người dùng thiết lập, xem, cập nhật hoặc xóa các quy tắc cảnh báo khủng hoảng cho một project. Các quy tắc này xác định điều kiện cần theo dõi như keyword, volume, sentiment hoặc influencer để hệ thống có cơ sở phát hiện và cảnh báo ở các luồng vận hành sau đó.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
-    table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User mở chức năng cấu hình cảnh báo khủng hoảng của một project và yêu cầu xem, lưu, cập nhật hoặc xóa bộ quy tắc.],
+    table.cell(colspan: 3, align: horizon, inset: (
+      y: 0.6em,
+    ))[User mở chức năng cấu hình cảnh báo khủng hoảng của một project và yêu cầu xem, lưu, cập nhật hoặc xóa bộ quy tắc.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Preconditions*],
     table.cell(colspan: 3, inset: (y: 0.6em), align: horizon)[
@@ -682,7 +644,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - Kết thúc use case.
     ],
 
-    table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
+    table.cell(align: center + horizon, inset: (y: 0.6em))[*Phạm vi*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
       Use case này chỉ bao phủ việc người dùng thiết lập và quản lý quy tắc cảnh báo khủng hoảng. Việc phát hiện khủng hoảng trong quá trình vận hành và việc phân phối cảnh báo cho user thuộc các luồng xử lý hệ thống và được user quan sát thông qua UC-04.
     ],
