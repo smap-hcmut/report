@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="860" viewBox="0 0 1320 860">
+  <defs>
+    <style>
+      .labelbox { fill: #ece9ff; stroke: #cfc8ff; stroke-width: 1; }
+      .lifeline { stroke: #d4ccff; stroke-width: 2; }
+      .msg { stroke: #333333; stroke-width: 1.6; fill: none; }
+      .ret { stroke: #555555; stroke-width: 1.3; stroke-dasharray: 5 4; fill: none; }
+      .alt { fill: none; stroke: #d4ccff; stroke-width: 1.2; stroke-dasharray: 3 3; }
+      .note { fill: #fff4b8; stroke: #e1d27a; stroke-width: 1.2; }
+      .t { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #222222; }
+      .ts { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #222222; }
+      .tc { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #222222; }
+      .step { fill: #333333; }
+      .steptext { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #ffffff; font-weight: bold; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" />
+    </marker>
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#555555" />
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1320" height="860" fill="#ffffff"/>
+
+  <rect class="labelbox" x="18" y="18" width="96" height="42" rx="2"/>
+  <rect class="labelbox" x="188" y="18" width="126" height="42" rx="2"/>
+  <rect class="labelbox" x="398" y="18" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="608" y="18" width="136" height="42" rx="2"/>
+  <rect class="labelbox" x="818" y="18" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="1058" y="18" width="160" height="42" rx="2"/>
+
+  <text class="t" x="66" y="44" text-anchor="middle">User</text>
+  <text class="t" x="251" y="44" text-anchor="middle">Giao diện</text>
+  <text class="t" x="471" y="36" text-anchor="middle">Project Service</text><text class="ts" x="471" y="50" text-anchor="middle">(lifecycle control)</text>
+  <text class="t" x="676" y="36" text-anchor="middle">Ingest Service</text><text class="ts" x="676" y="50" text-anchor="middle">(pause / resume)</text>
+  <text class="t" x="891" y="36" text-anchor="middle">PostgreSQL</text><text class="ts" x="891" y="50" text-anchor="middle">(project schema)</text>
+  <text class="t" x="1138" y="36" text-anchor="middle">PostgreSQL</text><text class="ts" x="1138" y="50" text-anchor="middle">(ingest schema)</text>
+
+  <rect class="labelbox" x="18" y="800" width="96" height="42" rx="2"/>
+  <rect class="labelbox" x="188" y="800" width="126" height="42" rx="2"/>
+  <rect class="labelbox" x="398" y="800" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="608" y="800" width="136" height="42" rx="2"/>
+  <rect class="labelbox" x="818" y="800" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="1058" y="800" width="160" height="42" rx="2"/>
+
+  <text class="t" x="66" y="826" text-anchor="middle">User</text>
+  <text class="t" x="251" y="826" text-anchor="middle">Giao diện</text>
+  <text class="t" x="471" y="818" text-anchor="middle">Project Service</text><text class="ts" x="471" y="832" text-anchor="middle">(lifecycle control)</text>
+  <text class="t" x="676" y="818" text-anchor="middle">Ingest Service</text><text class="ts" x="676" y="832" text-anchor="middle">(pause / resume)</text>
+  <text class="t" x="891" y="818" text-anchor="middle">PostgreSQL</text><text class="ts" x="891" y="832" text-anchor="middle">(project schema)</text>
+  <text class="t" x="1138" y="818" text-anchor="middle">PostgreSQL</text><text class="ts" x="1138" y="832" text-anchor="middle">(ingest schema)</text>
+
+  <line class="lifeline" x1="66" y1="60" x2="66" y2="800"/>
+  <line class="lifeline" x1="251" y1="60" x2="251" y2="800"/>
+  <line class="lifeline" x1="471" y1="60" x2="471" y2="800"/>
+  <line class="lifeline" x1="676" y1="60" x2="676" y2="800"/>
+  <line class="lifeline" x1="891" y1="60" x2="891" y2="800"/>
+  <line class="lifeline" x1="1138" y1="60" x2="1138" y2="800"/>
+
+  <!-- pause -->
+  <rect class="alt" x="214" y="92" width="980" height="168"/>
+  <rect x="214" y="92" width="28" height="16" fill="#ece9ff" stroke="#d4ccff" stroke-width="1"/>
+  <text class="tc" x="228" y="104" text-anchor="middle">alt</text>
+  <text class="tc" x="312" y="106">[Pause chiến dịch đang hoạt động]</text>
+
+  <circle class="step" cx="251" cy="132" r="8"/><text class="steptext" x="251" y="136" text-anchor="middle">1</text>
+  <line class="msg" x1="259" y1="132" x2="463" y2="132" marker-end="url(#arrow)"/>
+  <text class="ts" x="361" y="120" text-anchor="middle">pause project</text>
+
+  <circle class="step" cx="471" cy="176" r="8"/><text class="steptext" x="471" y="180" text-anchor="middle">2</text>
+  <line class="msg" x1="479" y1="176" x2="668" y2="176" marker-end="url(#arrow)"/>
+  <text class="ts" x="573" y="164" text-anchor="middle">POST pause</text>
+
+  <circle class="step" cx="676" cy="214" r="8"/><text class="steptext" x="676" y="218" text-anchor="middle">3</text>
+  <line class="msg" x1="684" y1="214" x2="1130" y2="214" marker-end="url(#arrow)"/>
+  <text class="ts" x="907" y="202" text-anchor="middle">Pause các datasource ACTIVE và dừng runtime liên quan</text>
+
+  <circle class="step" cx="471" cy="246" r="8"/><text class="steptext" x="471" y="250" text-anchor="middle">4</text>
+  <line class="msg" x1="479" y1="246" x2="883" y2="246" marker-end="url(#arrow)"/>
+  <text class="ts" x="681" y="234" text-anchor="middle">Update project.status = PAUSED</text>
+
+  <!-- resume -->
+  <rect class="alt" x="214" y="294" width="980" height="210"/>
+  <rect x="214" y="294" width="28" height="16" fill="#ece9ff" stroke="#d4ccff" stroke-width="1"/>
+  <text class="tc" x="228" y="306" text-anchor="middle">alt</text>
+  <text class="tc" x="328" y="308">[Resume chiến dịch đã tạm dừng]</text>
+
+  <circle class="step" cx="251" cy="334" r="8"/><text class="steptext" x="251" y="338" text-anchor="middle">5</text>
+  <line class="msg" x1="259" y1="334" x2="463" y2="334" marker-end="url(#arrow)"/>
+  <text class="ts" x="361" y="322" text-anchor="middle">resume project</text>
+
+  <circle class="step" cx="471" cy="378" r="8"/><text class="steptext" x="471" y="382" text-anchor="middle">6</text>
+  <line class="msg" x1="479" y1="378" x2="668" y2="378" marker-end="url(#arrow)"/>
+  <text class="ts" x="573" y="366" text-anchor="middle">Re-check readiness</text>
+
+  <circle class="step" cx="676" cy="416" r="8"/><text class="steptext" x="676" y="420" text-anchor="middle">7</text>
+  <line class="ret" x1="668" y1="416" x2="479" y2="416" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="573" y="410" text-anchor="middle">Can proceed / blocked reason</text>
+
+  <circle class="step" cx="471" cy="452" r="8"/><text class="steptext" x="471" y="456" text-anchor="middle">8</text>
+  <line class="msg" x1="479" y1="452" x2="668" y2="452" marker-end="url(#arrow)"/>
+  <text class="ts" x="573" y="440" text-anchor="middle">POST resume</text>
+
+  <circle class="step" cx="676" cy="488" r="8"/><text class="steptext" x="676" y="492" text-anchor="middle">9</text>
+  <line class="msg" x1="684" y1="488" x2="1130" y2="488" marker-end="url(#arrow)"/>
+  <text class="ts" x="907" y="476" text-anchor="middle">Resume các datasource đủ điều kiện</text>
+
+  <circle class="step" cx="471" cy="520" r="8"/><text class="steptext" x="471" y="524" text-anchor="middle">10</text>
+  <line class="msg" x1="479" y1="520" x2="883" y2="520" marker-end="url(#arrow)"/>
+  <text class="ts" x="681" y="508" text-anchor="middle">Update project.status = ACTIVE</text>
+
+  <!-- archive/unarchive -->
+  <rect class="alt" x="214" y="548" width="980" height="188"/>
+  <rect x="214" y="548" width="28" height="16" fill="#ece9ff" stroke="#d4ccff" stroke-width="1"/>
+  <text class="tc" x="228" y="560" text-anchor="middle">alt</text>
+  <text class="tc" x="328" y="562">[Archive hoặc mở lại chiến dịch]</text>
+
+  <circle class="step" cx="251" cy="590" r="8"/><text class="steptext" x="251" y="594" text-anchor="middle">11</text>
+  <line class="msg" x1="259" y1="590" x2="463" y2="590" marker-end="url(#arrow)"/>
+  <text class="ts" x="361" y="578" text-anchor="middle">archive project</text>
+
+  <circle class="step" cx="471" cy="626" r="8"/><text class="steptext" x="471" y="630" text-anchor="middle">12</text>
+  <line class="msg" x1="479" y1="626" x2="668" y2="626" marker-end="url(#arrow)"/>
+  <text class="ts" x="573" y="614" text-anchor="middle">Pause ingest nếu project đang ACTIVE</text>
+
+  <circle class="step" cx="471" cy="662" r="8"/><text class="steptext" x="471" y="666" text-anchor="middle">13</text>
+  <line class="msg" x1="479" y1="662" x2="883" y2="662" marker-end="url(#arrow)"/>
+  <text class="ts" x="681" y="650" text-anchor="middle">Update project.status = ARCHIVED</text>
+
+  <circle class="step" cx="251" cy="700" r="8"/><text class="steptext" x="251" y="704" text-anchor="middle">14</text>
+  <line class="msg" x1="259" y1="700" x2="463" y2="700" marker-end="url(#arrow)"/>
+  <text class="ts" x="361" y="688" text-anchor="middle">unarchive project</text>
+
+  <circle class="step" cx="471" cy="736" r="8"/><text class="steptext" x="471" y="740" text-anchor="middle">15</text>
+  <line class="msg" x1="479" y1="736" x2="883" y2="736" marker-end="url(#arrow)"/>
+  <text class="ts" x="681" y="724" text-anchor="middle">Update project.status = PAUSED</text>
+
+  <rect class="note" x="44" y="756" width="1232" height="30"/>
+  <text class="t" x="660" y="776" text-anchor="middle">Pause, resume, archive và unarchive đều là business transitions có kiểm soát; giao diện không điều khiển trực tiếp execution runtime.</text>
+</svg>
