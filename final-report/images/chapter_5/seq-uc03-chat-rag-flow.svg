@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="840" viewBox="0 0 1360 840">
+  <defs>
+    <style>
+      .labelbox { fill: #ece9ff; stroke: #cfc8ff; stroke-width: 1; }
+      .lifeline { stroke: #d4ccff; stroke-width: 2; }
+      .msg { stroke: #333333; stroke-width: 1.6; fill: none; }
+      .ret { stroke: #555555; stroke-width: 1.3; stroke-dasharray: 5 4; fill: none; }
+      .alt { fill: none; stroke: #d4ccff; stroke-width: 1.2; stroke-dasharray: 3 3; }
+      .note { fill: #fff4b8; stroke: #e1d27a; stroke-width: 1.2; }
+      .t { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #222222; }
+      .ts { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #222222; }
+      .tc { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #222222; }
+      .step { fill: #333333; }
+      .steptext { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #ffffff; font-weight: bold; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" />
+    </marker>
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#555555" />
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1360" height="840" fill="#ffffff"/>
+
+  <rect class="labelbox" x="18" y="18" width="96" height="42" rx="2"/>
+  <rect class="labelbox" x="168" y="18" width="126" height="42" rx="2"/>
+  <rect class="labelbox" x="358" y="18" width="156" height="42" rx="2"/>
+  <rect class="labelbox" x="598" y="18" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="808" y="18" width="116" height="42" rx="2"/>
+  <rect class="labelbox" x="1008" y="18" width="116" height="42" rx="2"/>
+  <rect class="labelbox" x="1198" y="18" width="136" height="42" rx="2"/>
+
+  <text class="t" x="66" y="44" text-anchor="middle">User</text>
+  <text class="t" x="231" y="44" text-anchor="middle">Giao diện</text>
+  <text class="t" x="436" y="36" text-anchor="middle">Knowledge Service</text><text class="ts" x="436" y="50" text-anchor="middle">(chat API)</text>
+  <text class="t" x="671" y="36" text-anchor="middle">PostgreSQL</text><text class="ts" x="671" y="50" text-anchor="middle">(conversations, messages)</text>
+  <text class="t" x="866" y="36" text-anchor="middle">Project Service</text><text class="ts" x="866" y="50" text-anchor="middle">(campaign scope)</text>
+  <text class="t" x="1066" y="36" text-anchor="middle">Qdrant</text><text class="ts" x="1066" y="50" text-anchor="middle">(retrieval)</text>
+  <text class="t" x="1266" y="36" text-anchor="middle">LLM</text><text class="ts" x="1266" y="50" text-anchor="middle">(answer synthesis)</text>
+
+  <rect class="labelbox" x="18" y="780" width="96" height="42" rx="2"/>
+  <rect class="labelbox" x="168" y="780" width="126" height="42" rx="2"/>
+  <rect class="labelbox" x="358" y="780" width="156" height="42" rx="2"/>
+  <rect class="labelbox" x="598" y="780" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="808" y="780" width="116" height="42" rx="2"/>
+  <rect class="labelbox" x="1008" y="780" width="116" height="42" rx="2"/>
+  <rect class="labelbox" x="1198" y="780" width="136" height="42" rx="2"/>
+
+  <text class="t" x="66" y="806" text-anchor="middle">User</text>
+  <text class="t" x="231" y="806" text-anchor="middle">Giao diện</text>
+  <text class="t" x="436" y="798" text-anchor="middle">Knowledge Service</text><text class="ts" x="436" y="812" text-anchor="middle">(chat API)</text>
+  <text class="t" x="671" y="798" text-anchor="middle">PostgreSQL</text><text class="ts" x="671" y="812" text-anchor="middle">(conversations, messages)</text>
+  <text class="t" x="866" y="798" text-anchor="middle">Project Service</text><text class="ts" x="866" y="812" text-anchor="middle">(campaign scope)</text>
+  <text class="t" x="1066" y="798" text-anchor="middle">Qdrant</text><text class="ts" x="1066" y="812" text-anchor="middle">(retrieval)</text>
+  <text class="t" x="1266" y="798" text-anchor="middle">LLM</text><text class="ts" x="1266" y="812" text-anchor="middle">(answer synthesis)</text>
+
+  <line class="lifeline" x1="66" y1="60" x2="66" y2="780"/>
+  <line class="lifeline" x1="231" y1="60" x2="231" y2="780"/>
+  <line class="lifeline" x1="436" y1="60" x2="436" y2="780"/>
+  <line class="lifeline" x1="671" y1="60" x2="671" y2="780"/>
+  <line class="lifeline" x1="866" y1="60" x2="866" y2="780"/>
+  <line class="lifeline" x1="1066" y1="60" x2="1066" y2="780"/>
+  <line class="lifeline" x1="1266" y1="60" x2="1266" y2="780"/>
+
+  <circle class="step" cx="66" cy="98" r="8"/><text class="steptext" x="66" y="102" text-anchor="middle">1</text>
+  <line class="msg" x1="74" y1="98" x2="223" y2="98" marker-end="url(#arrow)"/>
+  <text class="t" x="149" y="92" text-anchor="middle">Nhập câu hỏi phân tích</text>
+
+  <circle class="step" cx="231" cy="150" r="8"/><text class="steptext" x="231" y="154" text-anchor="middle">2</text>
+  <line class="msg" x1="239" y1="150" x2="428" y2="150" marker-end="url(#arrow)"/>
+  <text class="ts" x="333" y="138" text-anchor="middle">POST /chat</text>
+  <text class="ts" x="333" y="152" text-anchor="middle">{campaign_id, message, conversation_id?}</text>
+
+  <rect class="alt" x="394" y="176" width="320" height="102"/>
+  <rect x="394" y="176" width="28" height="16" fill="#ece9ff" stroke="#d4ccff" stroke-width="1"/>
+  <text class="tc" x="408" y="188" text-anchor="middle">alt</text>
+  <text class="tc" x="506" y="190">[Conversation mới hoặc tiếp tục]</text>
+
+  <circle class="step" cx="436" cy="220" r="8"/><text class="steptext" x="436" y="224" text-anchor="middle">3</text>
+  <line class="msg" x1="444" y1="220" x2="663" y2="220" marker-end="url(#arrow)"/>
+  <text class="ts" x="553" y="208" text-anchor="middle">Create or load conversation</text>
+
+  <circle class="step" cx="671" cy="244" r="8"/><text class="steptext" x="671" y="248" text-anchor="middle">4</text>
+  <line class="ret" x1="663" y1="244" x2="444" y2="244" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="553" y="238" text-anchor="middle">conversation + history</text>
+
+  <circle class="step" cx="436" cy="306" r="8"/><text class="steptext" x="436" y="310" text-anchor="middle">5</text>
+  <line class="msg" x1="444" y1="306" x2="858" y2="306" marker-end="url(#arrow)"/>
+  <text class="ts" x="651" y="294" text-anchor="middle">Resolve campaign -> project scope</text>
+
+  <circle class="step" cx="866" cy="330" r="8"/><text class="steptext" x="866" y="334" text-anchor="middle">6</text>
+  <line class="ret" x1="858" y1="330" x2="444" y2="330" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="651" y="324" text-anchor="middle">project_ids</text>
+
+  <circle class="step" cx="436" cy="386" r="8"/><text class="steptext" x="436" y="390" text-anchor="middle">7</text>
+  <line class="msg" x1="444" y1="386" x2="1058" y2="386" marker-end="url(#arrow)"/>
+  <text class="ts" x="751" y="374" text-anchor="middle">Retrieve contextual search results</text>
+
+  <circle class="step" cx="1066" cy="410" r="8"/><text class="steptext" x="1066" y="414" text-anchor="middle">8</text>
+  <line class="ret" x1="1058" y1="410" x2="444" y2="410" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="751" y="404" text-anchor="middle">relevant docs + citations candidates</text>
+
+  <circle class="step" cx="436" cy="468" r="8"/><text class="steptext" x="436" y="472" text-anchor="middle">9</text>
+  <line class="msg" x1="444" y1="468" x2="1258" y2="468" marker-end="url(#arrow)"/>
+  <text class="ts" x="851" y="456" text-anchor="middle">Generate grounded answer from context + history</text>
+
+  <circle class="step" cx="1266" cy="492" r="8"/><text class="steptext" x="1266" y="496" text-anchor="middle">10</text>
+  <line class="ret" x1="1258" y1="492" x2="444" y2="492" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="851" y="486" text-anchor="middle">answer text</text>
+
+  <circle class="step" cx="436" cy="550" r="8"/><text class="steptext" x="436" y="554" text-anchor="middle">11</text>
+  <line class="msg" x1="444" y1="550" x2="663" y2="550" marker-end="url(#arrow)"/>
+  <text class="ts" x="553" y="538" text-anchor="middle">Persist user message, assistant message, citations, metadata</text>
+
+  <circle class="step" cx="671" cy="574" r="8"/><text class="steptext" x="671" y="578" text-anchor="middle">12</text>
+  <line class="ret" x1="663" y1="574" x2="444" y2="574" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="553" y="568" text-anchor="middle">conversation updated</text>
+
+  <circle class="step" cx="436" cy="630" r="8"/><text class="steptext" x="436" y="634" text-anchor="middle">13</text>
+  <line class="ret" x1="428" y1="630" x2="239" y2="630" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="333" y="618" text-anchor="middle">answer + citations + suggestions</text>
+
+  <circle class="step" cx="231" cy="678" r="8"/><text class="steptext" x="231" y="682" text-anchor="middle">14</text>
+  <line class="ret" x1="223" y1="678" x2="74" y2="678" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="149" y="666" text-anchor="middle">Hiển thị phản hồi có dẫn chứng</text>
+
+  <rect class="note" x="44" y="724" width="1272" height="50"/>
+  <text class="t" x="680" y="746" text-anchor="middle">Luồng hỏi đáp chỉ có giá trị khi câu trả lời được neo vào context đã truy hồi.</text>
+  <text class="t" x="680" y="762" text-anchor="middle">Conversation, citations và metadata được lưu để người dùng tiếp tục khai thác cùng ngữ cảnh chiến dịch.</text>
+</svg>
