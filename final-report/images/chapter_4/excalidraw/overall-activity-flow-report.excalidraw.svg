@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="790" viewBox="0 0 760 790">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="40" y="50" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#0f172a"><tspan x="40" dy="0">Sơ đồ hoạt động tổng quát của hệ thống</tspan></text>
+  <ellipse cx="380" cy="105" rx="16" ry="16" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="215" y="145" width="330" height="62" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="172" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">UC-01</tspan><tspan x="380" dy="20">Thiết lập chiến dịch theo dõi</tspan></text>
+  <rect x="215" y="235" width="330" height="62" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="262" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">UC-05</tspan><tspan x="380" dy="20">Quản lý quy tắc cảnh báo</tspan></text>
+  <rect x="215" y="325" width="330" height="62" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="352" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">UC-02</tspan><tspan x="380" dy="20">Vận hành chiến dịch theo dõi</tspan></text>
+  <polygon points="380,425 475,475 380,525 285,475" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="380" y="471.25" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Nhu cầu</tspan><tspan x="380" dy="18.75">tiếp theo?</tspan></text>
+  <rect x="70" y="585" width="275" height="62" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="207.5" y="612" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="207.5" dy="0">UC-03</tspan><tspan x="207.5" dy="20">Tra cứu / hỏi đáp</tspan></text>
+  <rect x="415" y="585" width="275" height="62" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="552.5" y="612" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="552.5" dy="0">UC-04</tspan><tspan x="552.5" dy="20">Theo dõi / cảnh báo</tspan></text>
+  <ellipse cx="380" cy="735" rx="24" ry="24" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <ellipse cx="380" cy="735" rx="12" ry="12" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M380 121 L380 145" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 207 L380 235" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 297 L380 325" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 387 L380 425" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M285 475 L208 475 L208 585" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M475 475 L553 475 L553 585" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M208 647 L208 735 L356 735" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M553 647 L553 735 L404 735" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="165" y="505" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="165" dy="0">[cần khai thác]</tspan></text>
+  <text x="508" y="505" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="508" dy="0">[cần theo dõi]</tspan></text>
+</svg>

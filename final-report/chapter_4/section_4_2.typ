@@ -1,14 +1,14 @@
 // Import counter dùng chung
 #import "../counters.typ": image_counter, table_counter
 
-== 4.2 Functional Requirements
+== 4.2 Yêu cầu chức năng
 
-Căn cứ vào nhóm người dùng và tác nhân hệ thống đã xác định ở mục 4.1, cùng với các capability được thể hiện trong current implementation, phần này tổng hợp các yêu cầu chức năng cốt lõi của SMAP. Thay vì mô tả hệ thống theo từng màn hình hay theo luồng giao diện chi tiết, các yêu cầu ở đây được viết ở mức capability để có thể ánh xạ trực tiếp sang service boundaries, API routes và các module hiện thực của hệ thống.
+Căn cứ vào nhóm người dùng và tác nhân hệ thống đã xác định ở mục 4.1, phần này tổng hợp các yêu cầu chức năng cốt lõi của SMAP. Thay vì mô tả hệ thống theo từng màn hình hay theo chi tiết hiện thực, các yêu cầu ở đây được viết ở mức capability để có thể ánh xạ sang use case nghiệp vụ ở mục 4.4 và thiết kế kỹ thuật ở Chương 5.
 
-Các yêu cầu chức năng được chia thành ba nhóm lớn. Nhóm thứ nhất là các capability phục vụ thiết lập và quản lý ngữ cảnh nghiệp vụ, bao gồm xác thực, campaign/project, datasource, crawl target và crisis configuration. Nhóm thứ hai là các capability điều phối và xử lý dữ liệu, bao gồm lifecycle control, dry run, crawl runtime orchestration và analytics processing. Nhóm thứ ba là các capability phục vụ khai thác kết quả, bao gồm tìm kiếm và hỏi đáp theo ngữ cảnh, thông báo thời gian thực và các internal validation flows phục vụ liên thông giữa các service.
+Các yêu cầu chức năng được chia thành ba nhóm lớn. Nhóm thứ nhất là các capability phục vụ thiết lập và quản lý ngữ cảnh nghiệp vụ, bao gồm xác thực, campaign/project, nguồn dữ liệu, mục tiêu thu thập, kiểm tra thử và cấu hình cảnh báo khủng hoảng. Nhóm thứ hai là các capability điều phối và xử lý dữ liệu, bao gồm điều khiển vòng đời vận hành, điều phối thu thập dữ liệu và xử lý phân tích. Nhóm thứ ba là các capability phục vụ khai thác kết quả, bao gồm tìm kiếm, hỏi đáp theo ngữ cảnh, thông báo tức thời và các cơ chế kiểm tra nội bộ phục vụ liên thông an toàn giữa các thành phần.
 
 #pagebreak()
-#context (align(center)[_Bảng #table_counter.display(): Functional Requirements_])
+#context (align(center)[_Bảng #table_counter.display(): Yêu cầu chức năng_])
 #table_counter.step()
 
 #text()[
@@ -24,63 +24,63 @@ Các yêu cầu chức năng được chia thành ba nhóm lớn. Nhóm thứ nh
     table.cell(align: center + horizon)[*Mức ưu tiên*],
 
     align(center + horizon)[FR-01],
-    [User Authentication],
+    [Xác thực người dùng],
     [Hệ thống phải cho phép người dùng đăng nhập bằng cơ chế xác thực hiện có, duy trì phiên truy cập và truy xuất thông tin người dùng hiện tại để sử dụng các chức năng nghiệp vụ.],
     [Cao],
 
     align(center + horizon)[FR-02],
-    [Campaign and Project Management],
+    [Quản lý campaign và project],
     [Hệ thống phải cho phép tạo, xem, cập nhật và xóa campaign/project để thiết lập ngữ cảnh nghiệp vụ cho toàn bộ quá trình theo dõi và xử lý dữ liệu.],
     [Cao],
 
     align(center + horizon)[FR-03],
-    [Project Lifecycle Control],
-    [Hệ thống phải cho phép kiểm tra điều kiện kích hoạt và thay đổi trạng thái project như activate, pause, resume, archive và unarchive theo luồng điều phối hiện tại.],
+    [Điều khiển vòng đời project],
+    [Hệ thống phải cho phép kiểm tra điều kiện sẵn sàng và thay đổi trạng thái vận hành của project như kích hoạt, tạm dừng, tiếp tục, lưu trữ và mở lại theo quy tắc nghiệp vụ hiện tại.],
     [Cao],
 
     align(center + horizon)[FR-04],
-    [Crisis Configuration Management],
+    [Quản lý cấu hình cảnh báo khủng hoảng],
     [Hệ thống phải cho phép cấu hình, xem và xóa các rule hoặc cấu hình giám sát khủng hoảng gắn với từng project.],
     [Cao],
 
     align(center + horizon)[FR-05],
-    [Datasource Management],
-    [Hệ thống phải cho phép tạo và quản lý datasource, bao gồm xem chi tiết, cập nhật, lưu trữ trạng thái và thực hiện các thao tác quản lý vòng đời phù hợp.],
+    [Quản lý nguồn dữ liệu],
+    [Hệ thống phải cho phép tạo và quản lý nguồn dữ liệu theo project, bao gồm xem chi tiết, cập nhật và duy trì trạng thái cấu hình phục vụ bước vận hành.],
     [Cao],
 
     align(center + horizon)[FR-06],
-    [Crawl Target Management],
-    [Hệ thống phải cho phép tạo và quản lý crawl target theo các kiểu đầu vào mà hệ thống hiện hỗ trợ, làm cơ sở cho việc thu thập dữ liệu từ các nền tảng mạng xã hội.],
+    [Quản lý mục tiêu thu thập],
+    [Hệ thống phải cho phép tạo và quản lý mục tiêu thu thập theo các kiểu đầu vào mà hệ thống hiện hỗ trợ, làm cơ sở cho việc thu thập dữ liệu từ các nền tảng mạng xã hội.],
     [Cao],
 
     align(center + horizon)[FR-07],
-    [Dry Run Validation],
-    [Hệ thống phải cho phép thực hiện dry run để kiểm tra đầu vào thu thập dữ liệu và truy xuất kết quả dry run gần nhất hoặc lịch sử dry run phục vụ đánh giá trước khi vận hành chính thức.],
+    [Kiểm tra thử đầu vào],
+    [Hệ thống phải cho phép thực hiện kiểm tra thử để đánh giá đầu vào thu thập dữ liệu và truy xuất kết quả kiểm tra gần nhất hoặc lịch sử kiểm tra phục vụ quyết định trước khi vận hành chính thức.],
     [Cao],
 
     align(center + horizon)[FR-08],
-    [Crawl Runtime Orchestration],
-    [Hệ thống phải hỗ trợ publish crawl task, tiếp nhận completion metadata, liên kết raw artifact với quá trình ingest và điều phối lane thu thập dữ liệu bất đồng bộ.],
+    [Điều phối thu thập dữ liệu],
+    [Hệ thống phải hỗ trợ khởi tạo, theo dõi và ghi nhận kết quả của các hoạt động thu thập dữ liệu bất đồng bộ sau khi chiến dịch được đưa vào trạng thái vận hành.],
     [Cao],
 
     align(center + horizon)[FR-09],
-    [Analytics Processing],
-    [Hệ thống phải tiếp nhận dữ liệu đầu vào đã chuẩn hóa, thực thi pipeline phân tích và tạo ra các kết quả phân tích có cấu trúc để phục vụ các lớp downstream.],
+    [Xử lý phân tích],
+    [Hệ thống phải tiếp nhận dữ liệu đầu vào đã chuẩn hóa, thực hiện xử lý phân tích và tạo ra các kết quả có cấu trúc để phục vụ tra cứu, hỏi đáp, theo dõi trạng thái và cảnh báo.],
     [Cao],
 
     align(center + horizon)[FR-10],
-    [Knowledge Search and Chat],
-    [Hệ thống phải hỗ trợ tìm kiếm, tra cứu và hỏi đáp theo ngữ cảnh trên dữ liệu và kết quả phân tích đã được lập chỉ mục.],
+    [Tra cứu và hỏi đáp dữ liệu],
+    [Hệ thống phải hỗ trợ tìm kiếm, tra cứu và hỏi đáp theo ngữ cảnh trên dữ liệu và kết quả phân tích đã sẵn sàng cho việc khai thác.],
     [Cao],
 
     align(center + horizon)[FR-11],
-    [Realtime Notification],
-    [Hệ thống phải hỗ trợ kết nối thời gian thực và đẩy các loại thông báo cần thiết như tiến độ xử lý, sự kiện chiến dịch hoặc cảnh báo tới người dùng phù hợp.],
+    [Gửi thông báo],
+    [Hệ thống phải hỗ trợ gửi các loại thông báo cần thiết như tiến độ xử lý, sự kiện chiến dịch hoặc cảnh báo tới người dùng phù hợp một cách kịp thời.],
     [Trung bình],
 
     align(center + horizon)[FR-12],
-    [Internal Service Validation],
-    [Hệ thống phải hỗ trợ các internal route hoặc cơ chế kiểm tra phục vụ liên thông an toàn giữa các service, ví dụ token validation hoặc internal lookup.],
+    [Kiểm tra liên thông nội bộ],
+    [Hệ thống phải hỗ trợ các cơ chế kiểm tra nội bộ để bảo đảm các thành phần của hệ thống liên thông an toàn khi thực hiện các capability nghiệp vụ được bảo vệ.],
     [Trung bình],
   )
 ]

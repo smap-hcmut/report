@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2123" height="390" viewBox="0 0 2123 390">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="40" y="64" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#0f172a"><tspan x="40" dy="0">UC-01 Activity - Setup Monitoring Campaign</tspan></text>
+  <ellipse cx="88" cy="148" rx="18" ry="18" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="160" y="110" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="282.5" y="147.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="282.5" dy="0">Create/select</tspan><tspan x="282.5" dy="19.2">campaign</tspan></text>
+  <rect x="480" y="110" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="602.5" y="147.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="602.5" dy="0">Enter project</tspan><tspan x="602.5" dy="19.2">tracking context</tspan></text>
+  <rect x="800" y="110" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="922.5" y="147.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="922.5" dy="0">Configure source</tspan><tspan x="922.5" dy="19.2">and target</tspan></text>
+  <polygon points="1210,95 1285,147.5 1210,200 1135,147.5" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="1210" y="145.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1210" dy="0">Trial</tspan><tspan x="1210" dy="19.2">needed?</tspan></text>
+  <rect x="1400" y="110" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1522.5" y="147.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1522.5" dy="0">Run trial check</tspan><tspan x="1522.5" dy="19.2">and save result</tspan></text>
+  <polygon points="1815,95 1890,147.5 1815,200 1740,147.5" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="1815" y="155.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1815" dy="0">Ready?</tspan></text>
+  <ellipse cx="2059" cy="148" rx="24" ry="24" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <ellipse cx="2059" cy="148" rx="12" ry="12" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M106 148 L160 148" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M405 148 L480 148" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M725 148 L800 148" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1045 148 L1135 148" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1285 148 L1400 148" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1645 148 L1740 148" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1890 148 L2035 148" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1815 200 L1755 350 L935 350 L920 186" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1310" y="139" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1310" dy="0">[yes]</tspan></text>
+  <text x="1925" y="140" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1925" dy="0">[yes]</tspan></text>
+  <text x="1615" y="340" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1615" dy="0">[no / needs fixes]</tspan></text>
+  <path d="M1210 200 L1210 295 L1815 295 L1815 200" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1230" y="274" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1230" dy="0">[no]</tspan></text>
+</svg>

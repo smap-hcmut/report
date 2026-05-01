@@ -2,9 +2,9 @@
 
 == 4.4 Use Case
 
-Sau khi xác định các yêu cầu chức năng và phi chức năng, phần này mô tả các use case cốt lõi của hệ thống SMAP theo góc nhìn mục tiêu sử dụng của người dùng nghiệp vụ. Use case trong phần này không được tách theo tên service, endpoint, module kỹ thuật hay pipeline nội bộ, mà được tổ chức theo kết quả có giá trị quan sát được đối với tác nhân chính. Cách tiếp cận này giúp phần phân tích hệ thống tập trung vào nhu cầu sử dụng, còn chi tiết hiện thực như service boundary, message queue, indexing hoặc runtime processing sẽ được trình bày ở Chương 5.
+Sau khi xác định các yêu cầu chức năng và phi chức năng, phần này mô tả các use case cốt lõi của hệ thống SMAP theo góc nhìn mục tiêu sử dụng của người dùng nghiệp vụ. Use case trong phần này không được tách theo tên thành phần kỹ thuật, giao diện kỹ thuật, module hay luồng xử lý nội bộ, mà được tổ chức theo kết quả có giá trị quan sát được đối với tác nhân chính. Cách tiếp cận này giúp phần phân tích hệ thống tập trung vào nhu cầu sử dụng, còn chi tiết hiện thực sẽ được trình bày ở Chương 5.
 
-Trong phạm vi này, các thao tác như tạo campaign, tạo project, khai báo datasource, cấu hình target và chạy dry run được xem là các bước trong cùng một mục tiêu nghiệp vụ: thiết lập một chiến dịch theo dõi đủ điều kiện vận hành. Tương tự, các xử lý nền như thu thập dữ liệu, phân tích analytics hoặc xây dựng chỉ mục tri thức không được tách thành use case độc lập cho người dùng, vì đây là hành vi hệ thống hỗ trợ cho các mục tiêu khai thác kết quả. Các cơ chế xác thực, phân quyền và kiểm tra nội bộ cũng được xem là điều kiện tiên quyết hoặc supporting concern cho các use case được bảo vệ, thay vì là một use case nghiệp vụ riêng.
+Trong phạm vi này, các thao tác như tạo campaign, tạo project, khai báo nguồn dữ liệu, cấu hình mục tiêu thu thập và chạy kiểm tra thử được xem là các bước trong cùng một mục tiêu nghiệp vụ: thiết lập một chiến dịch theo dõi đủ điều kiện vận hành. Tương tự, các xử lý nền như thu thập dữ liệu, phân tích dữ liệu hoặc chuẩn bị dữ liệu phục vụ tra cứu không được tách thành use case độc lập cho người dùng, vì đây là hành vi hệ thống hỗ trợ cho các mục tiêu khai thác kết quả. Các cơ chế xác thực, phân quyền và kiểm tra nội bộ cũng được xem là điều kiện tiên quyết hoặc supporting concern cho các use case được bảo vệ, thay vì là một use case nghiệp vụ riêng.
 
 Từ góc nhìn đó, các use case chính của SMAP được gom thành năm nhóm mục tiêu người dùng: thiết lập chiến dịch theo dõi, vận hành chiến dịch, khai thác dữ liệu phân tích, theo dõi trạng thái và nhận cảnh báo, cùng với thiết lập quy tắc cảnh báo khủng hoảng.
 
@@ -22,31 +22,31 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     [UC-01],
     [Thiết lập chiến dịch theo dõi],
-    [Nhóm người dùng chuyên môn nội bộ],
+    [A-01: Nhóm người dùng chuyên môn nội bộ],
     [FR-02, FR-05, FR-06, FR-07],
-    [Tạo ngữ cảnh theo dõi và hoàn tất cấu hình đầu vào cần thiết, bao gồm campaign, project, datasource, target và dry run, để chiến dịch đủ điều kiện bước sang giai đoạn vận hành.],
+    [Tạo ngữ cảnh theo dõi và hoàn tất cấu hình đầu vào cần thiết, bao gồm campaign, project, nguồn dữ liệu, mục tiêu thu thập và kiểm tra thử, để chiến dịch đủ điều kiện bước sang giai đoạn vận hành.],
 
     [UC-02],
     [Vận hành chiến dịch theo dõi],
-    [Nhóm người dùng chuyên môn nội bộ],
+    [A-01: Nhóm người dùng chuyên môn nội bộ],
     [FR-03, FR-08],
-    [Kiểm tra readiness và điều khiển trạng thái vận hành của chiến dịch như kích hoạt, tạm dừng, tiếp tục hoặc lưu trữ theo nhu cầu nghiệp vụ.],
+    [Kiểm tra mức độ sẵn sàng và điều khiển trạng thái vận hành của chiến dịch như kích hoạt, tạm dừng, tiếp tục hoặc lưu trữ theo nhu cầu nghiệp vụ.],
 
     [UC-03],
     [Tra cứu và hỏi đáp dữ liệu phân tích],
-    [Nhóm người dùng chuyên môn nội bộ],
+    [A-01: Nhóm người dùng chuyên môn nội bộ],
     [FR-10],
     [Khai thác dữ liệu đã được hệ thống xử lý thông qua tìm kiếm, hỏi đáp theo ngữ cảnh, câu trả lời có dẫn chứng và các gợi ý truy vấn tiếp theo.],
 
     [UC-04],
     [Theo dõi trạng thái và nhận cảnh báo],
-    [Nhóm người dùng chuyên môn nội bộ],
+    [A-01: Nhóm người dùng chuyên môn nội bộ],
     [FR-11],
     [Nhận các thông báo liên quan đến trạng thái xử lý, sự kiện chiến dịch hoặc cảnh báo quan trọng để kịp thời theo dõi và phản ứng.],
 
     [UC-05],
     [Thiết lập và quản lý quy tắc cảnh báo khủng hoảng],
-    [Nhóm người dùng chuyên môn nội bộ],
+    [A-01: Nhóm người dùng chuyên môn nội bộ],
     [FR-04],
     [Thiết lập và quản lý các quy tắc giám sát khủng hoảng như keyword, volume, sentiment hoặc influencer để hệ thống có cơ sở phát hiện và cảnh báo ở các luồng xử lý phía sau.],
   )
@@ -79,14 +79,14 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
-      - Primary Actor: Nhóm người dùng chuyên môn nội bộ
-      - Secondary Actor: Nền tảng mạng xã hội
+      - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
+      - Secondary Actor: A-02 - Nền tảng mạng xã hội
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Description*],
     table.cell(
       colspan: 3,
-    )[Người dùng thiết lập một chiến dịch theo dõi bằng cách tạo hoặc chọn campaign, tạo project trong campaign đó, khai báo nguồn dữ liệu, cấu hình target thu thập và thực hiện dry run khi cần để kiểm tra khả năng thu thập dữ liệu trước khi vận hành chính thức. Use case này tập trung vào mục tiêu hoàn tất cấu hình đầu vào cho chiến dịch, không bao gồm bước kích hoạt vận hành hay xử lý phân tích phía sau.],
+    )[Người dùng thiết lập một chiến dịch theo dõi bằng cách tạo hoặc chọn campaign, tạo project trong campaign đó, khai báo nguồn dữ liệu, cấu hình mục tiêu thu thập và thực hiện kiểm tra thử khi cần để đánh giá khả năng thu thập dữ liệu trước khi vận hành chính thức. Use case này tập trung vào mục tiêu hoàn tất cấu hình đầu vào cho chiến dịch, không bao gồm bước kích hoạt vận hành hay xử lý phân tích phía sau.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User muốn tạo một chiến dịch theo dõi mới hoặc bổ sung một project theo dõi vào campaign đã tồn tại.],
@@ -95,16 +95,16 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(colspan: 3, inset: (y: 0.6em), align: horizon)[
       1. User đã đăng nhập và có quyền tạo hoặc quản lý campaign/project trong phạm vi làm việc tương ứng.
       2. User đã xác định được mục tiêu theo dõi cơ bản như thương hiệu, chủ đề, đối thủ, nền tảng hoặc phạm vi dữ liệu cần quan sát.
-      3. Hệ thống có thể truy cập các chức năng cần thiết để lưu cấu hình và kiểm tra nguồn dữ liệu khi dry run được yêu cầu.
+      3. Hệ thống có thể lưu cấu hình và kiểm tra nguồn dữ liệu khi kiểm tra thử được yêu cầu.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Postconditions*],
     table.cell(colspan: 3)[
       1. Campaign và project được tạo mới hoặc project được liên kết với campaign đã tồn tại.
-      2. Datasource và một hoặc nhiều target thu thập được lưu theo project tương ứng.
-      3. Nếu tổ hợp nguồn dữ liệu và target yêu cầu kiểm tra, kết quả dry run mới nhất và lịch sử dry run được ghi nhận.
-      4. Trạng thái cấu hình của project hoặc datasource phản ánh mức độ sẵn sàng để chuyển sang bước vận hành.
-      5. Nếu cấu hình hoặc dry run không đạt yêu cầu, chiến dịch vẫn chưa đủ điều kiện vận hành chính thức cho đến khi user điều chỉnh lại.
+      2. Nguồn dữ liệu và một hoặc nhiều mục tiêu thu thập được lưu theo project tương ứng.
+      3. Nếu tổ hợp nguồn dữ liệu và mục tiêu thu thập yêu cầu kiểm tra, kết quả kiểm tra thử mới nhất và lịch sử kiểm tra được ghi nhận.
+      4. Trạng thái cấu hình của project hoặc nguồn dữ liệu phản ánh mức độ sẵn sàng để chuyển sang bước vận hành.
+      5. Nếu cấu hình hoặc kiểm tra thử không đạt yêu cầu, chiến dịch vẫn chưa đủ điều kiện vận hành chính thức cho đến khi user điều chỉnh lại.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Normal Flows*],
@@ -113,12 +113,12 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       2. User tạo campaign mới hoặc chọn một campaign đã tồn tại làm ngữ cảnh nghiệp vụ.
       3. User nhập thông tin project như tên, mô tả, đối tượng theo dõi, domain hoặc phạm vi dữ liệu cần quan sát.
       4. Hệ thống kiểm tra dữ liệu đầu vào và lưu campaign/project tương ứng.
-      5. User khai báo datasource cho project, bao gồm loại nguồn dữ liệu, nền tảng và các thông tin cấu hình cần thiết.
-      6. User thêm một hoặc nhiều target thu thập phù hợp với datasource, chẳng hạn keyword, profile hoặc post URL.
-      7. Hệ thống kiểm tra loại target, dữ liệu đầu vào và lưu target ở trạng thái phù hợp trước khi vận hành.
-      8. Nếu tổ hợp datasource-target cần kiểm tra, user yêu cầu chạy dry run.
+      5. User khai báo nguồn dữ liệu cho project, bao gồm loại nguồn dữ liệu, nền tảng và các thông tin cấu hình cần thiết.
+      6. User thêm một hoặc nhiều mục tiêu thu thập phù hợp với nguồn dữ liệu, chẳng hạn keyword, profile hoặc post URL.
+      7. Hệ thống kiểm tra loại mục tiêu, dữ liệu đầu vào và lưu mục tiêu ở trạng thái phù hợp trước khi vận hành.
+      8. Nếu tổ hợp nguồn dữ liệu và mục tiêu thu thập cần kiểm tra, user yêu cầu chạy kiểm tra thử.
       9. Hệ thống thực hiện kiểm tra thử, thu thập dữ liệu mẫu hoặc xác nhận khả năng truy cập nguồn dữ liệu.
-      10. Hệ thống lưu kết quả dry run, cập nhật chỉ báo readiness và hiển thị kết quả để user đánh giá.
+      10. Hệ thống lưu kết quả kiểm tra thử, cập nhật chỉ báo sẵn sàng và hiển thị kết quả để user đánh giá.
       11. User xác nhận cấu hình đã đủ dùng hoặc quay lại chỉnh sửa các thông tin chưa đạt yêu cầu.
     ],
 
@@ -130,17 +130,17 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - 2A.2. Hệ thống sử dụng campaign đó làm ngữ cảnh nghiệp vụ cho project mới.
       - 2A.3. Luồng tiếp tục tại bước nhập thông tin project.
 
-      *Cấu hình nhiều datasource hoặc nhiều target* \
+      *Cấu hình nhiều nguồn dữ liệu hoặc nhiều mục tiêu thu thập* \
       Tại Bước 5 hoặc Bước 6 của luồng cơ bản:
-      - 6A.1. User khai báo thêm datasource hoặc target khác trong cùng project.
+      - 6A.1. User khai báo thêm nguồn dữ liệu hoặc mục tiêu thu thập khác trong cùng project.
       - 6A.2. Hệ thống kiểm tra và lưu từng cấu hình hợp lệ.
-      - 6A.3. User có thể chạy dry run cho từng tổ hợp cần kiểm tra.
+      - 6A.3. User có thể chạy kiểm tra thử cho từng tổ hợp cần kiểm tra.
 
-      *Tổ hợp nguồn dữ liệu không yêu cầu dry run* \
+      *Tổ hợp nguồn dữ liệu không yêu cầu kiểm tra thử* \
       Tại Bước 8 của luồng cơ bản:
-      - 8A.1. Hệ thống xác định tổ hợp datasource-target hiện tại không yêu cầu dry run bắt buộc.
-      - 8A.2. User có thể bỏ qua bước dry run và tiếp tục hoàn tất cấu hình.
-      - 8A.3. Readiness được xác định dựa trên các điều kiện cấu hình còn lại.
+      - 8A.1. Hệ thống xác định tổ hợp nguồn dữ liệu và mục tiêu thu thập hiện tại không yêu cầu kiểm tra thử bắt buộc.
+      - 8A.2. User có thể bỏ qua bước kiểm tra thử và tiếp tục hoàn tất cấu hình.
+      - 8A.3. Mức độ sẵn sàng được xác định dựa trên các điều kiện cấu hình còn lại.
       - Kết thúc use case.
     ],
 
@@ -152,22 +152,22 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - 1.E.2. User cần đăng nhập lại hoặc sử dụng tài khoản có quyền phù hợp.
       - Kết thúc use case.
 
-      *Dữ liệu campaign, project, datasource hoặc target không hợp lệ* \
+      *Dữ liệu campaign, project, nguồn dữ liệu hoặc mục tiêu thu thập không hợp lệ* \
       Tại Bước 4, Bước 5 hoặc Bước 7 của luồng cơ bản, nếu dữ liệu đầu vào thiếu hoặc sai định dạng:
       - 7.E.1. Hệ thống từ chối lưu phần cấu hình không hợp lệ.
       - 7.E.2. Hệ thống hiển thị lỗi tại các trường liên quan.
       - 7.E.3. User chỉnh sửa dữ liệu và gửi lại.
       - Tiếp tục tại bước tương ứng.
 
-      *Dry run thất bại hoặc không đạt yêu cầu* \
+      *Kiểm tra thử thất bại hoặc không đạt yêu cầu* \
       Tại Bước 9 hoặc Bước 10 của luồng cơ bản, nếu không thu thập được dữ liệu mẫu hoặc kết quả không usable:
-      - 10.E.1. Hệ thống ghi nhận kết quả dry run thất bại hoặc cảnh báo tương ứng.
-      - 10.E.2. Cấu hình chưa được xem là đủ điều kiện vận hành đối với tổ hợp yêu cầu dry run.
-      - 10.E.3. User cần điều chỉnh datasource hoặc target trước khi chạy lại dry run.
+      - 10.E.1. Hệ thống ghi nhận kết quả kiểm tra thử thất bại hoặc cảnh báo tương ứng.
+      - 10.E.2. Cấu hình chưa được xem là đủ điều kiện vận hành đối với tổ hợp yêu cầu kiểm tra thử.
+      - 10.E.3. User cần điều chỉnh nguồn dữ liệu hoặc mục tiêu thu thập trước khi chạy lại kiểm tra thử.
       - Kết thúc use case.
 
       *Lỗi lưu cấu hình hoặc xử lý kiểm tra thử* \
-      Tại Bước 4, Bước 7 hoặc Bước 10 của luồng cơ bản, nếu hệ thống không thể lưu dữ liệu hoặc hoàn tất dry run:
+      Tại Bước 4, Bước 7 hoặc Bước 10 của luồng cơ bản, nếu hệ thống không thể lưu dữ liệu hoặc hoàn tất kiểm tra thử:
       - 10.E.4. Hệ thống thông báo thao tác thiết lập chưa hoàn tất.
       - 10.E.5. User có thể thử lại sau hoặc lưu cấu hình nháp nếu hệ thống cho phép.
       - Kết thúc use case.
@@ -175,7 +175,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
-      Use case này cố ý gom campaign, project, datasource, target và dry run thành một mục tiêu nghiệp vụ thống nhất theo góc nhìn người dùng. Xác thực và phân quyền là điều kiện tiên quyết; kích hoạt vận hành, thu thập dữ liệu chính thức, analytics processing và indexing downstream thuộc các use case hoặc luồng hệ thống khác.
+      Use case này cố ý gom campaign, project, nguồn dữ liệu, mục tiêu thu thập và kiểm tra thử thành một mục tiêu nghiệp vụ thống nhất theo góc nhìn người dùng. Xác thực và phân quyền là điều kiện tiên quyết; kích hoạt vận hành, thu thập dữ liệu chính thức và xử lý phân tích thuộc các use case hoặc luồng hệ thống khác.
     ],
   )
 ]
@@ -207,7 +207,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
-      - Primary Actor: Nhóm người dùng chuyên môn nội bộ
+      - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
       - Secondary Actor: Không có
     ],
 
@@ -217,31 +217,31 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     )[Người dùng vận hành một chiến dịch theo dõi đã được thiết lập bằng cách kiểm tra mức độ sẵn sàng và thực hiện các thao tác như kích hoạt, tạm dừng, tiếp tục hoặc lưu trữ. Use case này bắt đầu khi cấu hình đầu vào đã có đủ thông tin cần thiết và tập trung vào việc chuyển chiến dịch từ trạng thái cấu hình sang trạng thái vận hành có kiểm soát.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
-    table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User muốn kiểm tra readiness hoặc thay đổi trạng thái vận hành của một chiến dịch theo dõi đã được thiết lập.],
+    table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User muốn kiểm tra mức độ sẵn sàng hoặc thay đổi trạng thái vận hành của một chiến dịch theo dõi đã được thiết lập.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Preconditions*],
     table.cell(colspan: 3, inset: (y: 0.6em), align: horizon)[
       1. User đã đăng nhập và có quyền quản lý chiến dịch theo dõi tương ứng.
       2. Campaign và project liên quan đã tồn tại trong hệ thống.
-      3. Chiến dịch đã có cấu hình đầu vào cần thiết như datasource, target và bằng chứng kiểm tra nếu luồng vận hành yêu cầu.
-      4. Trạng thái hiện tại của chiến dịch cho phép thực hiện thao tác mà user chọn.
+      3. Chiến dịch đã có cấu hình đầu vào cần thiết như nguồn dữ liệu, mục tiêu thu thập và bằng chứng kiểm tra nếu luồng vận hành yêu cầu.
+      4. User đã chọn thao tác vận hành cần thực hiện.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Postconditions*],
     table.cell(colspan: 3)[
       1. Nếu thao tác hợp lệ và thành công, trạng thái vận hành của chiến dịch được cập nhật theo yêu cầu của user.
-      2. Nếu user chỉ kiểm tra readiness, hệ thống trả về kết quả đánh giá mà không thay đổi trạng thái vận hành.
+      2. Nếu user chỉ kiểm tra mức độ sẵn sàng, hệ thống trả về kết quả đánh giá mà không thay đổi trạng thái vận hành.
       3. Hoạt động thu thập dữ liệu của chiến dịch được bắt đầu, tạm dừng, tiếp tục hoặc giữ nguyên phù hợp với trạng thái mới.
-      4. Nếu thao tác không hợp lệ hoặc readiness không đạt, trạng thái chiến dịch không bị thay đổi ngoài các thông tin lỗi hoặc cảnh báo cần hiển thị cho user.
+      4. Nếu thao tác không hợp lệ hoặc mức độ sẵn sàng không đạt, trạng thái chiến dịch không bị thay đổi ngoài các thông tin lỗi hoặc cảnh báo cần hiển thị cho user.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Normal Flows*],
     table.cell(colspan: 3, inset: (y: 0.6em))[
       1. User mở chiến dịch hoặc project cần vận hành.
-      2. User yêu cầu kiểm tra readiness hoặc chọn thao tác kích hoạt chiến dịch.
+      2. User yêu cầu kiểm tra mức độ sẵn sàng hoặc chọn thao tác kích hoạt chiến dịch.
       3. Hệ thống kiểm tra quyền thao tác và trạng thái hiện tại của chiến dịch.
-      4. Hệ thống đánh giá readiness dựa trên cấu hình datasource, target, trạng thái cấu hình và kết quả dry run cần thiết.
-      5. Nếu readiness đạt yêu cầu, user xác nhận thao tác kích hoạt.
+      4. Hệ thống đánh giá mức độ sẵn sàng dựa trên cấu hình nguồn dữ liệu, mục tiêu thu thập, trạng thái cấu hình và kết quả kiểm tra thử cần thiết.
+      5. Nếu mức độ sẵn sàng đạt yêu cầu, user xác nhận thao tác kích hoạt.
       6. Hệ thống chuyển chiến dịch sang trạng thái hoạt động và bắt đầu hoạt động thu thập dữ liệu tương ứng.
       7. Hệ thống ghi nhận trạng thái vận hành mới và trả kết quả thành công cho user.
       8. User có thể theo dõi trạng thái xử lý hoặc tiếp tục khai thác các thông tin liên quan ở các use case sau.
@@ -249,7 +249,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Alternative Flows*],
     table.cell(colspan: 3)[
-      *Chỉ kiểm tra readiness* \
+      *Chỉ kiểm tra mức độ sẵn sàng* \
       Thay cho Bước 5 của luồng cơ bản:
       - R1. User chỉ yêu cầu xem chiến dịch đã đủ điều kiện vận hành hay chưa.
       - R2. Hệ thống trả về danh sách điều kiện đạt hoặc chưa đạt.
@@ -267,30 +267,37 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       *Tiếp tục chiến dịch đã tạm dừng* \
       Thay cho Bước 2 của luồng cơ bản:
       - RS1. User chọn thao tác tiếp tục cho chiến dịch đang tạm dừng.
-      - RS2. Hệ thống kiểm tra lại readiness trước khi cho phép vận hành tiếp.
+      - RS2. Hệ thống kiểm tra lại mức độ sẵn sàng trước khi cho phép vận hành tiếp.
       - RS3. Nếu đạt yêu cầu, hệ thống chuyển chiến dịch về trạng thái hoạt động.
       - RS4. Hệ thống trả kết quả tiếp tục thành công cho user.
       - Kết thúc use case.
 
-      *Lưu trữ hoặc mở lại chiến dịch* \
+      *Lưu trữ chiến dịch* \
       Thay cho Bước 2 của luồng cơ bản:
       - A1. User chọn lưu trữ một chiến dịch không còn cần vận hành thường xuyên.
       - A2. Hệ thống chuyển chiến dịch sang trạng thái lưu trữ sau khi xử lý các hoạt động đang chạy nếu cần.
-      - A3. Nếu user mở lại chiến dịch đã lưu trữ, hệ thống đưa chiến dịch về trạng thái cho phép kiểm tra và tiếp tục vận hành sau đó.
+      - A3. Hệ thống trả kết quả lưu trữ thành công cho user.
+      - Kết thúc use case.
+
+      *Mở lại chiến dịch đã lưu trữ* \
+      Thay cho Bước 2 của luồng cơ bản:
+      - U1. User chọn mở lại một chiến dịch đã được lưu trữ.
+      - U2. Hệ thống đưa chiến dịch về trạng thái cho phép kiểm tra trước khi vận hành lại.
+      - U3. Hệ thống trả kết quả mở lại thành công cho user.
       - Kết thúc use case.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Exceptions*],
     table.cell(colspan: 3)[
-      *Readiness không đạt yêu cầu* \
+      *Mức độ sẵn sàng không đạt yêu cầu* \
       Tại Bước 4 của luồng cơ bản hoặc RS2 của luồng tiếp tục, nếu chiến dịch chưa đủ điều kiện vận hành:
       - 4.E.1. Hệ thống từ chối kích hoạt hoặc tiếp tục chiến dịch.
-      - 4.E.2. Hệ thống trả về các điều kiện chưa đạt như thiếu datasource, thiếu target phù hợp, cấu hình chưa sẵn sàng hoặc dry run không đạt.
+      - 4.E.2. Hệ thống trả về các điều kiện chưa đạt như thiếu nguồn dữ liệu, thiếu mục tiêu thu thập phù hợp, cấu hình chưa sẵn sàng hoặc kiểm tra thử không đạt.
       - 4.E.3. User cần quay lại use case thiết lập chiến dịch để điều chỉnh cấu hình.
       - Kết thúc use case.
 
       *Thao tác không hợp lệ với trạng thái hiện tại* \
-      Tại Bước 3 của luồng cơ bản hoặc các luồng thay thế, nếu trạng thái chiến dịch không cho phép command được chọn:
+      Tại Bước 3 của luồng cơ bản hoặc các luồng thay thế, nếu trạng thái chiến dịch không cho phép thao tác được chọn:
       - 3.E.1. Hệ thống từ chối thao tác vận hành.
       - 3.E.2. Hệ thống hiển thị trạng thái hiện tại và thao tác hợp lệ có thể thực hiện.
       - Kết thúc use case.
@@ -311,7 +318,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
-      Use case này mô tả mục tiêu vận hành chiến dịch theo góc nhìn user, không mô tả chi tiết cách hệ thống gọi service nội bộ, publish event hoặc điều phối worker. Các chi tiết kỹ thuật đó thuộc phần thiết kế hệ thống và luồng xử lý ở Chương 5.
+      Use case này mô tả mục tiêu vận hành chiến dịch theo góc nhìn user, không mô tả chi tiết cách hệ thống hiện thực các thao tác vận hành. Các chi tiết kỹ thuật đó thuộc phần thiết kế hệ thống và luồng xử lý ở Chương 5.
     ],
   )
 ]
@@ -343,14 +350,14 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
-      - Primary Actor: Nhóm người dùng chuyên môn nội bộ
+      - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
       - Secondary Actor: Không có
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Description*],
     table.cell(
       colspan: 3,
-    )[Người dùng tra cứu dữ liệu phân tích đã được hệ thống xử lý hoặc đặt câu hỏi theo ngữ cảnh chiến dịch để nhận câu trả lời có dẫn chứng. Use case này giúp người dùng khai thác dữ liệu đã thu thập và phân tích, thay vì mô tả cách hệ thống xử lý, index hoặc lưu trữ dữ liệu ở phía sau.],
+    )[Người dùng tra cứu dữ liệu phân tích đã được hệ thống xử lý hoặc đặt câu hỏi theo ngữ cảnh chiến dịch để nhận câu trả lời có dẫn chứng. Use case này giúp người dùng khai thác dữ liệu đã thu thập và phân tích, thay vì mô tả cách hệ thống chuẩn bị hoặc lưu trữ dữ liệu ở phía sau.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User nhập truy vấn tìm kiếm, đặt câu hỏi trong trợ lý dữ liệu hoặc mở lại một hội thoại phân tích đã có.],
@@ -366,7 +373,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Postconditions*],
     table.cell(colspan: 3)[
       1. User nhận được danh sách kết quả tra cứu hoặc câu trả lời phân tích phù hợp với phạm vi được chọn.
-      2. Nếu là hỏi đáp, hệ thống lưu hội thoại và các message mới khi thao tác hoàn tất thành công.
+      2. Nếu là hỏi đáp, hệ thống lưu hội thoại và các nội dung trao đổi mới khi thao tác hoàn tất thành công.
       3. Nếu không có dữ liệu phù hợp, hệ thống trả thông báo hoặc kết quả rỗng có kiểm soát thay vì suy diễn không có căn cứ.
       4. Dữ liệu campaign, project và kết quả phân tích gốc không bị thay đổi bởi thao tác tra cứu hoặc hỏi đáp.
     ],
@@ -381,7 +388,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       6. Hệ thống sắp xếp, tổng hợp và chuẩn bị phần dẫn chứng hoặc metadata cần thiết để user kiểm chứng kết quả.
       7. Nếu user đang hỏi đáp, hệ thống tạo câu trả lời dựa trên các kết quả liên quan đã truy xuất.
       8. Hệ thống trả kết quả tra cứu hoặc câu trả lời cho user kèm dẫn chứng, gợi ý hoặc thông tin bổ trợ nếu có.
-      9. Nếu là hội thoại, hệ thống lưu message của user, câu trả lời và ngữ cảnh liên quan để user có thể tiếp tục hỏi sau đó.
+      9. Nếu là hội thoại, hệ thống lưu câu hỏi của user, câu trả lời và ngữ cảnh liên quan để user có thể tiếp tục hỏi sau đó.
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Alternative Flows*],
@@ -435,7 +442,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
-      Use case này chỉ mô tả việc user khai thác dữ liệu phân tích. Các bước tạo embedding, index dữ liệu, truy hồi vector hoặc gọi mô hình sinh câu trả lời là chi tiết thiết kế kỹ thuật và không được tách thành use case người dùng riêng trong mục này.
+      Use case này chỉ mô tả việc user khai thác dữ liệu phân tích. Các bước chuẩn bị dữ liệu phục vụ tra cứu, truy xuất ngữ cảnh hoặc sinh câu trả lời là chi tiết thiết kế kỹ thuật và không được tách thành use case người dùng riêng trong mục này.
     ],
   )
 ]
@@ -467,14 +474,14 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
-      - Primary Actor: Nhóm người dùng chuyên môn nội bộ
+      - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
       - Secondary Actor: Không có
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Description*],
     table.cell(
       colspan: 3,
-    )[Người dùng theo dõi trạng thái vận hành của chiến dịch, project hoặc datasource và nhận các thông báo quan trọng khi có thay đổi trạng thái, lỗi xử lý hoặc cảnh báo nghiệp vụ. Use case này tập trung vào việc giúp user nắm tình hình và phản ứng kịp thời, không mô tả chi tiết cơ chế truyền sự kiện nội bộ.],
+    )[Người dùng theo dõi trạng thái vận hành của chiến dịch, project hoặc nguồn dữ liệu và nhận các thông báo quan trọng khi có thay đổi trạng thái, lỗi xử lý hoặc cảnh báo nghiệp vụ. Use case này tập trung vào việc giúp user nắm tình hình và phản ứng kịp thời, không mô tả chi tiết cơ chế truyền sự kiện nội bộ.],
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Trigger*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.6em))[User mở màn hình theo dõi trạng thái hoặc hệ thống phát sinh thông báo, cảnh báo liên quan đến phạm vi user được phép theo dõi.],
@@ -498,7 +505,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(colspan: 3, inset: (y: 0.6em))[
       1. User mở dashboard hoặc khu vực theo dõi của một campaign hay project.
       2. Hệ thống kiểm tra quyền truy cập và xác định phạm vi trạng thái cần hiển thị.
-      3. Hệ thống hiển thị trạng thái hiện tại của các đối tượng liên quan như campaign, project, datasource hoặc tác vụ xử lý.
+      3. Hệ thống hiển thị trạng thái hiện tại của các đối tượng liên quan như campaign, project, nguồn dữ liệu hoặc quá trình xử lý.
       4. Khi có trạng thái mới, lỗi xử lý hoặc cảnh báo nghiệp vụ trong phạm vi user được phép theo dõi, hệ thống cập nhật nội dung cần thông báo.
       5. Hệ thống phân loại thông báo theo loại sự kiện, mức độ nghiêm trọng và đối tượng liên quan.
       6. Nếu user đang có phiên theo dõi hoặc nhận thông báo phù hợp, hệ thống hiển thị thông báo hoặc cảnh báo trên giao diện.
@@ -537,10 +544,10 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
       - 2.E.2. Không có dữ liệu nào ngoài phạm vi quyền được trả về.
       - Kết thúc use case.
 
-      *Thông báo hoặc cảnh báo không hợp lệ* \
-      Tại Bước 5 của luồng cơ bản, nếu nội dung thông báo thiếu thông tin cần thiết hoặc sai định dạng:
-      - 5.E.1. Hệ thống bỏ qua thông báo lỗi hoặc hiển thị theo dạng lỗi an toàn nếu phù hợp.
-      - 5.E.2. User không nhận thông báo không đáng tin cậy.
+      *Thông báo hoặc cảnh báo không thể hiển thị đầy đủ* \
+      Tại Bước 5 của luồng cơ bản, nếu nội dung thông báo thiếu thông tin cần thiết để hiển thị đáng tin cậy:
+      - 5.E.1. Hệ thống bỏ qua thông báo lỗi hoặc hiển thị theo dạng an toàn nếu phù hợp.
+      - 5.E.2. User không nhận thông tin cảnh báo không đáng tin cậy.
       - Kết thúc use case.
 
       *Không thể lấy trạng thái hiện tại* \
@@ -584,7 +591,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Actors*],
     table.cell(colspan: 3)[
-      - Primary Actor: Nhóm người dùng chuyên môn nội bộ
+      - Primary Actor: A-01 - Nhóm người dùng chuyên môn nội bộ
       - Secondary Actor: Không có
     ],
 
@@ -599,7 +606,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Preconditions*],
     table.cell(colspan: 3, inset: (y: 0.6em), align: horizon)[
       1. User đã đăng nhập và có quyền quản lý project tương ứng.
-      2. Project liên quan đã tồn tại trong hệ thống.
+      2. User đã chọn project cần thiết lập hoặc quản lý quy tắc cảnh báo khủng hoảng.
       3. User có thông tin điều kiện cảnh báo muốn thiết lập hoặc có nhu cầu xem cấu hình hiện tại.
     ],
 
@@ -677,7 +684,7 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
     table.cell(align: center + horizon, inset: (y: 0.6em))[*Notes and issues*],
     table.cell(colspan: 3, align: horizon, inset: (y: 0.8em))[
-      Use case này chỉ bao phủ việc người dùng thiết lập và quản lý quy tắc cảnh báo khủng hoảng. Việc phát hiện khủng hoảng trong runtime và việc phân phối cảnh báo cho user thuộc các luồng xử lý hệ thống và được user quan sát thông qua UC-04.
+      Use case này chỉ bao phủ việc người dùng thiết lập và quản lý quy tắc cảnh báo khủng hoảng. Việc phát hiện khủng hoảng trong quá trình vận hành và việc phân phối cảnh báo cho user thuộc các luồng xử lý hệ thống và được user quan sát thông qua UC-04.
     ],
   )
 ]

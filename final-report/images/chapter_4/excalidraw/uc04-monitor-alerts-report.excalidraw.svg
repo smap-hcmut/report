@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="840" viewBox="0 0 760 840">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="40" y="50" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#0f172a"><tspan x="40" dy="0">UC-04 - Theo dõi trạng thái và nhận cảnh báo</tspan></text>
+  <ellipse cx="380" cy="100" rx="16" ry="16" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="215" y="140" width="330" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="177" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Mở khu vực theo dõi</tspan></text>
+  <rect x="215" y="230" width="330" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="257" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Tải trạng thái</tspan><tspan x="380" dy="20">trong phạm vi truy cập</tspan></text>
+  <polygon points="380,335 475,385 380,435 285,385" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="380" y="381.25" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Có sự kiện</tspan><tspan x="380" dy="18.75">hoặc cảnh báo?</tspan></text>
+  <rect x="65" y="510" width="285" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="207.5" y="537" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="207.5" dy="0">Hiển thị thông báo</tspan><tspan x="207.5" dy="20">hoặc cảnh báo</tspan></text>
+  <rect x="410" y="510" width="285" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="552.5" y="537" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="552.5" dy="0">Hiển thị trạng thái</tspan><tspan x="552.5" dy="20">hiện tại</tspan></text>
+  <rect x="215" y="640" width="330" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="667" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Mở chi tiết</tspan><tspan x="380" dy="20">nếu cần</tspan></text>
+  <ellipse cx="380" cy="790" rx="24" ry="24" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <ellipse cx="380" cy="790" rx="12" ry="12" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M380 116 L380 140" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 202 L380 230" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 292 L380 335" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M285 385 L208 385 L208 510" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M475 385 L553 385 L553 510" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M208 572 L208 671 L215 671" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M553 572 L553 671 L545 671" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 702 L380 766" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="180" y="415" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="180" dy="0">[có]</tspan></text>
+  <text x="555" y="415" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="555" dy="0">[không]</tspan></text>
+</svg>

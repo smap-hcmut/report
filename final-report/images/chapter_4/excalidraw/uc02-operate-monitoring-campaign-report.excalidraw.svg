@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="930" viewBox="0 0 760 930">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="40" y="50" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#0f172a"><tspan x="40" dy="0">UC-02 - Vận hành chiến dịch theo dõi</tspan></text>
+  <ellipse cx="380" cy="100" rx="16" ry="16" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="215" y="140" width="330" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="177" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Mở campaign hoặc project</tspan></text>
+  <rect x="215" y="230" width="330" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="267" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Chọn thao tác vận hành</tspan></text>
+  <polygon points="380,335 475,385 380,435 285,385" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="380" y="381.25" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Cần trạng thái</tspan><tspan x="380" dy="18.75">sẵn sàng?</tspan></text>
+  <rect x="215" y="485" width="330" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="512" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Kiểm tra điều kiện</tspan><tspan x="380" dy="20">và trạng thái hiện tại</tspan></text>
+  <polygon points="380,585 475,635 380,685 285,635" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="380" y="631.25" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Thao tác</tspan><tspan x="380" dy="18.75">hợp lệ?</tspan></text>
+  <rect x="215" y="735" width="330" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="380" y="762" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="380" dy="0">Áp dụng trạng thái</tspan><tspan x="380" dy="20">vận hành mới</tspan></text>
+  <rect x="55" y="600" width="230" height="70" rx="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="170" y="631" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="170" dy="0">Hiển thị điều kiện</tspan><tspan x="170" dy="20">chưa đáp ứng</tspan></text>
+  <ellipse cx="380" cy="875" rx="24" ry="24" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <ellipse cx="380" cy="875" rx="12" ry="12" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M380 116 L380 140" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 202 L380 230" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 292 L380 335" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 435 L380 485" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 547 L380 585" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 685 L380 735" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M380 797 L380 851" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M475 385 L610 385 L610 766 L545 766" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M285 635 L255 635" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M55 635 L25 635 L25 875 L356 875" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="398" y="463" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="398" dy="0">[có]</tspan></text>
+  <text x="610" y="413" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="610" dy="0">[không]</tspan></text>
+  <text x="398" y="713" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="398" dy="0">[có]</tspan></text>
+  <text x="120" y="593" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="120" dy="0">[không]</tspan></text>
+</svg>

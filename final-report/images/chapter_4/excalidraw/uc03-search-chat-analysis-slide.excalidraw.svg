@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2188" height="416" viewBox="0 0 2188 416">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="40" y="74" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#0f172a"><tspan x="40" dy="0">UC-03 Activity - Search and Ask Analytical Data</tspan></text>
+  <ellipse cx="88" cy="156" rx="18" ry="18" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="160" y="118" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="282.5" y="155.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="282.5" dy="0">Enter query</tspan><tspan x="282.5" dy="19.2">and filters</tspan></text>
+  <rect x="480" y="118" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="602.5" y="155.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="602.5" dy="0">Validate access</tspan><tspan x="602.5" dy="19.2">and input</tspan></text>
+  <rect x="800" y="118" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="922.5" y="155.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="922.5" dy="0">Find relevant</tspan><tspan x="922.5" dy="19.2">analysis data</tspan></text>
+  <polygon points="1212.5,105 1295,156 1212.5,207 1130,156" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="1214.5" y="153.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1214.5" dy="0">Data</tspan><tspan x="1214.5" dy="19.2">found?</tspan></text>
+  <polygon points="1502.5,105 1585,156 1502.5,207 1420,156" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="1502.5" y="163.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1502.5" dy="0">Question?</tspan></text>
+  <rect x="1700" y="40" width="260" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1830" y="77.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1830" dy="0">Return answer</tspan><tspan x="1830" dy="19.2">with evidence</tspan></text>
+  <rect x="1700" y="205" width="260" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1830" y="242.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1830" dy="0">Return search</tspan><tspan x="1830" dy="19.2">results</tspan></text>
+  <rect x="1130" y="300" width="260" height="76" rx="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="1260" y="337.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1260" dy="0">Show no relevant</tspan><tspan x="1260" dy="19.2">context</tspan></text>
+  <ellipse cx="2124" cy="156" rx="24" ry="24" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <ellipse cx="2124" cy="156" rx="12" ry="12" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M106 156 L160 156" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M405 156 L480 156" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M725 156 L800 156" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1045 156 L1130 156" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1295 156 L1420 156" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1502 105 L1700 80" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1502 207 L1700 242" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1212 207 L1260 300" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1960 78 L2100 156" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1960 243 L2100 156" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1390 338 L2100 156" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1310" y="148" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1310" dy="0">[yes]</tspan></text>
+  <text x="1226" y="256" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1226" dy="0">[no]</tspan></text>
+  <text x="1605" y="84" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1605" dy="0">[question]</tspan></text>
+  <text x="1605" y="234" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1605" dy="0">[search]</tspan></text>
+</svg>

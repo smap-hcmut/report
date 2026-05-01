@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2178" height="366" viewBox="0 0 2178 366">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="40" y="96" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#0f172a"><tspan x="40" dy="0">UC-02 Activity - Operate Monitoring Campaign</tspan></text>
+  <ellipse cx="88" cy="178" rx="18" ry="18" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="160" y="140" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="282.5" y="177.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="282.5" dy="0">Open campaign</tspan><tspan x="282.5" dy="19.2">or project</tspan></text>
+  <rect x="480" y="140" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="602.5" y="187.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="602.5" dy="0">Choose operation</tspan></text>
+  <polygon points="880,127 960,178 880,229 800,178" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="880" y="175.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="880" dy="0">Needs</tspan><tspan x="880" dy="19.2">ready?</tspan></text>
+  <rect x="1050" y="52" width="270" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1185" y="89.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1185" dy="0">Check readiness</tspan><tspan x="1185" dy="19.2">and status</tspan></text>
+  <polygon points="1505,40 1585,91 1505,142 1425,91" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="1506" y="92.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1506" dy="0">Allowed?</tspan></text>
+  <rect x="1700" y="52" width="275" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1837.5" y="89.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1837.5" dy="0">Apply operational</tspan><tspan x="1837.5" dy="19.2">state</tspan></text>
+  <rect x="1425" y="250" width="275" height="76" rx="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="1562.5" y="287.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1562.5" dy="0">Show unmet</tspan><tspan x="1562.5" dy="19.2">conditions</tspan></text>
+  <ellipse cx="2114" cy="90" rx="24" ry="24" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <ellipse cx="2114" cy="90" rx="12" ry="12" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M106 178 L160 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M405 178 L480 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M725 178 L800 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M960 167 L1050 92" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1320 90 L1425 90" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1585 90 L1700 90" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1975 90 L2090 90" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1505 142 L1565 250" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M960 192 L1260 302 L1720 122" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="987" y="106" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="987" dy="0">[yes]</tspan></text>
+  <text x="1000" y="271" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1000" dy="0">[no]</tspan></text>
+  <text x="1620" y="81" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1620" dy="0">[yes]</tspan></text>
+  <text x="1525" y="216" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1525" dy="0">[no]</tspan></text>
+</svg>

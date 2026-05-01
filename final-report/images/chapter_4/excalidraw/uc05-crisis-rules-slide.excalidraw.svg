@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2328" height="453" viewBox="0 0 2328 453">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="40" y="96" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#0f172a"><tspan x="40" dy="0">UC-05 Activity - Configure and Manage Crisis Alert Rules</tspan></text>
+  <ellipse cx="88" cy="178" rx="18" ry="18" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="160" y="140" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="282.5" y="177.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="282.5" dy="0">Open crisis</tspan><tspan x="282.5" dy="19.2">rules</tspan></text>
+  <rect x="480" y="140" width="245" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="602.5" y="177.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="602.5" dy="0">Check project</tspan><tspan x="602.5" dy="19.2">and access</tspan></text>
+  <polygon points="902.5,127 985,178 902.5,229 820,178" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="902.5" y="185.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="902.5" dy="0">Action?</tspan></text>
+  <rect x="1140" y="40" width="260" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1270" y="77.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1270" dy="0">Show current</tspan><tspan x="1270" dy="19.2">rules</tspan></text>
+  <rect x="1140" y="140" width="260" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1270" y="177.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1270" dy="0">Enter / update</tspan><tspan x="1270" dy="19.2">rule conditions</tspan></text>
+  <rect x="1140" y="247" width="260" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1270" y="284.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1270" dy="0">Delete rules</tspan><tspan x="1270" dy="19.2">if confirmed</tspan></text>
+  <polygon points="1627.5,127 1710,178 1627.5,229 1545,178" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="1629.5" y="185.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1629.5" dy="0">Valid?</tspan></text>
+  <rect x="1850" y="140" width="260" height="76" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1980" y="177.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1980" dy="0">Save and show</tspan><tspan x="1980" dy="19.2">result</tspan></text>
+  <rect x="1545" y="337" width="260" height="76" rx="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="1675" y="374.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1675" dy="0">Show validation</tspan><tspan x="1675" dy="19.2">errors</tspan></text>
+  <ellipse cx="2264" cy="178" rx="24" ry="24" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <ellipse cx="2264" cy="178" rx="12" ry="12" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M106 178 L160 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M405 178 L480 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M725 178 L820 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M985 157 L1140 82" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M985 178 L1140 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M985 200 L1140 285" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1400 178 L1545 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1710 178 L1850 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1627 229 L1675 337" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M2110 178 L2240 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1805 375 L2240 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1400 78 L2240 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1400 285 L2240 178" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1010" y="100" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1010" dy="0">[view]</tspan></text>
+  <text x="1010" y="168" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1010" dy="0">[create/update]</tspan></text>
+  <text x="1010" y="250" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1010" dy="0">[delete]</tspan></text>
+  <text x="1720" y="168" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1720" dy="0">[yes]</tspan></text>
+  <text x="1648" y="298" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1648" dy="0">[no]</tspan></text>
+</svg>

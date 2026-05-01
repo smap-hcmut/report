@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1818" height="297" viewBox="0 0 1818 297">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="40" y="69" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#0f172a"><tspan x="40" dy="0">Overall Activity Flow</tspan></text>
+  <ellipse cx="88" cy="143" rx="18" ry="18" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="160" y="107" width="250" height="72" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="285" y="142.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="285" dy="0">UC-01</tspan><tspan x="285" dy="19.2">Setup campaign</tspan></text>
+  <rect x="490" y="107" width="250" height="72" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="615" y="142.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="615" dy="0">UC-05</tspan><tspan x="615" dy="19.2">Manage crisis rules</tspan></text>
+  <rect x="820" y="107" width="250" height="72" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="945" y="142.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="945" dy="0">UC-02</tspan><tspan x="945" dy="19.2">Operate campaign</tspan></text>
+  <polygon points="1227.5,97 1305,143 1227.5,189 1150,143" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="1229" y="142.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1229" dy="0">Need</tspan><tspan x="1229" dy="19.2">insight?</tspan></text>
+  <rect x="1400" y="40" width="250" height="72" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1525" y="75.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1525" dy="0">UC-03</tspan><tspan x="1525" dy="19.2">Search / ask</tspan></text>
+  <rect x="1400" y="185" width="250" height="72" rx="14" fill="#eff6ff" stroke="#0284c7" stroke-width="2"/>
+  <text x="1525" y="220.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="1525" dy="0">UC-04</tspan><tspan x="1525" dy="19.2">Monitor / alert</tspan></text>
+  <ellipse cx="1754" cy="149" rx="24" ry="24" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <ellipse cx="1754" cy="149" rx="12" ry="12" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M106 143 L160 143" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M410 143 L490 143" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M740 143 L820 143" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1070 143 L1150 143" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1305 130 L1400 80" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1305 165 L1400 215" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1650 76 L1730 143" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1650 221 L1730 149" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1320" y="114" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1320" dy="0">[yes]</tspan></text>
+  <text x="1320" y="215" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="#475569"><tspan x="1320" dy="0">[no]</tspan></text>
+</svg>

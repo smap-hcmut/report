@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="900" viewBox="0 0 860 900">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="40" y="50" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#0f172a"><tspan x="40" dy="0">UC-05 - Thiết lập và quản lý quy tắc cảnh báo khủng hoảng</tspan></text>
+  <ellipse cx="430" cy="100" rx="16" ry="16" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="265" y="140" width="330" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="430" y="167" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="430" dy="0">Mở cấu hình</tspan><tspan x="430" dy="20">quy tắc cảnh báo</tspan></text>
+  <rect x="265" y="230" width="330" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="430" y="257" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="430" dy="0">Kiểm tra project</tspan><tspan x="430" dy="20">và quyền quản lý</tspan></text>
+  <polygon points="430,335 525,385 430,435 335,385" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="430" y="390.625" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="500" fill="#0f172a"><tspan x="430" dy="0">Hành động?</tspan></text>
+  <rect x="60" y="520" width="240" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="180" y="547" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="180" dy="0">Xem quy tắc</tspan><tspan x="180" dy="20">hiện tại</tspan></text>
+  <rect x="310" y="520" width="240" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="430" y="547" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="430" dy="0">Nhập / cập nhật</tspan><tspan x="430" dy="20">điều kiện quy tắc</tspan></text>
+  <rect x="560" y="520" width="240" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="680" y="547" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="680" dy="0">Xóa quy tắc</tspan><tspan x="680" dy="20">sau xác nhận</tspan></text>
+  <polygon points="430,640 525,690 430,740 335,690" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="430" y="686.25" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="500" fill="#0f172a"><tspan x="430" dy="0">Dữ liệu</tspan><tspan x="430" dy="18.75">hợp lệ?</tspan></text>
+  <rect x="560" y="655" width="240" height="62" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="680" y="682" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="680" dy="0">Lưu và hiển thị</tspan><tspan x="680" dy="20">kết quả</tspan></text>
+  <rect x="60" y="655" width="240" height="62" rx="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="180" y="682" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="500" fill="#0f172a"><tspan x="180" dy="0">Hiển thị lỗi</tspan><tspan x="180" dy="20">kiểm tra dữ liệu</tspan></text>
+  <ellipse cx="430" cy="840" rx="24" ry="24" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <ellipse cx="430" cy="840" rx="12" ry="12" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M430 116 L430 140" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M430 202 L430 230" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M430 292 L430 335" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M335 385 L180 385 L180 520" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M430 435 L430 520" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M525 385 L680 385 L680 520" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M430 582 L430 640" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M525 690 L560 690" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M335 690 L300 690" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M180 717 L180 775 L430 775 L430 816" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M680 582 L680 775 L430 775" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M680 717 L680 775 L430 775" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M180 582 L180 775" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M60 686 L25 686 L25 551 L310 551" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="185" y="415" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="185" dy="0">[xem]</tspan></text>
+  <text x="445" y="475" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="445" dy="0">[tạo/cập nhật]</tspan></text>
+  <text x="685" y="415" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="685" dy="0">[xóa]</tspan></text>
+  <text x="530" y="677" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="530" dy="0">[có]</tspan></text>
+  <text x="250" y="677" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#475569"><tspan x="250" dy="0">[không]</tspan></text>
+</svg>
