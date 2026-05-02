@@ -34,15 +34,6 @@ Các sơ đồ tuần tự trong mục này được tổ chức theo năm nhóm
 #import "section_5_5_5.typ" as section_5_5_5
 #section_5_5_5
 
-#import "section_5_5_6.typ" as section_5_5_6
-#section_5_5_6
-
-#import "section_5_5_7.typ" as section_5_5_7
-#section_5_5_7
-
-#import "section_5_5_8.typ" as section_5_5_8
-#section_5_5_8
-
 === Tổng kết
 
 Section này mô tả các sequence diagrams dùng để minh họa cách SMAP hiện thực hóa các mục tiêu nghiệp vụ đã xác định ở Chương 4. Ở mức kỹ thuật, các sơ đồ làm rõ những tương tác quan trọng giữa giao diện, project context, ingest runtime, analytics pipeline, knowledge retrieval và notification delivery.
