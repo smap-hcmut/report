@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="720" viewBox="0 0 1180 720">
+  <defs>
+    <style>
+      .labelbox { fill: #ece9ff; stroke: #cfc8ff; stroke-width: 1; }
+      .lifeline { stroke: #d4ccff; stroke-width: 2; }
+      .msg { stroke: #333333; stroke-width: 1.6; fill: none; }
+      .ret { stroke: #555555; stroke-width: 1.3; stroke-dasharray: 5 4; fill: none; }
+      .alt { fill: none; stroke: #d4ccff; stroke-width: 1.2; stroke-dasharray: 3 3; }
+      .note { fill: #fff4b8; stroke: #e1d27a; stroke-width: 1.2; }
+      .t { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #222222; }
+      .ts { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #222222; }
+      .tc { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #222222; }
+      .step { fill: #333333; }
+      .steptext { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #ffffff; font-weight: bold; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" />
+    </marker>
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#555555" />
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1180" height="720" fill="#ffffff"/>
+
+  <rect class="labelbox" x="18" y="18" width="96" height="42" rx="2"/>
+  <rect class="labelbox" x="188" y="18" width="126" height="42" rx="2"/>
+  <rect class="labelbox" x="398" y="18" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="628" y="18" width="156" height="42" rx="2"/>
+  <rect class="labelbox" x="888" y="18" width="156" height="42" rx="2"/>
+
+  <text class="t" x="66" y="44" text-anchor="middle">User</text>
+  <text class="t" x="251" y="44" text-anchor="middle">Giao diện</text>
+  <text class="t" x="471" y="36" text-anchor="middle">Project Service</text><text class="ts" x="471" y="50" text-anchor="middle">(crisis config API)</text>
+  <text class="t" x="706" y="36" text-anchor="middle">Crisis Config UseCase</text><text class="ts" x="706" y="50" text-anchor="middle">(delete validation)</text>
+  <text class="t" x="966" y="36" text-anchor="middle">PostgreSQL</text><text class="ts" x="966" y="50" text-anchor="middle">(projects_crisis_config)</text>
+
+  <rect class="labelbox" x="18" y="660" width="96" height="42" rx="2"/>
+  <rect class="labelbox" x="188" y="660" width="126" height="42" rx="2"/>
+  <rect class="labelbox" x="398" y="660" width="146" height="42" rx="2"/>
+  <rect class="labelbox" x="628" y="660" width="156" height="42" rx="2"/>
+  <rect class="labelbox" x="888" y="660" width="156" height="42" rx="2"/>
+
+  <text class="t" x="66" y="686" text-anchor="middle">User</text>
+  <text class="t" x="251" y="686" text-anchor="middle">Giao diện</text>
+  <text class="t" x="471" y="678" text-anchor="middle">Project Service</text><text class="ts" x="471" y="692" text-anchor="middle">(crisis config API)</text>
+  <text class="t" x="706" y="678" text-anchor="middle">Crisis Config UseCase</text><text class="ts" x="706" y="692" text-anchor="middle">(delete validation)</text>
+  <text class="t" x="966" y="678" text-anchor="middle">PostgreSQL</text><text class="ts" x="966" y="692" text-anchor="middle">(projects_crisis_config)</text>
+
+  <line class="lifeline" x1="66" y1="60" x2="66" y2="660"/>
+  <line class="lifeline" x1="251" y1="60" x2="251" y2="660"/>
+  <line class="lifeline" x1="471" y1="60" x2="471" y2="660"/>
+  <line class="lifeline" x1="706" y1="60" x2="706" y2="660"/>
+  <line class="lifeline" x1="966" y1="60" x2="966" y2="660"/>
+
+  <circle class="step" cx="66" cy="98" r="8"/><text class="steptext" x="66" y="102" text-anchor="middle">1</text>
+  <line class="msg" x1="74" y1="98" x2="243" y2="98" marker-end="url(#arrow)"/>
+  <text class="t" x="159" y="92" text-anchor="middle">Chọn xóa cấu hình cảnh báo</text>
+
+  <circle class="step" cx="251" cy="154" r="8"/><text class="steptext" x="251" y="158" text-anchor="middle">2</text>
+  <line class="msg" x1="259" y1="154" x2="463" y2="154" marker-end="url(#arrow)"/>
+  <text class="ts" x="361" y="142" text-anchor="middle">DELETE crisis-config(project_id)</text>
+
+  <circle class="step" cx="471" cy="202" r="8"/><text class="steptext" x="471" y="206" text-anchor="middle">3</text>
+  <line class="msg" x1="479" y1="202" x2="698" y2="202" marker-end="url(#arrow)"/>
+  <text class="ts" x="588" y="190" text-anchor="middle">Validate project and config existence</text>
+
+  <rect class="alt" x="656" y="228" width="250" height="86"/>
+  <rect x="656" y="228" width="28" height="16" fill="#ece9ff" stroke="#d4ccff" stroke-width="1"/>
+  <text class="tc" x="670" y="240" text-anchor="middle">alt</text>
+  <text class="tc" x="760" y="242">[Config tồn tại]</text>
+
+  <circle class="step" cx="706" cy="268" r="8"/><text class="steptext" x="706" y="272" text-anchor="middle">4</text>
+  <line class="msg" x1="714" y1="268" x2="958" y2="268" marker-end="url(#arrow)"/>
+  <text class="ts" x="836" y="256" text-anchor="middle">DELETE projects_crisis_config row</text>
+
+  <circle class="step" cx="966" cy="294" r="8"/><text class="steptext" x="966" y="298" text-anchor="middle">5</text>
+  <line class="ret" x1="958" y1="294" x2="714" y2="294" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="836" y="288" text-anchor="middle">delete success</text>
+
+  <circle class="step" cx="471" cy="362" r="8"/><text class="steptext" x="471" y="366" text-anchor="middle">6</text>
+  <line class="ret" x1="463" y1="362" x2="259" y2="362" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="361" y="350" text-anchor="middle">Kết quả xóa thành công</text>
+
+  <circle class="step" cx="251" cy="426" r="8"/><text class="steptext" x="251" y="430" text-anchor="middle">7</text>
+  <line class="ret" x1="243" y1="426" x2="74" y2="426" marker-end="url(#arrowDash)"/>
+  <text class="ts" x="159" y="414" text-anchor="middle">Cập nhật trạng thái giao diện</text>
+
+  <rect class="note" x="44" y="560" width="1080" height="48"/>
+  <text class="t" x="584" y="582" text-anchor="middle">Xóa cấu hình chỉ loại bỏ bộ quy tắc đang gắn với project.</text>
+  <text class="t" x="584" y="598" text-anchor="middle">Nó không tự kích hoạt thay đổi trạng thái vận hành nào ngoài việc xóa đầu vào cho các luồng cảnh báo phía sau.</text>
+</svg>
