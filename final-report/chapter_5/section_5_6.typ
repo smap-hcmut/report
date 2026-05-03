@@ -11,8 +11,6 @@ Hệ thống SMAP không sử dụng một cơ chế giao tiếp duy nhất cho 
 
 ==== 5.6.1.1 Tổng quan các mẫu giao tiếp
 
-==== 5.6.1.1 Tổng quan các mẫu giao tiếp
-
 #context (align(center)[_Bảng #table_counter.display(): Tổng quan các mẫu giao tiếp trong hệ thống SMAP_])
 #table_counter.step()
 #block(width: 100%)[
@@ -373,54 +371,101 @@ Ngoài WebSocket delivery, một số message families như `CRISIS_ALERT`, `DAT
 
 === 5.6.4 Giám sát hệ thống
 
-Hệ thống SMAP implement observability theo nguyên tắc đã đề ra ở mục 5.1, bao gồm structured logging, metrics, và health checks. Section này mô tả cách hệ thống được monitor để đảm bảo availability và performance.
+Current implementation đã có các khối observability cốt lõi, nhưng mức độ hoàn thiện chưa đồng đều giữa mọi service. Phần rõ ràng nhất hiện nay gồm logging có ngữ cảnh, health hoặc readiness probes ở các API services chính, trace_id propagation xuyên qua HTTP và RabbitMQ, cùng một số metric domain-specific ở analysis-srv. Vì vậy, mục này mô tả các cơ chế đang hiện diện trong code thay vì giả định một monitoring surface hoàn toàn đồng nhất cho toàn bộ hệ thống.
 
-==== 5.6.4.1 Structured Logging
+==== 5.6.4.1 Logging và ngữ cảnh chẩn đoán
 
-Tất cả services sử dụng structured logging với JSON format để dễ dàng parse và query.
+Logging trong SMAP được tổ chức theo shared abstractions thay vì để từng service tự định nghĩa hoàn toàn độc lập. Ở Go services, lớp logger dùng Zap và có thể xuất console hoặc JSON tùy cấu hình. Ở Python runtime như scapper-srv, Loguru được dùng với patcher để chèn trace_id vào record và cũng tách riêng giữa chế độ production với development.
 
-#context (align(center)[_Bảng #table_counter.display(): Logging configuration theo ngôn ngữ_])
+#context (align(center)[_Bảng #table_counter.display(): Cơ chế logging hiện có theo nhóm runtime_])
 #table_counter.step()
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.25fr, 0.20fr, 0.20fr, 0.35fr),
+    columns: (0.22fr, 0.18fr, 0.25fr, 0.35fr),
     stroke: 0.5pt,
     align: (left, left, left, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Service Type*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Nhóm service*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Library*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Format*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Hành vi output*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Đặc điểm chẩn đoán*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Go Services],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Go API services],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Zap],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[JSON],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[stdout],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Console hoặc JSON tùy cấu hình],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Có thể enrich theo context với trace_id, user_id; middleware HTTP phân mức log theo status code và bỏ qua health endpoints],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Python Services],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Python runtime services],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Loguru],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[JSON],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[stdout],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[JSON trong production, readable hơn trong debug],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[trace_id được gắn vào record; scapper-srv còn intercept logging chuẩn của framework để gom về cùng logger],
   )
 ]
 
-Log Levels Policy:
+Một số quy ước logging hiện có đáng chú ý:
 
-- DEBUG: Chỉ dùng trong development, retention ngắn.
+- HTTP middleware ở Go services log `2xx/3xx` ở mức `INFO`, `4xx` ở mức `WARN`, và `5xx` ở mức `ERROR`.
+- Các probe như `/health`, `/ready`, `/live` được bỏ khỏi access logging để tránh làm nhiễu operational logs.
+- Trong production mode, logger của scapper-srv chuẩn hóa record thành các trường như timestamp, trace_id, level, caller, message và service.
 
-- INFO: Normal operations như request received, task completed.
+Thiết kế này cho phép truy vết theo yêu cầu xử lý và theo ngữ cảnh người dùng tốt hơn so với logging thuần văn bản, nhưng report không mặc định khẳng định mọi service đều luôn chạy ở cùng một encoding hoặc cùng một backend log collector.
 
-- WARN: Recoverable errors như retry attempts, rate limit hit.
+==== 5.6.4.2 Health và readiness probes
 
-- ERROR: Service errors cần attention như database connection failed.
+Phần lớn Go API services trong SMAP đều expose bộ probe `health`, `ready` và `live`, nhưng nội dung kiểm tra cụ thể khác nhau theo dependency footprint của từng service. Ngược lại, Python runtime như scapper-srv hiện chỉ expose một endpoint `health` đơn giản hơn.
 
-Standard Log Fields: Mỗi log entry bao gồm các fields level, timestamp, service, trace_id, message, và context-specific fields.
+#context (align(center)[_Bảng #table_counter.display(): Probe surface hiện có theo service_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: false)
+  #table(
+    columns: (0.18fr, 0.18fr, 0.28fr, 0.36fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Service*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Endpoints*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Readiness hoặc health chính*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Ghi chú*],
 
-==== 5.6.4.2 Prometheus Metrics
+    table.cell(align: center + horizon, inset: (y: 0.8em))[identity-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/health, /ready, /live],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/ready ping PostgreSQL],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Phù hợp cho API auth và session lane],
 
-Mỗi service expose /metrics endpoint cho Prometheus scraping.
+    table.cell(align: center + horizon, inset: (y: 0.8em))[project-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/health, /ready, /live],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/ready ping PostgreSQL],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Probe đơn giản, tập trung vào dependency quan trọng nhất của control plane],
 
-#context (align(center)[_Bảng #table_counter.display(): Prometheus Metrics theo service_])
+    table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/health, /ready, /live],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/ready ping PostgreSQL và Redis],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Phản ánh retrieval lane phụ thuộc cả relational store lẫn cache],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/health, /ready, /live],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/ready yêu cầu PostgreSQL và Redis; đồng thời report trạng thái MinIO, Kafka, RabbitMQ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Probe giàu thông tin nhất trong nhóm Go services hiện tại],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[notification-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/health, /ready, /live],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/health và /ready ping Redis; /health trả thêm hub stats],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Cho thấy trạng thái delivery boundary và số connection đang hoạt động],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/health],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[/health trả worker_active cùng một số config hints],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Chưa có bộ ready hoặc live tách riêng như các Go API services],
+  )
+]
+
+Các probe này đủ để phục vụ triển khai có orchestrator hoặc gateway health monitoring, nhưng report nên đọc chúng như hiện trạng triển khai hơn là như một contract hạ tầng hoàn toàn chuẩn hóa giữa mọi service.
+
+==== 5.6.4.3 Metric instrumentation hiện có
+
+Current codebase chưa cho thấy một `/metrics` surface đồng nhất ở mọi service. Tuy nhiên, analysis-srv đã có lớp metric instrumentation dùng Prometheus primitives với graceful fallback sang no-op khi thư viện metrics chưa được cài hoặc chưa được bật trong môi trường chạy.
+
+#context (align(center)[_Bảng #table_counter.display(): Metric instrumentation đã thấy rõ trong code_])
 #table_counter.step()
 #block(width: 100%)[
   #set par(justify: false)
@@ -433,107 +478,47 @@ Mỗi service expose /metrics endpoint cho Prometheus scraping.
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Loại*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Nhãn*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Collector],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[collector_jobs_dispatched_total],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis_pipeline_runs_total],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Counter],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[platform],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[status],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Collector],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[collector_jobs_active],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Gauge],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[platform],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[analytics_pipeline \ \_duration_seconds],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis_stage_duration_seconds],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Histogram],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[phase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[stage],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[analytics_crisis_detected_total],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis_kafka_publish_total],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Counter],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[severity],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[topic, status],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project API],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[http_requests_total],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Counter],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[method, path, status],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project API],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[http_request_duration_seconds],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Histogram],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[method, path],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[websocket_connections_active],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis_crisis_level],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Gauge],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[websocket_messages_sent_total],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Counter],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[type],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[project_id],
   )
 ]
 
-==== 5.6.4.3 Health Checks
+Ngoài các metric object này, notification-srv hiện expose `active_connections` và `total_unique_users` qua endpoint `health`, cho thấy một số operational stats đang được surfacing qua probe response thay vì qua metric endpoint chuyên dụng. Điều này củng cố nhận định rằng lớp observability hiện tại vẫn đang phát triển theo từng lane cụ thể, chưa phải một platform metrics đồng nhất hoàn toàn.
 
-Mỗi service expose 2 health check endpoints phục vụ mục đích khác nhau:
+==== 5.6.4.4 Trace ID propagation
 
-#context (align(center)[_Bảng #table_counter.display(): Health Check Endpoints_])
-#table_counter.step()
-#block(width: 100%)[
-  #set par(justify: false)
-  #table(
-    columns: (0.15fr, 0.20fr, 0.35fr, 0.30fr),
-    stroke: 0.5pt,
-    align: (left, left, left, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Endpoint*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Thời gian phản hồi*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Kiểm tra*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Kubernetes Probe*],
+SMAP hiện implement mức tracing cơ bản dựa trên `X-Trace-Id` thay vì một distributed tracing stack đầy đủ theo span. Dù vậy, cơ chế này đã đủ để nối một số hop quan trọng trong control plane và execution plane:
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[/health],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 100ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Process alive, basic memory check],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[livenessProbe],
+- Go API services dùng middleware tracing để nhận hoặc tạo `X-Trace-Id`, gắn nó vào request context và echo lại trên response header.
+- Shared HTTP client trong Go có thể inject `X-Trace-Id` vào outbound requests, giúp duy trì correlation khi một service gọi sang service khác.
+- Shared RabbitMQ layer chèn `X-Trace-Id` vào message headers khi publish nếu context hiện tại đã có trace_id.
+- scapper-srv trích xuất `X-Trace-Id` từ inbound HTTP requests và từ RabbitMQ message headers, sau đó tiếp tục dùng cùng trace_id khi publish completion envelope trở lại queue.
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[/ready],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 500ms],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[PostgreSQL, RabbitMQ, Redis, MinIO connections],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[readinessProbe],
-  )
-]
-
-Kiểm tra nông tại /health: Kiểm tra process còn sống hay không. Nếu fail, Kubernetes sẽ restart pod. Response nhanh vì không check external dependencies.
-
-Kiểm tra sâu tại /ready: Kiểm tra tất cả external dependencies như database, message queue, cache. Nếu fail, Kubernetes sẽ remove pod khỏi service endpoints, không route traffic đến pod đó cho đến khi ready lại.
-
-Hành vi khi lỗi:
-
-- Khi /health fail: Pod bị restart bởi Kubernetes.
-
-- Khi /ready fail: Pod không nhận traffic mới nhưng không bị restart, cho phép service tự phục hồi khi dependencies available lại.
-
-==== 5.6.4.4 Distributed Tracing
-
-Hệ thống implement basic distributed tracing thông qua trace_id propagation:
-
-- Trace ID Generation: UUID được generate tại entry point.
-
-- Propagation: Trace ID được truyền qua HTTP header X-Trace-ID và RabbitMQ message properties.
-
-- Logging: Tất cả services log trace_id trong mỗi log entry.
-
-- Debugging: Khi cần debug một request, có thể tìm kiếm trace_id trong logs của tất cả services để theo dõi luồng xử lý.
-
-Hạn chế hiện tại: Chưa có công cụ trực quan hóa như Jaeger. Debugging vẫn dựa vào tìm kiếm log thủ công. Đây là cải tiến có thể thực hiện trong tương lai với OpenTelemetry instrumentation.
+Với mức propagation này, việc debug liên service chủ yếu vẫn dựa trên log correlation hơn là trên trace visualization. Hệ thống chưa thể hiện đầy đủ span model hoặc backend như Jaeger hay OpenTelemetry collector trong current implementation.
 
 === 5.6.5 Tổng kết
 
-- Hệ thống sử dụng 4 patterns là REST API cho tác vụ đồng bộ dưới 30 giây, Event-Driven cho tác vụ bất đồng bộ trên 30 giây, WebSocket cho cập nhật thời gian thực, và Claim Check cho dữ liệu lớn. Mỗi pattern được chọn dựa trên đặc điểm của tác vụ để tối ưu hiệu năng và khả năng mở rộng.
+- Hệ thống sử dụng nhiều communication patterns theo từng lane xử lý: request-response cho CRUD, control và retrieval; RabbitMQ cho execution task dispatch; Kafka cho analytics downstream; Redis Pub/Sub kết hợp WebSocket cho notification delivery; và artifact reference cho các payload hoặc output lớn.
 
-- RabbitMQ với Topic Exchange làm message broker trung tâm. 6 events chính điều phối luồng xử lý giữa các services. Dead Letter Queue với exponential backoff retry policy đảm bảo fault tolerance.
+- RabbitMQ trong current architecture chỉ đóng vai trò execution-plane broker giữa ingest-srv và scapper-srv. Task được route theo exchange hoặc queue platform-specific, còn completion được correlate lại ở ingest lane bằng task_id và metadata kèm theo.
 
-- WebSocket kết hợp Redis Pub/Sub cho phép horizontal scaling. Khi có nhiều WebSocket instances, Redis Pub/Sub phân phối messages đến tất cả instances, instance nào có connection với user sẽ chuyển tiếp message. Channel-based routing đảm bảo messages đến đúng recipients.
+- Realtime notification được tổ chức theo user-targeted delivery boundary. notification-srv xác thực kết nối ngay tại HTTP upgrade, subscribe Redis ingress theo các channel pattern định trước, rồi đẩy các WebSocket envelope thống nhất ra các phiên đang hoạt động.
 
-- Structured logging với Zap và Loguru output JSON format. Prometheus metrics cho monitoring. Health checks với kiểm tra nông cho liveness và kiểm tra sâu cho readiness. Basic distributed tracing qua trace_id propagation.
+- Lớp observability hiện có đủ cho vận hành cơ bản: logging có ngữ cảnh, probe endpoints ở các API services chính, trace_id propagation qua HTTP và RabbitMQ, cùng metric instrumentation bước đầu ở analysis-srv. Tuy nhiên, monitoring surface vẫn chưa hoàn toàn đồng nhất giữa mọi runtime và vẫn còn dư địa để mở rộng trong các vòng hoàn thiện tiếp theo.
