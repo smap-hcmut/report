@@ -7,7 +7,9 @@ Mục 5.3 đã trình bày chi tiết cấu trúc nội bộ của từng servic
 
 === 5.6.1 Mẫu giao tiếp
 
-Hệ thống SMAP sử dụng 4 mẫu giao tiếp chính, mỗi pattern phục vụ một mục đích khác nhau dựa trên đặc điểm của tác vụ.
+Hệ thống SMAP không sử dụng một cơ chế giao tiếp duy nhất cho toàn bộ kiến trúc. Thay vào đó, các thành phần được kết nối bằng nhiều communication patterns khác nhau tùy theo tính chất của từng lane xử lý: tương tác người dùng cần phản hồi nhanh, control plane nội bộ cần đồng bộ, execution plane cần dispatch bất đồng bộ, analytics downstream cần fanout theo stream, còn notification cần khả năng phát thông báo kịp thời tới các phiên theo dõi phù hợp.
+
+==== 5.6.1.1 Tổng quan các mẫu giao tiếp
 
 ==== 5.6.1.1 Tổng quan các mẫu giao tiếp
 
@@ -16,131 +18,135 @@ Hệ thống SMAP sử dụng 4 mẫu giao tiếp chính, mỗi pattern phục v
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.18fr, 0.25fr, 0.22fr, 0.35fr),
+    columns: (0.19fr, 0.24fr, 0.23fr, 0.16fr, 0.18fr),
     stroke: 0.5pt,
-    align: (left, left, left, left),
+    align: (left, left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Pattern*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Khi nào sử dụng*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Công nghệ*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Loại tương tác*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Công nghệ chính*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Khi sử dụng*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Ví dụ trong hệ thống*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[REST API],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Tác vụ đồng bộ, thời gian xử lý ngắn dưới 30 giây],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Gin, FastAPI],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[GET /projects, POST /projects, GET /dashboard],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Event-Driven],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Tác vụ bất đồng bộ, thời gian xử lý dài trên 30 giây],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Request-response],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Giao diện hoặc service gọi trực tiếp và chờ kết quả],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP, route handlers, internal HTTP],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[CRUD, readiness check, search hoặc chat],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Giao diện gọi project API; project-srv gọi ingest-srv],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Async task dispatch],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Execution plane publish task và nhận completion bất đồng bộ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQ],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[project.created, data.collected, crisis.detected],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Crawl runtime, dry run runtime, completion correlation],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv → scapper-srv → ingest completion queues],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cập nhật thời gian thực, thông báo đẩy],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Gorilla WebSocket, Redis Pub/Sub],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cập nhật tiến độ, cảnh báo khủng hoảng],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Event streaming],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Downstream fanout và stream processing giữa analytics với knowledge],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics intake, insights published, batch completed, report digest],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv → knowledge-srv],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Claim Check],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Dữ liệu lớn không phù hợp đưa vào message queue],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[MinIO, RabbitMQ],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Crawl batches 2-5MB lưu MinIO, gửi tham chiếu qua RabbitMQ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Realtime notification delivery],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Notification ingress và route message tới phiên theo dõi phù hợp],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Redis Pub/Sub + WebSocket hub],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo trạng thái, campaign event, crisis alert],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[backend publisher → notification-srv],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Artifact reference],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Payload lớn được materialize ra object storage, chỉ trao đổi metadata hoặc reference],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[MinIO + metadata or event reference],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Raw crawl artifacts, report artifacts, batch file inputs],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[raw batch lineage, report file_url],
   )
 ]
 
 #block(inset: (left: 1em, top: 0.5em, bottom: 0.5em))[
-  _Lưu ý: Cột "Công nghệ" liệt kê các công nghệ được chọn trong giai đoạn thiết kế dựa trên yêu cầu phi chức năng. Việc lựa chọn cụ thể được trình bày trong các Architecture Decision Records tại mục 5.7.2._
+  _Lưu ý: Cột "Công nghệ chính" phản ánh transport hoặc integration mechanism giữ vai trò trung tâm trong current architecture. Một pattern có thể đi kèm thêm cache, object storage hoặc route handler hỗ trợ, nhưng bảng chỉ liệt kê lớp giao tiếp chính._
 ]
 
-==== 5.6.1.2 REST API Pattern
+==== 5.6.1.2 Synchronous Request-Response Pattern
 
-REST API được sử dụng cho các tác vụ đồng bộ với thời gian xử lý ngắn, chủ yếu là các thao tác CRUD và truy vấn dữ liệu từ người dùng. Pattern này phù hợp khi client cần response ngay lập tức và thời gian xử lý dưới 30 giây.
+Synchronous request-response được sử dụng ở những nơi hệ thống cần trả kết quả ngay sau khi kiểm tra quyền truy cập, tính hợp lệ của input hoặc trạng thái hiện tại của đối tượng nghiệp vụ. Pattern này xuất hiện ở cả hai cấp: giữa giao diện với backend và giữa các service trong control plane nội bộ.
 
-Các endpoints chính trong hệ thống:
+Các interaction tiêu biểu:
 
-#context (align(center)[_Bảng #table_counter.display(): Các REST API endpoints chính_])
+#context (align(center)[_Bảng #table_counter.display(): Các interaction đồng bộ tiêu biểu_])
 #table_counter.step()
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.12fr, 0.28fr, 0.20fr, 0.20fr, 0.20fr),
+    columns: (0.20fr, 0.26fr, 0.18fr, 0.18fr, 0.18fr),
     stroke: 0.5pt,
     align: (left, left, left, left, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Method*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Endpoint*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Service*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Mục đích*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Thời gian phản hồi*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[POST],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[/api/v1/projects],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Tạo project mới],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 100ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Pattern con*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Bên tham gia chính*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Transport*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Vai trò*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Ví dụ*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[GET],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[/api/v1/projects],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Danh sách projects],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 200ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[User-facing API call],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Giao diện → identity, project, ingest, knowledge],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP qua same-origin proxy hoặc route handlers],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[CRUD, truy vấn, search và chat],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Tạo project, tạo datasource, gửi câu hỏi chat],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[GET],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[/api/v1/projects/:id/dashboard],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Dashboard analytics],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 2s],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Internal control call],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[project-srv ↔ ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Internal HTTP],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Readiness check và lifecycle control],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[activation-readiness, activate, pause, resume],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[POST],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[/api/v1/auth/login],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Identity Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Đăng nhập],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 150ms],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[GET],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[/api/v1/trends],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Danh sách trends],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[< 300ms],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Knowledge retrieval request],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Giao diện → knowledge-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP API đã xác thực],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Tra cứu và hỏi đáp theo ngữ cảnh],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[search, chat, conversation detail],
   )
 ]
 
-Tất cả REST APIs sử dụng JWT HttpOnly Cookie để xác thực. Response format chuẩn JSON với error codes và messages rõ ràng.
+Ở phía người dùng, giao diện chủ yếu gọi backend thông qua lớp proxy hoặc route handlers để giữ same-origin behavior cho cookie và giảm CORS complexity. Ở phía nội bộ, internal HTTP được dùng khi business control plane cần phản hồi đồng bộ trước khi thay đổi trạng thái nghiệp vụ, chẳng hạn readiness check và activate hoặc resume ở project-srv.
 
-==== 5.6.1.3 Event-Driven Pattern
+==== 5.6.1.3 Asynchronous Messaging Pattern
 
-Event-Driven Architecture được sử dụng cho các tác vụ xử lý dài như crawling và analytics. Khi user khởi chạy project theo UC-03, thời gian xử lý có thể từ 5-30 phút, nếu sử dụng REST synchronous thì connection sẽ timeout.
+Asynchronous messaging được sử dụng ở các lane mà xử lý không nên nằm trên synchronous request path. Trong current architecture, hai nhóm bất đồng bộ quan trọng nhất không dùng cùng một transport: RabbitMQ phục vụ execution plane của crawl runtime, còn Kafka phục vụ analytics data plane và downstream fanout sang knowledge lane.
 
-Lợi ích của Event-Driven trong hệ thống SMAP:
+Ở execution plane, RabbitMQ phù hợp với task dispatch và completion correlation:
 
-- Giảm phụ thuộc giữa các service: Project Service không cần biết Collector Service đang chạy hay không, chỉ cần gửi event vào message queue.
+- ingest-srv publish crawl hoặc dry run task theo queue platform-specific;
+- scapper-srv consume task, thực thi runtime và publish completion envelope trở lại;
+- ingest-srv correlate completion bằng task_id, object metadata và raw batch lineage.
 
-- Khả năng phục hồi: Nếu Collector Service restart, messages vẫn được lưu trong RabbitMQ queue và xử lý khi service khởi động lại.
+Ở analytics downstream, Kafka phù hợp với stream fanout và retrieval preparation:
 
-- Khả năng mở rộng: Có thể scale Collector workers độc lập mà không ảnh hưởng Project Service.
+- analysis-srv consume dữ liệu đầu vào đã chuẩn hóa từ analytics data plane;
+- analysis-srv publish các outputs downstream như batch completed, insight hoặc digest;
+- knowledge-srv consume các topic này để tiếp tục indexing, retrieval và materialization liên quan.
 
-- Tách biệt thời gian: Publisher và consumer không cần online cùng lúc.
+Điểm cốt lõi của pattern bất đồng bộ ở đây là tách control plane khỏi processing plane. Người dùng không chờ trực tiếp quá trình crawl, analytics hay indexing kết thúc trong một HTTP request duy nhất; thay vào đó, trạng thái và kết quả được materialize dần qua các lane runtime tương ứng.
 
-==== 5.6.1.4 WebSocket Pattern
+==== 5.6.1.4 Realtime Notification Delivery Pattern
 
-WebSocket được sử dụng để đẩy cập nhật thời gian thực đến client mà không cần client polling liên tục. Hai use cases chính:
+Realtime notification delivery được sử dụng khi hệ thống cần phát thông báo hoặc cảnh báo kịp thời cho user trong phạm vi được phép theo dõi. Ở current architecture, pattern này được tổ chức thành hai lớp: Redis Pub/Sub làm notification ingress và Notification Service làm delivery boundary.
 
-- Theo dõi tiến độ theo UC-03: Hiển thị tiến độ crawling và analytics theo thời gian thực.
+Luồng delivery chính:
 
-- Cảnh báo khủng hoảng theo UC-08: Thông báo ngay lập tức khi phát hiện bài viết khủng hoảng.
+- backend publisher phát message vào Redis channel theo user scope, project scope, campaign scope hoặc system scope;
+- notification-srv subscribe các channel phù hợp, parse message type và route theo recipient hoặc broadcast scope;
+- nếu có active compatible connection, message được đẩy vào WebSocket hub để giao diện hoặc client tương thích nhận và hiển thị.
 
-Vấn đề horizontal scaling: WebSocket connections là stateful, mỗi connection gắn với một server instance cụ thể. Khi có nhiều WebSocket Service instances, hệ thống cần cơ chế để phân phối message đến đúng client.
+Vì connection là stateful, Redis Pub/Sub giúp nhiều notification instances nhìn thấy cùng một notification ingress stream. Tuy nhiên, pattern này chỉ mô tả delivery capability ở phía hệ thống; nó không mặc định khẳng định mọi loại giao diện hiện tại đều đang tiêu thụ trực tiếp cùng một kênh realtime ở mọi tình huống.
 
-Giải pháp: Sử dụng Redis Pub/Sub làm message bus giữa các instances. Khi Analytics Service gửi cảnh báo khủng hoảng, message được gửi đến Redis channel, tất cả WebSocket instances đăng ký channel đó sẽ nhận được và chuyển tiếp đến các client đang kết nối.
+Trong frontend hiện tại, notification presentation vẫn có lớp state riêng. Vì vậy, phần này nên được đọc như mô tả delivery semantics của notification boundary hơn là như mô tả bắt buộc về mọi client implementation.
 
-==== 5.6.1.5 Claim Check Pattern
+==== 5.6.1.5 Artifact Reference Pattern
 
-Claim Check Pattern giải quyết vấn đề dữ liệu lớn trong message queue. Mỗi batch crawl data có kích thước 2-5MB, nếu đưa trực tiếp vào RabbitMQ message sẽ gây:
+Artifact reference pattern được dùng khi payload hoặc output không phù hợp để truyền trực tiếp qua message body hoặc lưu hoàn toàn trong relational row. Thay vì truyền nguyên dữ liệu lớn qua queue, hệ thống materialize artifact ra object storage và chỉ trao đổi metadata hoặc reference cần thiết giữa các lane xử lý.
 
-- Áp lực bộ nhớ trên RabbitMQ broker.
+Trong SMAP, pattern này xuất hiện ở hai nơi chính:
 
-- Băng thông mạng cao khi truyền messages.
+- scapper runtime materialize raw output vào local filesystem ở development mode hoặc MinIO ở production mode; ingest-srv chỉ nhận storage bucket, storage path, checksum, batch_id và completion metadata để tiếp tục xử lý;
+- knowledge-side report generation lưu artifact báo cáo ở object storage, còn PostgreSQL chỉ giữ report metadata, status và file URL.
 
-- Consumer xử lý chậm do kích thước message lớn.
-
-Giải pháp: Crawler Services upload batch data lên MinIO, sau đó gửi event với tham chiếu thay vì dữ liệu thực. Analytics Service nhận event, dùng tham chiếu để download data từ MinIO.
-
-Kết quả: RabbitMQ message chỉ còn khoảng 1KB thay vì 5MB, giảm 5000 lần kích thước message.
+Lợi ích của cách làm này là giữ queue message và relational metadata ở kích thước hợp lý, đồng thời vẫn bảo toàn được lineage giữa task, artifact và kết quả downstream. Pattern này đồng bộ với cách mục 5.4 mô tả storage stack và artifact lineage, nên không cần giả định benchmark cứng hay contract dữ liệu nén nếu chưa có evidence tương ứng trong report chính.
 
 
 === 5.6.2 Kiến trúc hướng sự kiện
