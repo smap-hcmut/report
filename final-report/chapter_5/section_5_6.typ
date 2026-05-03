@@ -52,8 +52,8 @@ Hệ thống SMAP không sử dụng một cơ chế giao tiếp duy nhất cho 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Artifact reference],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Payload lớn được materialize ra object storage, chỉ trao đổi metadata hoặc reference],
     table.cell(align: center + horizon, inset: (y: 0.8em))[MinIO + metadata or event reference],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Raw crawl artifacts, report artifacts, batch file inputs],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[raw batch lineage, report file_url],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Raw crawl artifacts, knowledge-side report artifacts, batch file inputs],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[raw batch lineage, knowledge report file_url],
   )
 ]
 
@@ -142,18 +142,18 @@ Artifact reference pattern được dùng khi payload hoặc output không phù 
 Trong SMAP, pattern này xuất hiện ở hai nơi chính:
 
 - scapper runtime materialize raw output vào local filesystem ở development mode hoặc MinIO ở production mode; ingest-srv chỉ nhận storage bucket, storage path, checksum, batch_id và completion metadata để tiếp tục xử lý;
-- knowledge-side report generation lưu artifact báo cáo ở object storage, còn PostgreSQL chỉ giữ report metadata, status và file URL.
+- knowledge-side report generation, như một capability mở rộng của knowledge layer ngoài bộ use case cốt lõi ở Chương 4, lưu artifact báo cáo ở object storage, còn PostgreSQL chỉ giữ report metadata, status và file URL.
 
 Lợi ích của cách làm này là giữ queue message và relational metadata ở kích thước hợp lý, đồng thời vẫn bảo toàn được lineage giữa task, artifact và kết quả downstream. Pattern này đồng bộ với cách mục 5.4 mô tả storage stack và artifact lineage, nên không cần giả định benchmark cứng hay contract dữ liệu nén nếu chưa có evidence tương ứng trong report chính.
 
 
 === 5.6.2 RabbitMQ cho execution plane
 
-Trong current architecture, RabbitMQ không đóng vai trò event bus trung tâm cho toàn bộ hệ thống. Phạm vi của nó hẹp hơn và rõ ràng hơn: làm lớp tích hợp bất đồng bộ giữa ingest-srv và scapper-srv cho hai nhu cầu chính là dispatch crawl task theo nền tảng và nhận completion envelope để correlate kết quả xử lý.
+Trong kiến trúc của SMAP, RabbitMQ không đóng vai trò event bus trung tâm cho toàn bộ hệ thống. Phạm vi của nó hẹp hơn và rõ ràng hơn: làm lớp tích hợp bất đồng bộ giữa ingest-srv và scapper-srv cho hai nhu cầu chính là dispatch crawl task theo nền tảng và nhận completion envelope để correlate kết quả xử lý.
 
 ==== 5.6.2.1 Topology dispatch và completion
 
-Topology RabbitMQ hiện tại được tổ chức theo từng lane nghiệp vụ cụ thể thay vì một exchange tổng quát cho mọi business event. Task dispatch đi qua direct exchange riêng cho từng nền tảng, còn completion được publish trở lại các durable queue để ingest-srv consume theo lane execution hoặc dry run.
+Topology RabbitMQ của SMAP được tổ chức theo từng lane nghiệp vụ cụ thể thay vì một exchange tổng quát cho mọi business event. Task dispatch đi qua direct exchange riêng cho từng nền tảng, còn completion được publish trở lại các durable queue để ingest-srv consume theo lane execution hoặc dry run.
 
 #context (align(center)[_Bảng #table_counter.display(): Topology RabbitMQ trong execution plane_])
 #table_counter.step()
@@ -228,7 +228,7 @@ Một số điểm quan trọng của topology này:
 
 ==== 5.6.2.2 Delivery semantics và xử lý lỗi
 
-Current implementation ưu tiên delivery semantics đơn giản nhưng rõ ràng ở phía consumer thay vì mô tả một broker-side retry fabric phức tạp. ingest-srv consume completion queues với manual acknowledgment và phân biệt rõ giữa payload không hợp lệ về mặt nghiệp vụ với lỗi xử lý tạm thời.
+Trong hiện thực của SMAP, delivery semantics ở RabbitMQ được giữ theo hướng đơn giản nhưng rõ ràng ở phía consumer thay vì dựa vào một broker-side retry fabric phức tạp. ingest-srv consume completion queues với manual acknowledgment và phân biệt rõ giữa payload không hợp lệ về mặt nghiệp vụ với lỗi xử lý tạm thời.
 
 #context (align(center)[_Bảng #table_counter.display(): Hành vi xử lý completion message ở ingest-srv_])
 #table_counter.step()
@@ -260,7 +260,7 @@ Current implementation ưu tiên delivery semantics đơn giản nhưng rõ ràn
   )
 ]
 
-Thiết kế này cho thấy fault handling hiện tại chủ yếu nằm ở application consumer logic: message hợp lệ sẽ được correlate theo task_id cùng storage metadata, message sai ngữ nghĩa sẽ bị loại bỏ có chủ đích, còn lỗi tạm thời sẽ được trả lại queue để redelivery. Vì vậy, mục này không giả định sẵn một DLX, DLQ riêng hay exponential backoff cố định nếu current implementation chưa thể hiện rõ các cơ chế đó.
+Thiết kế này cho thấy fault handling hiện tại chủ yếu nằm ở application consumer logic: message hợp lệ sẽ được correlate theo task_id cùng storage metadata, message sai ngữ nghĩa sẽ bị loại bỏ có chủ đích, còn lỗi tạm thời sẽ được trả lại queue để redelivery. Vì vậy, mục này không giả định sẵn một DLX, DLQ riêng hay exponential backoff cố định nếu thiết kế và hiện thực của SMAP chưa thể hiện rõ các cơ chế đó.
 
 === 5.6.3 Giao tiếp thời gian thực
 
@@ -316,7 +316,7 @@ Luồng xử lý ở notification-srv gồm các bước sau:
 
 ==== 5.6.3.2 Thiết lập kết nối và vòng đời phiên
 
-Current implementation xác thực WebSocket ngay tại HTTP upgrade boundary thay vì dùng một auth frame sau khi kết nối đã mở. Client mở `GET /ws` và cung cấp JWT theo một trong hai cách:
+Trong hiện thực của SMAP, WebSocket được xác thực ngay tại HTTP upgrade boundary thay vì dùng một auth frame sau khi kết nối đã mở. Client mở `GET /ws` và cung cấp JWT theo một trong hai cách:
 
 - cookie `smap_auth_token`, là cách dùng chính khi giao diện chạy cùng hệ xác thực;
 - query parameter `token`, chủ yếu phù hợp cho debug hoặc các client tích hợp đơn giản.
@@ -367,11 +367,11 @@ Tất cả WebSocket frames gửi tới client đều dùng cùng một envelope
   )
 ]
 
-Ngoài WebSocket delivery, một số message families như `CRISIS_ALERT`, `DATA_ONBOARDING` và `CAMPAIGN_EVENT` còn có thể được chuyển tiếp sang alert use case cho các kênh ngoài trình duyệt như Discord. Tuy vậy, realtime contract ở đây vẫn được giữ thống nhất dưới cùng một WebSocket envelope, giúp notification boundary tách rời khỏi logic hiển thị cụ thể ở từng client.
+Ngoài WebSocket delivery, một số message families như `CRISIS_ALERT`, `DATA_ONBOARDING` và `CAMPAIGN_EVENT` còn có thể được chuyển tiếp sang alert dispatch layer của notification-srv cho các kênh ngoài trình duyệt như Discord. Tuy vậy, realtime contract ở đây vẫn được giữ thống nhất dưới cùng một WebSocket envelope, giúp notification boundary tách rời khỏi logic hiển thị cụ thể ở từng client.
 
 === 5.6.4 Giám sát hệ thống
 
-Current implementation đã có các khối observability cốt lõi, nhưng mức độ hoàn thiện chưa đồng đều giữa mọi service. Phần rõ ràng nhất hiện nay gồm logging có ngữ cảnh, health hoặc readiness probes ở các API services chính, trace_id propagation xuyên qua HTTP và RabbitMQ, cùng một số metric domain-specific ở analysis-srv. Vì vậy, mục này mô tả các cơ chế đang hiện diện trong code thay vì giả định một monitoring surface hoàn toàn đồng nhất cho toàn bộ hệ thống.
+Trong thiết kế và hiện thực của SMAP đã có các khối observability cốt lõi, nhưng mức độ hoàn thiện chưa đồng đều giữa mọi service. Phần rõ ràng nhất hiện nay gồm logging có ngữ cảnh, health hoặc readiness probes ở các API services chính, trace_id propagation xuyên qua HTTP và RabbitMQ, cùng một số metric domain-specific ở analysis-srv. Vì vậy, mục này mô tả các cơ chế observability đang được tổ chức trong hệ thống thay vì giả định một monitoring surface hoàn toàn đồng nhất cho toàn bộ hệ thống.
 
 ==== 5.6.4.1 Logging và ngữ cảnh chẩn đoán
 
@@ -463,7 +463,7 @@ Các probe này đủ để phục vụ triển khai có orchestrator hoặc gat
 
 ==== 5.6.4.3 Metric instrumentation hiện có
 
-Current codebase chưa cho thấy một `/metrics` surface đồng nhất ở mọi service. Tuy nhiên, analysis-srv đã có lớp metric instrumentation dùng Prometheus primitives với graceful fallback sang no-op khi thư viện metrics chưa được cài hoặc chưa được bật trong môi trường chạy.
+Trong hiện thực của SMAP chưa thấy một `/metrics` surface đồng nhất ở mọi service. Tuy nhiên, analysis-srv đã có lớp metric instrumentation dùng Prometheus primitives với graceful fallback sang no-op khi thư viện metrics chưa được cài hoặc chưa được bật trong môi trường chạy.
 
 #context (align(center)[_Bảng #table_counter.display(): Metric instrumentation đã thấy rõ trong code_])
 #table_counter.step()
@@ -511,13 +511,13 @@ SMAP hiện implement mức tracing cơ bản dựa trên `X-Trace-Id` thay vì 
 - Shared RabbitMQ layer chèn `X-Trace-Id` vào message headers khi publish nếu context hiện tại đã có trace_id.
 - scapper-srv trích xuất `X-Trace-Id` từ inbound HTTP requests và từ RabbitMQ message headers, sau đó tiếp tục dùng cùng trace_id khi publish completion envelope trở lại queue.
 
-Với mức propagation này, việc debug liên service chủ yếu vẫn dựa trên log correlation hơn là trên trace visualization. Hệ thống chưa thể hiện đầy đủ span model hoặc backend như Jaeger hay OpenTelemetry collector trong current implementation.
+Với mức propagation này, việc debug liên service chủ yếu vẫn dựa trên log correlation hơn là trên trace visualization. Hệ thống chưa thể hiện đầy đủ span model hoặc backend như Jaeger hay OpenTelemetry collector trong hiện thực của SMAP.
 
 === 5.6.5 Tổng kết
 
-- Hệ thống sử dụng nhiều communication patterns theo từng lane xử lý: request-response cho CRUD, control và retrieval; RabbitMQ cho execution task dispatch; Kafka cho analytics downstream; Redis Pub/Sub kết hợp WebSocket cho notification delivery; và artifact reference cho các payload hoặc output lớn.
+- Hệ thống sử dụng nhiều communication patterns theo từng lane xử lý: request-response cho CRUD, control và retrieval; RabbitMQ cho execution task dispatch; Kafka cho analytics downstream; Redis Pub/Sub kết hợp WebSocket cho notification delivery; và artifact reference cho raw crawl artifacts cùng knowledge-side report artifacts, trong đó nhóm report thuộc capability mở rộng của knowledge layer ngoài bộ use case cốt lõi ở Chương 4.
 
-- RabbitMQ trong current architecture chỉ đóng vai trò execution-plane broker giữa ingest-srv và scapper-srv. Task được route theo exchange hoặc queue platform-specific, còn completion được correlate lại ở ingest lane bằng task_id và metadata kèm theo.
+- RabbitMQ trong kiến trúc của SMAP chỉ đóng vai trò execution-plane broker giữa ingest-srv và scapper-srv. Task được route theo exchange hoặc queue platform-specific, còn completion được correlate lại ở ingest lane bằng task_id và metadata kèm theo.
 
 - Realtime notification được tổ chức theo user-targeted delivery boundary. notification-srv xác thực kết nối ngay tại HTTP upgrade, subscribe Redis ingress theo các channel pattern định trước, rồi đẩy các WebSocket envelope thống nhất ra các phiên đang hoạt động.
 
