@@ -1,6 +1,6 @@
 #import "../counters.typ": image_counter, table_counter
 
-=== 5.5.1 UC-01: Cấu hình Project
+=== 5.5.1 UC-01: Thiết lập chiến dịch theo dõi
 
 Trong bộ use case hiện tại ở Chương 4, UC-01 được hiểu là mục tiêu thiết lập một chiến dịch theo dõi đủ điều kiện vận hành. Ở mức sequence, mục tiêu này được cụ thể hóa qua ba interaction flows chính: tạo campaign và project, khai báo nguồn dữ liệu cùng mục tiêu thu thập, và thực hiện kiểm tra thử khi cần.
 

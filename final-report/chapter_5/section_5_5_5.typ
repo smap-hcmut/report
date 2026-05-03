@@ -4,7 +4,7 @@
 
 Trong bộ use case hiện tại ở Chương 4, UC-05 được hiểu là mục tiêu cho phép người dùng thiết lập, xem, cập nhật hoặc xóa bộ quy tắc cảnh báo khủng hoảng của một project. Ở mức sequence, mục tiêu này được cụ thể hóa qua hai interaction flows chính: xem hoặc lưu bộ quy tắc cảnh báo và xóa cấu hình cảnh báo khi không còn cần sử dụng.
 
-Điểm chung của các flow trong mục này là Project Service giữ ownership của crisis configuration như một phần của business context. Cấu hình được quản lý theo project, còn việc hệ thống sử dụng các quy tắc đó để phát hiện hoặc phát cảnh báo ở runtime thuộc các luồng vận hành khác.
+Điểm chung của các flow trong mục này là Project Service giữ ownership của crisis configuration như một phần của business context. Cấu hình được quản lý theo project, còn việc hệ thống sử dụng các quy tắc đó để phát hiện hoặc phát cảnh báo ở các luồng xử lý phía sau, và phần người dùng quan sát các cảnh báo phát sinh thuộc UC-04.
 
 ==== 5.5.5.1 Xem và lưu bộ quy tắc cảnh báo khủng hoảng
 
