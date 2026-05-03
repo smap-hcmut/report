@@ -266,33 +266,74 @@ Thiết kế này cho thấy fault handling hiện tại chủ yếu nằm ở a
 
 === 5.6.3 Giao tiếp thời gian thực
 
-Hệ thống SMAP sử dụng WebSocket kết hợp Redis Pub/Sub để cung cấp cập nhật thời gian thực cho người dùng. Section này giải thích cách giải quyết vấn đề horizontal scaling của stateful WebSocket connections.
+Trong current architecture, giao tiếp thời gian thực của SMAP được tổ chức quanh notification-srv như một delivery boundary chuyên biệt. Backend publishers không gửi trực tiếp message tới từng phiên người dùng; thay vào đó, chúng publish notification vào Redis Pub/Sub, còn notification-srv subscribe ingress stream này, chuẩn hóa payload và đẩy kết quả ra WebSocket cho các kết nối đang hoạt động.
 
-==== 5.6.3.1 Kiến trúc WebSocket với Redis Pub/Sub
+==== 5.6.3.1 Redis ingress và routing theo scope
 
-Vấn đề chính khi scale WebSocket Service là connections stateful. Mỗi client connection gắn với một server instance cụ thể. Khi có nhiều instances, hệ thống cần cơ chế để đảm bảo message từ Analytics Service đến đúng client.
+Vì WebSocket connection là stateful và gắn với từng instance cụ thể, notification-srv cần một ingress layer dùng chung để mọi instance đều quan sát cùng một notification stream. Redis Pub/Sub đáp ứng vai trò này bằng pattern subscription trên các channel scope hóa theo user, project, campaign hoặc system.
 
-Giải pháp: Redis Pub/Sub làm message bus giữa các WebSocket instances.
+#context (align(center)[_Bảng #table_counter.display(): Các channel pattern của notification ingress_])
+#table_counter.step()
+#block(width: 100%)[
+  #set par(justify: false)
+  #table(
+    columns: (0.28fr, 0.18fr, 0.24fr, 0.30fr),
+    stroke: 0.5pt,
+    align: (left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Channel pattern*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Scope*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Loại message tiêu biểu*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Ý nghĩa delivery*],
 
-Luồng hoạt động:
+    table.cell(align: center + horizon, inset: (y: 0.8em))[project:\*:user:\*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Project + user],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[DATA_ONBOARDING, ANALYTICS_PIPELINE],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo tiến độ onboarding hoặc analytics gắn với một project nhưng nhắm đến user cụ thể],
 
-- Analytics Service phát hiện crisis post và gửi message vào Redis channel theo user_id.
+    table.cell(align: center + horizon, inset: (y: 0.8em))[campaign:\*:user:\*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Campaign + user],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[CAMPAIGN_EVENT],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo lifecycle hoặc artifact event của campaign cho user liên quan],
 
-- Tất cả WebSocket Service instances đăng ký channel đó.
+    table.cell(align: center + horizon, inset: (y: 0.8em))[alert:\*:user:\*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Alert + user],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[CRISIS_ALERT],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Cảnh báo khủng hoảng hoặc alert chuyên biệt gửi đến user mục tiêu],
 
-- Instance nào có connection với user đó sẽ chuyển tiếp message đến client.
+    table.cell(align: center + horizon, inset: (y: 0.8em))[system:\*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[System-wide],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[SYSTEM],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo broadcast không ràng buộc vào một user cụ thể],
+  )
+]
 
-- Các instances khác nhận message nhưng không có connection nên bỏ qua.
+Luồng xử lý ở notification-srv gồm các bước sau:
 
-Channel Structure:
+- mọi instance của notification-srv pattern-subscribe các channel trên;
+- khi nhận message, service parse channel để xác định scope, entity_id, subtype và user_id đích nếu có;
+- payload được nhận diện loại message dựa trên cấu trúc dữ liệu, sau đó transform thành WebSocket envelope thống nhất;
+- hub trong bộ nhớ gửi message đến tất cả active connections của user tương ứng, hoặc broadcast nếu channel thuộc system scope.
 
-- Channel theo user: Messages dành riêng cho một user cụ thể như cảnh báo khủng hoảng, thông báo export hoàn thành.
+Điểm quan trọng ở đây là routing lõi hiện tại mang tính user-centric. Dù channel name mang ngữ nghĩa project hoặc campaign, hub chủ yếu index connection theo user_id. Vì vậy, mục này mô tả delivery semantics theo user-targeted notification và system broadcast, không giả định cơ chế subscription động theo từng project ở mọi client implementation.
 
-- Channel theo project: Messages liên quan đến một project như cập nhật tiến độ.
+==== 5.6.3.2 Thiết lập kết nối và vòng đời phiên
 
-- Channel phát sóng: Messages gửi đến tất cả users như thông báo hệ thống.
+Current implementation xác thực WebSocket ngay tại HTTP upgrade boundary thay vì dùng một auth frame sau khi kết nối đã mở. Client mở `GET /ws` và cung cấp JWT theo một trong hai cách:
 
-==== 5.6.3.2 Message Types
+- cookie `smap_auth_token`, là cách dùng chính khi giao diện chạy cùng hệ xác thực;
+- query parameter `token`, chủ yếu phù hợp cho debug hoặc các client tích hợp đơn giản.
+
+Notification Service verify token trước khi nâng cấp kết nối và trích xuất user_id từ JWT payload. Sau khi upgrade thành công, connection được đăng ký vào hub trong bộ nhớ theo user_id và bắt đầu hai vòng lặp nội bộ:
+
+- `readPump` chủ yếu giữ connection sống, nhận close hoặc control frames và hiện chưa định nghĩa business message riêng từ client lên server;
+- `writePump` chịu trách nhiệm đẩy notification ra ngoài và phát WebSocket ping định kỳ;
+- `pong` được dùng để gia hạn read deadline, qua đó phát hiện stale connection và cleanup khi peer không còn phản hồi.
+
+Thiết kế này cho thấy realtime lane hiện tại thiên về server-to-client push. Các message nghiệp vụ được đẩy từ backend qua Redis ingress rồi ra WebSocket, còn phía client không cần thực hiện thêm bước subscribe hay gửi auth envelope sau khi connection đã được chấp nhận.
+
+==== 5.6.3.3 Notification envelope và message families
+
+Tất cả WebSocket frames gửi tới client đều dùng cùng một envelope gồm ba thành phần: `type`, `timestamp` và `payload`. Cách đóng gói thống nhất này giúp frontend hoặc client tương thích xử lý nhiều nhóm thông báo khác nhau mà không cần thay đổi transport contract.
 
 #context (align(center)[_Bảng #table_counter.display(): Các loại WebSocket messages_])
 #table_counter.step()
@@ -306,43 +347,29 @@ Channel Structure:
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Hướng*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Mô tả*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[auth],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Client → Server],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Xác thực connection với JWT token],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[progress_update],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[DATA_ONBOARDING],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cập nhật tiến độ crawling và analytics với phase và percent],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo trạng thái và kết quả onboarding dữ liệu theo source hoặc project context],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[crisis_alert],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ANALYTICS_PIPELINE],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo phát hiện bài viết khủng hoảng],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Cập nhật tiến độ pipeline analytics với phase, progress và các bộ đếm xử lý],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[completion],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[CRISIS_ALERT],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo project hoàn thành],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Cảnh báo khủng hoảng với severity, metric, threshold và các affected aspects],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[export_ready],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[CAMPAIGN_EVENT],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo file export đã sẵn sàng download],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo các sự kiện liên quan đến campaign như hoàn tất xử lý hoặc artifact đã sẵn sàng],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[SYSTEM],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo broadcast hoặc maintenance event ở phạm vi toàn hệ thống],
   )
 ]
 
-==== 5.6.3.3 Connection Lifecycle
-
-Connection lifecycle của WebSocket trong hệ thống:
-
-- Connect: Client mở WebSocket connection đến WebSocket Service.
-
-- Authenticate: Client gửi auth message với JWT token, server verify và associate connection với user_id.
-
-- Subscribe: Server đăng ký Redis Pub/Sub channels liên quan đến user.
-
-- Heartbeat: Ping/pong định kỳ để detect stale connections.
-
-- Disconnect: Khi user navigate away hoặc close browser, connection được cleanup và hủy đăng ký channels.
-
-Chiến lược kết nối lại: Client sử dụng exponential backoff khi connection bị mất, tối đa 60 giây giữa các lần thử lại.
+Ngoài WebSocket delivery, một số message families như `CRISIS_ALERT`, `DATA_ONBOARDING` và `CAMPAIGN_EVENT` còn có thể được chuyển tiếp sang alert use case cho các kênh ngoài trình duyệt như Discord. Tuy vậy, realtime contract ở đây vẫn được giữ thống nhất dưới cùng một WebSocket envelope, giúp notification boundary tách rời khỏi logic hiển thị cụ thể ở từng client.
 
 === 5.6.4 Giám sát hệ thống
 
