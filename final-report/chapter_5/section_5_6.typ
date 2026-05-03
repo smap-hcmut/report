@@ -149,87 +149,120 @@ Trong SMAP, pattern này xuất hiện ở hai nơi chính:
 Lợi ích của cách làm này là giữ queue message và relational metadata ở kích thước hợp lý, đồng thời vẫn bảo toàn được lineage giữa task, artifact và kết quả downstream. Pattern này đồng bộ với cách mục 5.4 mô tả storage stack và artifact lineage, nên không cần giả định benchmark cứng hay contract dữ liệu nén nếu chưa có evidence tương ứng trong report chính.
 
 
-=== 5.6.2 Kiến trúc hướng sự kiện
+=== 5.6.2 RabbitMQ cho execution plane
 
-Hệ thống SMAP sử dụng RabbitMQ làm message broker trung tâm cho event-driven communication giữa các services. Section này mô tả topology, event catalog, và cơ chế xử lý lỗi.
+Trong current architecture, RabbitMQ không đóng vai trò event bus trung tâm cho toàn bộ hệ thống. Phạm vi của nó hẹp hơn và rõ ràng hơn: làm lớp tích hợp bất đồng bộ giữa ingest-srv và scapper-srv cho hai nhu cầu chính là dispatch crawl task theo nền tảng và nhận completion envelope để correlate kết quả xử lý.
 
-==== 5.6.2.1 RabbitMQ Topology
+==== 5.6.2.1 Topology dispatch và completion
 
-RabbitMQ được cấu hình với Topic Exchange để routing messages linh hoạt dựa trên routing keys.
+Topology RabbitMQ hiện tại được tổ chức theo từng lane nghiệp vụ cụ thể thay vì một exchange tổng quát cho mọi business event. Task dispatch đi qua direct exchange riêng cho từng nền tảng, còn completion được publish trở lại các durable queue để ingest-srv consume theo lane execution hoặc dry run.
 
-#context (align(center)[_Bảng #table_counter.display(): Cấu hình Exchange trong RabbitMQ_])
+#context (align(center)[_Bảng #table_counter.display(): Topology RabbitMQ trong execution plane_])
 #table_counter.step()
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.25fr, 0.20fr, 0.55fr),
+    columns: (0.22fr, 0.14fr, 0.18fr, 0.18fr, 0.28fr),
     stroke: 0.5pt,
-    align: (left, left, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Exchange*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Type*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Mục đích*],
+    align: (left, left, left, left, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Tên*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Loại*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Publisher chính*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Consumer chính*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Vai trò*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[smap.events],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Topic],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Main event bus cho tất cả business events],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_tiktok_tasks_exc],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Direct exchange],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv qua tiktok_tasks],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Route task TikTok vào queue xử lý tương ứng],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[smap.dlx],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Direct],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Dead Letter Exchange cho failed messages],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_facebook_tasks_exc],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Direct exchange],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv qua facebook_tasks],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Route task Facebook vào queue xử lý tương ứng],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_youtube_tasks_exc],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Direct exchange],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv qua youtube_tasks],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Route task YouTube vào queue xử lý tương ứng],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[tiktok_tasks],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Durable queue],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Hàng đợi task TikTok dùng chung cho execution và dry run],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[facebook_tasks],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Durable queue],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Hàng đợi task Facebook dùng chung cho execution và dry run],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[youtube_tasks],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Durable queue],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Hàng đợi task YouTube dùng chung cho execution và dry run],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_task_completions],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Durable queue],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv execution consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Nhận completion cho execution lane và correlate theo task_id],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_dryrun_completions],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Durable queue],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv dryrun consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Nhận completion cho dry run lane để cập nhật readiness và kết quả kiểm thử],
   )
 ]
 
-==== 5.6.2.2 Dead Letter Queue và Retry Policy
+Một số điểm quan trọng của topology này:
 
-Khi message processing fail, hệ thống sử dụng Dead Letter Queue để lưu trữ failed messages và retry mechanism để xử lý lại.
+- Mỗi nền tảng có một direct exchange riêng, và routing key hiện tại trùng với tên queue đích tương ứng.
+- Execution lane và dry run lane dùng chung các task queue theo nền tảng; việc tách hai lane xảy ra ở completion path dựa trên metadata runtime_kind.
+- Completion envelope được scapper-srv publish trực tiếp vào queue đích bằng queue name, thay vì đi qua một exchange tổng quát cho mọi completion event.
+- Cả queue lẫn message đều được cấu hình theo hướng durable và persistent để hỗ trợ xử lý bất đồng bộ ổn định hơn qua các lần restart thông thường.
 
-Retry Policy với Exponential Backoff:
+==== 5.6.2.2 Delivery semantics và xử lý lỗi
 
-#context (align(center)[_Bảng #table_counter.display(): Retry Policy cho failed messages_])
+Current implementation ưu tiên delivery semantics đơn giản nhưng rõ ràng ở phía consumer thay vì mô tả một broker-side retry fabric phức tạp. ingest-srv consume completion queues với manual acknowledgment và phân biệt rõ giữa payload không hợp lệ về mặt nghiệp vụ với lỗi xử lý tạm thời.
+
+#context (align(center)[_Bảng #table_counter.display(): Hành vi xử lý completion message ở ingest-srv_])
 #table_counter.step()
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.20fr, 0.20fr, 0.60fr),
+    columns: (0.30fr, 0.22fr, 0.48fr),
     stroke: 0.5pt,
     align: (left, left, left),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Attempt*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Delay*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Action*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Tình huống*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Hành vi consumer*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Ý nghĩa*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[1],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Ngay lập tức],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Process message lần đầu],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Completion hợp lệ và xử lý thành công],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Ack],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kết thúc vòng đời message sau khi ingest-srv đã correlate và cập nhật trạng thái tương ứng],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[2],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[1 giây],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Retry lần 1],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Payload không parse được hoặc JSON không hợp lệ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Ack và discard],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Tránh để poison message bị redelivery lặp lại khi bản thân payload đã hỏng],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[10 giây],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Retry lần 2],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[task_id không tồn tại hoặc completion input không hợp lệ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Ack và discard],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Không retry các message sai ngữ nghĩa nghiệp vụ vì khả năng thành công lại gần như không tăng],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[4],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[60 giây],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Retry lần 3],
-
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Failed],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Route message đến Dead Letter Queue],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Lỗi xử lý tạm thời ở use case hoặc hạ tầng phụ trợ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Nack với requeue],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Cho phép RabbitMQ giao lại message để completion được thử xử lý lại ở lượt sau],
   )
 ]
 
-Dead Letter Queue Configuration:
-
-- Retention: 7 ngày, sau đó messages bị xóa tự động.
-
-- Replay: Có thể phát lại thủ công qua admin tool khi cần xử lý lại failed messages.
-
-- Monitoring: Prometheus metric theo dõi DLQ depth, alert khi vượt ngưỡng cấu hình.
-
-#block(inset: (left: 1em, top: 0.5em, bottom: 0.5em))[
-  _Lưu ý: Các giá trị cấu hình (retry delays, TTL, timeouts) được trình bày ở mức thiết kế, thể hiện các quyết định kiến trúc nhằm cân bằng giữa fault tolerance và resource utilization. Các giá trị cụ thể có thể điều chỉnh trong quá trình triển khai dựa trên kết quả benchmark và môi trường production._
-]
+Thiết kế này cho thấy fault handling hiện tại chủ yếu nằm ở application consumer logic: message hợp lệ sẽ được correlate theo task_id cùng storage metadata, message sai ngữ nghĩa sẽ bị loại bỏ có chủ đích, còn lỗi tạm thời sẽ được trả lại queue để redelivery. Vì vậy, mục này không giả định sẵn một DLX, DLQ riêng hay exponential backoff cố định nếu current implementation chưa thể hiện rõ các cơ chế đó.
 
 === 5.6.3 Giao tiếp thời gian thực
 
