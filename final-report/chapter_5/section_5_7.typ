@@ -7,7 +7,7 @@ Phần này trình bày thiết kế triển khai hệ thống SMAP lên môi tr
 
 === 5.7.1 Mô hình triển khai
 
-Hệ thống SMAP được triển khai theo mô hình Kubernetes-based Microservices Architecture, trong đó các services được đóng gói thành containers và orchestrate bởi Kubernetes cluster. Mô hình này cho phép scale từng service độc lập, đảm bảo fault tolerance và hỗ trợ rolling updates không gây downtime.
+Hệ thống SMAP được triển khai theo mô hình Kubernetes-based Microservices Architecture, trong đó các services được đóng gói thành containers và orchestrate bởi Kubernetes cluster. Ở góc nhìn triển khai, các trách nhiệm API, scheduler, consumer và worker được tách thành các pod riêng khi cần, giúp mỗi workload có vòng đời scale, restart và rollout độc lập hơn.
 
 #align(center)[
   #image("../images/deploy/deployment-diagram-current.excalidraw.svg", width: 100%)
@@ -19,11 +19,11 @@ Kiến trúc triển khai được tổ chức thành các tầng sau:
 
 - Tầng Ingress: Traefik Gateway đóng vai trò load balancer và reverse proxy, xử lý TLS termination và routing requests đến các services tương ứng.
 
-- Tầng Frontend: Web UI được triển khai dưới dạng Next.js application với Server-Side Rendering, phục vụ giao diện người dùng và gọi API đến backend services.
+- Tầng Frontend: `web-ui` được triển khai như một pod giao diện và backend-for-frontend, phục vụ giao diện người dùng và gọi API đến backend services.
 
-- Tầng Backend Services: Các microservices được triển khai độc lập bao gồm Identity Service, Project Service, Ingest Service, Knowledge Service và Notification Service.
+- Tầng API Pods: Các pod phục vụ HTTP hoặc WebSocket bao gồm `identity-api`, `project-api`, `ingest-api`, `knowledge-api`, `notification-delivery` và `scapper-api`.
 
-- Tầng Workers: Các background workers xử lý tác vụ bất đồng bộ như Scapper Worker Service và Analysis Consumer.
+- Tầng Runtime Pods: Các pod nền bao gồm `identity-audit-consumer`, `project-consumer`, `ingest-scheduler`, `ingest-completion-consumer`, `analysis-consumer`, `knowledge-consumer` và `scapper-worker`.
 
 - Tầng Infrastructure: Các dịch vụ hạ tầng bao gồm PostgreSQL cho lưu trữ dữ liệu quan hệ, Redis cho caching và pub/sub, RabbitMQ cho task queue, Kafka cho analytics data plane, MinIO cho object storage và Qdrant cho vector retrieval.
 
@@ -94,10 +94,10 @@ Hệ thống được cấu hình với domain smap-api.tantai.dev cho productio
     table.cell(align: center + horizon, inset: (y: 0.8em))[6443],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Internal],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Kubernetes API Server],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[8000-8081],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[3000, 8080, 8081, 8082, 8105],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Internal],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Application services communication],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[5432, 6379, 5672, 9092, 9000-9001, 6333-6334],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[API pods và WebSocket delivery surface],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[5432, 6379, 5672, 9092/9094, 9000-9001, 6333-6334],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Internal],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Database, object storage, streaming và message infrastructure],
   )
@@ -163,66 +163,116 @@ Quy trình CI/CD được tự động hóa thông qua GitHub Actions với các
 
 === 5.7.6 Cấu hình Kubernetes Deployments
 
-Mỗi service được triển khai với Kubernetes Deployment và Service resources. Cấu hình bao gồm:
+Các workload trong hệ thống được triển khai thành các Deployment riêng theo pod role thay vì gộp toàn bộ trách nhiệm của một service vào một pod duy nhất. Cách tách này đặc biệt quan trọng với các service vừa có API vừa có consumer hoặc scheduler, vì chúng có nhịp tải, dependency surface và vòng đời rollout khác nhau.
 
-- Replicas: Số lượng pod replicas để đảm bảo high availability. Frontend và backend services chạy 3 replicas, workers chạy 2 replicas.
+Các nguyên tắc triển khai chính gồm:
 
-- Resource Limits: Giới hạn CPU và memory cho mỗi container để tránh resource contention.
-
-- Health Checks: Liveness probe và readiness probe để Kubernetes tự động restart unhealthy pods và chỉ route traffic đến healthy pods.
-
+- Pod Role Separation: API pod, scheduler pod, consumer pod và worker pod được tách riêng khi cùng thuộc một service boundary.
+- Health Checks: Các pod có HTTP surface sử dụng liveness probe và readiness probe; các consumer hoặc worker pod có thể dùng probe theo tiến trình hoặc theo runtime contract phù hợp.
 - Environment Variables: Cấu hình được inject qua ConfigMaps và Secrets, không hardcode trong image.
+- Independent Scaling: API pods ưu tiên ổn định request path, trong khi consumer hoặc worker pods có thể scale theo queue depth, topic load hoặc throughput của lane tương ứng.
 
-#context (align(center)[_Bảng #table_counter.display(): Cấu hình Resource Limits cho các services_])
+#context (align(center)[_Bảng #table_counter.display(): Pod deployment matrix trong kiến trúc triển khai_])
 #table_counter.step()
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.30fr, 0.15fr, 0.20fr, 0.20fr, 0.15fr),
+    columns: (0.21fr, 0.18fr, 0.33fr, 0.12fr, 0.16fr),
     stroke: 0.5pt,
-    align: (left, center, center, center, center),
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Service*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Replicas*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*CPU Request*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Memory Request*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Memory Limit*],
+    align: (left, left, left, center, left),
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Runtime pod*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Thuộc service*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Vai trò*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Port*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Ghi chú*],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[web-ui],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Web UI],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[100m],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[256Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[512Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Identity Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[100m],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[128Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[256Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Project Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[100m],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[128Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[256Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Ingest Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[200m],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[256Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[512Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Knowledge Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[2],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[200m],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[512Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[1Gi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics Consumer],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[2],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[1000m],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[2Gi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[4Gi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Notification Service],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[3],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[100m],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[128Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[256Mi],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Frontend/BFF],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[3000],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Nhận traffic từ gateway và proxy browser requests],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[identity-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[identity-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Auth, session và internal validation API],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[8080],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP surface của security boundary],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[identity-audit-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[identity-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka audit consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pod nền cho audit logging],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[project-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[project-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Campaign, project, lifecycle và crisis API],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[8082],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Business control plane API],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[project-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[project-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka lifecycle hoặc event consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Background pod theo event lane],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Datasource, target, dry run và lifecycle API],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[8081],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP surface của execution ingress lane],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-scheduler],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Scheduled crawl và heartbeat dispatch],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Tách riêng để scale và restart độc lập với API],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-completion-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQ completion consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Nhận completion cho execution và dry run lanes],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka analytics pipeline consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[CPU-heavy analytics runtime pod],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Search, chat, report và indexing control API],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[8080],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP surface cho retrieval và report capability],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka downstream indexing consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Background pod cho indexing lane],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[notification-delivery],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[notification-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket/API và Redis Pub/Sub delivery],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[8081],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Giữ subscriber cùng pod delivery vì phụ thuộc in-memory WebSocket hub],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-worker],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQ crawl worker],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Thực thi crawl task và materialize raw artifact],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Auxiliary submit, result và health API],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[8105],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Pod hỗ trợ cho thao tác vận hành hoặc kiểm tra cục bộ],
   )
 ]
+
+Các pod có HTTP surface thường được publish qua `Service` ổn định để gateway route traffic. Ngược lại, consumer, scheduler và worker pods chủ yếu giao tiếp với RabbitMQ, Kafka, Redis hoặc storage backend, nên không cần cổng ứng dụng công khai trừ khi workload đó chọn expose health hoặc metrics theo một contract riêng.
 
 === 5.7.7 Infrastructure Services
 
@@ -234,7 +284,11 @@ Các dịch vụ hạ tầng được triển khai với cấu hình đảm bả
 
 - RabbitMQ: Message queue cluster với 3 nodes để đảm bảo high availability. Hỗ trợ message persistence và automatic failover.
 
+- Kafka: Streaming backbone cho analytics data plane, downstream indexing và các consumer runtime bất đồng bộ.
+
 - MinIO: Object storage cho lưu trữ raw data từ crawlers và export files. Cấu hình với bucket policies và access control.
+
+- Qdrant: Vector store phục vụ semantic retrieval và indexing lane của Knowledge Service.
 
 === 5.7.8 Monitoring và Logging
 

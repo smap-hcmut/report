@@ -1,119 +1,143 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="980" viewBox="0 0 1480 980">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1040" viewBox="0 0 1500 1040">
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
       <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
     </marker>
   </defs>
   <rect width="100%" height="100%" fill="#ffffff"/>
-  <text x="60" y="62" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#0f172a">Deployment View of SMAP</text>
+  <text x="60" y="64" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#0f172a">Deployment View of SMAP</text>
 
-  <rect x="450" y="110" width="520" height="120" rx="18" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/>
-  <text x="474" y="140" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#1e3a8a">Client Access</text>
-  <rect x="488" y="160" width="180" height="44" rx="12" fill="#ffffff" stroke="#475569" stroke-width="2"/>
-  <rect x="742" y="160" width="180" height="44" rx="12" fill="#ffffff" stroke="#475569" stroke-width="2"/>
-  <text x="578" y="188" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#0f172a">Users</text>
-  <text x="832" y="188" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#0f172a">Operators</text>
+  <rect x="500" y="96" width="420" height="118" rx="18" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/>
+  <text x="528" y="126" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#1e3a8a">Client Access</text>
+  <rect x="538" y="156" width="148" height="40" rx="10" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+  <rect x="734" y="156" width="148" height="40" rx="10" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+  <text x="612" y="182" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#0f172a">Users</text>
+  <text x="808" y="182" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#0f172a">Operators</text>
 
-  <rect x="560" y="274" width="300" height="72" rx="16" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
-  <text x="710" y="303" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#14532d">Traefik Gateway</text>
-  <text x="710" y="327" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#166534">smap-api.tantai.dev</text>
+  <rect x="562" y="254" width="296" height="66" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="710" y="280" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#14532d">Traefik Gateway</text>
+  <text x="710" y="304" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#166534">smap-api.tantai.dev</text>
 
-  <rect x="60" y="390" width="1100" height="470" rx="20" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="2"/>
-  <text x="84" y="420" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#6d28d9">Kubernetes Workloads</text>
+  <rect x="52" y="360" width="1088" height="590" rx="20" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="2"/>
+  <text x="80" y="392" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#6d28d9">Kubernetes Workloads</text>
+  <text x="96" y="438" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#475569">API Pods</text>
+  <text x="96" y="642" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#475569">Runtime Pods</text>
 
-  <g font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#0f172a" text-anchor="middle">
-    <rect x="108" y="466" width="180" height="56" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
-    <text x="198" y="500">smap-ui</text>
+  <rect x="1180" y="360" width="260" height="590" rx="20" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/>
+  <text x="1208" y="392" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#166534">Platform Services</text>
 
-    <rect x="320" y="466" width="180" height="56" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
-    <text x="410" y="500">identity-srv</text>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#0f172a" text-anchor="middle">
+    <rect x="96" y="466" width="150" height="54" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="171" y="488">web-ui</text><text x="171" y="508" font-size="13" fill="#475569">port 3000</text>
 
-    <rect x="532" y="466" width="180" height="56" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
-    <text x="622" y="500">project-srv</text>
+    <rect x="272" y="466" width="150" height="54" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="347" y="488">identity-api</text><text x="347" y="508" font-size="13" fill="#475569">port 8080</text>
 
-    <rect x="744" y="466" width="180" height="56" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
-    <text x="834" y="500">ingest-srv</text>
+    <rect x="448" y="466" width="150" height="54" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="523" y="488">project-api</text><text x="523" y="508" font-size="13" fill="#475569">port 8082</text>
 
-    <rect x="956" y="466" width="180" height="56" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
-    <text x="1046" y="500">knowledge-srv</text>
+    <rect x="624" y="466" width="150" height="54" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="699" y="488">ingest-api</text><text x="699" y="508" font-size="13" fill="#475569">port 8081</text>
 
-    <rect x="214" y="610" width="220" height="56" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
-    <text x="324" y="644">notification-srv</text>
+    <rect x="800" y="466" width="150" height="54" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="875" y="488">knowledge-api</text><text x="875" y="508" font-size="13" fill="#475569">port 8080</text>
 
-    <rect x="468" y="610" width="220" height="56" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
-    <text x="578" y="644" fill="#9a3412">scapper-srv</text>
+    <rect x="96" y="544" width="238" height="54" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="215" y="566">notification-delivery</text><text x="215" y="586" font-size="13" fill="#475569">port 8081</text>
 
-    <rect x="722" y="610" width="220" height="56" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
-    <text x="832" y="644" fill="#9a3412">analysis-consumer</text>
+    <rect x="364" y="544" width="190" height="54" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="459" y="566">scapper-api</text><text x="459" y="586" font-size="13" fill="#475569">port 8105</text>
+
+    <rect x="96" y="670" width="220" height="54" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="206" y="692" fill="#9a3412">identity-audit-consumer</text>
+
+    <rect x="342" y="670" width="170" height="54" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="427" y="702" fill="#9a3412">project-consumer</text>
+
+    <rect x="538" y="670" width="170" height="54" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="623" y="702" fill="#9a3412">ingest-scheduler</text>
+
+    <rect x="734" y="670" width="220" height="54" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="844" y="702" fill="#9a3412">ingest-completion-consumer</text>
+
+    <rect x="96" y="748" width="190" height="54" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="191" y="780" fill="#9a3412">analysis-consumer</text>
+
+    <rect x="312" y="748" width="190" height="54" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="407" y="780" fill="#9a3412">knowledge-consumer</text>
+
+    <rect x="528" y="748" width="170" height="54" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="613" y="780" fill="#9a3412">scapper-worker</text>
   </g>
 
-  <rect x="1200" y="390" width="240" height="470" rx="20" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/>
-  <text x="1224" y="420" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#166534">Platform Services</text>
-
-  <g font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#0f172a" text-anchor="middle">
-    <rect x="1230" y="458" width="180" height="44" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
-    <text x="1320" y="486">PostgreSQL</text>
-    <rect x="1230" y="520" width="180" height="44" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
-    <text x="1320" y="548">Redis</text>
-    <rect x="1230" y="582" width="180" height="44" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
-    <text x="1320" y="610">RabbitMQ</text>
-    <rect x="1230" y="644" width="180" height="44" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
-    <text x="1320" y="672">Kafka</text>
-    <rect x="1230" y="706" width="180" height="44" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
-    <text x="1320" y="734">MinIO</text>
-    <rect x="1230" y="768" width="180" height="44" rx="12" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
-    <text x="1320" y="796">Qdrant</text>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#0f172a" text-anchor="middle">
+    <rect x="1210" y="446" width="200" height="42" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+    <text x="1310" y="472">PostgreSQL</text>
+    <rect x="1210" y="502" width="200" height="42" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+    <text x="1310" y="528">Redis</text>
+    <rect x="1210" y="558" width="200" height="42" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+    <text x="1310" y="584">RabbitMQ</text>
+    <rect x="1210" y="614" width="200" height="42" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+    <text x="1310" y="640">Kafka</text>
+    <rect x="1210" y="670" width="200" height="42" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+    <text x="1310" y="696">MinIO</text>
+    <rect x="1210" y="726" width="200" height="42" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+    <text x="1310" y="752">Qdrant</text>
   </g>
 
-  <rect x="60" y="884" width="300" height="48" rx="12" fill="#ecfeff" stroke="#0ea5e9" stroke-width="2"/>
-  <text x="210" y="914" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#0f172a">Harbor Registry / Image Pull</text>
+  <rect x="52" y="964" width="278" height="46" rx="10" fill="#ecfeff" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="191" y="993" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#0f172a">Harbor Registry / Image Pull</text>
 
   <g fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)">
-    <path d="M578 204 L640 274"/>
-    <path d="M832 204 L780 274"/>
-    <path d="M710 346 L198 466"/>
-    <path d="M710 346 L410 466"/>
-    <path d="M710 346 L622 466"/>
-    <path d="M710 346 L834 466"/>
-    <path d="M710 346 L1046 466"/>
-    <path d="M710 346 L324 610"/>
-    <path d="M710 346 L578 610"/>
-    <path d="M710 346 L832 610"/>
+    <path d="M612 196 L664 254"/>
+    <path d="M808 196 L756 254"/>
 
-    <path d="M712 494 L744 494"/>
-    <path d="M834 522 L634 610"/>
-    <path d="M578 638 L744 638"/>
-    <path d="M942 638 L956 522"/>
+    <path d="M710 320 L171 466"/>
+    <path d="M710 320 L347 466"/>
+    <path d="M710 320 L523 466"/>
+    <path d="M710 320 L699 466"/>
+    <path d="M710 320 L875 466"/>
+    <path d="M710 320 L215 544"/>
+    <path d="M710 320 L459 544"/>
 
-    <path d="M410 522 L1260 458"/>
-    <path d="M622 522 L1260 458"/>
-    <path d="M834 522 L1230 582"/>
-    <path d="M834 522 L1230 644"/>
-    <path d="M834 522 L1230 706"/>
-    <path d="M1046 522 L1230 458"/>
-    <path d="M1046 522 L1230 520"/>
-    <path d="M1046 522 L1230 644"/>
-    <path d="M1046 522 L1230 706"/>
-    <path d="M1046 522 L1230 768"/>
-    <path d="M324 610 L1230 520"/>
-    <path d="M578 610 L1230 582"/>
-    <path d="M578 610 L1230 706"/>
-    <path d="M832 610 L1230 644"/>
+    <path d="M598 493 L624 493"/>
+    <path d="M774 493 L1210 572"/>
+    <path d="M774 493 L1210 696"/>
+    <path d="M523 520 L347 670"/>
+    <path d="M699 520 L623 670"/>
 
-    <path d="M360 884 L198 522"/>
-    <path d="M360 884 L410 522"/>
-    <path d="M360 884 L622 522"/>
-    <path d="M360 884 L834 522"/>
-    <path d="M360 884 L1046 522"/>
-    <path d="M360 884 L578 666"/>
-    <path d="M360 884 L832 666"/>
+    <path d="M191 802 L1210 640"/>
+    <path d="M407 802 L1210 640"/>
+    <path d="M407 802 L1210 752"/>
+    <path d="M613 802 L1210 572"/>
+    <path d="M613 802 L1210 696"/>
+    <path d="M844 724 L1210 572"/>
+    <path d="M844 724 L1210 446"/>
+
+    <path d="M347 520 L1210 446"/>
+    <path d="M523 520 L1210 446"/>
+    <path d="M699 520 L1210 446"/>
+    <path d="M699 520 L1210 502"/>
+    <path d="M875 520 L1210 446"/>
+    <path d="M875 520 L1210 502"/>
+    <path d="M875 520 L1210 696"/>
+    <path d="M875 520 L1210 752"/>
+    <path d="M215 598 L1210 502"/>
+    <path d="M215 598 L1210 572"/>
+    <path d="M459 598 L1210 572"/>
+
+    <path d="M330 987 L171 520"/>
+    <path d="M330 987 L347 520"/>
+    <path d="M330 987 L523 520"/>
+    <path d="M330 987 L699 520"/>
+    <path d="M330 987 L875 520"/>
+    <path d="M330 987 L215 724"/>
+    <path d="M330 987 L613 802"/>
   </g>
 
   <g font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#475569">
-    <text x="650" y="478">internal HTTP</text>
-    <text x="692" y="560">RabbitMQ tasks</text>
-    <text x="650" y="628">completion</text>
-    <text x="950" y="620">analytics topics</text>
-    <text x="890" y="568">Kafka / UAP</text>
+    <text x="606" y="484">internal HTTP</text>
+    <text x="782" y="554">dispatch / completion</text>
+    <text x="900" y="680">downstream topics</text>
   </g>
 </svg>
