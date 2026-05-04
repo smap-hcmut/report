@@ -126,7 +126,7 @@ Bảng dưới đây liên hệ bảy đặc tính kiến trúc ở mục 4.3.1 
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-01],
     table.cell(align: horizon, inset: (y: 0.8em))[Modularity],
-    table.cell(align: horizon, inset: (y: 0.8em))[Tách bounded context theo identity, project, ingest, analytics, knowledge và notification; ownership dữ liệu và trách nhiệm được chia rõ theo service boundary],
+    table.cell(align: horizon, inset: (y: 0.8em))[Tách bounded context theo identity, project, ingest, crawl execution, analytics, knowledge và notification; ownership dữ liệu và trách nhiệm được chia rõ theo service boundary],
     table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.1.1, 5.2.2, 5.2.3, 5.3],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-02],
@@ -442,10 +442,6 @@ Phần này tổng hợp một số khoảng trống kỹ thuật, hạn chế v
     table.cell(align: horizon, inset: (y: 0.8em))[Giới hạn phạm vi phân tích theo miền và ngôn ngữ phù hợp với mô hình hiện hành],
     table.cell(align: center + horizon, inset: (y: 0.8em))[P2],
 
-    table.cell(align: horizon, inset: (y: 0.8em))[Ứng dụng di động native],
-    table.cell(align: horizon, inset: (y: 0.8em))[Lớp giao diện hiện ưu tiên web và desktop packaging hơn là một mobile app native riêng],
-    table.cell(align: horizon, inset: (y: 0.8em))[Tận dụng responsive web UI và desktop packaging khi cần],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[P3],
   )
 ]
 
