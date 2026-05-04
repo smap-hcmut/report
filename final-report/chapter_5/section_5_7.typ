@@ -3,7 +3,7 @@
 
 == 5.7 Thiết kế triển khai hệ thống
 
-Phần này trình bày thiết kế triển khai hệ thống SMAP lên môi trường production, bao gồm kiến trúc hạ tầng, mô hình container hóa, quy trình CI/CD và các chiến lược đảm bảo tính sẵn sàng cao của hệ thống.
+Phần này trình bày thiết kế triển khai hệ thống SMAP lên môi trường production, bao gồm kiến trúc hạ tầng, mô hình container hóa, quy trình CI/CD và các chiến lược hỗ trợ tăng cường tính sẵn sàng của hệ thống.
 
 === 5.7.1 Mô hình triển khai
 
@@ -134,9 +134,9 @@ Quy trình CI/CD được tự động hóa thông qua GitHub Actions với các
 
 - Build and Test: Chạy unit tests và build Docker images cho các services có thay đổi.
 
-- Deploy Staging: Tự động deploy lên môi trường staging khi merge vào branch develop.
+- Deploy Staging: Có thể triển khai lên môi trường staging khi merge vào branch develop.
 
-- Deploy Production: Deploy lên production khi merge vào branch main với approval từ team lead.
+- Deploy Production: Có thể triển khai lên production khi merge vào branch main sau bước phê duyệt phù hợp với quy trình vận hành.
 
 #context (align(center)[_Bảng #table_counter.display(): Cấu hình môi trường triển khai_])
 #table_counter.step()
@@ -151,13 +151,13 @@ Quy trình CI/CD được tự động hóa thông qua GitHub Actions với các
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Đặc điểm*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Development],
     table.cell(align: center + horizon, inset: (y: 0.8em))[smap-dev],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Debug enabled, mock services, local testing],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Cấu hình phục vụ phát triển, kiểm thử cục bộ và quan sát lỗi],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Staging],
     table.cell(align: center + horizon, inset: (y: 0.8em))[smap-staging],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Production-like, load testing, QA validation],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Cấu hình gần với môi trường vận hành, phục vụ kiểm thử tích hợp và xác nhận trước triển khai],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Production],
     table.cell(align: center + horizon, inset: (y: 0.8em))[smap],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[High availability, monitoring, auto-scaling],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Cấu hình vận hành chính, ưu tiên tính sẵn sàng, quan sát hệ thống và mở rộng theo workload],
   )
 ]
 
@@ -292,7 +292,7 @@ Các dịch vụ hạ tầng được triển khai với cấu hình đảm bả
 
 === 5.7.8 Monitoring và Logging
 
-Hệ thống monitoring được thiết lập với Prometheus để thu thập metrics và Grafana để visualization. Các metrics quan trọng được theo dõi bao gồm:
+Hệ thống ưu tiên observability theo hướng logging có cấu trúc, health/readiness probes và các chỉ số vận hành ở những runtime quan trọng. Các metrics đáng chú ý gồm:
 
 - HTTP request rate và latency
 - Error rate theo service và endpoint
@@ -300,33 +300,33 @@ Hệ thống monitoring được thiết lập với Prometheus để thu thập
 - Message queue depth và processing rate
 - Database connection pool status
 
-Logging được centralize thông qua Fluentd, thu thập logs từ tất cả containers và forward đến Elasticsearch. Mỗi service sử dụng structured logging với các fields chuẩn như service name, request ID, timestamp và log level.
+Tùy môi trường triển khai, các log và metrics này có thể được thu thập bởi các công cụ như Prometheus, Grafana hoặc log collector tương ứng. Logging cũng được thiết kế theo hướng tập trung hóa: các service xuất structured logs và các bản ghi này có thể được thu thập bởi log collector rồi chuyển tiếp đến backend lưu trữ log phù hợp.
 
 === 5.7.9 Backup và Disaster Recovery
 
-Chiến lược backup được thiết lập để đảm bảo khả năng phục hồi dữ liệu:
+Chiến lược backup được thiết kế để hỗ trợ khả năng phục hồi dữ liệu:
 
-- Database Backup: CronJob chạy hàng ngày lúc 2:00 AM để backup PostgreSQL databases. Backup files được nén và upload lên MinIO với retention policy 30 ngày.
+- Database Backup: Có thể cấu hình CronJob định kỳ để backup PostgreSQL databases, nén backup files và upload lên MinIO theo chính sách lưu giữ phù hợp với môi trường vận hành.
 
 - Configuration Backup: Kubernetes configurations được export và lưu trữ định kỳ, cho phép restore toàn bộ cluster trong trường hợp disaster.
 
-- Rollback Strategy: Kubernetes hỗ trợ rollback deployment về revision trước đó trong trường hợp phát hiện lỗi sau khi deploy. Automated rollback được trigger khi error rate vượt ngưỡng cho phép.
+- Rollback Strategy: Kubernetes hỗ trợ rollback deployment về revision trước đó trong trường hợp phát hiện lỗi sau khi deploy. Việc tự động hóa rollback phụ thuộc vào cấu hình giám sát và chính sách vận hành.
 
 === 5.7.10 Quy trình triển khai
 
-Quy trình triển khai một phiên bản mới của hệ thống tuân theo các bước sau:
+Quy trình triển khai một phiên bản mới của hệ thống có thể được tổ chức theo các bước sau:
 
 1. Developer push code lên branch feature và tạo Pull Request.
 
 2. CI pipeline tự động chạy tests và build Docker images.
 
-3. Sau khi PR được approve và merge vào develop, hệ thống tự động deploy lên staging.
+3. Sau khi PR được approve và merge vào develop, phiên bản mới có thể được triển khai lên staging.
 
 4. QA team thực hiện testing trên staging environment.
 
 5. Khi staging được approve, merge vào main để trigger production deployment.
 
-6. Production deployment sử dụng rolling update strategy, đảm bảo zero downtime.
+6. Production deployment sử dụng rolling update strategy, giúp giảm gián đoạn dịch vụ trong quá trình cập nhật.
 
 7. Monitoring alerts được theo dõi trong 30 phút sau deployment để phát hiện issues.
 
