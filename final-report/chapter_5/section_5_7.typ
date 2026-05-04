@@ -10,22 +10,22 @@ Phần này trình bày thiết kế triển khai hệ thống SMAP lên môi tr
 Hệ thống SMAP được triển khai theo mô hình Kubernetes-based Microservices Architecture, trong đó các services được đóng gói thành containers và orchestrate bởi Kubernetes cluster. Mô hình này cho phép scale từng service độc lập, đảm bảo fault tolerance và hỗ trợ rolling updates không gây downtime.
 
 #align(center)[
-  #image("../images/deploy/deployment-diagram.drawio.png", width: 100%)
+  #image("../images/deploy/deployment-diagram-current.excalidraw.svg", width: 100%)
   #context (align(center)[_Hình #image_counter.display(): Sơ đồ triển khai hệ thống SMAP_])
   #image_counter.step()
 ]
 
 Kiến trúc triển khai được tổ chức thành các tầng sau:
 
-- Tầng Ingress: NGINX Ingress Controller đóng vai trò load balancer và reverse proxy, xử lý TLS termination và routing requests đến các services tương ứng.
+- Tầng Ingress: Traefik Gateway đóng vai trò load balancer và reverse proxy, xử lý TLS termination và routing requests đến các services tương ứng.
 
 - Tầng Frontend: Web UI được triển khai dưới dạng Next.js application với Server-Side Rendering, phục vụ giao diện người dùng và gọi API đến backend services.
 
-- Tầng Backend Services: Các microservices được triển khai độc lập bao gồm Identity Service, Project Service, Collector Service, Analytics Service và WebSocket Service.
+- Tầng Backend Services: Các microservices được triển khai độc lập bao gồm Identity Service, Project Service, Ingest Service, Knowledge Service và Notification Service.
 
-- Tầng Workers: Các background workers xử lý tác vụ bất đồng bộ như TikTok Scraper, YouTube Scraper và Analytics Consumer.
+- Tầng Workers: Các background workers xử lý tác vụ bất đồng bộ như Scapper Worker Service và Analysis Consumer.
 
-- Tầng Infrastructure: Các dịch vụ hạ tầng bao gồm PostgreSQL cho lưu trữ dữ liệu quan hệ, Redis cho caching và pub/sub, RabbitMQ cho message queue và MinIO cho object storage.
+- Tầng Infrastructure: Các dịch vụ hạ tầng bao gồm PostgreSQL cho lưu trữ dữ liệu quan hệ, Redis cho caching và pub/sub, RabbitMQ cho task queue, Kafka cho analytics data plane, MinIO cho object storage và Qdrant cho vector retrieval.
 
 === 5.7.2 Cấu hình phần cứng và phần mềm
 
@@ -67,7 +67,7 @@ Phần mềm được sử dụng trong môi trường triển khai bao gồm:
 - Hệ điều hành: Ubuntu 20.04 LTS
 - Container Runtime: Docker 24.0 trở lên
 - Kubernetes: phiên bản 1.28 trở lên
-- Ingress Controller: NGINX Ingress Controller
+- Ingress Gateway: Traefik
 - Container Registry: Harbor Registry tại registry.tantai.dev
 
 === 5.7.3 Cấu hình mạng và bảo mật
@@ -97,9 +97,9 @@ Hệ thống được cấu hình với domain smap-api.tantai.dev cho productio
     table.cell(align: center + horizon, inset: (y: 0.8em))[8000-8081],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Internal],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Application services communication],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[5432, 6379, 5672],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[5432, 6379, 5672, 9092, 9000-9001, 6333-6334],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Internal],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Database và infrastructure services],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Database, object storage, streaming và message infrastructure],
   )
 ]
 
@@ -115,14 +115,16 @@ registry.tantai.dev/smap/{service-name}:{timestamp}
 
 Ví dụ các images trong hệ thống:
 
-- registry.tantai.dev/smap/smap-identity:241215-143022
-- registry.tantai.dev/smap/smap-project:241215-143022
-- registry.tantai.dev/smap/smap-collector:241215-143022
-- registry.tantai.dev/smap/smap-analytics-api:241215-143022
-- registry.tantai.dev/smap/smap-websocket:241215-143022
-- registry.tantai.dev/smap/smap-web-ui:241215-143022
+- registry.tantai.dev/smap/identity-srv:241215-143022
+- registry.tantai.dev/smap/project-srv:241215-143022
+- registry.tantai.dev/smap/ingest-srv:241215-143022
+- registry.tantai.dev/smap/knowledge-srv:241215-143022
+- registry.tantai.dev/smap/notification-srv:241215-143022
+- registry.tantai.dev/smap/analysis-consumer:241215-143022
+- registry.tantai.dev/smap/scapper-srv:241215-143022
+- registry.tantai.dev/smap/smap-ui:241215-143022
 
-Mỗi service được build bằng multi-stage Dockerfile để tối ưu kích thước image. Go services sử dụng scratch base image với binary compiled, trong khi Python services sử dụng slim base image với dependencies được cài đặt qua pip.
+Mỗi service được build bằng multi-stage Dockerfile để tối ưu kích thước image. Các Go services sử dụng runtime distroless sau giai đoạn biên dịch binary, trong khi các Python services chủ yếu sử dụng slim base image với dependencies được cài đặt qua pip.
 
 === 5.7.5 CI/CD Pipeline
 
@@ -199,12 +201,12 @@ Mỗi service được triển khai với Kubernetes Deployment và Service reso
     table.cell(align: center + horizon, inset: (y: 0.8em))[100m],
     table.cell(align: center + horizon, inset: (y: 0.8em))[128Mi],
     table.cell(align: center + horizon, inset: (y: 0.8em))[256Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Collector Service],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Ingest Service],
     table.cell(align: center + horizon, inset: (y: 0.8em))[3],
     table.cell(align: center + horizon, inset: (y: 0.8em))[200m],
     table.cell(align: center + horizon, inset: (y: 0.8em))[256Mi],
     table.cell(align: center + horizon, inset: (y: 0.8em))[512Mi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics API],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Knowledge Service],
     table.cell(align: center + horizon, inset: (y: 0.8em))[2],
     table.cell(align: center + horizon, inset: (y: 0.8em))[200m],
     table.cell(align: center + horizon, inset: (y: 0.8em))[512Mi],
@@ -214,7 +216,7 @@ Mỗi service được triển khai với Kubernetes Deployment và Service reso
     table.cell(align: center + horizon, inset: (y: 0.8em))[1000m],
     table.cell(align: center + horizon, inset: (y: 0.8em))[2Gi],
     table.cell(align: center + horizon, inset: (y: 0.8em))[4Gi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket Service],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Notification Service],
     table.cell(align: center + horizon, inset: (y: 0.8em))[3],
     table.cell(align: center + horizon, inset: (y: 0.8em))[100m],
     table.cell(align: center + horizon, inset: (y: 0.8em))[128Mi],
@@ -275,5 +277,3 @@ Quy trình triển khai một phiên bản mới của hệ thống tuân theo c
 7. Monitoring alerts được theo dõi trong 30 phút sau deployment để phát hiện issues.
 
 8. Nếu phát hiện lỗi, thực hiện rollback về version trước đó.
-
-
