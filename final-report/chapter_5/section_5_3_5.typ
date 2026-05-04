@@ -11,7 +11,7 @@ Vai trò của Notification Service trong kiến trúc tổng thể:
 - Alert Dispatch Layer: Chuyển các message loại alert thành thông điệp giàu ngữ nghĩa cho kênh bên ngoài.
 - Connection Lifecycle Manager: Kiểm soát upgrade, register và vòng đời kết nối realtime.
 
-Service này đáp ứng trực tiếp FR-11 về Realtime Notification và liên quan trực tiếp đến UC-07 về Receive Realtime Alerts.
+Service này đáp ứng trực tiếp FR-11 về Realtime Notification và liên quan trực tiếp đến UC-04 về Theo dõi trạng thái và nhận cảnh báo.
 
 ==== 5.3.5.1 Thành phần chính
 
@@ -53,7 +53,7 @@ Service này đáp ứng trực tiếp FR-11 về Realtime Notification và liê
     table.cell(align: center + horizon, inset: (y: 0.8em))[Redis message / delivery output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Alert UseCase],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Alert Dispatch UseCase],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Xây dựng payload cảnh báo và dispatch ra Discord khi cần],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Alert input / Discord message],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Alert domain logic],

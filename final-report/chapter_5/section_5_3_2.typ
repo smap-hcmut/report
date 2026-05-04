@@ -11,7 +11,7 @@ Vai trò của Analytics Service trong kiến trúc tổng thể:
 - Result Persister: Lưu các thực thể phân tích có cấu trúc vào persistence layer.
 - Downstream Publisher: Phát hành các topic analytics phục vụ knowledge indexing và các lớp tiêu thụ phía sau.
 
-Service này đáp ứng trực tiếp FR-09 về Analytics Processing và liên quan trực tiếp đến UC-05 về Execute Analytics and Build Knowledge.
+Service này đáp ứng trực tiếp FR-09 về Analytics Processing. Ở mức use case, service hỗ trợ UC-02 về Vận hành chiến dịch theo dõi ở lane xử lý downstream và cung cấp dữ liệu đầu vào cho UC-03 về Tra cứu và hỏi đáp dữ liệu phân tích.
 
 ==== 5.3.2.1 Component Diagram - C4 Level 3
 

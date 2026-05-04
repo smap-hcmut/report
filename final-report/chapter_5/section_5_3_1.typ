@@ -12,7 +12,7 @@ Vai trò của Identity Service trong kiến trúc tổng thể:
 - Security Boundary: Tách riêng xác thực khỏi business logic của project, ingest, analytics và knowledge.
 - Audit Processing Lane: Tiêu thụ audit events và flush dữ liệu truy vết vào persistence layer theo batch.
 
-Service này đáp ứng trực tiếp FR-01 về User Authentication và liên quan trực tiếp đến UC-01 về Authenticate User. Ngoài capability auth-facing, service còn có một consumer lane phục vụ audit logging và truy vết vận hành.
+Service này đáp ứng trực tiếp FR-01 về User Authentication như một supporting concern của toàn hệ thống. Ngoài capability auth-facing, service còn có một consumer lane phục vụ audit logging và truy vết vận hành.
 
 ==== 5.3.1.1 Component Diagram - C4 Level 3
 

@@ -11,10 +11,10 @@ Vai trò của Frontend Application trong kiến trúc tổng thể:
 - Auth Session Bridge: Điều phối OAuth redirect, kiểm tra session và xử lý cookie trên frontend domain.
 - Analytics and BI Gateway: Gọi Metabase từ server-side route handlers để lấy dữ liệu analytics phục vụ dashboard và query builder.
 - Knowledge Assistant Client: Gửi chat request và suggestion request đến `knowledge-srv`, đồng thời hiển thị câu trả lời, citation và gợi ý truy vấn.
-- Auxiliary Report Workflow Surface: Cung cấp UI, local proxy mocks và polling state cho report list, report detail, process tracking, post review và lazy comment loading ở mức frontend workflow phụ trợ.
+- Auxiliary Report Workflow Surface: Cung cấp UI, một nhóm route proxy riêng và polling state cho report list, report detail, process tracking, post review và lazy comment loading ở mức frontend workflow phụ trợ.
 - Desktop Shell: Đóng gói Next.js standalone server trong Electron để phân phối cùng một web UI dưới dạng desktop runtime.
 
-Frontend Application hỗ trợ trực tiếp các use case có tương tác người dùng như cấu hình campaign/project, quản lý datasource, xem analytics dashboard, khai thác knowledge assistant và nhận notification trong giao diện. Ngoài các use case đã traceable ở Chương 4, frontend còn có một workflow report phụ trợ ở mức UI và local proxy mocks.
+Frontend Application hỗ trợ trực tiếp các use case có tương tác người dùng như cấu hình campaign/project, quản lý datasource, xem analytics dashboard, khai thác knowledge assistant và nhận notification trong giao diện. Bên cạnh các use case cốt lõi gắn với Chương 4, frontend còn có một workflow report phụ trợ ở mức giao diện.
 
 ==== 5.3.6.1 Thành phần chính
 
@@ -130,7 +130,7 @@ Luồng này bao phủ report list, generate action, process tracking và post r
 5. Report detail và review modal lazy-load posts/comments theo trang để tránh tải toàn bộ dữ liệu review trong một request.
 6. Cancel và retry action cập nhật report job store, invalidate query liên quan và làm mới UI state.
 
-Luồng này khác với knowledge-side report endpoints của `knowledge-srv`. Trong implementation hiện tại, frontend report workflow trên đang đi qua các local Next.js mock routes dưới `/api/proxy/reports/*`, chưa phải một backend capability lõi đã được trace trong bộ FR/UC của Chương 4.
+Luồng này khác với knowledge-side report endpoints của `knowledge-srv`. Ở lớp frontend, workflow report trên đi qua một nhóm route proxy riêng dưới `/api/proxy/reports/*` và được xem như workflow phụ trợ ở lớp giao diện, không phải một chức năng trung tâm trong phạm vi yêu cầu cốt lõi của Chương 4.
 
 ===== f. Notification Presentation Flow
 
@@ -181,6 +181,6 @@ External Dependencies:
 - `project-srv` cho campaign/project management và lifecycle actions.
 - `ingest-srv` cho datasource, target và dry run operations.
 - `knowledge-srv` cho chat, suggestions, knowledge-side report endpoints và insight-facing endpoints.
-- Local Next.js mock routes dưới `/api/proxy/reports/*` cho workflow report phụ trợ hiện tại của frontend.
+- Nhóm route proxy của Next.js dưới `/api/proxy/reports/*` phục vụ workflow report phụ trợ ở lớp giao diện.
 - Metabase cho analytics query, metadata, saved cards và dataset access.
 - Electron runtime cho desktop packaging.

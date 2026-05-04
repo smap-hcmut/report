@@ -11,7 +11,7 @@ Vai trò của Project Service trong kiến trúc tổng thể:
 - Crisis Configuration Owner: Lưu trữ và quản lý các cấu hình giám sát khủng hoảng theo project.
 - Internal Control Client: Gọi internal HTTP sang `ingest-srv` để kiểm tra readiness hoặc điều khiển runtime tương ứng.
 
-Service này đáp ứng trực tiếp FR-02 về Campaign and Project Management, FR-03 về Project Lifecycle Control và FR-04 về Crisis Configuration Management. Ở mức use case, nó liên quan trực tiếp đến UC-02 về Create Campaign and Project, UC-04 về Control Project Lifecycle và UC-08 về Manage Crisis Configuration.
+Service này đáp ứng trực tiếp FR-02 về Campaign and Project Management, FR-03 về Project Lifecycle Control và FR-04 về Crisis Configuration Management. Ở mức use case, nó liên quan trực tiếp đến UC-01 về Thiết lập chiến dịch theo dõi, UC-02 về Vận hành chiến dịch theo dõi và UC-05 về Thiết lập và quản lý quy tắc cảnh báo khủng hoảng.
 
 ==== 5.3.3.1 Component Diagram - C4 Level 3
 

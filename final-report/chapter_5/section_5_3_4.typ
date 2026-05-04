@@ -12,7 +12,7 @@ Vai trò của Ingest Service trong kiến trúc tổng thể:
 - Execution Plane: Publish task, nhận completion và tạo raw batch lineage.
 - UAP Publisher: Chuẩn hóa dữ liệu đầu vào và phát hành sang lane phân tích downstream.
 
-Service này đáp ứng trực tiếp FR-05 về Datasource Management, FR-06 về Crawl Target Management, FR-07 về Dry Run Validation và FR-08 về Crawl Runtime Orchestration. Ở mức use case, nó liên quan trực tiếp đến UC-03 về Configure Datasource and Run Dry Run và UC-04 về Control Project Lifecycle.
+Service này đáp ứng trực tiếp FR-05 về Datasource Management, FR-06 về Crawl Target Management, FR-07 về Dry Run Validation và FR-08 về Crawl Runtime Orchestration. Ở mức use case, nó liên quan trực tiếp đến UC-01 về Thiết lập chiến dịch theo dõi và UC-02 về Vận hành chiến dịch theo dõi.
 
 ==== 5.3.4.1 Thành phần chính
 
@@ -42,7 +42,7 @@ Service này đáp ứng trực tiếp FR-05 về Datasource Management, FR-06 v
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[DryRun UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Khởi chạy dry run, ghi nhận kết quả và duy trì readiness evidence],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Khởi chạy dry run, ghi nhận kết quả và duy trì thông tin readiness],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Dry run request / latest-history output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[UseCase + RabbitMQ producer],
 
@@ -82,7 +82,7 @@ Flow này được kích hoạt khi người dùng yêu cầu kiểm tra readine
 1. tạo một dry run request cho datasource tương ứng;
 2. publish task sang crawler runtime nếu cần lấy mẫu hoặc xác nhận dữ liệu;
 3. nhận kết quả dry run và ghi vào `dryrun_results`;
-4. duy trì bằng chứng readiness để dùng cho lifecycle control ở `project-srv`.
+4. duy trì kết quả readiness để dùng cho lifecycle control ở `project-srv`.
 
 ===== c. Completion Handling and UAP Publishing Flow
 
@@ -122,7 +122,7 @@ Ingest Service áp dụng các design patterns sau:
 Internal Dependencies:
 
 - Datasource UseCase: quản lý datasource, target và lifecycle runtime.
-- DryRun UseCase: quản lý flow dry run và readiness evidence.
+- DryRun UseCase: quản lý flow dry run và kết quả readiness.
 - Execution UseCase: quản lý task dispatch, completion handling và raw batch lineage.
 - UAP layer: chuẩn hóa và phát hành dữ liệu downstream.
 
