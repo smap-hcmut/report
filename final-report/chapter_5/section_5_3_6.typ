@@ -161,7 +161,7 @@ Frontend Application áp dụng các design patterns sau:
 - Dùng TanStack Query cho server state để có cache, invalidation, polling và pagination thống nhất giữa dashboard, workflow report phụ trợ và detail views.
 - Dùng Zustand cho state tương tác cục bộ như auth persistence, selected scope, notifications và report job tracking.
 - Theo dõi report process bằng polling có điều kiện, phù hợp với trạng thái long-running job mà không yêu cầu persistent push connection trong frontend.
-- Đóng gói desktop bằng Electron trên cùng Next.js standalone server để tránh duy trì một UI codebase riêng.
+- Đóng gói desktop bằng Electron trên cùng Next.js standalone server để tránh duy trì một lớp giao diện riêng.
 
 ==== 5.3.6.5 Dependencies
 

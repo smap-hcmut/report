@@ -21,6 +21,8 @@
 
 + Docker Documentation. (2024). _Docker Documentation_. Truy cập tại: https://docs.docker.com/
 
++ Electron Documentation. (2024). _Electron Documentation_. Truy cập tại: https://www.electronjs.org/docs/latest
+
 + Evans, E. (2003). _Domain-Driven Design: Tackling Complexity in the Heart of Software_. Addison-Wesley Professional.
 
 + Facebook Graph API. (2024). _Graph API Documentation_. Truy cập tại: https://developers.facebook.com/docs/graph-api
@@ -53,6 +55,8 @@
 
 + Kubernetes Documentation. (2024). _Kubernetes Documentation_. Truy cập tại: https://kubernetes.io/docs/
 
++ Apache Kafka Documentation. (2024). _Apache Kafka Documentation_. Truy cập tại: https://kafka.apache.org/documentation/
+
 + Liu, B. (2012). Sentiment Analysis and Opinion Mining. _Synthesis Lectures on Human Language Technologies_, 5(1), 1-167.
 
 + Martin, R. C. (2017). _Clean Architecture: A Craftsman's Guide to Software Structure and Design_. Prentice Hall.
@@ -62,6 +66,8 @@
 + Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient Estimation of Word Representations in Vector Space. _arXiv preprint arXiv:1301.3781_.
 
 + MinIO. (2024). _MinIO Object Storage Documentation_. Truy cập tại: https://min.io/docs/
+
++ Metabase Documentation. (2024). _Metabase Documentation_. Truy cập tại: https://www.metabase.com/docs/latest/
 
 + Newman, S. (2021). _Building Microservices: Designing Fine-Grained Systems_ (2nd ed.). O'Reilly Media.
 
@@ -83,6 +89,8 @@
 
 + PostgreSQL Documentation. (2024). _PostgreSQL 16 Documentation_. Truy cập tại: https://www.postgresql.org/docs/16/
 
++ Qdrant Documentation. (2024). _Qdrant Vector Database Documentation_. Truy cập tại: https://qdrant.tech/documentation/
+
 + Pressman, R. S., & Maxim, B. R. (2014). _Software Engineering: A Practitioner's Approach_ (8th ed.). McGraw-Hill Education.
 
 + PyTorch. (2024). _PyTorch Documentation_. Truy cập tại: https://pytorch.org/docs/
@@ -92,6 +100,8 @@
 + Radford, A., Kim, J. W., Xu, T., Brockman, G., McLeavey, C., & Sutskever, I. (2023). Robust Speech Recognition via Large-Scale Weak Supervision. _Proceedings of the 40th International Conference on Machine Learning_, 28492-28518.
 
 + Redis Documentation. (2024). _Redis Pub/Sub_. Truy cập tại: https://redis.io/docs/interact/pubsub/
+
++ Traefik Labs. (2024). _Traefik Proxy Documentation_. Truy cập tại: https://doc.traefik.io/traefik/
 
 + Reputa. (2024). _Reputa - Giải pháp giám sát và phân tích thông tin trên môi trường mạng_. Truy cập tại: https://reputa.vn/
 

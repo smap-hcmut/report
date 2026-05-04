@@ -42,7 +42,7 @@ Tùy chỉnh thông qua file cấu hình cho phép định nghĩa màu sắc, kh
 
 === 3.8.5 Electron và khả năng đóng gói desktop
 
-Electron là một nền tảng cho phép xây dựng ứng dụng desktop đa nền tảng bằng công nghệ web như HTML, CSS và JavaScript. Electron kết hợp Chromium để hiển thị giao diện và Node.js để cung cấp khả năng truy cập hệ thống ở phía desktop runtime. Nhờ đó, cùng một codebase frontend có thể được sử dụng để phát hành ứng dụng desktop bên cạnh phiên bản web.
+Electron là một nền tảng cho phép xây dựng ứng dụng desktop đa nền tảng bằng công nghệ web như HTML, CSS và JavaScript. Electron kết hợp Chromium để hiển thị giao diện và Node.js để cung cấp khả năng truy cập hệ thống ở phía desktop runtime. Nhờ đó, cùng một nền mã giao diện có thể được sử dụng để phát hành ứng dụng desktop bên cạnh phiên bản web.
 
 Trong SMAP, frontend không chỉ dừng ở web application thuần túy mà còn có khả năng đóng gói desktop thông qua Electron. Điều này đặc biệt hữu ích khi hệ thống cần một hình thức triển khai thuận tiện cho người dùng cuối, đồng thời vẫn tận dụng được toàn bộ stack giao diện dựa trên Next.js, React và TypeScript.
 

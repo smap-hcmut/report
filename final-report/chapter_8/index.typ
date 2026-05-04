@@ -612,26 +612,26 @@
       y: 0.6em,
     ))[*Giai đoạn 2.5: Thiết kế Activity Diagrams*],
 
-    [13], [Thiết kế Activity Diagram vòng đời Project], [06/10 - 07/10], [Nguyễn Chánh Tín],
+    [13], [Thiết kế Sơ đồ hoạt động tổng quát], [06/10 - 07/10], [Nguyễn Chánh Tín],
     [14], [Thiết kế Activity Diagram cho UC-01], [07/10 - 08/10], [Nguyễn Chánh Tín],
     [15], [Thiết kế Activity Diagram cho UC-02], [08/10 - 09/10], [Nguyễn Chánh Tín],
     [16], [Thiết kế Activity Diagram cho UC-03], [09/10 - 10/10], [Nguyễn Chánh Tín],
-    [17], [Thiết kế Activity Diagram cho UC-06], [10/10 - 11/10], [Nguyễn Chánh Tín],
-    [18], [Thiết kế Activity Diagram cho UC-07], [11/10 - 12/10], [Nguyễn Chánh Tín],
-    [19], [Thiết kế Activity Diagram cho UC-08], [12/10 - 13/10], [Nguyễn Chánh Tín],
+    [17], [Thiết kế Activity Diagram cho UC-04], [10/10 - 11/10], [Nguyễn Chánh Tín],
+    [18], [Thiết kế Activity Diagram cho UC-05], [11/10 - 12/10], [Nguyễn Chánh Tín],
+    [19], [Hoàn thiện và chuẩn hóa bộ Activity Diagrams], [12/10 - 13/10], [Nguyễn Chánh Tín],
 
     // Phase 3: Thiết kế chi tiết services
     table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
       y: 0.6em,
     ))[*Giai đoạn 3: Thiết kế chi tiết các dịch vụ*],
 
-    [20], [Thiết kế Component Diagram cho Collector Service], [13/10 - 16/10], [Đặng Quốc Phong],
+    [20], [Thiết kế Component Diagram cho Ingest Service], [13/10 - 16/10], [Đặng Quốc Phong],
     [21], [Thiết kế Component Diagram cho Analytics Service], [16/10 - 19/10], [Nguyễn Tấn Tài],
     [22], [Thiết kế Component Diagram cho Project Service], [19/10 - 21/10], [Đặng Quốc Phong],
     [23], [Thiết kế Component Diagram cho Identity Service], [21/10 - 23/10], [Nguyễn Tấn Tài],
-    [24], [Thiết kế Component Diagram cho WebSocket Service], [23/10 - 25/10], [Đặng Quốc Phong],
-    [25], [Thiết kế Component Diagram cho Speech2Text Service], [25/10 - 27/10], [Nguyễn Tấn Tài],
-    [26], [Thiết kế Component Diagram cho Web UI], [27/10 - 30/10], [Nguyễn Chánh Tín],
+    [24], [Thiết kế Component Diagram cho Notification Service], [23/10 - 25/10], [Đặng Quốc Phong],
+    [25], [Thiết kế Component Diagram cho Knowledge Service], [25/10 - 27/10], [Nguyễn Tấn Tài],
+    [26], [Thiết kế Component Diagram cho Frontend Application], [27/10 - 30/10], [Nguyễn Chánh Tín],
 
     // Phase 4: Thiết kế cơ sở dữ liệu
     table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
@@ -642,7 +642,7 @@
     [28], [Thiết kế ERD cho Identity Service], [01/11 - 02/11], [Nguyễn Tấn Tài],
     [29], [Thiết kế ERD cho Project Service], [02/11 - 03/11], [Đặng Quốc Phong],
     [30], [Thiết kế ERD cho Analytics Service], [03/11 - 04/11], [Nguyễn Tấn Tài],
-    [31], [Thiết kế Document Schema cho Collector Service], [04/11 - 05/11], [Đặng Quốc Phong],
+    [31], [Thiết kế ERD cho Ingest Service], [04/11 - 05/11], [Đặng Quốc Phong],
     [32], [Thiết kế Data Management Patterns], [05/11 - 06/11], [Nguyễn Tấn Tài],
 
     // Phase 5: Thiết kế Sequence Diagrams
@@ -654,9 +654,9 @@
     [34], [Thiết kế Sequence Diagram cho UC-02], [08/11 - 10/11], [Nguyễn Tấn Tài],
     [35], [Thiết kế Sequence Diagram cho UC-03], [10/11 - 12/11], [Đặng Quốc Phong],
     [36], [Thiết kế Sequence Diagram cho UC-04], [12/11 - 14/11], [Nguyễn Tấn Tài],
-    [37], [Thiết kế Sequence Diagram cho UC-06], [14/11 - 16/11], [Đặng Quốc Phong],
-    [38], [Thiết kế Sequence Diagram cho UC-07], [16/11 - 18/11], [Nguyễn Tấn Tài],
-    [39], [Thiết kế Sequence Diagram cho UC-08], [18/11 - 20/11], [Đặng Quốc Phong],
+    [37], [Thiết kế Sequence Diagram cho UC-05], [14/11 - 16/11], [Đặng Quốc Phong],
+    [38], [Tinh chỉnh sequence cho execution và analytics lanes], [16/11 - 18/11], [Nguyễn Tấn Tài],
+    [39], [Tinh chỉnh sequence cho retrieval và notification lanes], [18/11 - 20/11], [Đặng Quốc Phong],
 
     // Phase 6: Thiết kế Communication Patterns
     table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
@@ -684,11 +684,11 @@
 
     [47], [Hiện thực Identity Service], [15/09 - 30/09], [Nguyễn Tấn Tài],
     [48], [Hiện thực Project Service], [01/10 - 15/10], [Đặng Quốc Phong],
-    [49], [Hiện thực Collector Service], [15/10 - 31/10], [Đặng Quốc Phong],
+    [49], [Hiện thực Ingest Service], [15/10 - 31/10], [Đặng Quốc Phong],
     [50], [Hiện thực Analytics Service], [01/10 - 31/10], [Nguyễn Tấn Tài],
-    [51], [Hiện thực Scrapper Services], [15/09 - 31/10], [Đặng Quốc Phong],
-    [52], [Hiện thực Speech2Text Service], [01/11 - 15/11], [Nguyễn Tấn Tài],
-    [53], [Hiện thực WebSocket Service], [15/11 - 25/11], [Đặng Quốc Phong],
+    [51], [Hiện thực Scapper Worker Service], [15/09 - 31/10], [Đặng Quốc Phong],
+    [52], [Hiện thực Knowledge Service], [01/11 - 15/11], [Nguyễn Tấn Tài],
+    [53], [Hiện thực Notification Service], [15/11 - 25/11], [Đặng Quốc Phong],
     [54], [Hiện thực Web UI], [01/10 - 30/11], [Nguyễn Chánh Tín],
     [55], [Tích hợp và chạy thử MVP], [01/12 - 10/12], [Cả nhóm],
   )
