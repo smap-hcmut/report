@@ -1,0 +1,109 @@
+@startuml
+title Contextual Search and Chat Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "Client đã xác thực" as Client
+participant "Search / Chat Handler" as Handler
+participant "Chat UseCase" as ChatUC
+participant "Search UseCase" as SearchUC
+participant "Cache Repo" as CacheRepo
+participant "Project Service Client" as ProjectClient
+participant "EmbeddingUseCase" as Embedding
+participant "Qdrant" as Qdrant
+participant "LLM Provider" as LLM
+database "PostgreSQL\nconversations/messages" as PostgreSQL
+
+Client -> Handler : POST /search or /chat
+activate Handler
+
+alt /search
+  Handler -> SearchUC : Search(scope, input)
+  activate SearchUC
+  SearchUC -> CacheRepo : GetSearchResults(cacheKey)
+  activate CacheRepo
+  alt cache hit
+    CacheRepo --> SearchUC : cached search output
+  else cache miss
+    CacheRepo --> SearchUC : miss
+    SearchUC -> ProjectClient : GetCampaign(campaign_id)
+    activate ProjectClient
+    ProjectClient --> SearchUC : campaign + project_ids
+    deactivate ProjectClient
+    SearchUC -> CacheRepo : SaveCampaignProjects and name
+    SearchUC -> Embedding : Generate(enriched query)
+    activate Embedding
+    Embedding --> SearchUC : query vector
+    deactivate Embedding
+    SearchUC -> Qdrant : search project collections in parallel
+    activate Qdrant
+    Qdrant --> SearchUC : scored point results
+    deactivate Qdrant
+    SearchUC -> CacheRepo : SaveSearchResults(cacheKey, output)
+  end
+  deactivate CacheRepo
+  SearchUC --> Handler : SearchOutput
+  deactivate SearchUC
+  Handler --> Client : results + aggregations
+else /chat
+  Handler -> ChatUC : Chat(scope, input)
+  activate ChatUC
+  alt new conversation
+    ChatUC -> PostgreSQL : INSERT conversation
+    activate PostgreSQL
+    PostgreSQL --> ChatUC : conversation
+    deactivate PostgreSQL
+  else existing conversation
+    ChatUC -> PostgreSQL : SELECT conversation + recent messages
+    activate PostgreSQL
+    PostgreSQL --> ChatUC : conversation + history
+    deactivate PostgreSQL
+  end
+
+  ChatUC -> SearchUC : Search(scope, derived search input)
+  activate SearchUC
+  SearchUC -> CacheRepo : GetSearchResults(cacheKey)
+  activate CacheRepo
+  alt cache hit
+    CacheRepo --> SearchUC : cached search output
+  else cache miss
+    CacheRepo --> SearchUC : miss
+    SearchUC -> ProjectClient : GetCampaign(campaign_id)
+    activate ProjectClient
+    ProjectClient --> SearchUC : campaign + project_ids
+    deactivate ProjectClient
+    SearchUC -> Embedding : Generate(enriched query)
+    activate Embedding
+    Embedding --> SearchUC : query vector
+    deactivate Embedding
+    SearchUC -> Qdrant : search project collections in parallel
+    activate Qdrant
+    Qdrant --> SearchUC : scored point results
+    deactivate Qdrant
+    SearchUC -> CacheRepo : SaveSearchResults(cacheKey, output)
+  end
+  deactivate CacheRepo
+  SearchUC --> ChatUC : search results
+  deactivate SearchUC
+
+  ChatUC -> LLM : Generate(prompt with history + context)
+  activate LLM
+  LLM --> ChatUC : answer
+  deactivate LLM
+  ChatUC -> PostgreSQL : INSERT user message
+  activate PostgreSQL
+  PostgreSQL --> ChatUC : ok
+  ChatUC -> PostgreSQL : INSERT assistant message\nwith citations and suggestions
+  PostgreSQL --> ChatUC : ok
+  ChatUC --> Handler : ChatOutput
+  deactivate PostgreSQL
+  deactivate ChatUC
+  Handler --> Client : answer + citations + suggestions
+end
+
+deactivate Handler
+@enduml

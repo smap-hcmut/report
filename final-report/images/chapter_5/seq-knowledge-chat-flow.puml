@@ -1,0 +1,58 @@
+@startuml
+title Contextual Chat Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "Client đã xác thực" as Client
+participant "Chat Handler" as Handler
+participant "Chat UseCase" as ChatUC
+database "PostgreSQL\nconversations/messages" as PostgreSQL
+participant "Search UseCase" as SearchUC
+participant "LLM Provider" as LLM
+
+Client -> Handler : POST /chat
+activate Handler
+Handler -> ChatUC : Chat(scope, input)
+activate ChatUC
+
+alt new conversation
+  ChatUC -> PostgreSQL : INSERT conversation
+  activate PostgreSQL
+  PostgreSQL --> ChatUC : conversation
+  deactivate PostgreSQL
+else existing conversation
+  ChatUC -> PostgreSQL : SELECT conversation + recent messages
+  activate PostgreSQL
+  PostgreSQL --> ChatUC : conversation + history
+  deactivate PostgreSQL
+end
+
+ChatUC -> SearchUC : Search(scope, derived search input)
+activate SearchUC
+SearchUC --> ChatUC : search results
+deactivate SearchUC
+
+ChatUC -> ChatUC : build prompt + extract citations
+ChatUC -> LLM : Generate(prompt)
+activate LLM
+LLM --> ChatUC : answer
+deactivate LLM
+
+ChatUC -> PostgreSQL : INSERT user message
+activate PostgreSQL
+PostgreSQL --> ChatUC : ok
+ChatUC -> PostgreSQL : INSERT assistant message
+PostgreSQL --> ChatUC : ok
+ChatUC -> PostgreSQL : UPDATE conversation last message
+PostgreSQL --> ChatUC : ok
+deactivate PostgreSQL
+
+ChatUC --> Handler : ChatOutput
+deactivate ChatUC
+Handler --> Client : answer + citations + suggestions
+deactivate Handler
+@enduml

@@ -34,22 +34,30 @@ Service này đáp ứng trực tiếp FR-11 về Realtime Notification và liê
     table.cell(align: center + horizon, inset: (y: 0.8em))[Gin + Gorilla WebSocket],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Request Processor],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Extract token, fallback cookie, validate request DTO và xác minh JWT trước khi upgrade],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Extract token, fallback cookie, validate request DTO và xác minh JWT trước khi upgrade],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Query params / user identity],
     table.cell(align: center + horizon, inset: (y: 0.8em))[JWT validation layer],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Connection Manager / Hub],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Đăng ký và quản lý vòng đời kết nối, route message đến client phù hợp],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Đăng ký và quản lý vòng đời kết nối, route message đến client phù hợp],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Connection / routed output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[In-memory connection registry],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Redis Subscriber],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Subscribe các channel pattern và tiếp nhận message từ backend publishers],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Subscribe các channel pattern và tiếp nhận message từ backend publishers],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Channel / payload],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Redis Pub/Sub],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Message Router],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Transform payload và quyết định đẩy về WebSocket hay alert lane tương ứng],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Transform payload và quyết định đẩy về WebSocket hay alert lane tương ứng],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Redis message / delivery output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
 
@@ -68,6 +76,14 @@ Notification Service có hai luồng xử lý chính: connection establishment v
 
 Flow này bắt đầu khi một realtime-capable client mở kết nối `GET /ws`.
 
+#align(center)[
+  #image("../images/chapter_5/seq-notification-ws-connection-flow.svg", width: 92%)
+  #context (
+    align(center)[_Hình #image_counter.display(): Luồng thiết lập kết nối WebSocket trong Notification Service_]
+  )
+  #image_counter.step()
+]
+
 Ở flow này, service thực hiện các bước chính sau:
 
 1. nhận request upgrade với token query hoặc auth cookie;
@@ -78,6 +94,12 @@ Flow này bắt đầu khi một realtime-capable client mở kết nối `GET /
 ===== b. Realtime and Alert Delivery Flow
 
 Flow này bắt đầu khi backend publisher phát message vào Redis channels.
+
+#align(center)[
+  #image("../images/chapter_5/seq-notification-delivery-flow.svg", width: 94%)
+  #context (align(center)[_Hình #image_counter.display(): Luồng realtime và alert delivery trong Notification Service_])
+  #image_counter.step()
+]
 
 Ở flow này, service thực hiện các bước chính sau:
 

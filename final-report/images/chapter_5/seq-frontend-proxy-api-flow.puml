@@ -1,0 +1,51 @@
+@startuml
+title Frontend Same-Origin Proxy API Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "Giao diện" as UI
+participant "Page / Hook / Component" as Component
+participant "TanStack Query" as QueryCache
+participant "API Client" as ApiClient
+participant "Next.js Proxy Route" as ProxyRoute
+participant "Backend Service" as BackendService
+participant "Zustand Store" as UIStore
+
+UI -> Component : page load or user action
+activate Component
+Component -> QueryCache : useQuery() / useMutation()
+activate QueryCache
+QueryCache -> ApiClient : request(endpoint, params)
+activate ApiClient
+ApiClient -> ProxyRoute : GET/POST /api/proxy/{service}/...
+activate ProxyRoute
+ProxyRoute -> BackendService : forward headers, body, cookies
+activate BackendService
+BackendService --> ProxyRoute : JSON envelope or error
+deactivate BackendService
+ProxyRoute --> ApiClient : forwarded response
+deactivate ProxyRoute
+
+alt HTTP 200
+  ApiClient -> ApiClient : unwrap response envelope
+  ApiClient --> QueryCache : payload
+  QueryCache --> Component : cached server data
+  Component -> UIStore : update auth/scope/report-job state if needed
+  activate UIStore
+  UIStore --> Component : local state updated
+  deactivate UIStore
+else HTTP 401
+  ApiClient -> ApiClient : dispatch auth:unauthorized
+  ApiClient --> QueryCache : ApiError
+  QueryCache --> Component : error state
+end
+
+deactivate ApiClient
+deactivate QueryCache
+Component --> UI : render data or error
+deactivate Component
+@enduml

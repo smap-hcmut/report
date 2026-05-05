@@ -30,32 +30,44 @@ Service này đáp ứng trực tiếp FR-10 về Knowledge Search and Chat, đ�
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP Server / Domain Router],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Công bố các route đã xác thực cho `search`, `chat`, `reports` (capability mở rộng) và các route nội bộ cho indexing control],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Công bố các route đã xác thực cho `search`, `chat`, `reports` (capability mở rộng) và các route nội bộ cho indexing control],
     table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP request / routed usecase],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Gin + middleware],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[ConsumerServer],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Điều phối Kafka consumer runtime để intake các topic analytics downstream],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Điều phối Kafka consumer runtime để intake các topic analytics downstream],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka message / indexing input],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Sarama consumer runtime],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Indexing UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Sinh embedding, ensure collection, upsert vào Qdrant, cập nhật tracking status và hỗ trợ retry hoặc reconcile],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Sinh embedding, ensure collection, upsert vào Qdrant, cập nhật tracking status và hỗ trợ retry hoặc reconcile],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics payload / indexed points + tracking result],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Go usecase + Qdrant + PostgreSQL],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Search UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Resolve campaign sang project scope, cache lookup, embed query, search nhiều collection và aggregate kết quả],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Resolve campaign sang project scope, cache lookup, embed query, search nhiều collection và aggregate kết quả],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Search input / search results],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Redis + Qdrant + embedding layer],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Chat UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Phân loại intent, kết hợp retrieval với LLM, sinh citations và persist conversation history],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Phân loại intent, kết hợp retrieval với LLM, sinh citations và persist conversation history],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Chat request / contextual answer],
     table.cell(align: center + horizon, inset: (y: 0.8em))[LLM orchestration + conversation store],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Report UseCase (Capability mở rộng)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Deduplicate yêu cầu, chạy background generation, tạo markdown artifact và upload sang object storage],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Deduplicate yêu cầu, chạy background generation, tạo markdown artifact và upload sang object storage],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Report request / report artifact + metadata],
     table.cell(align: center + horizon, inset: (y: 0.8em))[LLM + MinIO + PostgreSQL],
   )
@@ -63,15 +75,31 @@ Service này đáp ứng trực tiếp FR-10 về Knowledge Search and Chat, đ�
 
 ==== 5.3.6.2 Data Flow
 
-Knowledge Service có bốn luồng xử lý đáng chú ý: Kafka downstream indexing flow, internal indexing control flow, contextual search and chat flow, và report generation capability flow. Trong đó, hai luồng đầu tiên gắn với indexing runtime, luồng thứ ba gắn trực tiếp với phạm vi yêu cầu cốt lõi của Chương 4, còn luồng report phản ánh một capability mở rộng của knowledge layer nằm ngoài phạm vi này.
+Knowledge Service có năm luồng xử lý đáng chú ý: Kafka downstream indexing flow, internal indexing control flow, contextual search flow, contextual chat flow, và report generation capability flow. Trong đó, hai luồng đầu tiên gắn với indexing runtime; search và chat gắn trực tiếp với phạm vi yêu cầu cốt lõi của Chương 4; còn luồng report phản ánh một capability mở rộng của knowledge layer nằm ngoài phạm vi này.
 
 ===== a. Kafka Downstream Indexing Flow
 
 Luồng này bắt đầu khi dữ liệu analytics downstream được phát hành.
 
+Để dễ đọc hơn, flow này được tách thành ba phase nhỏ.
+
 #align(center)[
-  #image("../images/chapter_5/seq-knowledge-indexing-flow.svg", width: 97%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng analytics đến knowledge indexing_])
+  #image("../images/chapter_5/seq-knowledge-indexing-flow.svg", width: 48%)
+  #context (
+    align(center)[_Hình #image_counter.display(): Pha 1 - Intake và route analytics event vào indexing usecase_]
+  )
+  #image_counter.step()
+]
+
+#align(center)[
+  #image("../images/chapter_5/seq-knowledge-batch-indexing-flow.svg", width: 92%)
+  #context (align(center)[_Hình #image_counter.display(): Pha 2 - Index batch documents theo project collection_])
+  #image_counter.step()
+]
+
+#align(center)[
+  #image("../images/chapter_5/seq-knowledge-macro-indexing-flow.svg", width: 80%)
+  #context (align(center)[_Hình #image_counter.display(): Pha 3 - Index insight và digest vào macro collection_])
   #image_counter.step()
 ]
 
@@ -90,17 +118,39 @@ Luồng này phản ánh lớp control routes nội bộ của service, tách bi
 3. Service thực thi usecase điều khiển như index từ MinIO file URL, retry failed records, reconcile pending records hoặc truy vấn thống kê indexing.
 4. Kết quả được trả về như control hoặc monitoring output cho runtime caller, thay vì như search result hướng người dùng cuối.
 
-===== c. Contextual Search and Chat Flow
+===== c. Contextual Search Flow
 
-Luồng này bắt đầu khi client đã xác thực gửi yêu cầu `search` hoặc `chat`.
+Luồng này bắt đầu khi client đã xác thực gửi yêu cầu `search`.
 
-1. Client gọi route `/search` hoặc `/chat` thông qua HTTP API đã được bảo vệ bởi auth middleware.
-2. Search usecase resolve `campaign_id` sang `project_ids` qua `project-srv`, kiểm tra cache và sinh embedding cho truy vấn đã được enrich theo campaign context.
-3. Service thực hiện parallel search trên các Qdrant collections phù hợp, lọc theo score, dedupe snapshot lặp và aggregate kết quả.
-4. Với chat flow, service phân loại intent, kết hợp search results với conversation history rồi gọi LLM để sinh câu trả lời.
+#align(center)[
+  #image("../images/chapter_5/seq-knowledge-search-flow.svg", width: 97%)
+  #context (align(center)[_Hình #image_counter.display(): Luồng contextual search trong Knowledge Service_])
+  #image_counter.step()
+]
+
+1. Client gọi route `/search` thông qua HTTP API đã được bảo vệ bởi auth middleware.
+2. Search usecase kiểm tra search cache, rồi resolve `campaign_id` sang `project_ids` qua cache hoặc `project-srv`.
+3. Truy vấn được enrich theo campaign context và chuyển sang embedding vector.
+4. Service thực hiện parallel search trên các Qdrant collections phù hợp, lọc theo score, dedupe snapshot lặp và aggregate kết quả.
+5. Kết quả được cache lại trước khi trả về cho client.
+
+===== d. Contextual Chat Flow
+
+Luồng này bắt đầu khi client đã xác thực gửi yêu cầu `chat`.
+
+#align(center)[
+  #image("../images/chapter_5/seq-knowledge-chat-flow.svg", width: 97%)
+  #context (align(center)[_Hình #image_counter.display(): Luồng contextual chat trong Knowledge Service_])
+  #image_counter.step()
+]
+
+1. Client gọi route `/chat` với `campaign_id`, `message` và `conversation_id` nếu đang tiếp tục hội thoại cũ.
+2. Chat usecase tạo conversation mới hoặc nạp conversation cùng lịch sử message gần nhất.
+3. Chat usecase gọi lại search layer để lấy context phù hợp cho câu hỏi hiện tại.
+4. Search results, conversation history và input hiện tại được ghép thành prompt để gọi LLM.
 5. Câu trả lời, citations, suggestions và conversation or message history được persist để phục vụ các lượt tương tác tiếp theo.
 
-===== d. Report Generation Capability Flow
+===== e. Report Generation Capability Flow
 
 Luồng này phản ánh capability mở rộng của knowledge layer.
 

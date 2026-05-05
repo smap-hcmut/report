@@ -1,0 +1,68 @@
+@startuml
+title Contextual Search Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "Client đã xác thực" as Client
+participant "Search Handler" as Handler
+participant "Search UseCase" as SearchUC
+participant "Cache Repo" as CacheRepo
+participant "Project Service Client" as ProjectClient
+participant "EmbeddingUseCase" as Embedding
+participant "PointUseCase" as PointUC
+participant "Qdrant" as Qdrant
+
+Client -> Handler : POST /search
+activate Handler
+Handler -> SearchUC : Search(scope, input)
+activate SearchUC
+SearchUC -> CacheRepo : GetSearchResults(cacheKey)
+activate CacheRepo
+
+alt search cache hit
+  CacheRepo --> SearchUC : cached output
+else search cache miss
+  CacheRepo --> SearchUC : miss
+  SearchUC -> CacheRepo : GetCampaignProjects(campaign_id)
+  alt campaign-project cache hit
+    CacheRepo --> SearchUC : project_ids
+  else campaign-project cache miss
+    CacheRepo --> SearchUC : miss
+    SearchUC -> ProjectClient : GetCampaign(campaign_id)
+    activate ProjectClient
+    ProjectClient --> SearchUC : campaign + project_ids
+    deactivate ProjectClient
+    SearchUC -> CacheRepo : SaveCampaignProjects(...)
+    SearchUC -> CacheRepo : SaveCampaignName(...)
+  end
+
+  SearchUC -> Embedding : Generate(enriched query)
+  activate Embedding
+  Embedding --> SearchUC : query vector
+  deactivate Embedding
+
+  loop each project collection
+    SearchUC -> PointUC : Search(collection, vector, filter)
+    activate PointUC
+    PointUC -> Qdrant : search points
+    activate Qdrant
+    Qdrant --> PointUC : scored results
+    deactivate Qdrant
+    PointUC --> SearchUC : point results
+    deactivate PointUC
+  end
+
+  SearchUC -> SearchUC : sort, dedupe and aggregate results
+  SearchUC -> CacheRepo : SaveSearchResults(cacheKey, output)
+end
+
+deactivate CacheRepo
+SearchUC --> Handler : SearchOutput
+deactivate SearchUC
+Handler --> Client : results + aggregations
+deactivate Handler
+@enduml

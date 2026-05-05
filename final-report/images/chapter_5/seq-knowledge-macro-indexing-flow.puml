@@ -1,0 +1,68 @@
+@startuml
+title Knowledge Indexing Phase 3 - Insight and Digest Indexing
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+participant "Kafka Consumer" as Consumer
+participant "IndexingUseCase" as Indexing
+participant "EmbeddingUseCase" as Embedding
+participant "PointUseCase" as PointUC
+participant "Qdrant" as Qdrant
+
+alt insights.published
+  Consumer -> Indexing : IndexInsight(input)
+  activate Indexing
+  Indexing -> Embedding : Generate(title + summary)
+  activate Embedding
+  Embedding --> Indexing : vector
+  deactivate Embedding
+  Indexing -> PointUC : EnsureCollection(macro_insights)
+  activate PointUC
+  PointUC -> Qdrant : create collection if missing
+  activate Qdrant
+  Qdrant --> PointUC : collection ready
+  deactivate Qdrant
+  PointUC --> Indexing : ok
+  deactivate PointUC
+  Indexing -> PointUC : Upsert(insight point)
+  activate PointUC
+  PointUC -> Qdrant : upsert point
+  activate Qdrant
+  Qdrant --> PointUC : point indexed
+  deactivate Qdrant
+  PointUC --> Indexing : ok
+  deactivate PointUC
+  Indexing --> Consumer : insight indexing result
+  deactivate Indexing
+else report.digest
+  Consumer -> Indexing : IndexDigest(input)
+  activate Indexing
+  Indexing -> Indexing : build digest prose
+  Indexing -> Embedding : Generate(digest prose)
+  activate Embedding
+  Embedding --> Indexing : vector
+  deactivate Embedding
+  Indexing -> PointUC : EnsureCollection(macro_insights)
+  activate PointUC
+  PointUC -> Qdrant : create collection if missing
+  activate Qdrant
+  Qdrant --> PointUC : collection ready
+  deactivate Qdrant
+  PointUC --> Indexing : ok
+  deactivate PointUC
+  Indexing -> PointUC : Upsert(digest point)
+  activate PointUC
+  PointUC -> Qdrant : upsert point
+  activate Qdrant
+  Qdrant --> PointUC : point indexed
+  deactivate Qdrant
+  PointUC --> Indexing : ok
+  deactivate PointUC
+  Indexing --> Consumer : digest indexing result
+  deactivate Indexing
+end
+@enduml

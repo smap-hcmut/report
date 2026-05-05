@@ -1,0 +1,45 @@
+@startuml
+title WebSocket Connection Establishment Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "Realtime client" as Client
+participant "WebSocket Handler" as Handler
+participant "Request Processor" as Processor
+participant "JWT Manager" as JWTMgr
+participant "WebSocket UseCase" as WebSocketUC
+participant "Hub" as Hub
+participant "Connection" as Connection
+
+Client -> Handler : GET /ws?token=... or auth cookie
+activate Handler
+Handler -> Processor : processUpgradeRequest(c)
+activate Processor
+Processor -> Processor : bind query params\nfallback cookie\nvalidate DTO
+Processor -> JWTMgr : Verify(token)
+activate JWTMgr
+JWTMgr --> Processor : payload.UserID
+deactivate JWTMgr
+Processor --> Handler : req, userID
+deactivate Processor
+
+Handler -> Handler : websocket.Upgrader.Upgrade(...)
+Handler -> WebSocketUC : Register(conn, userID)
+activate WebSocketUC
+WebSocketUC -> Hub : register <- client
+activate Hub
+Hub --> WebSocketUC : accepted
+deactivate Hub
+WebSocketUC -> Connection : start readPump() and writePump()
+activate Connection
+Connection --> WebSocketUC : pumps running
+deactivate Connection
+WebSocketUC --> Handler : ok
+deactivate WebSocketUC
+Handler --> Client : 101 Switching Protocols
+deactivate Handler
+@enduml

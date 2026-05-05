@@ -1,0 +1,61 @@
+@startuml
+title Frontend Auth and Session Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor User
+participant "Auth Store" as AuthStore
+participant "Next.js Proxy Route" as ProxyRoute
+participant "identity-srv" as IdentityService
+participant "OAuth Provider" as Provider
+participant "Auth Callback Page" as CallbackPage
+participant "Session Route\n/api/auth/session" as SessionRoute
+
+User -> AuthStore : login()
+activate AuthStore
+AuthStore -> ProxyRoute : GET /api/proxy/identity/.../login?redirect=callback
+activate ProxyRoute
+ProxyRoute -> IdentityService : forward login request
+activate IdentityService
+IdentityService --> ProxyRoute : 302 redirect + Set-Cookie/Location
+deactivate IdentityService
+ProxyRoute --> User : rewritten redirect response
+deactivate ProxyRoute
+deactivate AuthStore
+
+User -> Provider : authenticate and consent
+Provider --> CallbackPage : redirect with token or frontend cookie
+activate CallbackPage
+
+alt token in URL
+  CallbackPage -> SessionRoute : POST /api/auth/session { token }
+  activate SessionRoute
+  SessionRoute -> IdentityService : GET /authentication/me with Cookie header
+  activate IdentityService
+  IdentityService --> SessionRoute : user envelope
+  deactivate IdentityService
+  SessionRoute --> CallbackPage : set smap_auth_token cookie
+  deactivate SessionRoute
+else cookie already rewritten by proxy
+  CallbackPage -> CallbackPage : skip token exchange
+end
+
+CallbackPage -> AuthStore : fetchCurrentUser()
+activate AuthStore
+AuthStore -> ProxyRoute : GET /api/proxy/identity/.../me
+activate ProxyRoute
+ProxyRoute -> IdentityService : forward request with cookies
+activate IdentityService
+IdentityService --> ProxyRoute : current user
+deactivate IdentityService
+ProxyRoute --> AuthStore : normalized user payload
+deactivate ProxyRoute
+AuthStore --> CallbackPage : authenticated state
+deactivate AuthStore
+CallbackPage --> User : navigate to /campaigns
+deactivate CallbackPage
+@enduml

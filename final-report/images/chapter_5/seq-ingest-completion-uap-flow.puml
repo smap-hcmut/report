@@ -1,43 +1,94 @@
 @startuml
-title Completion Handling and UAP Publishing Flow
-hide footbox
-skinparam style strictuml
+title Ingest Completion Handling and UAP Publishing Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
 skinparam sequenceMessageAlign center
 skinparam responseMessageBelowArrow true
 skinparam maxMessageSize 70
+skinparam roundcorner 12
 
-participant "Completion queue" as CompletionQueue
-participant "CompletionConsumer" as Consumer
+queue "RabbitMQ queue\ningest_task_completions\nor ingest_dryrun_completions" as CompletionQueue
+participant "Completion Consumer" as Consumer
 participant "ExecutionUseCase" as Execution
-participant "MinIO" as MinIO
-participant "ExternalTaskRepo" as ExternalTaskRepo
-participant "RawBatchRepo" as RawBatchRepo
-participant "UAPPublisher" as UAPPublisher
-participant "Kafka topic\nUAP input" as UAPTopic
+participant "Execution Repo" as ExecutionRepo
+participant "MinIO Client" as MinIO
+participant "UAP UseCase" as UAPUC
+participant "UAP Publisher" as UAPPublisher
+database "PostgreSQL" as PostgreSQL
+queue "Kafka topic\nanalytics input" as AnalyticsInput
 
 CompletionQueue ->> Consumer : deliver completion envelope
 activate Consumer
-Consumer -> Execution : handleCompletion(task_id, metadata)
+Consumer -> Execution : HandleCompletion(input)
 activate Execution
-Execution -> MinIO : verify artifact metadata
-activate MinIO
-MinIO --> Execution : artifact metadata
-deactivate MinIO
-Execution -> ExternalTaskRepo : mark task completed
-activate ExternalTaskRepo
-ExternalTaskRepo --> Execution : completion persisted
-deactivate ExternalTaskRepo
-Execution -> RawBatchRepo : create raw batch lineage
-activate RawBatchRepo
-RawBatchRepo --> Execution : raw batch persisted
-deactivate RawBatchRepo
 
-opt canonical payload can be produced
-  Execution -> UAPPublisher : publishCanonicalBatch(raw_batch)
-  activate UAPPublisher
-  UAPPublisher ->> UAPTopic : UAP records
-  UAPPublisher --> Execution : publish accepted
-  deactivate UAPPublisher
+Execution -> ExecutionRepo : GetCompletionContext(task_id)
+activate ExecutionRepo
+ExecutionRepo -> PostgreSQL : SELECT external task context
+activate PostgreSQL
+PostgreSQL --> ExecutionRepo : completion context
+deactivate PostgreSQL
+ExecutionRepo --> Execution : completion context
+deactivate ExecutionRepo
+
+alt completion status = error
+  Execution -> ExecutionRepo : CompleteTaskError(...)
+  activate ExecutionRepo
+  ExecutionRepo -> PostgreSQL : UPDATE external_task as failed
+  activate PostgreSQL
+  PostgreSQL --> ExecutionRepo : persisted
+  deactivate PostgreSQL
+  ExecutionRepo --> Execution : ok
+  deactivate ExecutionRepo
+else completion status = success
+  Execution -> ExecutionRepo : HasRawBatch(source_id, batch_id)
+  activate ExecutionRepo
+  ExecutionRepo -> PostgreSQL : SELECT raw_batch existence
+  activate PostgreSQL
+  PostgreSQL --> ExecutionRepo : exists?
+  deactivate PostgreSQL
+  ExecutionRepo --> Execution : exists?
+  deactivate ExecutionRepo
+
+  Execution -> MinIO : verifyMinIOObject(bucket, path)
+  activate MinIO
+  MinIO --> Execution : file info
+  deactivate MinIO
+
+  Execution -> ExecutionRepo : CompleteTaskSuccess(...)
+  activate ExecutionRepo
+  ExecutionRepo -> PostgreSQL : UPDATE external_task\nINSERT raw_batch lineage
+  activate PostgreSQL
+  PostgreSQL --> ExecutionRepo : raw_batch persisted
+  deactivate PostgreSQL
+  ExecutionRepo --> Execution : raw_batch
+  deactivate ExecutionRepo
+
+  opt parser supports platform and action
+    Execution -> UAPUC : ParseAndStoreRawBatch(raw_batch input)
+    activate UAPUC
+    UAPUC -> PostgreSQL : claim and mark raw_batch parsing state
+    activate PostgreSQL
+    PostgreSQL --> UAPUC : claimed
+    deactivate PostgreSQL
+    UAPUC -> MinIO : DownloadFile(bucket, object)
+    activate MinIO
+    MinIO --> UAPUC : raw artifact bytes
+    deactivate MinIO
+    loop each parsed UAPRecord
+      UAPUC -> UAPPublisher : Publish(record)
+      activate UAPPublisher
+      UAPPublisher ->> AnalyticsInput : UAPRecord
+      UAPPublisher --> UAPUC : publish result
+      deactivate UAPPublisher
+    end
+    UAPUC -> PostgreSQL : mark raw_batch parsed\nwith publish statistics
+    activate PostgreSQL
+    PostgreSQL --> UAPUC : parsed state saved
+    deactivate PostgreSQL
+    UAPUC --> Execution : parse flow finished
+    deactivate UAPUC
+  end
 end
 
 Execution --> Consumer : completion handled

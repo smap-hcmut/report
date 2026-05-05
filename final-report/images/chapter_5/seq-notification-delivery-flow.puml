@@ -1,0 +1,42 @@
+@startuml
+title Realtime and Alert Delivery Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "Backend publisher" as Publisher
+queue "Redis Pub/Sub\nchannel patterns" as RedisChannels
+participant "Redis Subscriber" as Subscriber
+participant "WebSocket UseCase" as WebSocketUC
+participant "Alert UseCase" as AlertUC
+participant "Hub" as Hub
+participant "WebSocket Connection" as Connection
+participant "Discord" as Discord
+
+Publisher ->> RedisChannels : publish notification payload
+RedisChannels ->> Subscriber : matched redis.Message
+activate Subscriber
+Subscriber -> WebSocketUC : ProcessMessage(channel, payload)
+activate WebSocketUC
+WebSocketUC -> WebSocketUC : parseChannel + detectMessageType\ntransform payload
+
+opt alert-eligible message
+  WebSocketUC -> AlertUC : Dispatch alert payload
+  activate AlertUC
+  AlertUC ->> Discord : send webhook message
+  AlertUC --> WebSocketUC : best-effort result
+  deactivate AlertUC
+end
+
+WebSocketUC -> Hub : SendToUser(...) or Broadcast(...)
+activate Hub
+Hub ->> Connection : push notification JSON
+Hub --> WebSocketUC : routed
+deactivate Hub
+WebSocketUC --> Subscriber : ok
+deactivate WebSocketUC
+deactivate Subscriber
+@enduml

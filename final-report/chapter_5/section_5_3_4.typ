@@ -32,27 +32,37 @@ Service này đáp ứng trực tiếp FR-05 về Datasource Management, FR-06 v
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Datasource Handler],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Xử lý HTTP routes cho datasource CRUD, target management và các internal lifecycle endpoints],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Xử lý HTTP routes cho datasource CRUD, target management và các internal lifecycle endpoints],
     table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP request / JSON response],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Gin + HTTP handler],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Datasource UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Điều phối business rules cho datasource, target và project lifecycle runtime],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Điều phối business rules cho datasource, target và project lifecycle runtime],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Datasource input / lifecycle output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[DryRun UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Khởi chạy dry run, ghi nhận kết quả và duy trì thông tin readiness],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Khởi chạy dry run, ghi nhận kết quả và duy trì thông tin readiness],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Dry run request / latest-history output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[UseCase + RabbitMQ producer],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Execution UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Publish crawl task, nhận completion, kiểm tra object storage và tạo raw batch lineage],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Publish crawl task, nhận completion, kiểm tra object storage và tạo raw batch lineage],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Task payload / completion metadata],
     table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQ + MinIO client],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[UAP Publisher],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Chuẩn hóa raw batch thành UAP và phát hành sang analytics data plane],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Chuẩn hóa raw batch thành UAP và phát hành sang analytics data plane],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Raw batch / UAP records],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka publishing layer],
   )
@@ -66,6 +76,14 @@ Luồng xử lý chính của Ingest Service có thể chia thành ba flow quan 
 
 Flow này bắt đầu khi người dùng tạo datasource, thêm crawl target hoặc chỉnh sửa các tham số vận hành liên quan.
 
+#align(center)[
+  #image("../images/chapter_5/seq-ingest-datasource-target-flow.svg", width: 75%)
+  #context (
+    align(center)[_Hình #image_counter.display(): Luồng quản lý datasource và crawl target trong Ingest Service_]
+  )
+  #image_counter.step()
+]
+
 Ở flow này, service thực hiện các bước chính sau:
 
 1. nhận request tạo hoặc cập nhật datasource;
@@ -76,6 +94,12 @@ Flow này bắt đầu khi người dùng tạo datasource, thêm crawl target h
 ===== b. Dry Run Validation Flow
 
 Flow này được kích hoạt khi người dùng yêu cầu kiểm tra readiness trước khi chạy chính thức.
+
+#align(center)[
+  #image("../images/chapter_5/seq-ingest-dryrun-validation-flow.svg", width: 85%)
+  #context (align(center)[_Hình #image_counter.display(): Luồng dry run validation trong Ingest Service_])
+  #image_counter.step()
+]
 
 Ở flow này, Ingest Service:
 
@@ -89,8 +113,10 @@ Flow này được kích hoạt khi người dùng yêu cầu kiểm tra readine
 Flow này là phần quan trọng nhất của execution plane hiện tại.
 
 #align(center)[
-  #image("../images/chapter_5/seq-ingest-completion-uap-flow.svg", width: 96%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng completion handling và UAP publishing trong Ingest Service_])
+  #image("../images/chapter_5/seq-ingest-completion-uap-flow.svg", width: 94%)
+  #context (
+    align(center)[_Hình #image_counter.display(): Luồng completion handling và UAP publishing trong Ingest Service_]
+  )
   #image_counter.step()
 ]
 

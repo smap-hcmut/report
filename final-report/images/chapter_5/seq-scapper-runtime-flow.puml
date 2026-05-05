@@ -1,51 +1,58 @@
 @startuml
 title Canonical Crawl Execution and Completion Flow
-hide footbox
-skinparam style strictuml
+skinparam defaultFontName Arial
+skinparam shadowing false
 skinparam sequenceMessageAlign center
 skinparam responseMessageBelowArrow true
 skinparam maxMessageSize 70
+skinparam roundcorner 12
 
-participant "Platform queue\ntiktok/facebook/youtube" as PlatformQueue
+queue "RabbitMQ queue\ntiktok/facebook/youtube tasks" as PlatformQueue
 participant "WorkerRuntime" as Worker
-participant "PlatformHandler" as Handler
+participant "Queue Handler Registry" as Registry
+participant "Platform Handler" as Handler
 participant "TinLikeSub SDK" as SDK
 participant "StorageAdapter" as Storage
 participant "MinIO" as MinIO
 participant "Local output" as LocalOutput
 participant "CompletionPublisher" as Publisher
-participant "Completion queue\nexecution/dryrun" as CompletionQueue
+queue "RabbitMQ queue\ningest_task_completions\nor ingest_dryrun_completions" as CompletionQueue
 
 PlatformQueue ->> Worker : deliver task envelope
 activate Worker
-Worker -> Handler : dispatch(action, params)
+Worker -> Worker : json.loads(message.body)
+Worker -> Registry : resolve(queue_name, action)
+activate Registry
+Registry --> Worker : handler
+deactivate Registry
+Worker -> Handler : execute(client, params)
 activate Handler
-Handler -> SDK : execute crawl action
+Handler -> SDK : crawl action or full_flow
 activate SDK
 SDK --> Handler : raw result bundle
 deactivate SDK
-Handler --> Worker : task result
+Handler --> Worker : TaskResult
 deactivate Handler
-Worker -> Storage : materialize raw artifact
-activate Storage
 
-alt production storage
-  Storage -> MinIO : write object
+Worker -> Storage : save_result_data(task_id, platform, action, result)
+activate Storage
+alt production mode
+  Storage -> MinIO : upload raw artifact
   activate MinIO
-  MinIO --> Storage : storage metadata
+  MinIO --> Storage : storage_bucket, storage_path, checksum
   deactivate MinIO
-else development storage
+else development mode
   Storage -> LocalOutput : write JSON artifact
   activate LocalOutput
-  LocalOutput --> Storage : local metadata
+  LocalOutput --> Storage : local path metadata
   deactivate LocalOutput
 end
-
-Storage --> Worker : storage metadata
+Storage --> Worker : storage metadata + batch_id
 deactivate Storage
-Worker -> Publisher : publish completion(storage metadata)
+
+Worker -> Publisher : publish_completion(completion envelope)
 activate Publisher
-Publisher ->> CompletionQueue : completion envelope
+Publisher ->> CompletionQueue : CompletionEnvelope
 Publisher --> Worker : publish accepted
 deactivate Publisher
 deactivate Worker

@@ -1,0 +1,138 @@
+@startuml
+title Dry Run Validation Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "UI" as UI
+participant "DryRun Handler" as Handler
+participant "DryRun UseCase" as DryRunUC
+participant "Datasource UseCase" as DatasourceUC
+participant "Datasource Repository" as DatasourceRepo
+participant "DryRun Repository" as DryRunRepo
+database "PostgreSQL" as PostgreSQL
+participant "DryRun Producer" as DispatchProducer
+queue "RabbitMQ task queue" as TaskQueue
+queue "RabbitMQ queue\ningest_dryrun_completions" as CompletionQueue
+participant "DryRun Consumer" as CompletionConsumer
+participant "Artifact Storage" as ArtifactStorage
+
+UI -> Handler : POST /datasources/{id}/dryrun
+activate Handler
+Handler -> Handler : processTriggerReq()
+Handler -> DryRunUC : Trigger(input)
+activate DryRunUC
+
+DryRunUC -> DatasourceUC : Detail(source_id)
+activate DatasourceUC
+DatasourceUC -> DatasourceRepo : DetailDataSource(source_id)
+activate DatasourceRepo
+DatasourceRepo -> PostgreSQL : SELECT data source
+activate PostgreSQL
+PostgreSQL --> DatasourceRepo : datasource row
+deactivate PostgreSQL
+DatasourceRepo --> DatasourceUC : datasource
+deactivate DatasourceRepo
+DatasourceUC --> DryRunUC : datasource
+deactivate DatasourceUC
+
+opt crawl source requires target
+  DryRunUC -> DatasourceUC : DetailTarget(source_id, target_id)
+  activate DatasourceUC
+  DatasourceUC -> DatasourceRepo : GetTarget(source_id, target_id)
+  activate DatasourceRepo
+  DatasourceRepo -> PostgreSQL : SELECT crawl target
+  activate PostgreSQL
+  PostgreSQL --> DatasourceRepo : target row
+  deactivate PostgreSQL
+  DatasourceRepo --> DatasourceUC : target
+  deactivate DatasourceRepo
+  DatasourceUC --> DryRunUC : target
+  deactivate DatasourceUC
+  DryRunUC -> DryRunRepo : GetLatest(source_id, target_id)
+  activate DryRunRepo
+  DryRunRepo -> PostgreSQL : SELECT latest dryrun result
+  activate PostgreSQL
+  PostgreSQL --> DryRunRepo : latest result or none
+  deactivate PostgreSQL
+  DryRunRepo --> DryRunUC : latest result
+  deactivate DryRunRepo
+end
+
+DryRunUC -> DryRunRepo : CreateResult(status=RUNNING, job_id=task_id)
+activate DryRunRepo
+DryRunRepo -> PostgreSQL : INSERT dryrun_results
+activate PostgreSQL
+PostgreSQL --> DryRunRepo : running result
+deactivate PostgreSQL
+DryRunRepo --> DryRunUC : running result
+deactivate DryRunRepo
+
+DryRunUC -> DatasourceUC : MarkDryrunRunning(source_id, result_id)
+activate DatasourceUC
+DatasourceUC -> DatasourceRepo : UpdateDataSource(dryrun_status=RUNNING)
+activate DatasourceRepo
+DatasourceRepo -> PostgreSQL : UPDATE ingest.data_sources
+activate PostgreSQL
+PostgreSQL --> DatasourceRepo : datasource updated
+deactivate PostgreSQL
+DatasourceRepo --> DatasourceUC : updated datasource
+deactivate DatasourceRepo
+DatasourceUC --> DryRunUC : updated datasource
+deactivate DatasourceUC
+
+DryRunUC -> DispatchProducer : PublishDispatch(queue, task_id, action, params)
+activate DispatchProducer
+DispatchProducer ->> TaskQueue : dryrun task payload
+DispatchProducer --> DryRunUC : dispatch accepted
+deactivate DispatchProducer
+DryRunUC --> Handler : RUNNING result accepted
+deactivate DryRunUC
+Handler --> UI : 200 OK + running dryrun
+deactivate Handler
+
+TaskQueue ->> CompletionQueue : completion envelope after crawl runtime
+CompletionQueue ->> CompletionConsumer : deliver completion message
+activate CompletionConsumer
+CompletionConsumer -> DryRunUC : HandleCompletion(input)
+activate DryRunUC
+DryRunUC -> DryRunRepo : GetByJobID(task_id)
+activate DryRunRepo
+DryRunRepo -> PostgreSQL : SELECT dryrun result by job_id
+activate PostgreSQL
+PostgreSQL --> DryRunRepo : dryrun result
+deactivate PostgreSQL
+DryRunRepo --> DryRunUC : dryrun result
+deactivate DryRunRepo
+
+alt completion status = success
+  DryRunUC -> ArtifactStorage : download artifact bytes
+  activate ArtifactStorage
+  ArtifactStorage --> DryRunUC : sample payload
+  deactivate ArtifactStorage
+  DryRunUC -> DryRunRepo : CompleteResult(status=SUCCESS/WARNING,...)
+  activate DryRunRepo
+  DryRunRepo -> PostgreSQL : UPDATE dryrun_results
+  activate PostgreSQL
+  PostgreSQL --> DryRunRepo : persisted
+  deactivate PostgreSQL
+  DryRunRepo --> DryRunUC : final result
+  deactivate DryRunRepo
+else completion status = error
+  DryRunUC -> DryRunRepo : CompleteResult(status=FAILED,...)
+  activate DryRunRepo
+  DryRunRepo -> PostgreSQL : UPDATE dryrun_results
+  activate PostgreSQL
+  PostgreSQL --> DryRunRepo : persisted
+  deactivate PostgreSQL
+  DryRunRepo --> DryRunUC : final result
+  deactivate DryRunRepo
+end
+
+DryRunUC --> CompletionConsumer : completion handled
+deactivate DryRunUC
+deactivate CompletionConsumer
+@enduml

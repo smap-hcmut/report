@@ -1,0 +1,66 @@
+@startuml
+title Datasource and Target Management Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "UI" as UI
+participant "Datasource Handler" as Handler
+participant "Datasource UseCase" as DatasourceUC
+participant "Project Service Client" as ProjectClient
+participant "Datasource Repository" as DatasourceRepo
+database "PostgreSQL" as PostgreSQL
+
+UI -> Handler : POST /datasources or /datasources/{id}/targets/*
+activate Handler
+
+alt create datasource
+  Handler -> Handler : processCreateReq()
+  Handler -> DatasourceUC : Create(input)
+  activate DatasourceUC
+  DatasourceUC -> ProjectClient : Detail(project_id)
+  activate ProjectClient
+  ProjectClient --> DatasourceUC : project detail
+  deactivate ProjectClient
+  DatasourceUC -> DatasourceRepo : CreateDataSource(options)
+  activate DatasourceRepo
+  DatasourceRepo -> PostgreSQL : INSERT ingest.data_sources
+  activate PostgreSQL
+  PostgreSQL --> DatasourceRepo : datasource row
+  deactivate PostgreSQL
+  DatasourceRepo --> DatasourceUC : datasource
+  deactivate DatasourceRepo
+  DatasourceUC --> Handler : datasource output
+  deactivate DatasourceUC
+  Handler --> UI : 200 OK + datasource
+else create grouped target
+  Handler -> Handler : processCreateTargetGroupReq()
+  Handler -> DatasourceUC : CreateKeywordTarget / CreateProfileTarget / CreatePostTarget
+  activate DatasourceUC
+  DatasourceUC -> DatasourceRepo : DetailDataSource(data_source_id)
+  activate DatasourceRepo
+  DatasourceRepo -> PostgreSQL : SELECT ingest.data_sources row
+  activate PostgreSQL
+  PostgreSQL --> DatasourceRepo : datasource row
+  deactivate PostgreSQL
+  DatasourceRepo --> DatasourceUC : datasource
+  deactivate DatasourceRepo
+  DatasourceUC -> DatasourceUC : prepareTargetValues() and validate source rules
+  DatasourceUC -> DatasourceRepo : CreateTarget(options)
+  activate DatasourceRepo
+  DatasourceRepo -> PostgreSQL : INSERT ingest.crawl_targets
+  activate PostgreSQL
+  PostgreSQL --> DatasourceRepo : target row
+  deactivate PostgreSQL
+  DatasourceRepo --> DatasourceUC : target
+  deactivate DatasourceRepo
+  DatasourceUC --> Handler : target output
+  deactivate DatasourceUC
+  Handler --> UI : 200 OK + target
+end
+
+deactivate Handler
+@enduml

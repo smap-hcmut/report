@@ -1,0 +1,57 @@
+@startuml
+title Knowledge Indexing Phase 2 - Batch Document Indexing
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+participant "Kafka Consumer" as Consumer
+participant "IndexingUseCase" as Indexing
+participant "EmbeddingUseCase" as Embedding
+participant "PointUseCase" as PointUC
+participant "Qdrant" as Qdrant
+participant "Cache Repo" as CacheRepo
+participant "Redis" as Redis
+
+Consumer -> Indexing : IndexBatch(input)
+activate Indexing
+Indexing -> PointUC : EnsureCollection(proj_{project_id})
+activate PointUC
+PointUC -> Qdrant : create collection if missing
+activate Qdrant
+Qdrant --> PointUC : collection ready
+deactivate Qdrant
+PointUC --> Indexing : ok
+deactivate PointUC
+
+loop each indexable document
+  Indexing -> Embedding : Generate(clean_text)
+  activate Embedding
+  Embedding --> Indexing : vector
+  deactivate Embedding
+  Indexing -> PointUC : Upsert(project point)
+  activate PointUC
+  PointUC -> Qdrant : upsert point
+  activate Qdrant
+  Qdrant --> PointUC : point indexed
+  deactivate Qdrant
+  PointUC --> Indexing : ok
+  deactivate PointUC
+end
+
+opt indexed > 0
+  Indexing -> CacheRepo : InvalidateSearchCache(project_id)
+  activate CacheRepo
+  CacheRepo -> Redis : delete affected keys
+  activate Redis
+  Redis --> CacheRepo : cache cleared
+  deactivate Redis
+  CacheRepo --> Indexing : invalidated
+  deactivate CacheRepo
+end
+
+Indexing --> Consumer : batch indexing result
+deactivate Indexing
+@enduml

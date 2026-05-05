@@ -1,63 +1,38 @@
 @startuml
-title Analytics to Knowledge Indexing Flow
-hide footbox
-skinparam style strictuml
+title Knowledge Indexing Phase 1 - Intake and Routing
+skinparam defaultFontName Arial
+skinparam shadowing false
 skinparam sequenceMessageAlign center
 skinparam responseMessageBelowArrow true
 skinparam maxMessageSize 70
+skinparam roundcorner 12
 
-participant "Kafka topics\nanalytics.*" as AnalyticsTopics
-participant "IndexingConsumer" as Consumer
+queue "Kafka topics\nanalytics.*" as AnalyticsTopics
+participant "Kafka Consumer" as Consumer
 participant "IndexingUseCase" as Indexing
-participant "EmbeddingUseCase" as Embedding
-participant "Qdrant" as Qdrant
-participant "TrackingRepo" as TrackingRepo
-participant "PostgreSQL" as PostgreSQL
-participant "CacheRepo" as CacheRepo
-participant "Redis" as Redis
 
 AnalyticsTopics ->> Consumer : deliver analytics event
 activate Consumer
-Consumer -> Indexing : index(event)
-activate Indexing
+Consumer -> Consumer : unmarshal by topic and payload shape
 
-alt batch.completed event
-  Indexing -> Embedding : embed documents
-  activate Embedding
-  Embedding --> Indexing : document vectors
-  deactivate Embedding
-  Indexing -> Qdrant : upsert project points
-  activate Qdrant
-  Qdrant --> Indexing : points indexed
-  deactivate Qdrant
-else insight or digest event
-  Indexing -> Embedding : embed insight artifact
-  activate Embedding
-  Embedding --> Indexing : insight vector
-  deactivate Embedding
-  Indexing -> Qdrant : upsert macro insight point
-  activate Qdrant
-  Qdrant --> Indexing : point indexed
-  deactivate Qdrant
+alt batch.completed with documents[]
+  Consumer -> Indexing : IndexBatch(input)
+  activate Indexing
+  Indexing --> Consumer : batch indexing result
+  deactivate Indexing
+else insights.published with should_index=true
+  Consumer -> Indexing : IndexInsight(input)
+  activate Indexing
+  Indexing --> Consumer : insight indexing result
+  deactivate Indexing
+else report.digest with should_index=true
+  Consumer -> Indexing : IndexDigest(input)
+  activate Indexing
+  Indexing --> Consumer : digest indexing result
+  deactivate Indexing
+else unsupported or skipped payload
+  Consumer -> Consumer : ignore message
 end
 
-Indexing -> TrackingRepo : update indexing status
-activate TrackingRepo
-TrackingRepo -> PostgreSQL : save tracking state
-activate PostgreSQL
-PostgreSQL --> TrackingRepo : persisted
-deactivate PostgreSQL
-TrackingRepo --> Indexing : tracking result
-deactivate TrackingRepo
-Indexing -> CacheRepo : invalidate search cache
-activate CacheRepo
-CacheRepo -> Redis : delete affected keys
-activate Redis
-Redis --> CacheRepo : cache cleared
-deactivate Redis
-CacheRepo --> Indexing : invalidation result
-deactivate CacheRepo
-Indexing --> Consumer : indexing result
-deactivate Indexing
 deactivate Consumer
 @enduml
