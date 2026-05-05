@@ -1,0 +1,57 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam linetype ortho
+skinparam noteBackgroundColor #FFF2CC
+skinparam noteBorderColor #E06666
+left to right direction
+
+rectangle "Scapper Worker Service" {
+  package "Presentation Layer (Delivery)" {
+    component "«component»\nTask Router /\nSubmit API" as sc_router
+    component "«component»\nWorker Runtime" as sc_worker
+  }
+
+  package "Application Layer (UseCase)" {
+    component "«UseCase»\nQueue Registry /\nDispatch Map" as sc_registry
+    component "«UseCase»\nPlatform Handlers" as sc_handlers
+  }
+
+  package "Infrastructure Layer" {
+    component "«component»\nStorage Adapter" as sc_storage
+    component "«component»\nCompletion\nPublisher" as sc_pub
+  }
+}
+
+queue "«System»\nRabbitMQ platform\nqueues" as sc_taskq
+cloud "«System»\nTinLikeSub SDK" as sc_sdk
+database "«System»\nMinIO" as sc_minio
+folder "«System»\nLocal output/" as sc_fs
+queue "«System»\nRabbitMQ ingest\ncompletion queues" as sc_completionq
+
+sc_router -[#0000FF]-> sc_taskq : auxiliary publish
+sc_taskq -[#0000FF]-> sc_worker : consume
+sc_worker -[#000000]-> sc_registry : resolve handler
+sc_registry -[#000000]-> sc_handlers : dispatch action
+sc_handlers -[#000000]-> sc_sdk : crawl
+sc_worker -[#000000]-> sc_storage : materialize result
+sc_storage -[#FFA500]-> sc_minio : production mode
+sc_storage -[#FFA500]-> sc_fs : development mode
+sc_worker -[#000000]-> sc_pub : build envelope
+sc_pub -[#0000FF]-> sc_completionq : completion
+
+note bottom of sc_router
+submit task,
+inspect result
+end note
+
+legend right
+|= Color |= Protocol |
+|<#0000FF>  | RabbitMQ |
+|<#FFA500>  | Storage |
+|<#000000>  | Internal Call |
+endlegend
+@enduml

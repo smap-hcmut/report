@@ -18,7 +18,7 @@ Service này đáp ứng trực tiếp FR-02 về Campaign and Project Managemen
 Project Service được tổ chức theo hướng tách biệt rõ delivery, usecase và persistence layer. Trọng tâm của service không nằm ở task runtime mà ở việc giữ trạng thái nghiệp vụ, điều phối lifecycle control và nối business context với các internal services liên quan.
 
 #align(center)[
-  #image("../images/component/project-component-diagram.png", width: 100%)
+  #image("../images/chapter_5/c4-project-component-diagram.svg", width: 96%)
   #context (align(center)[_Hình #image_counter.display(): Biểu đồ thành phần của Project Service_])
   #image_counter.step()
 ]

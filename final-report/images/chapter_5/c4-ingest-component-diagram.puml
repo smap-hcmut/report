@@ -1,0 +1,68 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam linetype ortho
+skinparam noteBackgroundColor #FFF2CC
+skinparam noteBorderColor #E06666
+left to right direction
+
+rectangle "Ingest Service" {
+  package "Presentation Layer (Delivery)" {
+    component "«component»\nDatasource / DryRun\nHandlers" as ig_handler
+  }
+
+  package "Application Layer (UseCase)" {
+    component "«UseCase»\nDatasource UseCase" as ig_datasource
+    component "«UseCase»\nDryRun UseCase" as ig_dryrun
+    component "«UseCase»\nExecution UseCase" as ig_exec
+    component "«UseCase»\nUAP UseCase" as ig_uap
+  }
+
+  package "Infrastructure Layer" {
+    component "«Repository»\nDatasource / DryRun /\nExecution Repositories" as ig_repo
+    component "«component»\nProject Service\nClient" as ig_project
+    component "«component»\nUAP Publisher" as ig_pub
+  }
+}
+
+database "«System»\nPostgreSQL" as ig_pg
+queue "«System»\nRabbitMQ task\nqueues" as ig_taskq
+queue "«System»\nRabbitMQ completion\nqueues" as ig_completionq
+database "«System»\nMinIO" as ig_minio
+queue "«System»\nKafka analytics\ninput" as ig_kafka
+component "«System»\nproject-srv" as ig_project_srv
+
+ig_handler -[#000000]-> ig_datasource
+ig_handler -[#000000]-> ig_dryrun
+ig_datasource -[#000000]-> ig_repo
+ig_datasource -[#000000]-> ig_project : validate project
+ig_dryrun -[#000000]-> ig_repo
+ig_dryrun -[#0000FF]-> ig_taskq : dispatch task
+ig_exec -[#000000]-> ig_repo : completion context
+ig_completionq -[#0000FF]-> ig_exec : completion events
+ig_exec -[#FFA500]-> ig_minio : verify artifact
+ig_exec -[#000000]-> ig_uap : parse raw batch
+ig_uap -[#000000]-> ig_repo : raw batch state
+ig_uap -[#FFA500]-> ig_minio : download object
+ig_uap -[#000000]-> ig_pub : publish record
+ig_pub -[#0000FF]-> ig_kafka : UAP records
+ig_repo -[#008000]-> ig_pg : ingest schemas
+ig_project -[#000000]-> ig_project_srv : internal HTTP
+
+note bottom of ig_handler
+datasource CRUD,
+target routes,
+dryrun routes
+end note
+
+legend right
+|= Color |= Protocol |
+|<#0000FF>  | Kafka / RabbitMQ |
+|<#008000>  | PostgreSQL |
+|<#FFA500>  | Object Storage |
+|<#000000>  | Internal Call |
+endlegend
+@enduml

@@ -16,7 +16,13 @@ Vai trò của Frontend Application trong kiến trúc tổng thể:
 
 Frontend Application hỗ trợ trực tiếp các use case có tương tác người dùng như cấu hình campaign/project, quản lý datasource, xem analytics dashboard, khai thác knowledge assistant và nhận notification trong giao diện. Bên cạnh các use case cốt lõi gắn với Chương 4, frontend còn có một workflow report phụ trợ ở mức giao diện.
 
-==== 5.3.8.1 Thành phần chính
+==== 5.3.8.1 Component Diagram - C4 Level 3
+
+#align(center)[
+  #image("../images/chapter_5/c4-frontend-application-component-diagram.svg", width: 96%)
+  #context (align(center)[_Hình #image_counter.display(): Biểu đồ thành phần của Frontend Application_])
+  #image_counter.step()
+]
 
 #context (align(center)[_Bảng #table_counter.display(): Thành phần chính của Frontend Application_])
 #table_counter.step()

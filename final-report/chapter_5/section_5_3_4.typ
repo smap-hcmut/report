@@ -14,9 +14,15 @@ Vai trò của Ingest Service trong kiến trúc tổng thể:
 
 Service này đáp ứng trực tiếp FR-05 về Datasource Management, FR-06 về Crawl Target Management, FR-07 về Dry Run Validation và FR-08 về Crawl Runtime Orchestration. Ở mức use case, nó liên quan trực tiếp đến UC-01 về Thiết lập chiến dịch theo dõi và UC-02 về Vận hành chiến dịch theo dõi.
 
-==== 5.3.4.1 Thành phần chính
+==== 5.3.4.1 Component Diagram - C4 Level 3
 
 Ở mức thiết kế chi tiết, Ingest Service có thể được nhìn qua năm cụm thành phần chính.
+
+#align(center)[
+  #image("../images/chapter_5/c4-ingest-component-diagram.svg", width: 96%)
+  #context (align(center)[_Hình #image_counter.display(): Biểu đồ thành phần của Ingest Service_])
+  #image_counter.step()
+]
 
 #context (align(center)[_Bảng #table_counter.display(): Thành phần chính của Ingest Service_])
 #table_counter.step()

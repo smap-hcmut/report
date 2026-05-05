@@ -13,7 +13,13 @@ Vai trò của Notification Service trong kiến trúc tổng thể:
 
 Service này đáp ứng trực tiếp FR-11 về Realtime Notification và liên quan trực tiếp đến UC-04 về Theo dõi trạng thái và nhận cảnh báo.
 
-==== 5.3.5.1 Thành phần chính
+==== 5.3.5.1 Component Diagram - C4 Level 3
+
+#align(center)[
+  #image("../images/chapter_5/c4-notification-component-diagram.svg", width: 96%)
+  #context (align(center)[_Hình #image_counter.display(): Biểu đồ thành phần của Notification Service_])
+  #image_counter.step()
+]
 
 #context (align(center)[_Bảng #table_counter.display(): Thành phần chính của Notification Service_])
 #table_counter.step()

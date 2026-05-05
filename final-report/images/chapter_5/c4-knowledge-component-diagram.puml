@@ -1,0 +1,71 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam linetype ortho
+skinparam noteBackgroundColor #FFF2CC
+skinparam noteBorderColor #E06666
+left to right direction
+
+rectangle "Knowledge Service" {
+  package "Presentation Layer (Delivery)" {
+    component "«component»\nHTTP Server /\nDomain Router" as kn_http
+    component "«component»\nConsumerServer" as kn_consumer
+  }
+
+  package "Application Layer (UseCase)" {
+    component "«UseCase»\nIndexing UseCase" as kn_index
+    component "«UseCase»\nSearch UseCase" as kn_search
+    component "«UseCase»\nChat UseCase" as kn_chat
+    component "«UseCase»\nReport UseCase" as kn_report
+  }
+
+  package "Infrastructure Layer" {
+    component "«Repository»\nKnowledge\nRepositories" as kn_repo
+  }
+}
+
+queue "«System»\nKafka analytics.*" as kn_kafka
+database "«System»\nQdrant" as kn_qdrant
+database "«System»\nRedis" as kn_redis
+database "«System»\nPostgreSQL" as kn_pg
+database "«System»\nMinIO" as kn_minio
+component "«System»\nproject-srv" as kn_project
+cloud "«System»\nEmbedding / LLM\nProviders" as kn_llm
+
+kn_http -[#000000]-> kn_search : /search
+kn_http -[#000000]-> kn_chat : /chat
+kn_http -[#000000]-> kn_report : /reports
+kn_kafka -[#0000FF]-> kn_consumer : downstream events
+kn_consumer -[#000000]-> kn_index
+kn_index -[#008000]-> kn_qdrant : upsert points
+kn_index -[#FF0000]-> kn_redis : invalidate cache
+kn_search -[#FF0000]-> kn_redis : read cache
+kn_search -[#000000]-> kn_project : resolve campaign
+kn_search -[#008000]-> kn_qdrant : semantic search
+kn_search -[#000000]-> kn_llm : embedding
+kn_chat -[#000000]-> kn_search : retrieve context
+kn_chat -[#000000]-> kn_llm : answer generation
+kn_chat -[#008000]-> kn_repo : persist conversation
+kn_report -[#000000]-> kn_search : retrieval core
+kn_report -[#000000]-> kn_llm : section generation
+kn_report -[#FFA500]-> kn_minio : upload artifact
+kn_report -[#008000]-> kn_repo : save report
+kn_repo -[#008000]-> kn_pg : metadata state
+
+note bottom of kn_http
+search, chat,
+report, internal
+end note
+
+legend right
+|= Color |= Protocol |
+|<#0000FF>  | Kafka |
+|<#008000>  | Data Store |
+|<#FF0000>  | Cache |
+|<#FFA500>  | Object Storage |
+|<#000000>  | Internal Call |
+endlegend
+@enduml

@@ -19,7 +19,7 @@ Analytics Service được tổ chức quanh consumer runtime và pipeline proce
 
 #context (
   align(center)[
-    #image("../images/component/analytic-component-diagram.png", width: 94%)
+    #image("../images/chapter_5/c4-analytics-component-diagram.svg", width: 96%)
   ]
 )
 #context (

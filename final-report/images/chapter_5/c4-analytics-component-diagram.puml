@@ -1,0 +1,58 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam linetype ortho
+skinparam noteBackgroundColor #FFF2CC
+skinparam noteBorderColor #E06666
+left to right direction
+
+rectangle "Analytics Service" {
+  package "Presentation Layer (Delivery)" {
+    component "«component»\nConsumerServer" as an_consumer
+  }
+
+  package "Application Layer (UseCase)" {
+    component "«component»\nIngestion Adapter" as an_adapter
+    component "«UseCase»\nPipelineUseCase" as an_pipeline
+    component "«UseCase»\nPostInsight UseCase" as an_post
+    component "«component»\nContract Publisher" as an_pub
+  }
+
+  package "Domain Layer (Pipeline)" {
+    component "«DomainModel»\nNLP Pipeline\nStages" as an_stages
+  }
+
+  package "Infrastructure Layer" {
+    component "«component»\nDomain Registry" as an_domain
+  }
+}
+
+queue "«System»\nKafka analytics\ninput" as an_in
+database "«System»\nPostgreSQL" as an_pg
+queue "«System»\nKafka analytics.*\ntopics" as an_out
+
+an_in -[#0000FF]-> an_consumer : consume
+an_consumer -[#000000]-> an_domain : lookup
+an_consumer -[#000000]-> an_adapter
+an_consumer -[#000000]-> an_pipeline
+an_pipeline -[#000000]-> an_stages : run_pipeline
+an_consumer -[#000000]-> an_post : persist facts
+an_post -[#008000]-> an_pg : post_insight
+an_consumer -[#000000]-> an_pub : publish outputs
+an_pub -[#0000FF]-> an_out : analytics.*
+
+note bottom of an_consumer
+Kafka intake and
+pipeline handoff
+end note
+
+legend right
+|= Color |= Protocol |
+|<#0000FF>  | Kafka |
+|<#008000>  | PostgreSQL |
+|<#000000>  | Internal Call |
+endlegend
+@enduml

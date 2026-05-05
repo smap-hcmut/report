@@ -19,7 +19,7 @@ Service này đáp ứng trực tiếp FR-01 về User Authentication như một
 Identity Service được tổ chức theo hướng tách biệt delivery, usecase và infrastructure để giữ rõ ranh giới giữa protocol handling, auth logic và persistence.
 
 #align(center)[
-  #image("../images/component/identity-component-diagram.png", width: 100%)
+  #image("../images/chapter_5/c4-identity-component-diagram.svg", width: 96%)
   #context (align(center)[_Hình #image_counter.display(): Biểu đồ thành phần của Identity Service_])
   #image_counter.step()
 ]

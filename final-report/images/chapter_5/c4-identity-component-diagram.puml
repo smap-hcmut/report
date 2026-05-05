@@ -1,0 +1,57 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam linetype ortho
+skinparam noteBackgroundColor #FFF2CC
+skinparam noteBorderColor #E06666
+left to right direction
+
+rectangle "Identity Service" {
+  package "Presentation Layer (Delivery)" {
+    component "«component»\nAuth / Internal\nHandlers" as id_handlers
+    component "«component»\nAudit Consumer" as id_audit
+  }
+
+  package "Application Layer (UseCase)" {
+    component "«UseCase»\nAuthentication\nUseCase" as id_auth
+  }
+
+  package "Infrastructure Layer" {
+    component "«component»\nJWT Manager" as id_jwt
+    component "«component»\nSession Manager" as id_session
+    component "«Repository»\nUser / Audit\nRepository" as id_repo
+  }
+}
+
+cloud "«System»\nOAuth Provider" as idp
+queue "«System»\nKafka audit topic" as id_kafka
+database "«System»\nRedis" as id_redis
+database "«System»\nPostgreSQL" as id_pg
+
+id_handlers -[#000000]-> id_auth
+id_handlers -[#000000]-> id_jwt : verify
+id_auth -[#000000]-> idp : OAuth2
+id_auth -[#000000]-> id_repo
+id_auth -[#000000]-> id_jwt
+id_auth -[#FF0000]-> id_session : session
+id_session -[#FF0000]-> id_redis : state
+id_kafka -[#0000FF]-> id_audit : consume
+id_audit -[#000000]-> id_repo : batch insert
+id_repo -[#008000]-> id_pg : users, audit logs
+
+note bottom of id_handlers
+login, callback,
+/me, logout
+end note
+
+legend right
+|= Color |= Protocol |
+|<#0000FF>  | Kafka |
+|<#008000>  | PostgreSQL |
+|<#FF0000>  | Redis |
+|<#000000>  | Internal Call |
+endlegend
+@enduml

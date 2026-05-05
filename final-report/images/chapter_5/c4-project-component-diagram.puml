@@ -1,0 +1,62 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam linetype ortho
+skinparam noteBackgroundColor #FFF2CC
+skinparam noteBorderColor #E06666
+left to right direction
+
+rectangle "Project Service" {
+  package "Presentation Layer (Delivery)" {
+    component "«component»\nProject Handler" as pr_handler
+  }
+
+  package "Application Layer (UseCase)" {
+    component "«UseCase»\nProject UseCase" as pr_project
+    component "«UseCase»\nLifecycle UseCase" as pr_lifecycle
+    component "«UseCase»\nCrisis Config\nUseCase" as pr_crisis
+  }
+
+  package "Infrastructure Layer" {
+    component "«Repository»\nProject Repository" as pr_repo
+    component "«component»\nIngest Client" as pr_ingest
+    component "«component»\nLifecycle Event\nPublisher" as pr_pub
+    component "«component»\nDomain Registry\nClient" as pr_domain
+  }
+}
+
+database "«System»\nPostgreSQL" as pr_pg
+database "«System»\nRedis domain\nregistry" as pr_redis
+component "«System»\ningest-srv" as pr_ingest_srv
+queue "«System»\nKafka project.lifecycle" as pr_kafka
+
+pr_handler -[#000000]-> pr_project
+pr_handler -[#000000]-> pr_lifecycle
+pr_handler -[#000000]-> pr_crisis
+pr_project -[#000000]-> pr_repo
+pr_project -[#FF0000]-> pr_domain : validate domain
+pr_lifecycle -[#000000]-> pr_repo : state reads and writes
+pr_lifecycle -[#000000]-> pr_ingest : readiness, control
+pr_lifecycle -[#000000]-> pr_pub : publish event
+pr_crisis -[#000000]-> pr_repo : crisis config state
+pr_repo -[#008000]-> pr_pg : campaigns, projects,\ncrisis config
+pr_domain -[#FF0000]-> pr_redis : domain cache
+pr_ingest -[#000000]-> pr_ingest_srv : internal HTTP
+pr_pub -[#0000FF]-> pr_kafka : lifecycle event
+
+note bottom of pr_handler
+campaign, project,
+lifecycle, crisis
+end note
+
+legend right
+|= Color |= Protocol |
+|<#0000FF>  | Kafka |
+|<#008000>  | PostgreSQL |
+|<#FF0000>  | Redis |
+|<#000000>  | Internal Call |
+endlegend
+@enduml

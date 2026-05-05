@@ -1,0 +1,57 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam linetype ortho
+skinparam noteBackgroundColor #FFF2CC
+skinparam noteBorderColor #E06666
+left to right direction
+
+actor "«User»\nRealtime Client" as nt_client
+
+rectangle "Notification Service" {
+  package "Presentation Layer (Delivery)" {
+    component "«component»\nWebSocket Handler" as nt_handler
+    component "«component»\nRequest Processor" as nt_req
+  }
+
+  package "Application Layer (UseCase)" {
+    component "«UseCase»\nMessage Router" as nt_router
+    component "«UseCase»\nConnection Manager\n/ Hub" as nt_hub
+    component "«UseCase»\nAlert Dispatch" as nt_alert
+  }
+
+  package "Infrastructure Layer" {
+    component "«component»\nRedis Subscriber" as nt_sub
+    component "«component»\nJWT Manager" as nt_jwt
+  }
+}
+
+queue "«System»\nRedis Pub/Sub" as nt_redis
+component "«System»\nDiscord" as nt_discord
+
+nt_client -[#F39C12]-> nt_handler : websocket
+nt_handler -[#000000]-> nt_req : upgrade request
+nt_req -[#000000]-> nt_jwt : verify token
+nt_handler -[#000000]-> nt_hub : register
+nt_redis -[#FF0000]-> nt_sub : subscribe
+nt_sub -[#000000]-> nt_router : process message
+nt_router -[#000000]-> nt_hub : realtime route
+nt_router -[#000000]-> nt_alert : alert route
+nt_hub -[#F39C12]-> nt_client : push
+nt_alert -[#000000]-> nt_discord : webhook
+
+note bottom of nt_handler
+GET /ws
+upgrade
+end note
+
+legend right
+|= Color |= Protocol |
+|<#F39C12>  | WebSocket |
+|<#FF0000>  | Redis Pub/Sub |
+|<#000000>  | Internal Call |
+endlegend
+@enduml

@@ -17,7 +17,13 @@ Vai trò của Scapper Worker Service trong kiến trúc tổng thể:
 
 Service này đáp ứng trực tiếp FR-08 về Crawl Runtime Orchestration và liên quan gián tiếp đến UC-01 về Thiết lập chiến dịch theo dõi và UC-02 về Vận hành chiến dịch theo dõi thông qua các lane dry run và crawl execution.
 
-==== 5.3.7.1 Thành phần chính
+==== 5.3.7.1 Component Diagram - C4 Level 3
+
+#align(center)[
+  #image("../images/chapter_5/c4-scapper-worker-component-diagram.svg", width: 96%)
+  #context (align(center)[_Hình #image_counter.display(): Biểu đồ thành phần của Scapper Worker Service_])
+  #image_counter.step()
+]
 
 #context (align(center)[_Bảng #table_counter.display(): Thành phần chính của Scapper Worker Service_])
 #table_counter.step()

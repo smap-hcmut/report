@@ -14,7 +14,13 @@ Vai trò của Knowledge Service trong kiến trúc tổng thể:
 
 Service này đáp ứng trực tiếp FR-10 về Knowledge Search and Chat, đồng thời liên quan trực tiếp đến UC-03 về Tra cứu và hỏi đáp dữ liệu phân tích. Capability report generation của service được xem như phần mở rộng ngoài bộ FR/UC cốt lõi của Chương 4.
 
-==== 5.3.6.1 Thành phần chính
+==== 5.3.6.1 Component Diagram - C4 Level 3
+
+#align(center)[
+  #image("../images/chapter_5/c4-knowledge-component-diagram.svg", width: 96%)
+  #context (align(center)[_Hình #image_counter.display(): Biểu đồ thành phần của Knowledge Service_])
+  #image_counter.step()
+]
 
 #context (align(center)[_Bảng #table_counter.display(): Thành phần chính của Knowledge Service_])
 #table_counter.step()
