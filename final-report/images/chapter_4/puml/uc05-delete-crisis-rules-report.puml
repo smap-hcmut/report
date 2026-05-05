@@ -1,0 +1,28 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+|Người dùng chuyên môn nội bộ|
+start
+:Mở cấu hình cảnh báo khủng hoảng
+của một project;
+:Chọn thao tác xóa cấu hình;
+:Xác nhận thao tác xóa;
+
+|Hệ thống SMAP|
+:Kiểm tra project và quyền thao tác;
+
+if (Yêu cầu hợp lệ?) then ([Có])
+  :Xóa cấu hình cảnh báo khủng hoảng;
+  |Người dùng chuyên môn nội bộ|
+  :Nhận kết quả xóa thành công;
+  stop
+else ([Không])
+  :Từ chối thao tác xóa
+  và trả lý do tương ứng;
+  |Người dùng chuyên môn nội bộ|
+  :Nhận lý do từ chối;
+  stop
+endif
+@enduml

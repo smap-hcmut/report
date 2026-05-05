@@ -23,10 +23,30 @@ Sơ đồ hoạt động này mô tả cách người dùng tạo hoặc chọn 
 
 === 4.5.3 UC-02: Vận hành chiến dịch theo dõi
 
-Sơ đồ hoạt động này mô tả cách người dùng kiểm tra mức độ sẵn sàng và thực hiện các thao tác vận hành như kích hoạt, tạm dừng, tiếp tục, lưu trữ hoặc mở lại chiến dịch. Các nhánh lỗi thể hiện trường hợp thao tác không hợp lệ hoặc chiến dịch chưa đủ điều kiện vận hành.
+Use case này được tách thành ba sơ đồ hoạt động nhỏ hơn để phản ánh đúng ba nhóm thao tác nghiệp vụ chính: kiểm tra readiness, kích hoạt hoặc tiếp tục chiến dịch, và các thao tác thay đổi trạng thái còn lại như tạm dừng, lưu trữ hoặc mở lại.
 
-#align(center)[#image("../images/chapter_4/puml/uc02-operate-monitoring-campaign-report.svg", width: 100%)]
-#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-02 - Vận hành chiến dịch theo dõi_])
+===== a. Kiểm tra readiness
+
+Sơ đồ này mô tả trường hợp user chỉ yêu cầu đánh giá mức độ sẵn sàng của chiến dịch mà chưa đổi trạng thái vận hành.
+
+#align(center)[#image("../images/chapter_4/puml/uc02-readiness-check-report.svg", width: 82%)]
+#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-02A - Kiểm tra readiness_])
+#image_counter.step()
+
+===== b. Kích hoạt hoặc tiếp tục chiến dịch
+
+Sơ đồ này mô tả nhánh vận hành cần đi qua kiểm tra readiness trước khi hệ thống cho phép campaign hoặc project chuyển sang trạng thái hoạt động.
+
+#align(center)[#image("../images/chapter_4/puml/uc02-activate-resume-report.svg", width: 82%)]
+#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-02B - Kích hoạt hoặc tiếp tục chiến dịch_])
+#image_counter.step()
+
+===== c. Tạm dừng, lưu trữ hoặc mở lại
+
+Sơ đồ này mô tả các thao tác thay đổi trạng thái không đi qua cùng một nhánh readiness như kích hoạt hoặc tiếp tục, mà được kiểm tra theo tính hợp lệ của trạng thái hiện tại.
+
+#align(center)[#image("../images/chapter_4/puml/uc02-lifecycle-other-actions-report.svg", width: 82%)]
+#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-02C - Tạm dừng, lưu trữ hoặc mở lại_])
 #image_counter.step()
 
 === 4.5.4 UC-03: Tra cứu và hỏi đáp dữ liệu phân tích
@@ -47,12 +67,28 @@ Sơ đồ hoạt động này mô tả cách người dùng mở khu vực theo 
 
 === 4.5.6 UC-05: Thiết lập và quản lý quy tắc cảnh báo khủng hoảng
 
-Sơ đồ hoạt động này mô tả cách người dùng xem, tạo, cập nhật hoặc xóa bộ quy tắc cảnh báo khủng hoảng của một project. Kết quả của luồng là bộ quy tắc được lưu, được xóa hoặc yêu cầu bị từ chối do thiếu quyền hay dữ liệu không hợp lệ.
+Use case này được tách thành ba sơ đồ hoạt động nhỏ hơn để phản ánh rõ ba nhóm thao tác chính: xem cấu hình hiện có, lưu hoặc cập nhật quy tắc, và xóa cấu hình cảnh báo khủng hoảng.
 
-#align(center)[#image("../images/chapter_4/puml/uc05-crisis-rules-report.svg", width: 100%)]
-#context (
-  align(
-    center,
-  )[_Hình #image_counter.display(): Sơ đồ hoạt động UC-05 - Thiết lập và quản lý quy tắc cảnh báo khủng hoảng_]
-)
+===== a. Xem cấu hình hiện có
+
+Sơ đồ này mô tả trường hợp user chỉ mở cấu hình cảnh báo khủng hoảng để xem trạng thái hiện có của một project.
+
+#align(center)[#image("../images/chapter_4/puml/uc05-view-crisis-rules-report.svg", width: 82%)]
+#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-05A - Xem cấu hình cảnh báo khủng hoảng_])
+#image_counter.step()
+
+===== b. Lưu hoặc cập nhật quy tắc
+
+Sơ đồ này mô tả trường hợp user bật các nhóm quy tắc, nhập điều kiện cảnh báo và gửi yêu cầu lưu hoặc cập nhật cấu hình.
+
+#align(center)[#image("../images/chapter_4/puml/uc05-save-crisis-rules-report.svg", width: 82%)]
+#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-05B - Lưu hoặc cập nhật cấu hình cảnh báo khủng hoảng_])
+#image_counter.step()
+
+===== c. Xóa cấu hình
+
+Sơ đồ này mô tả trường hợp user yêu cầu xóa cấu hình cảnh báo khủng hoảng của project sau bước xác nhận thao tác.
+
+#align(center)[#image("../images/chapter_4/puml/uc05-delete-crisis-rules-report.svg", width: 82%)]
+#context (align(center)[_Hình #image_counter.display(): Sơ đồ hoạt động UC-05C - Xóa cấu hình cảnh báo khủng hoảng_])
 #image_counter.step()

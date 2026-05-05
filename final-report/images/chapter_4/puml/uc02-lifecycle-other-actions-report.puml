@@ -1,0 +1,34 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+|Người dùng chuyên môn nội bộ|
+start
+:Mở campaign hoặc project
+cần vận hành;
+:Chọn thao tác tạm dừng,
+lưu trữ hoặc mở lại;
+
+|Hệ thống SMAP|
+:Kiểm tra quyền thao tác
+và trạng thái hiện tại;
+
+if (Thao tác hợp lệ với
+trạng thái hiện tại?) then ([Có])
+  :Áp dụng thao tác vận hành
+  đã chọn;
+  :Ghi nhận trạng thái mới;
+  |Người dùng chuyên môn nội bộ|
+  :Nhận kết quả vận hành
+  thành công;
+  stop
+else ([Không])
+  |Hệ thống SMAP|
+  :Từ chối thao tác và
+  trả lý do tương ứng;
+  |Người dùng chuyên môn nội bộ|
+  :Nhận lý do từ chối;
+  stop
+endif
+@enduml

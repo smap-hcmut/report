@@ -1,0 +1,29 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+|Người dùng chuyên môn nội bộ|
+start
+:Mở cấu hình cảnh báo khủng hoảng
+của một project;
+:Bật các nhóm quy tắc cần thiết;
+:Nhập điều kiện cảnh báo;
+:Gửi yêu cầu lưu hoặc cập nhật;
+
+|Hệ thống SMAP|
+:Kiểm tra project,
+quyền thao tác và dữ liệu đầu vào;
+
+if (Dữ liệu hợp lệ?) then ([Có])
+  :Lưu hoặc cập nhật cấu hình;
+  |Người dùng chuyên môn nội bộ|
+  :Nhận cấu hình đã lưu thành công;
+  stop
+else ([Không])
+  :Trả lỗi validation hoặc lỗi quyền;
+  |Người dùng chuyên môn nội bộ|
+  :Nhận lý do từ chối;
+  stop
+endif
+@enduml

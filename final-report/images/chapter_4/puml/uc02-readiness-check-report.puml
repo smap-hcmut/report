@@ -1,0 +1,21 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+|Người dùng chuyên môn nội bộ|
+start
+:Mở campaign hoặc project
+cần vận hành;
+:Yêu cầu kiểm tra readiness;
+
+|Hệ thống SMAP|
+:Kiểm tra quyền thao tác
+và trạng thái hiện tại;
+:Đánh giá mức độ sẵn sàng;
+:Trả danh sách điều kiện đạt
+và chưa đạt;
+
+|Người dùng chuyên môn nội bộ|
+stop
+@enduml

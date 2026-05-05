@@ -3,51 +3,62 @@ skinparam style strictuml
 skinparam shadowing false
 skinparam defaultFontName Arial
 
+|Người dùng chuyên môn nội bộ|
 start
-:Người dùng mở campaign hoặc
-project cần vận hành;
-:Người dùng yêu cầu kiểm tra readiness
+:Mở campaign hoặc project
+cần vận hành;
+:Yêu cầu kiểm tra readiness
 hoặc chọn thao tác vận hành;
-:Hệ thống kiểm tra quyền thao tác
-và trạng thái hiện tại;
+
+|Hệ thống SMAP|
+:Kiểm tra quyền thao tác và
+trạng thái hiện tại;
 
 if (Chỉ kiểm tra readiness?) then ([Có])
-  :Hệ thống đánh giá mức độ sẵn sàng;
-  :Hệ thống trả kết quả đánh giá
+  :Đánh giá mức độ sẵn sàng;
+  :Trả kết quả đánh giá
   mà không đổi trạng thái;
-  stop
-endif
-
-if (Là thao tác kích hoạt
-hoặc tiếp tục?) then ([Có])
-  :Hệ thống đánh giá mức độ sẵn sàng;
-  if (Đủ điều kiện vận hành?) then ([Có])
-    :Hệ thống áp dụng thao tác
-    kích hoạt hoặc tiếp tục;
-    :Hệ thống ghi nhận trạng thái mới;
-    :Người dùng nhận kết quả vận hành
-    thành công;
-    stop
-  else ([Không])
-    :Hệ thống từ chối thao tác và trả về
-    các điều kiện chưa đạt;
-    stop
-  endif
-endif
-
-:Hệ thống kiểm tra thao tác
-tạm dừng, lưu trữ hoặc mở lại;
-if (Thao tác hợp lệ với
-trạng thái hiện tại?) then ([Có])
-  :Hệ thống áp dụng thao tác vận hành
-  đã chọn;
-  :Hệ thống ghi nhận trạng thái mới;
-  :Người dùng nhận kết quả vận hành
-  thành công;
+  |Người dùng chuyên môn nội bộ|
+  :Nhận kết quả readiness;
   stop
 else ([Không])
-  :Hệ thống từ chối thao tác và
-  trả lý do tương ứng;
-  stop
+  if (Là thao tác kích hoạt
+  hoặc tiếp tục?) then ([Có])
+    :Đánh giá mức độ sẵn sàng;
+    if (Đủ điều kiện vận hành?) then ([Có])
+      :Áp dụng thao tác kích hoạt
+      hoặc tiếp tục;
+      :Ghi nhận trạng thái mới;
+      |Người dùng chuyên môn nội bộ|
+      :Nhận kết quả vận hành
+      thành công;
+      stop
+    else ([Không])
+      :Từ chối thao tác và trả về
+      các điều kiện chưa đạt;
+      |Người dùng chuyên môn nội bộ|
+      :Nhận lý do từ chối;
+      stop
+    endif
+  else ([Tạm dừng, lưu trữ hoặc mở lại])
+    :Chuẩn bị áp dụng thao tác
+    trên trạng thái hiện tại;
+    if (Thao tác hợp lệ với
+    trạng thái hiện tại?) then ([Có])
+      :Áp dụng thao tác vận hành
+      đã chọn;
+      :Ghi nhận trạng thái mới;
+      |Người dùng chuyên môn nội bộ|
+      :Nhận kết quả vận hành
+      thành công;
+      stop
+    else ([Không])
+      :Từ chối thao tác và
+      trả lý do tương ứng;
+      |Người dùng chuyên môn nội bộ|
+      :Nhận lý do từ chối;
+      stop
+    endif
+  endif
 endif
 @enduml
