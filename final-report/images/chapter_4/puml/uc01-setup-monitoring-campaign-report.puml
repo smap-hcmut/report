@@ -1,0 +1,42 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+|Người dùng chuyên môn nội bộ|
+start
+:Chọn campaign hiện có
+hoặc tạo campaign mới;
+:Nhập thông tin project;
+:Khai báo nguồn dữ liệu;
+:Thêm mục tiêu thu thập;
+
+|Hệ thống SMAP|
+:Kiểm tra dữ liệu đầu vào và
+lưu campaign, project,
+nguồn dữ liệu, mục tiêu thu thập;
+
+if (Tổ hợp nguồn dữ liệu
+có cần kiểm tra thử?) then ([Có])
+  :Thực hiện kiểm tra thử;
+  :Ghi nhận kết quả và
+  mức độ sẵn sàng;
+
+  if (Kết quả đạt yêu cầu?) then ([Có])
+    |Người dùng chuyên môn nội bộ|
+    :Xác nhận cấu hình đủ điều kiện
+    chuyển sang vận hành;
+    stop
+  else ([Không])
+    |Người dùng chuyên môn nội bộ|
+    :Điều chỉnh cấu hình
+    hoặc mục tiêu thu thập;
+    stop
+  endif
+else ([Không])
+  :Đánh dấu cấu hình đã hoàn tất;
+  |Người dùng chuyên môn nội bộ|
+  :Hoàn tất thiết lập chiến dịch;
+  stop
+endif
+@enduml

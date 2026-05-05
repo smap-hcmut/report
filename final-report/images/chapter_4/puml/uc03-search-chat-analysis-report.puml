@@ -1,0 +1,41 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+|Người dùng chuyên môn nội bộ|
+start
+:Mở chức năng tra cứu
+hoặc trợ lý dữ liệu;
+:Nhập truy vấn hoặc câu hỏi;
+:Bổ sung bộ lọc khi cần;
+
+|Hệ thống SMAP|
+:Kiểm tra quyền truy cập,
+phạm vi và tính hợp lệ của truy vấn;
+
+if (Truy vấn hợp lệ?) then ([Có])
+  :Tìm dữ liệu phân tích liên quan;
+
+  if (Có dữ liệu phù hợp?) then ([Có])
+    if (Là yêu cầu hỏi đáp?) then ([Có])
+      :Tổng hợp câu trả lời có dẫn chứng;
+      :Lưu hội thoại khi thao tác thành công;
+    else ([Không])
+      :Chuẩn bị danh sách kết quả tra cứu;
+    endif
+    |Người dùng chuyên môn nội bộ|
+    :Nhận kết quả tra cứu
+    hoặc câu trả lời phân tích;
+    stop
+  else ([Không])
+    :Trả kết quả rỗng hoặc thông báo
+    chưa có dữ liệu phù hợp;
+    stop
+  endif
+else ([Không])
+  :Từ chối yêu cầu và
+  trả lỗi validation hoặc lỗi phạm vi;
+  stop
+endif
+@enduml

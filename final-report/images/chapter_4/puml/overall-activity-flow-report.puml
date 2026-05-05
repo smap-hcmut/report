@@ -1,0 +1,37 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+|Người dùng chuyên môn nội bộ|
+start
+:Yêu cầu thiết lập chiến dịch theo dõi;
+
+|Hệ thống SMAP|
+:Tiếp nhận và lưu cấu hình campaign,
+project, nguồn dữ liệu và mục tiêu thu thập;
+
+|Người dùng chuyên môn nội bộ|
+if (Có cần cấu hình
+cảnh báo khủng hoảng?) then ([Có])
+  :Thiết lập hoặc cập nhật
+  quy tắc cảnh báo khủng hoảng;
+else ([Không])
+endif
+
+:Yêu cầu vận hành chiến dịch theo dõi;
+
+|Hệ thống SMAP|
+:Đánh giá mức độ sẵn sàng và
+chuyển trạng thái vận hành phù hợp;
+
+|Người dùng chuyên môn nội bộ|
+if (Mục tiêu khai thác tiếp theo?) then ([Tra cứu và hỏi đáp])
+  :Tra cứu và hỏi đáp
+  dữ liệu phân tích;
+else ([Theo dõi trạng thái])
+  :Theo dõi trạng thái và
+  nhận cảnh báo;
+endif
+stop
+@enduml

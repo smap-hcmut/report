@@ -1,0 +1,37 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+|Người dùng chuyên môn nội bộ|
+start
+:Mở dashboard hoặc khu vực
+theo dõi trạng thái;
+
+|Hệ thống SMAP|
+:Kiểm tra quyền truy cập và
+xác định phạm vi theo dõi;
+:Hiển thị trạng thái hiện tại
+của campaign, project
+hoặc nguồn dữ liệu;
+
+if (Có sự kiện hoặc cảnh báo mới?) then ([Có])
+  :Phân loại thông báo theo loại sự kiện
+  và mức độ nghiêm trọng;
+  if (Có phiên nhận thông báo phù hợp?) then ([Có])
+    :Hiển thị thông báo hoặc cảnh báo;
+    |Người dùng chuyên môn nội bộ|
+    :Xem tóm tắt và mở chi tiết
+    khi cần;
+    stop
+  else ([Không])
+    :Giữ thông tin để user xem lại
+    khi truy cập khu vực theo dõi;
+    stop
+  endif
+else ([Không])
+  :Giữ hiển thị trạng thái hiện tại
+  và thời điểm cập nhật gần nhất;
+  stop
+endif
+@enduml
