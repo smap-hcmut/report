@@ -36,7 +36,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     ],
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.1, #linebreak()
-      5.3.6
+      5.3.8
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-02],
@@ -48,7 +48,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     ],
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.3, #linebreak()
-      5.3.6, #linebreak()
+      5.3.8, #linebreak()
       5.5.1
     ],
 
@@ -63,7 +63,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.3, #linebreak()
       5.3.4, #linebreak()
-      5.3.6, #linebreak()
+      5.3.8, #linebreak()
       5.5.2
     ],
 
@@ -76,7 +76,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     ],
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.3, #linebreak()
-      5.3.6, #linebreak()
+      5.3.8, #linebreak()
       5.5.5
     ],
 
@@ -89,7 +89,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     ],
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.4, #linebreak()
-      5.3.6, #linebreak()
+      5.3.8, #linebreak()
       5.5.1
     ],
 
@@ -102,7 +102,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     ],
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.4, #linebreak()
-      5.3.6, #linebreak()
+      5.3.8, #linebreak()
       5.5.1
     ],
 
@@ -117,7 +117,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.4, #linebreak()
       5.3.3, #linebreak()
-      5.3.6, #linebreak()
+      5.3.8, #linebreak()
       5.5.1
     ],
 
@@ -131,7 +131,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     ],
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.4, #linebreak()
-      5.3.8, #linebreak()
+      5.3.7, #linebreak()
       5.6.2, #linebreak()
       5.5.2
     ],
@@ -147,7 +147,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.2, #linebreak()
       5.3.4, #linebreak()
-      5.3.7, #linebreak()
+      5.3.6, #linebreak()
       5.6.1
     ],
 
@@ -159,8 +159,8 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
       frontend
     ],
     table.cell(align: horizon, inset: (y: 0.8em))[
-      Mục 5.3.7, #linebreak()
-      5.3.6, #linebreak()
+      Mục 5.3.6, #linebreak()
+      5.3.8, #linebreak()
       5.5.3
     ],
 
@@ -173,7 +173,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     ],
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.5, #linebreak()
-      5.3.6, #linebreak()
+      5.3.8, #linebreak()
       5.6.3, #linebreak()
       5.5.4
     ],
@@ -251,7 +251,7 @@ Bảng dưới đây liên hệ bảy đặc tính kiến trúc ở mục 4.3.1 
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.2.3, #linebreak()
       5.3.1, #linebreak()
-      5.3.6
+      5.3.8
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-05],
@@ -311,7 +311,7 @@ Bảng dưới đây liên hệ các yêu cầu phi chức năng ở mục 4.3.2
     table.cell(align: horizon, inset: (y: 0.8em))[Dùng OAuth2, JWT, HttpOnly cookie, kiểm tra token và cơ chế xác thực nội bộ phù hợp với từng nhóm giao tiếp],
     table.cell(align: horizon, inset: (y: 0.8em))[
       Mục 5.3.1, #linebreak()
-      5.3.6
+      5.3.8
     ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-03],
@@ -522,7 +522,7 @@ Hệ quả cần chấp nhận:
 - Redis trở thành dependency quan trọng cho nhiều chức năng ngắn hạn.
 - Một số lane cần chính sách fallback phù hợp khi Redis không sẵn sàng.
 
-Mục liên quan: 5.2.4, 5.3.1, 5.3.7, 5.3.5, 5.6.3.
+Mục liên quan: 5.2.4, 5.3.1, 5.3.6, 5.3.5, 5.6.3.
 
 ==== ADR-006: Kubernetes cho orchestration theo pod role
 

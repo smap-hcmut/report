@@ -1,38 +1,59 @@
 @startuml
 title Analytics Pipeline Execution Flow
-hide footbox
-skinparam style strictuml
+skinparam defaultFontName Arial
+skinparam shadowing false
 skinparam sequenceMessageAlign center
 skinparam responseMessageBelowArrow true
 skinparam maxMessageSize 70
+skinparam roundcorner 12
 
 participant "ConsumerServer" as Consumer
 participant "PipelineUseCase" as Pipeline
-participant "PipelineStages" as Stages
+participant "run_pipeline()" as Runner
 participant "PostInsightUseCase" as PostInsight
-participant "PostgreSQL\nschema_analysis" as PostgreSQL
-participant "ContractPublisher" as Publisher
+database "PostgreSQL\nschema_analysis.post_insight" as PostgreSQL
+participant "ContractPublisherUseCase" as Publisher
 participant "Kafka topics\nanalytics.*" as AnalyticsTopics
 
-Consumer -> Pipeline : runPipeline(bundle, context)
+note over Consumer,Pipeline
+  ConsumerServer awaits
+  asyncio.to_thread(self.pipeline_usecase.run, ...).
+end note
+
+Consumer -> Pipeline : run(bundle, ctx, pipeline_config)
 activate Pipeline
-Pipeline -> Stages : execute normalization\nand NLP enrichment
-activate Stages
-Stages --> Pipeline : NLP facts and outputs
-deactivate Stages
-Pipeline -> PostInsight : persist insights(outputs)
-activate PostInsight
-PostInsight -> PostgreSQL : write analysis rows
-activate PostgreSQL
-PostgreSQL --> PostInsight : persisted row ids
-deactivate PostgreSQL
-PostInsight --> Pipeline : persistence result
-deactivate PostInsight
-Pipeline -> Publisher : publish analytics outputs
-activate Publisher
-Publisher ->> AnalyticsTopics : batch.completed\ninsights.published\nreport.digest
-Publisher --> Pipeline : publish accepted
-deactivate Publisher
+Pipeline -> Runner : run_pipeline(batch, ctx, config)
+activate Runner
+note right of Runner
+  normalization -> dedup -> spam
+  -> thread topology -> NLP enrichment
+end note
+Runner --> Pipeline : PipelineRunResult
+deactivate Runner
 Pipeline --> Consumer : pipeline result
 deactivate Pipeline
+
+loop each NLPFact in result.nlp_facts
+  alt analytics_result is available
+    Consumer -> PostInsight : create(to_post_insight_input)
+    activate PostInsight
+    PostInsight -> PostgreSQL : insert post_insight row
+    activate PostgreSQL
+    PostgreSQL --> PostInsight : persisted
+    deactivate PostgreSQL
+    PostInsight --> Consumer : ok
+    deactivate PostInsight
+  end
+
+  alt insight_message is available
+    Consumer -> Publisher : publish_one(uap_record, insight_message)
+    activate Publisher
+    Publisher -> Publisher : append to buffer
+    opt buffer size >= batch_size
+      Publisher ->> AnalyticsTopics : publish batch.completed\nthen insights.published\nthen report.digest
+    end
+    Publisher --> Consumer : buffered or flushed
+    deactivate Publisher
+  end
+end
 @enduml

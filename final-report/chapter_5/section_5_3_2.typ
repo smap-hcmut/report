@@ -107,11 +107,11 @@ Sau khi intake hoàn tất, service chuyển sang pipeline execution flow:
 
 Ở flow này, pipeline được chạy theo kiểu consumer-based processing:
 
-1. `PipelineUseCase` gọi `run_pipeline()` với `asyncio.to_thread` để tránh block event loop;
-2. các stage xử lý tạo ra `NLPFact` và các analytics outputs;
-3. kết quả được persist vào PostgreSQL thông qua `post_insight` layer;
-4. các contract outputs được publish ra các topic downstream;
-5. `knowledge-srv` tiêu thụ các topic này để tiếp tục indexing.
+1. `ConsumerServer` chạy `PipelineUseCase.run()` bên trong `asyncio.to_thread(...)` để tránh block event loop;
+2. `run_pipeline()` thực thi các stage normalization, dedup, spam, thread topology và NLP enrichment;
+3. mỗi `NLPFact` có `analytics_result` được persist vào PostgreSQL thông qua `post_insight` layer;
+4. mỗi `NLPFact` có `insight_message` được đưa vào `publish_one()`, tại đây message được buffer và auto-flush khi đạt `batch_size`;
+5. sau khi flush, các topic `analytics.*` được downstream consumers như `knowledge-srv` tiếp tục tiêu thụ.
 
 ==== 5.3.2.4 Design Patterns áp dụng
 

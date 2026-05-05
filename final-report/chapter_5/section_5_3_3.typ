@@ -39,17 +39,23 @@ Project Service được tổ chức theo hướng tách biệt rõ delivery, us
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Technology*],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Project Handler],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Xử lý HTTP routes cho project CRUD, lifecycle control và internal detail lookup],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Xử lý HTTP routes cho project CRUD, lifecycle control và internal detail lookup],
     table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP request / JSON response],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Gin + HTTP handler],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Project UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Điều phối business logic cho project, campaign relation và metadata handling],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Điều phối business logic cho project, campaign relation và metadata handling],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Create / update input, detail/list output],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pure Go logic],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Lifecycle UseCase],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Kiểm tra readiness, gọi internal HTTP tới ingest và cập nhật trạng thái project],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Kiểm tra readiness, gọi internal HTTP tới ingest và cập nhật trạng thái project],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Project state / lifecycle command],
     table.cell(align: center + horizon, inset: (y: 0.8em))[UseCase + internal client],
 
@@ -59,17 +65,23 @@ Project Service được tổ chức theo hướng tách biệt rõ delivery, us
     table.cell(align: center + horizon, inset: (y: 0.8em))[Go domain logic],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Project Repository],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Lưu project, campaign relation và cập nhật trạng thái nghiệp vụ],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Lưu project, campaign relation và cập nhật trạng thái nghiệp vụ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[SQL queries / project rows],
     table.cell(align: center + horizon, inset: (y: 0.8em))[PostgreSQL repository],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Ingest Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Giao tiếp internal HTTP với `ingest-srv` cho readiness và lifecycle control],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Giao tiếp internal HTTP với `ingest-srv` cho readiness và lifecycle control],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Project ID / HTTP response],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Internal HTTP client],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Lifecycle Event Publisher],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Phát hành lifecycle event sau khi transition nghiệp vụ thành công],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Phát hành lifecycle event sau khi transition nghiệp vụ thành công],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Lifecycle payload / published event],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka producer],
   )
@@ -81,35 +93,35 @@ Luồng xử lý chính của Project Service có thể nhìn qua ba flow quan t
 
 ===== a. Project Creation Flow
 
-Luồng này được kích hoạt khi người dùng tạo campaign hoặc project mới:
+Luồng này được kích hoạt khi người dùng tạo project mới trong một campaign đã tồn tại:
 
 #align(center)[
-  #image("../images/data-flow/project_create.png", width: 100%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng Project Creation Flow_])
+  #image("../images/chapter_5/seq-project-creation-flow.svg", width: 95%)
+  #context (align(center)[_Hình #image_counter.display(): Luồng tạo project trong Project Service_])
   #image_counter.step()
 ]
 
 Ở flow này, service thực hiện các bước chính sau:
 
-1. nhận request tạo campaign hoặc project;
-2. kiểm tra dữ liệu đầu vào và domain context tương ứng;
-3. lưu project với business metadata đầy đủ;
-4. trả về trạng thái nghiệp vụ ban đầu cho các bước cấu hình tiếp theo.
+1. nhận request tạo project trong campaign;
+2. kiểm tra dữ liệu đầu vào, `domain_type_code` và campaign context tương ứng;
+3. lưu project với business metadata cùng trạng thái khởi tạo `PENDING`;
+4. trả về business context đã được tạo cho các bước cấu hình tiếp theo.
 
 ===== b. Project Lifecycle Control Flow
 
 Luồng này được kích hoạt khi người dùng yêu cầu activate, pause, resume hoặc archive project:
 
 #align(center)[
-  #image("../images/data-flow/execute_project.png", width: 100%)
-  #context (align(center)[_Hình #image_counter.display(): Luồng Project Lifecycle Control Flow_])
+  #image("../images/chapter_5/seq-project-lifecycle-control-flow.svg", width: 95%)
+  #context (align(center)[_Hình #image_counter.display(): Luồng điều phối vòng đời project trong Project Service_])
   #image_counter.step()
 ]
 
 Ở flow này, `project-srv` không trực tiếp thực thi runtime mà:
 
 1. kiểm tra trạng thái hiện tại của project;
-2. gọi internal HTTP sang `ingest-srv` để kiểm tra readiness hoặc điều khiển runtime;
+2. gọi internal HTTP sang `ingest-srv` để lấy activation readiness hoặc gửi lệnh activate, pause, resume tương ứng;
 3. cập nhật `project.status` cục bộ nếu transition hợp lệ;
 4. phát hành lifecycle event như một lane lan truyền hậu chuyển trạng thái.
 
@@ -117,9 +129,15 @@ Luồng này được kích hoạt khi người dùng yêu cầu activate, pause
 
 Luồng này xử lý việc tạo, cập nhật hoặc xóa cấu hình giám sát khủng hoảng gắn với từng project:
 
+#align(center)[
+  #image("../images/chapter_5/seq-project-crisis-config-flow.svg", width: 75%)
+  #context (align(center)[_Hình #image_counter.display(): Luồng cấu hình giám sát khủng hoảng trong Project Service_])
+  #image_counter.step()
+]
+
 - người dùng gửi cấu hình crisis liên quan đến project;
-- service kiểm tra project context và tính hợp lệ của payload;
-- `project-srv` lưu hoặc cập nhật dữ liệu crisis configuration trong persistence layer;
+- service kiểm tra project context và tính hợp lệ của payload trước khi upsert;
+- `project-srv` lưu, cập nhật hoặc xóa dữ liệu crisis configuration trong persistence layer;
 - cấu hình này sau đó trở thành đầu vào cho các lane giám sát tương ứng.
 
 ==== 5.3.3.4 Design Patterns áp dụng

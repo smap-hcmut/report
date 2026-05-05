@@ -1,0 +1,36 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam roundcorner 12
+
+queue "Kafka Topic\naudit events" as Topic
+participant "Consumer Service" as ConsumerSvc
+participant "Audit Consumer Handler" as AuditHandler
+database "Audit Repository" as AuditRepo
+database "PostgreSQL" as Postgres
+
+ConsumerSvc -> AuditHandler: Start consumer group
+
+loop Với mỗi audit event
+  Topic -> AuditHandler: Consume message
+  AuditHandler -> AuditHandler: Unmarshal event
+  AuditHandler -> AuditHandler: Add event vào batch
+  AuditHandler -> AuditHandler: Mark message processed
+
+  alt Đạt batch size hoặc timeout
+    AuditHandler -> AuditRepo: BatchInsert(batch)
+    AuditRepo -> Postgres: Insert audit rows
+    Postgres --> AuditRepo: ok
+    AuditRepo --> AuditHandler: ok
+    AuditHandler -> AuditHandler: Clear batch
+  end
+end
+
+alt Cleanup khi session kết thúc
+  AuditHandler -> AuditRepo: Flush batch còn lại
+  AuditRepo -> Postgres: Insert remaining rows
+  Postgres --> AuditRepo: ok
+end
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam roundcorner 12
+
+actor User
+participant "Frontend / Browser" as Browser
+participant "OAuthLogin Handler" as LoginHandler
+participant "Authentication UseCase" as AuthUC
+participant "OAuth Provider" as Provider
+participant "OAuthCallback Handler" as CallbackHandler
+participant "User Repository" as UserRepo
+participant "JWT Manager" as JWTMgr
+participant "Session Manager" as SessionMgr
+
+User -> Browser: Chọn đăng nhập
+Browser -> LoginHandler: GET /authentication/login?redirect=...
+LoginHandler -> LoginHandler: processLoginRequest()
+LoginHandler -> AuthUC: InitiateOAuthLogin(state)
+AuthUC -> Provider: GetAuthCodeURL(state)
+Provider --> AuthUC: authURL
+AuthUC --> LoginHandler: authURL
+LoginHandler --> Browser: 307 Redirect đến OAuth provider
+
+User -> Provider: Đăng nhập và chấp thuận
+Provider --> Browser: Redirect callback với code + state
+Browser -> CallbackHandler: GET /authentication/callback
+CallbackHandler -> CallbackHandler: processCallbackRequest()
+CallbackHandler -> AuthUC: ProcessOAuthCallback(code)
+AuthUC -> Provider: ExchangeCode(code)
+Provider --> AuthUC: access token
+AuthUC -> Provider: GetUserInfo(token)
+Provider --> AuthUC: user info
+AuthUC -> UserRepo: createOrUpdateUser(...)
+UserRepo --> AuthUC: user
+AuthUC -> JWTMgr: generateToken(user, role)
+JWTMgr --> AuthUC: jwt + jti
+AuthUC -> SessionMgr: createSession(userId, jti)
+SessionMgr --> AuthUC: ok
+AuthUC --> CallbackHandler: token
+CallbackHandler --> Browser: Set auth cookie + redirect
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam roundcorner 12
+
+actor Client
+participant "Auth Middleware" as Middleware
+participant "JWT Manager" as JWTMgr
+database "Blacklist Redis" as Redis
+participant "Protected Handler" as NextHandler
+
+Client -> Middleware: Request tới protected route
+Middleware -> Middleware: extractToken(cookie/bearer)
+Middleware -> JWTMgr: VerifyWithTrace(token)
+JWTMgr --> Middleware: payload + enhanced context
+
+alt Có blacklist checker
+  Middleware -> Redis: Exists(blacklist:token:jti)
+  Redis --> Middleware: blacklisted?
+end
+
+alt Token hợp lệ và chưa bị revoke
+  Middleware -> Middleware: inject trace_id + user_id vào context
+  Middleware -> NextHandler: next()
+  NextHandler --> Client: Response thành công
+else Token thiếu, sai hoặc bị revoke
+  Middleware --> Client: 401/403 error response
+end
+@enduml

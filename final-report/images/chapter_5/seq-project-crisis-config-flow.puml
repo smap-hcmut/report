@@ -1,0 +1,79 @@
+@startuml
+title Crisis Configuration Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "UI" as UI
+participant "Crisis Handler" as CrisisHandler
+participant "Crisis UseCase" as CrisisUC
+participant "Project UseCase" as ProjectUC
+participant "Crisis Repo" as CrisisRepo
+database "PostgreSQL" as PostgreSQL
+
+UI -> CrisisHandler : PUT or DELETE /projects/{id}/crisis-config
+activate CrisisHandler
+
+alt upsert config
+  CrisisHandler -> CrisisHandler : processUpsertReq()
+  CrisisHandler -> CrisisUC : Upsert(input)
+  activate CrisisUC
+
+  CrisisUC -> ProjectUC : Detail(project_id)
+  activate ProjectUC
+  ProjectUC -> PostgreSQL : SELECT project by id
+  activate PostgreSQL
+  PostgreSQL --> ProjectUC : project row
+  deactivate PostgreSQL
+  ProjectUC --> CrisisUC : project exists
+  deactivate ProjectUC
+
+  CrisisUC -> CrisisRepo : Upsert(UpsertOptions)
+  activate CrisisRepo
+  CrisisRepo -> PostgreSQL : SELECT crisis config by project_id
+  activate PostgreSQL
+  PostgreSQL --> CrisisRepo : row or no rows
+  deactivate PostgreSQL
+
+  alt existing config
+    CrisisRepo -> PostgreSQL : UPDATE project.projects_crisis_config
+    activate PostgreSQL
+    PostgreSQL --> CrisisRepo : updated row
+    deactivate PostgreSQL
+  else new config
+    CrisisRepo -> PostgreSQL : INSERT project.projects_crisis_config
+    activate PostgreSQL
+    PostgreSQL --> CrisisRepo : inserted row
+    deactivate PostgreSQL
+  end
+
+  CrisisRepo --> CrisisUC : CrisisConfig
+  deactivate CrisisRepo
+  CrisisUC --> CrisisHandler : UpsertOutput
+  deactivate CrisisUC
+  CrisisHandler --> UI : 200 OK + crisis config
+else delete config
+  CrisisHandler -> CrisisUC : Delete(project_id)
+  activate CrisisUC
+  CrisisUC -> CrisisRepo : Delete(project_id)
+  activate CrisisRepo
+  CrisisRepo -> PostgreSQL : SELECT crisis config by project_id
+  activate PostgreSQL
+  PostgreSQL --> CrisisRepo : config row
+  deactivate PostgreSQL
+  CrisisRepo -> PostgreSQL : DELETE project.projects_crisis_config
+  activate PostgreSQL
+  PostgreSQL --> CrisisRepo : deleted
+  deactivate PostgreSQL
+  CrisisRepo --> CrisisUC : ok
+  deactivate CrisisRepo
+  CrisisUC --> CrisisHandler : success
+  deactivate CrisisUC
+  CrisisHandler --> UI : 200 OK
+end
+
+deactivate CrisisHandler
+@enduml

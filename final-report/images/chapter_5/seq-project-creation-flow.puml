@@ -1,0 +1,65 @@
+@startuml
+title Project Creation Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "UI" as UI
+participant "Project Handler" as ProjectHandler
+participant "Project UseCase" as ProjectUC
+database "Redis domain\nregistry" as DomainRegistry
+participant "Campaign UseCase" as CampaignUC
+participant "Campaign Repo" as CampaignRepo
+participant "Project Repo" as ProjectRepo
+database "PostgreSQL" as PostgreSQL
+
+UI -> ProjectHandler : POST /campaigns/{id}/projects
+activate ProjectHandler
+ProjectHandler -> ProjectHandler : processCreateReq()
+ProjectHandler -> ProjectUC : Create(input)
+activate ProjectUC
+
+ProjectUC -> DomainRegistry : Exists(domain_type_code)
+activate DomainRegistry
+DomainRegistry --> ProjectUC : exists
+deactivate DomainRegistry
+
+ProjectUC -> CampaignUC : Detail(campaign_id)
+activate CampaignUC
+CampaignUC -> CampaignRepo : Detail(id)
+activate CampaignRepo
+CampaignRepo -> PostgreSQL : SELECT campaign by id
+activate PostgreSQL
+PostgreSQL --> CampaignRepo : campaign row
+deactivate PostgreSQL
+CampaignRepo --> CampaignUC : campaign model
+deactivate CampaignRepo
+CampaignUC --> ProjectUC : campaign exists
+deactivate CampaignUC
+
+ProjectUC -> ProjectRepo : Create(CreateOptions)
+activate ProjectRepo
+note right of ProjectRepo
+  New projects start with
+  status=PENDING and
+  config_status=DRAFT.
+end note
+ProjectRepo -> PostgreSQL : INSERT project.projects
+activate PostgreSQL
+PostgreSQL --> ProjectRepo : new project id
+deactivate PostgreSQL
+ProjectRepo -> PostgreSQL : SELECT project by id
+activate PostgreSQL
+PostgreSQL --> ProjectRepo : project row
+deactivate PostgreSQL
+ProjectRepo --> ProjectUC : project model
+deactivate ProjectRepo
+
+ProjectUC --> ProjectHandler : CreateOutput
+deactivate ProjectUC
+ProjectHandler --> UI : 200 OK + created project
+deactivate ProjectHandler
+@enduml

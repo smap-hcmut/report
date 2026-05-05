@@ -1,0 +1,96 @@
+@startuml
+title Project Lifecycle Control Flow
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor "UI" as UI
+participant "Project Handler" as ProjectHandler
+participant "Lifecycle UseCase" as LifecycleUC
+participant "Project Repo" as ProjectRepo
+database "PostgreSQL" as PostgreSQL
+participant "Ingest Client" as IngestClient
+participant "ingest-srv" as IngestService
+participant "Lifecycle Event\nPublisher" as Publisher
+participant "Kafka topic\nproject.lifecycle" as KafkaTopic
+
+UI -> ProjectHandler : POST /projects/{id}/{command}
+activate ProjectHandler
+ProjectHandler -> ProjectHandler : processLifecycleReq()
+ProjectHandler -> LifecycleUC : Activate / Pause / Resume / Archive / Unarchive
+activate LifecycleUC
+
+LifecycleUC -> ProjectRepo : Detail(id)
+activate ProjectRepo
+ProjectRepo -> PostgreSQL : SELECT project by id
+activate PostgreSQL
+PostgreSQL --> ProjectRepo : current project
+deactivate PostgreSQL
+ProjectRepo --> LifecycleUC : project
+deactivate ProjectRepo
+
+alt activate or resume
+  LifecycleUC -> IngestClient : GetActivationReadiness(project_id, command)
+  activate IngestClient
+  IngestClient -> IngestService : GET /projects/{id}/activation-readiness?command=...
+  activate IngestService
+  IngestService --> IngestClient : readiness result
+  deactivate IngestService
+  IngestClient --> LifecycleUC : CanProceed + errors
+  deactivate IngestClient
+
+  LifecycleUC -> IngestClient : Activate(project_id) or Resume(project_id)
+  activate IngestClient
+  IngestClient -> IngestService : POST /projects/{id}/activate|resume
+  activate IngestService
+  IngestService --> IngestClient : 200 OK
+  deactivate IngestService
+  IngestClient --> LifecycleUC : ok
+  deactivate IngestClient
+else pause
+  LifecycleUC -> IngestClient : Pause(project_id)
+  activate IngestClient
+  IngestClient -> IngestService : POST /projects/{id}/pause
+  activate IngestService
+  IngestService --> IngestClient : 200 OK
+  deactivate IngestService
+  IngestClient --> LifecycleUC : ok
+  deactivate IngestClient
+else archive active project
+  LifecycleUC -> IngestClient : Pause(project_id)
+  activate IngestClient
+  IngestClient -> IngestService : POST /projects/{id}/pause
+  activate IngestService
+  IngestService --> IngestClient : 200 OK
+  deactivate IngestService
+  IngestClient --> LifecycleUC : ok
+  deactivate IngestClient
+else archive pending or paused project
+  LifecycleUC -> LifecycleUC : skip ingest call
+else unarchive archived project
+  LifecycleUC -> LifecycleUC : no ingest call required
+end
+
+LifecycleUC -> ProjectRepo : UpdateStatus(id, new_status, expected_statuses)
+activate ProjectRepo
+ProjectRepo -> PostgreSQL : UPDATE project.projects
+activate PostgreSQL
+PostgreSQL --> ProjectRepo : updated project row
+deactivate PostgreSQL
+ProjectRepo --> LifecycleUC : updated project
+deactivate ProjectRepo
+
+LifecycleUC -> Publisher : PublishLifecycleEvent(event, project)
+activate Publisher
+Publisher ->> KafkaTopic : publish lifecycle event
+Publisher --> LifecycleUC : ok or logged error
+deactivate Publisher
+
+LifecycleUC --> ProjectHandler : lifecycle output
+deactivate LifecycleUC
+ProjectHandler --> UI : 200 OK + new status
+deactivate ProjectHandler
+@enduml
