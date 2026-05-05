@@ -38,21 +38,31 @@ Hệ thống SMAP không sử dụng một cơ chế giao tiếp duy nhất cho 
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv → scapper-srv → ingest completion queues],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Event streaming],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Downstream fanout và stream processing giữa analytics với knowledge],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Downstream fanout và stream processing giữa analytics với knowledge],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics intake, insights published, batch completed, downstream knowledge materialization],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Analytics intake, insights published, batch completed, downstream knowledge materialization],
     table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv → knowledge-srv],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Realtime notification delivery],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Notification ingress và route message tới phiên theo dõi phù hợp],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Notification ingress và route message tới phiên theo dõi phù hợp],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Redis Pub/Sub + WebSocket hub],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo trạng thái, campaign event, crisis alert],
     table.cell(align: center + horizon, inset: (y: 0.8em))[backend publisher → notification-srv],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Artifact reference],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Payload lớn được materialize ra object storage, chỉ trao đổi metadata hoặc reference],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Payload lớn được materialize ra object storage, chỉ trao đổi metadata hoặc reference],
     table.cell(align: center + horizon, inset: (y: 0.8em))[MinIO + metadata or event reference],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Raw crawl artifacts, knowledge-side report artifacts, batch file inputs],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Raw crawl artifacts, knowledge-side report artifacts, batch file inputs],
     table.cell(align: center + horizon, inset: (y: 0.8em))[raw batch lineage, knowledge report file_url],
   )
 ]
@@ -160,7 +170,7 @@ Topology RabbitMQ của SMAP được tổ chức theo từng lane nghiệp vụ
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.22fr, 0.14fr, 0.18fr, 0.18fr, 0.28fr),
+    columns: (0.26fr, 0.13fr, 0.16fr, 0.17fr, 0.28fr),
     stroke: 0.5pt,
     align: (left, left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Tên*],
@@ -169,19 +179,28 @@ Topology RabbitMQ của SMAP được tổ chức theo từng lane nghiệp vụ
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Consumer chính*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Vai trò*],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_tiktok_tasks_exc],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      ingest\_tiktok\_#linebreak()
+      tasks_exc
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Direct exchange],
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv qua tiktok_tasks],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Route task TikTok vào queue xử lý tương ứng],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_facebook_tasks_exc],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      ingest\_facebook\_#linebreak()
+      tasks_exc
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Direct exchange],
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv qua facebook_tasks],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Route task Facebook vào queue xử lý tương ứng],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_youtube_tasks_exc],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      ingest\_youtube\_#linebreak()
+      tasks_exc
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Direct exchange],
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv qua youtube_tasks],
@@ -205,17 +224,27 @@ Topology RabbitMQ của SMAP được tổ chức theo từng lane nghiệp vụ
     table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Hàng đợi task YouTube dùng chung cho execution và dry run],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_task_completions],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      ingest\_task\_#linebreak()
+      completions
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Durable queue],
     table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv execution consumer],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Nhận completion cho execution lane và correlate theo task_id],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Nhận completion cho execution lane và correlate theo task_id],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest_dryrun_completions],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      ingest\_dryrun\_#linebreak()
+      completions
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Durable queue],
     table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv dryrun consumer],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Nhận completion cho dry run lane để cập nhật readiness và kết quả kiểm thử],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Nhận completion cho dry run lane để cập nhật readiness và kết quả kiểm thử],
   )
 ]
 
@@ -244,19 +273,27 @@ Trong hiện thực của SMAP, delivery semantics ở RabbitMQ được giữ t
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Completion hợp lệ và xử lý thành công],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Ack],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Kết thúc vòng đời message sau khi ingest-srv đã correlate và cập nhật trạng thái tương ứng],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Kết thúc vòng đời message sau khi ingest-srv đã correlate và cập nhật trạng thái tương ứng],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Payload không parse được hoặc JSON không hợp lệ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Ack và discard],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Tránh để poison message bị redelivery lặp lại khi bản thân payload đã hỏng],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Tránh để poison message bị redelivery lặp lại khi bản thân payload đã hỏng],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[task_id không tồn tại hoặc completion input không hợp lệ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Ack và discard],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Không retry các message sai ngữ nghĩa nghiệp vụ vì khả năng thành công lại gần như không tăng],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Không retry các message sai ngữ nghĩa nghiệp vụ vì khả năng thành công lại gần như không tăng],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Lỗi xử lý tạm thời ở use case hoặc hạ tầng phụ trợ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Nack với requeue],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cho phép RabbitMQ giao lại message để completion được thử xử lý lại ở lượt sau],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Cho phép RabbitMQ giao lại message để completion được thử xử lý lại ở lượt sau],
   )
 ]
 
@@ -275,7 +312,7 @@ Vì WebSocket connection là stateful và gắn với từng instance cụ thể
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.28fr, 0.18fr, 0.24fr, 0.30fr),
+    columns: (0.28fr, 0.18fr, 0.35fr, 0.30fr),
     stroke: 0.5pt,
     align: (left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Channel pattern*],
@@ -286,17 +323,23 @@ Vì WebSocket connection là stateful và gắn với từng instance cụ thể
     table.cell(align: center + horizon, inset: (y: 0.8em))[project:\*:user:\*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Project + user],
     table.cell(align: center + horizon, inset: (y: 0.8em))[DATA_ONBOARDING, ANALYTICS_PIPELINE],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo tiến độ onboarding hoặc analytics gắn với một project nhưng nhắm đến user cụ thể],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Thông báo tiến độ onboarding hoặc analytics gắn với một project nhưng nhắm đến user cụ thể],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[campaign:\*:user:\*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Campaign + user],
     table.cell(align: center + horizon, inset: (y: 0.8em))[CAMPAIGN_EVENT],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo lifecycle hoặc artifact event của campaign cho user liên quan],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Thông báo lifecycle hoặc artifact event của campaign cho user liên quan],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[alert:\*:user:\*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Alert + user],
     table.cell(align: center + horizon, inset: (y: 0.8em))[CRISIS_ALERT],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cảnh báo khủng hoảng hoặc alert chuyên biệt gửi đến user mục tiêu],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Cảnh báo khủng hoảng hoặc alert chuyên biệt gửi đến user mục tiêu],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[system:\*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[System-wide],
@@ -338,7 +381,7 @@ Tất cả WebSocket frames gửi tới client đều dùng cùng một envelope
 #block(width: 100%)[
   #set par(justify: false)
   #table(
-    columns: (0.18fr, 0.22fr, 0.60fr),
+    columns: (0.4fr, 0.28fr, 0.60fr),
     stroke: 0.5pt,
     align: (left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Loại*],
@@ -347,23 +390,33 @@ Tất cả WebSocket frames gửi tới client đều dùng cùng một envelope
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[DATA_ONBOARDING],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo trạng thái và kết quả onboarding dữ liệu theo source hoặc project context],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Thông báo trạng thái và kết quả onboarding dữ liệu theo source hoặc project context],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[ANALYTICS_PIPELINE],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cập nhật tiến độ pipeline analytics với phase, progress và các bộ đếm xử lý],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Cập nhật tiến độ pipeline analytics với phase, progress và các bộ đếm xử lý],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[CRISIS_ALERT],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cảnh báo khủng hoảng với severity, metric, threshold và các affected aspects],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Cảnh báo khủng hoảng với severity, metric, threshold và các affected aspects],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[CAMPAIGN_EVENT],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo các sự kiện liên quan đến campaign như hoàn tất xử lý hoặc artifact đã sẵn sàng],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Thông báo các sự kiện liên quan đến campaign như hoàn tất xử lý hoặc artifact đã sẵn sàng],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[SYSTEM],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Server → Client],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Thông báo broadcast hoặc maintenance event ở phạm vi toàn hệ thống],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Thông báo broadcast hoặc maintenance event ở phạm vi toàn hệ thống],
   )
 ]
 
@@ -393,12 +446,16 @@ Logging trong SMAP được tổ chức theo shared abstractions thay vì để 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Go API services],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Zap],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Console hoặc JSON tùy cấu hình],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Có thể enrich theo context với trace_id, user_id; middleware HTTP phân mức log theo status code và bỏ qua health endpoints],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Có thể enrich theo context với trace_id, user_id; middleware HTTP phân mức log theo status code và bỏ qua health endpoints],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[Python runtime services],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Loguru],
     table.cell(align: center + horizon, inset: (y: 0.8em))[JSON trong production, dễ đọc hơn trong chế độ chẩn đoán],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[trace_id được gắn vào record; scapper-srv còn intercept logging chuẩn của framework để gom về cùng logger],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[trace_id được gắn vào record; scapper-srv còn intercept logging chuẩn của framework để gom về cùng logger],
   )
 ]
 
@@ -435,27 +492,39 @@ Phần lớn Go API services trong SMAP đều expose bộ probe `health`, `read
     table.cell(align: center + horizon, inset: (y: 0.8em))[project-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[/health, /ready, /live],
     table.cell(align: center + horizon, inset: (y: 0.8em))[/ready ping PostgreSQL],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Probe đơn giản, tập trung vào dependency quan trọng nhất của control plane],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Probe đơn giản, tập trung vào dependency quan trọng nhất của control plane],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[/health, /ready, /live],
     table.cell(align: center + horizon, inset: (y: 0.8em))[/ready ping PostgreSQL và Redis],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Phản ánh retrieval lane phụ thuộc cả relational store lẫn cache],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Phản ánh retrieval lane phụ thuộc cả relational store lẫn cache],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[/health, /ready, /live],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[/ready yêu cầu PostgreSQL và Redis; đồng thời report trạng thái MinIO, Kafka, RabbitMQ],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Probe giàu thông tin nhất trong nhóm Go services của hệ thống],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[/ready yêu cầu PostgreSQL và Redis; đồng thời report trạng thái MinIO, Kafka, RabbitMQ],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Probe giàu thông tin nhất trong nhóm Go services của hệ thống],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[notification-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[/health, /ready, /live],
     table.cell(align: center + horizon, inset: (y: 0.8em))[/health và /ready ping Redis; /health trả thêm hub stats],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cho thấy trạng thái delivery boundary và số connection đang hoạt động],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Cho thấy trạng thái delivery boundary và số connection đang hoạt động],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[/health],
     table.cell(align: center + horizon, inset: (y: 0.8em))[/health trả worker_active cùng một số config hints],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Chưa có bộ ready hoặc live tách riêng như các Go API services],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Chưa có bộ ready hoặc live tách riêng như các Go API services],
   )
 ]
 

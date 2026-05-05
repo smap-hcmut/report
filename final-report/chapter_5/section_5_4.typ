@@ -149,36 +149,62 @@ Thiết kế này cho thấy Identity Service không theo mô hình username/pas
 #context (align(center)[_Bảng #table_counter.display(): Identity Service Tables_])
 #table_counter.step()
 #block(width: 100%)[
+  #set text(size: 10pt)
   #set par(justify: false)
   #table(
-    columns: (0.2fr, 0.25fr, 0.20fr, 0.43fr, 0.2fr),
+    columns: (0.18fr, 0.25fr, 0.18fr, 0.22fr, 0.25fr),
     stroke: 0.5pt,
     align: (left, left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Table*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Mục đích*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Key*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Indexes*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Indexed fields*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Constraints*],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[users],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Thông tin tài khoản người dùng đã đăng nhập qua OAuth2 SSO],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), email (UK)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[idx_users_email, idx_users_is_active],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[email unique; email, role_hash not null],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      email (UK)
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      email, #linebreak()
+      is_active
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      email unique; #linebreak()
+      email, role_hash not null
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[jwt_keys],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Lưu cặp khóa ký JWT và trạng thái vòng đời của từng key],
     table.cell(align: center + horizon, inset: (y: 0.8em))[kid (PK)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[idx_jwt_keys_status, idx_jwt_keys_created_at],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[private_key, public_key, status not null],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      status, #linebreak()
+      created_at
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      private_key, public_key, #linebreak()
+      status not null
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[audit_logs],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Audit trail cho các sự kiện authentication và authorization],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), user_id (FK nội bộ)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      user_id (FK nội bộ)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_audit_logs_user_id, idx_audit_logs_created_at, idx_audit_logs_action],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[action not null; user_id tham chiếu users.id],
+    ))[
+      user_id, #linebreak()
+      created_at, #linebreak()
+      action
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      action not null; #linebreak()
+      user_id tham chiếu users.id
+    ],
   )
 ]
 
@@ -207,9 +233,10 @@ Project Service giữ business context của campaign/project và cấu hình cr
 #context (align(center)[_Bảng #table_counter.display(): Project Service Tables_])
 #table_counter.step()
 #block(width: 100%)[
+  #set text(size: 10pt)
   #set par(justify: false)
   #table(
-    columns: (0.18fr, 0.28fr, 0.18fr, 0.20fr, 0.16fr),
+    columns: (0.16fr, 0.25fr, 0.16fr, 0.21fr, 0.22fr),
     stroke: 0.5pt,
     align: (left, left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Table*],
@@ -225,24 +252,51 @@ Project Service giữ business context của campaign/project và cấu hình cr
     table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK)],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_campaigns_status, idx_campaigns_created_by, idx_campaigns_date_range, GIN favorite_user_ids],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[status enum; soft delete qua deleted_at],
+    ))[
+      status, #linebreak()
+      created_by, #linebreak()
+      date_range, #linebreak()
+      favorite_user_ids (GIN)
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      status enum; #linebreak()
+      soft delete qua deleted_at
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[projects],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
     ))[Thực thể project gắn campaign, entity context và trạng thái vận hành nghiệp vụ],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), campaign_id (FK)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      campaign_id (FK)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_projects_campaign_id, idx_projects_status, idx_projects_config_status, idx_projects_domain_type_code, GIN favorite_user_ids],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[FK nội bộ sang campaigns; status và config_status là enum],
+    ))[
+      campaign_id, #linebreak()
+      status, #linebreak()
+      config_status, #linebreak()
+      domain_type_code, #linebreak()
+      favorite_user_ids (GIN)
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      FK nội bộ sang campaigns; #linebreak()
+      status và config_status là enum
+    ],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[projects_crisis_config],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      projects_#linebreak()
+      crisis_#linebreak()
+      config
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Cấu hình trigger crisis theo từng project],
     table.cell(align: center + horizon, inset: (y: 0.8em))[project_id (PK/FK)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[idx_projects_crisis_config_status],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[One-to-one với projects; xóa cascade khi project bị xóa],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[status],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      One-to-one với projects; #linebreak()
+      xóa cascade khi project bị xóa
+    ],
   )
 ]
 
@@ -273,15 +327,16 @@ Analytics Service lưu kết quả phân tích và dữ liệu điều phối la
 #context (align(center)[_Bảng #table_counter.display(): Analytics Service Tables_])
 #table_counter.step()
 #block(width: 100%)[
+  #set text(size: 10pt)
   #set par(justify: false)
   #table(
-    columns: (0.18fr, 0.30fr, 0.18fr, 0.34fr),
+    columns: (0.18fr, 0.30fr, 0.16fr, 0.36fr),
     stroke: 0.5pt,
     align: (left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Table*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Mục đích*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Key*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Indexes*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Indexed fields*],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[post_insight],
     table.cell(align: center + horizon, inset: (
@@ -290,21 +345,33 @@ Analytics Service lưu kết quả phân tích và dữ liệu điều phối la
     table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK)],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_post_insight_project, idx_post_insight_platform, idx_post_insight_sentiment, GIN aspects, GIN uap_metadata],
+    ))[
+      project_id, #linebreak()
+      platform, #linebreak()
+      sentiment, #linebreak()
+      aspects (GIN), #linebreak()
+      uap_metadata (GIN)
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[analytics_outbox],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
     ))[Transactional outbox cho Kafka delivery của các message downstream],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), run_id],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[idx_outbox_pending],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      run_id
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[pending status],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[analytics_run_manifest],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      analytics\_run\_#linebreak()
+      manifest
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
     ))[Manifest theo từng run để lưu context và hỗ trợ audit hoặc replay reasoning],
     table.cell(align: center + horizon, inset: (y: 0.8em))[run_id (PK)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[idx_run_manifest_project],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[project_id],
   )
 ]
 
@@ -338,79 +405,145 @@ Ingest Service sở hữu schema `ingest`, nơi lưu cả metadata cấu hình n
 #context (align(center)[_Bảng #table_counter.display(): Ingest Service Tables_])
 #table_counter.step()
 #block(width: 100%)[
+  #set text(size: 9.5pt)
   #set par(justify: false)
   #table(
-    columns: (0.17fr, 0.27fr, 0.18fr, 0.22fr, 0.16fr),
+    columns: (0.15fr, 0.24fr, 0.18fr, 0.21fr, 0.22fr),
     stroke: 0.5pt,
     align: (left, left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Table*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Mục đích*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Key*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Indexes*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Indexed fields*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Constraints*],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[data_sources],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Root entity cho datasource theo project và loại source],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), dryrun_last_result_id (FK)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      dryrun\_last\_result\_#linebreak()
+      id (FK)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_data_sources_project_deleted, idx_data_sources_status_category, GIN config, GIN mapping_rules],
+    ))[
+      project_id + deleted_at, #linebreak()
+      status + category, #linebreak()
+      config (GIN), #linebreak()
+      mapping_rules (GIN)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[Enum cho type/category/status; nhiều check constraint theo source semantics],
+    ))[
+      Enum cho type/category/status; #linebreak()
+      nhiều check constraint theo source semantics
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[crawl_targets],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
     ))[Per-target schedule và input cụ thể cho keyword/profile/post URL],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), data_source_id (FK)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      data_source_id (FK)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_crawl_targets_data_source, idx_crawl_targets_next_crawl_active, idx_crawl_targets_type],
+    ))[
+      data_source_id, #linebreak()
+      next_crawl_at + active, #linebreak()
+      target_type
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[crawl_interval_minutes > 0],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[dryrun_results],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Bằng chứng readiness và sample output cho dry run],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), source_id (FK), target_id (FK nullable)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      source_id (FK), #linebreak()
+      target_id (FK nullable)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_dryrun_results_project_created_desc, idx_dryrun_results_source_created_desc, idx_dryrun_results_job_id],
+    ))[
+      project_id + created_at, #linebreak()
+      source_id + created_at, #linebreak()
+      job_id
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Non-negative checks cho sample/total counts],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[scheduled_jobs],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Job điều phối lịch chạy crawl hoặc trigger runtime],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), source_id (FK), target_id (FK nullable)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      source_id (FK), #linebreak()
+      target_id (FK nullable)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_scheduled_jobs_status_scheduled_for, idx_scheduled_jobs_project_scheduled_for_desc, idx_scheduled_jobs_target],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Retry count non-negative; enum trigger/crawl mode],
+    ))[
+      status + scheduled_for, #linebreak()
+      project_id + scheduled_for, #linebreak()
+      target_id
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      Retry count non-negative; #linebreak()
+      enum trigger/crawl mode
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[external_tasks],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
     ))[Correlation layer giữa ingest runtime và worker task bên ngoài],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), task_id (UK), scheduled_job_id (FK)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      task_id (UK), #linebreak()
+      scheduled_job_id (FK)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_external_tasks_status_created_desc, idx_external_tasks_scheduled_job_id, idx_external_tasks_target],
+    ))[
+      status + created_at, #linebreak()
+      scheduled_job_id, #linebreak()
+      target_id
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[task_id unique để chống duplicate completion],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[raw_batches],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
     ))[Lineage của raw artifact và trạng thái publish sang UAP/analytics],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), external_task_id (FK)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      external_task_id (FK)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_raw_batches_project_received_desc, idx_raw_batches_publish_status_received_desc, idx_raw_batches_checksum],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Unique (source_id, batch_id); bucket/path thay raw payload],
+    ))[
+      project_id + received_at, #linebreak()
+      publish_status + received_at, #linebreak()
+      checksum
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      Unique (source_id, batch_id); #linebreak()
+      bucket/path thay raw payload
+    ],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[crawl_mode_changes],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      crawl\_mode\_#linebreak()
+      changes
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Audit trail cho việc đổi crawl mode và interval],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), source_id (FK)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      source_id (FK)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[idx_crawl_mode_changes_source_triggered_desc, idx_crawl_mode_changes_project_triggered_desc],
+    ))[
+      source_id + triggered_at, #linebreak()
+      project_id + triggered_at
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Interval non-negative checks],
   )
 ]
@@ -442,62 +575,108 @@ Knowledge Service dùng mô hình polyglot persistence rõ ràng nhất trong h�
 #context (align(center)[_Bảng #table_counter.display(): Knowledge Service Tables_])
 #table_counter.step()
 #block(width: 100%)[
+  #set text(size: 9.8pt)
   #set par(justify: false)
   #table(
-    columns: (0.3fr, 0.28fr, 0.18fr, 0.22fr, 0.14fr),
+    columns: (0.22fr, 0.28fr, 0.18fr, 0.20fr, 0.18fr),
     stroke: 0.5pt,
     align: (left, left, left, left, left),
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Table / View*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Mục đích*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Key*],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[*Indexes / Derived Object*],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[*Indexed fields / Derived Object*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Ghi chú*],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[indexed_documents],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
     ))[Tracking metadata cho record đã hoặc đang được index vào Qdrant],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), analytics_id (UK)],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      analytics_id (UK)
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[Indexes theo project_id, batch_id, status, content_hash, created_at],
+    ))[
+      project_id, #linebreak()
+      batch_id + status, #linebreak()
+      content_hash, #linebreak()
+      created_at
+    ],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[Chứa collection_name và qdrant_point_id như vector references],
+    ))[
+      Chứa collection_name #linebreak()
+      và qdrant_point_id như vector references
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[indexing_dlq],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Dead-letter queue cho các record indexing thất bại],
     table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK)],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[Indexes theo analytics_id, batch_id, unresolved errors, retry eligibility],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Giữ raw_payload để debug hoặc replay],
+    ))[
+      analytics_id, #linebreak()
+      batch_id, #linebreak()
+      unresolved errors, #linebreak()
+      retry eligibility
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      Giữ raw_payload để #linebreak()
+      debug hoặc replay
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[conversations],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Session hỏi đáp đa lượt theo campaign và user],
     table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK)],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[Indexes theo (campaign_id, user_id), status, last_message_at, created_at],
+    ))[
+      campaign_id + user_id, #linebreak()
+      status, #linebreak()
+      last_message_at, #linebreak()
+      created_at
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Scoped theo campaign thay vì project trực tiếp],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[messages],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Lưu từng message user hoặc assistant cùng metadata truy hồi],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK), conversation_id (FK)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[idx_messages_conversation_created],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      id (PK), #linebreak()
+      conversation_id (FK)
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      conversation_id + #linebreak()
+      created_at
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Cascade delete theo conversation],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[reports],
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[Tracking metadata cho capability report generation ở knowledge layer],
+    ))[
+      Tracking metadata cho capability #linebreak()
+      report generation ở knowledge layer
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[id (PK)],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Indexes theo campaign_id, user_id, status, params_hash],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Capability mở rộng ngoài FR/UC cốt lõi],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      campaign_id, #linebreak()
+      user_id + status, #linebreak()
+      params_hash
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      Capability mở rộng ngoài #linebreak()
+      FR/UC cốt lõi
+    ],
 
     table.cell(align: center + horizon, inset: (
       y: 0.8em,
-    ))[indexing_stats_by_project, indexing_stats_by_batch, indexing_error_summary, indexing_health_check],
+    ))[
+      stats_by_project, #linebreak()
+      stats_by_batch, #linebreak()
+      error_summary, #linebreak()
+      health_check
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Derived views cho monitoring và vận hành indexing lane],
     table.cell(align: center + horizon, inset: (y: 0.8em))[View],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Tạo từ indexed_documents và indexing_dlq],

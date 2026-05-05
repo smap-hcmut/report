@@ -30,74 +30,167 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-01],
     table.cell(align: horizon, inset: (y: 0.8em))[Xác thực người dùng],
     table.cell(align: horizon, inset: (y: 0.8em))[Supporting concern],
-    table.cell(align: horizon, inset: (y: 0.8em))[identity-srv, frontend],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.1, 5.3.6],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      identity-srv, #linebreak()
+      frontend
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.1, #linebreak()
+      5.3.6
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-02],
     table.cell(align: horizon, inset: (y: 0.8em))[Quản lý campaign và project],
     table.cell(align: horizon, inset: (y: 0.8em))[UC-01],
-    table.cell(align: horizon, inset: (y: 0.8em))[project-srv, frontend],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.3, 5.3.6, 5.5.1],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      project-srv, #linebreak()
+      frontend
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.3, #linebreak()
+      5.3.6, #linebreak()
+      5.5.1
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-03],
     table.cell(align: horizon, inset: (y: 0.8em))[Điều khiển vòng đời project],
     table.cell(align: horizon, inset: (y: 0.8em))[UC-02],
-    table.cell(align: horizon, inset: (y: 0.8em))[project-srv, ingest-srv, frontend],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.3, 5.3.4, 5.3.6, 5.5.2],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      project-srv, #linebreak()
+      ingest-srv, #linebreak()
+      frontend
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.3, #linebreak()
+      5.3.4, #linebreak()
+      5.3.6, #linebreak()
+      5.5.2
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-04],
     table.cell(align: horizon, inset: (y: 0.8em))[Quản lý cấu hình cảnh báo khủng hoảng],
     table.cell(align: horizon, inset: (y: 0.8em))[UC-05],
-    table.cell(align: horizon, inset: (y: 0.8em))[project-srv, frontend],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.3, 5.3.6, 5.5.5],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      project-srv, #linebreak()
+      frontend
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.3, #linebreak()
+      5.3.6, #linebreak()
+      5.5.5
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-05],
     table.cell(align: horizon, inset: (y: 0.8em))[Quản lý nguồn dữ liệu],
     table.cell(align: horizon, inset: (y: 0.8em))[UC-01],
-    table.cell(align: horizon, inset: (y: 0.8em))[ingest-srv, frontend],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.4, 5.3.6, 5.5.1],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      ingest-srv, #linebreak()
+      frontend
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.4, #linebreak()
+      5.3.6, #linebreak()
+      5.5.1
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-06],
     table.cell(align: horizon, inset: (y: 0.8em))[Quản lý mục tiêu thu thập],
     table.cell(align: horizon, inset: (y: 0.8em))[UC-01],
-    table.cell(align: horizon, inset: (y: 0.8em))[ingest-srv, frontend],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.4, 5.3.6, 5.5.1],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      ingest-srv, #linebreak()
+      frontend
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.4, #linebreak()
+      5.3.6, #linebreak()
+      5.5.1
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-07],
     table.cell(align: horizon, inset: (y: 0.8em))[Kiểm tra thử đầu vào],
     table.cell(align: horizon, inset: (y: 0.8em))[UC-01],
-    table.cell(align: horizon, inset: (y: 0.8em))[ingest-srv, project-srv, frontend],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.4, 5.3.3, 5.3.6, 5.5.1],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      ingest-srv, #linebreak()
+      project-srv, #linebreak()
+      frontend
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.4, #linebreak()
+      5.3.3, #linebreak()
+      5.3.6, #linebreak()
+      5.5.1
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-08],
     table.cell(align: horizon, inset: (y: 0.8em))[Điều phối thu thập dữ liệu],
     table.cell(align: horizon, inset: (y: 0.8em))[UC-02],
-    table.cell(align: horizon, inset: (y: 0.8em))[ingest-srv, scapper-srv, analysis-srv],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.4, 5.3.8, 5.6.2, 5.5.2],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      ingest-srv, #linebreak()
+      scapper-srv, #linebreak()
+      analysis-srv
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.4, #linebreak()
+      5.3.8, #linebreak()
+      5.6.2, #linebreak()
+      5.5.2
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-09],
     table.cell(align: horizon, inset: (y: 0.8em))[Xử lý phân tích],
     table.cell(align: horizon, inset: (y: 0.8em))[Supporting concern],
-    table.cell(align: horizon, inset: (y: 0.8em))[analysis-srv, ingest-srv, knowledge-srv],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.2, 5.3.4, 5.3.7, 5.6.1],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      analysis-srv, #linebreak()
+      ingest-srv, #linebreak()
+      knowledge-srv
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.2, #linebreak()
+      5.3.4, #linebreak()
+      5.3.7, #linebreak()
+      5.6.1
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-10],
     table.cell(align: horizon, inset: (y: 0.8em))[Tra cứu và hỏi đáp dữ liệu],
     table.cell(align: horizon, inset: (y: 0.8em))[UC-03],
-    table.cell(align: horizon, inset: (y: 0.8em))[knowledge-srv, frontend],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.7, 5.3.6, 5.5.3],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      knowledge-srv, #linebreak()
+      frontend
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.7, #linebreak()
+      5.3.6, #linebreak()
+      5.5.3
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-11],
     table.cell(align: horizon, inset: (y: 0.8em))[Gửi thông báo],
     table.cell(align: horizon, inset: (y: 0.8em))[UC-04],
-    table.cell(align: horizon, inset: (y: 0.8em))[notification-srv, frontend],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.5, 5.3.6, 5.6.3, 5.5.4],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      notification-srv, #linebreak()
+      frontend
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.5, #linebreak()
+      5.3.6, #linebreak()
+      5.6.3, #linebreak()
+      5.5.4
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[FR-12],
     table.cell(align: horizon, inset: (y: 0.8em))[Kiểm tra liên thông nội bộ],
     table.cell(align: horizon, inset: (y: 0.8em))[Supporting concern],
-    table.cell(align: horizon, inset: (y: 0.8em))[identity-srv, project-srv, ingest-srv],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.1, 5.3.3, 5.6.1],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      identity-srv, #linebreak()
+      project-srv, #linebreak()
+      ingest-srv
+    ],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.1, #linebreak()
+      5.3.3, #linebreak()
+      5.6.1
+    ],
   )
 ]
 
@@ -127,37 +220,63 @@ Bảng dưới đây liên hệ bảy đặc tính kiến trúc ở mục 4.3.1 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-01],
     table.cell(align: horizon, inset: (y: 0.8em))[Modularity],
     table.cell(align: horizon, inset: (y: 0.8em))[Tách bounded context theo identity, project, ingest, crawl execution, analytics, knowledge và notification; ownership dữ liệu và trách nhiệm được chia rõ theo service boundary],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.1.1, 5.2.2, 5.2.3, 5.3],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.1.1, #linebreak()
+      5.2.2, #linebreak()
+      5.2.3, #linebreak()
+      5.3
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-02],
     table.cell(align: horizon, inset: (y: 0.8em))[Scalability],
     table.cell(align: horizon, inset: (y: 0.8em))[Tách lane đồng bộ và bất đồng bộ, tách pod theo vai trò API, consumer, scheduler và worker để hỗ trợ mở rộng theo workload],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.1.1, 5.6.1, 5.7.6],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.1.1, #linebreak()
+      5.6.1, #linebreak()
+      5.7.6
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-03],
     table.cell(align: horizon, inset: (y: 0.8em))[Performance],
     table.cell(align: horizon, inset: (y: 0.8em))[Giữ request path gọn ở control plane, đẩy xử lý nặng sang các lane nền và chọn runtime phù hợp theo loại workload],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.1.2, 5.2.4, 5.6.1],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.1.2, #linebreak()
+      5.2.4, #linebreak()
+      5.6.1
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-04],
     table.cell(align: horizon, inset: (y: 0.8em))[Security],
     table.cell(align: horizon, inset: (y: 0.8em))[Tổ chức security boundary riêng ở `identity-srv`, dùng JWT, session, cookie và internal validation để bảo vệ các capability nghiệp vụ],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.2.3, 5.3.1, 5.3.6],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.2.3, #linebreak()
+      5.3.1, #linebreak()
+      5.3.6
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-05],
     table.cell(align: horizon, inset: (y: 0.8em))[Availability],
     table.cell(align: horizon, inset: (y: 0.8em))[Dùng probe, tách workload theo lane và pod role, cùng các cơ chế khởi động lại hoặc triển khai lại phù hợp theo môi trường orchestration],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.6.4, 5.7.6],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.6.4, #linebreak()
+      5.7.6
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-06],
     table.cell(align: horizon, inset: (y: 0.8em))[Data Integrity],
     table.cell(align: horizon, inset: (y: 0.8em))[Duy trì khóa tương quan, lineage metadata, outbox hoặc tracking tables để nối task, artifact và dữ liệu downstream một cách nhất quán],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.4, 5.6.2],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.4, #linebreak()
+      5.6.2
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[AC-07],
     table.cell(align: horizon, inset: (y: 0.8em))[Observability],
     table.cell(align: horizon, inset: (y: 0.8em))[Tổ chức logging có ngữ cảnh, probe endpoints, trace ID propagation và các chỉ báo vận hành ở những runtime quan trọng],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.6.4, 5.7.8],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.6.4, #linebreak()
+      5.7.8
+    ],
   )
 ]
 
@@ -181,37 +300,60 @@ Bảng dưới đây liên hệ các yêu cầu phi chức năng ở mục 4.3.2
     table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-01],
     table.cell(align: horizon, inset: (y: 0.8em))[Performance],
     table.cell(align: horizon, inset: (y: 0.8em))[Tách luồng xử lý nền khỏi request-response đồng bộ, dùng queue hoặc stream cho các lane analytics, ingest và indexing],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.1.2, 5.6.1, 5.6.2],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.1.2, #linebreak()
+      5.6.1, #linebreak()
+      5.6.2
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-02],
     table.cell(align: horizon, inset: (y: 0.8em))[Security],
     table.cell(align: horizon, inset: (y: 0.8em))[Dùng OAuth2, JWT, HttpOnly cookie, kiểm tra token và cơ chế xác thực nội bộ phù hợp với từng nhóm giao tiếp],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.3.1, 5.3.6],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.3.1, #linebreak()
+      5.3.6
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-03],
     table.cell(align: horizon, inset: (y: 0.8em))[Availability],
     table.cell(align: horizon, inset: (y: 0.8em))[Tách workload theo vai trò, bổ sung probe và cơ chế triển khai lại để hỗ trợ khôi phục khi lane xử lý gặp lỗi],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.6.4, 5.7.6],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.6.4, #linebreak()
+      5.7.6
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-04],
     table.cell(align: horizon, inset: (y: 0.8em))[Scalability],
     table.cell(align: horizon, inset: (y: 0.8em))[Tách pod theo vai trò API, consumer, scheduler và worker để hỗ trợ mở rộng theo lane thay vì mở rộng đồng loạt toàn hệ thống],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.2.4, 5.7.6],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.2.4, #linebreak()
+      5.7.6
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-05],
     table.cell(align: horizon, inset: (y: 0.8em))[Data Integrity],
     table.cell(align: horizon, inset: (y: 0.8em))[Duy trì hợp đồng dữ liệu rõ ràng, tracking metadata, correlation key và raw artifact lineage giữa các thành phần bất đồng bộ],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.4, 5.6.2],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.4, #linebreak()
+      5.6.2
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-06],
     table.cell(align: horizon, inset: (y: 0.8em))[Modularity],
     table.cell(align: horizon, inset: (y: 0.8em))[Tách service boundary, ownership dữ liệu và delivery layer khỏi business logic để hỗ trợ thay đổi, bảo trì và kiểm thử],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.1.2, 5.2.3, 5.3],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.1.2, #linebreak()
+      5.2.3, #linebreak()
+      5.3
+    ],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[NFR-07],
     table.cell(align: horizon, inset: (y: 0.8em))[Observability],
     table.cell(align: horizon, inset: (y: 0.8em))[Dùng logging có ngữ cảnh, trace ID propagation, health/readiness probes và chỉ báo vận hành cho các runtime quan trọng],
-    table.cell(align: horizon, inset: (y: 0.8em))[Mục 5.6.4, 5.7.8],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      Mục 5.6.4, #linebreak()
+      5.7.8
+    ],
   )
 ]
 
@@ -238,12 +380,20 @@ Bảng dưới đây liên hệ các yêu cầu phi chức năng ở mục 4.3.2
     table.cell(align: horizon, inset: (y: 0.8em))[Architecture Characteristics],
     table.cell(align: center + horizon, inset: (y: 0.8em))[7],
     table.cell(align: center + horizon, inset: (y: 0.8em))[7],
-    table.cell(align: horizon, inset: (y: 0.8em))[5.1, 5.2, 5.4, 5.6, 5.7],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      5.1, 5.2, #linebreak()
+      5.4, 5.6, #linebreak()
+      5.7
+    ],
 
     table.cell(align: horizon, inset: (y: 0.8em))[Non-Functional Requirements],
     table.cell(align: center + horizon, inset: (y: 0.8em))[7],
     table.cell(align: center + horizon, inset: (y: 0.8em))[7],
-    table.cell(align: horizon, inset: (y: 0.8em))[5.1, 5.3, 5.4, 5.6, 5.7],
+    table.cell(align: horizon, inset: (y: 0.8em))[
+      5.1, 5.3, #linebreak()
+      5.4, 5.6, #linebreak()
+      5.7
+    ],
   )
 ]
 

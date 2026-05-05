@@ -192,79 +192,108 @@ Các nguyên tắc triển khai chính gồm:
     table.cell(align: center + horizon, inset: (y: 0.8em))[3000],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Nhận traffic từ gateway và proxy browser requests],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[identity-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      identity-#linebreak()api
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[identity-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Auth, session và internal validation API],
     table.cell(align: center + horizon, inset: (y: 0.8em))[8080],
     table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP surface của security boundary],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[identity-audit-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      identity-audit-#linebreak()consumer
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[identity-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka audit consumer],
     table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pod nền cho audit logging],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[project-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      project-#linebreak()api
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[project-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Campaign, project, lifecycle và crisis API],
     table.cell(align: center + horizon, inset: (y: 0.8em))[8082],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Business control plane API],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[project-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      project-#linebreak()consumer
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[project-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka lifecycle hoặc event consumer],
     table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Background pod theo event lane],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      ingest-#linebreak()api
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Datasource, target, dry run và lifecycle API],
     table.cell(align: center + horizon, inset: (y: 0.8em))[8081],
     table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP surface của execution ingress lane],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-scheduler],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      ingest-#linebreak()scheduler
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Scheduled crawl và heartbeat dispatch],
     table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Tách riêng để scale và restart độc lập với API],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-completion-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      ingest-completion-#linebreak()consumer
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[ingest-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQ completion consumer],
     table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Nhận completion cho execution và dry run lanes],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      analysis-#linebreak()consumer
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka analytics pipeline consumer],
     table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
     table.cell(align: center + horizon, inset: (y: 0.8em))[CPU-heavy analytics runtime pod],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      knowledge-#linebreak()api
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Search, chat, report và indexing control API],
     table.cell(align: center + horizon, inset: (y: 0.8em))[8080],
     table.cell(align: center + horizon, inset: (y: 0.8em))[HTTP surface cho retrieval và report capability],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-consumer],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      knowledge-#linebreak()consumer
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[knowledge-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Kafka downstream indexing consumer],
     table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Background pod cho indexing lane],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[notification-delivery],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      notification-#linebreak()delivery
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[notification-srv],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[WebSocket/API và Redis Pub/Sub delivery],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      WebSocket/API #linebreak()
+      và Redis Pub/Sub delivery
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[8081],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Giữ subscriber cùng pod delivery vì phụ thuộc in-memory WebSocket hub],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-worker],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      scapper-#linebreak()worker
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQ crawl worker],
     table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Thực thi crawl task và materialize raw artifact],
 
-    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-api],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
+      scapper-#linebreak()api
+    ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Auxiliary submit, result và health API],
     table.cell(align: center + horizon, inset: (y: 0.8em))[8105],
