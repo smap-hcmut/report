@@ -12,7 +12,7 @@ start
 project, nguồn dữ liệu và mục tiêu thu thập;
 
 |Người dùng chuyên môn nội bộ|
-if (Có cần cấu hình
+if (Có cần quản lý quy tắc
 cảnh báo khủng hoảng?) then ([Có])
   :Thiết lập hoặc cập nhật
   quy tắc cảnh báo khủng hoảng;
@@ -26,12 +26,17 @@ endif
 chuyển trạng thái vận hành phù hợp;
 
 |Người dùng chuyên môn nội bộ|
-if (Mục tiêu khai thác tiếp theo?) then ([Tra cứu và hỏi đáp])
-  :Tra cứu và hỏi đáp
-  dữ liệu phân tích;
-else ([Theo dõi trạng thái])
+if (Tiếp tục theo dõi trạng thái
+và cảnh báo?) then ([Có])
   :Theo dõi trạng thái và
   nhận cảnh báo;
+else ([Không])
+endif
+
+if (Khai thác dữ liệu phân tích?) then ([Có])
+  :Tra cứu và hỏi đáp
+  dữ liệu phân tích;
+else ([Không])
 endif
 stop
 @enduml
