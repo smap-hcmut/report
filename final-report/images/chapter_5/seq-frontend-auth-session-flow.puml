@@ -1,5 +1,4 @@
 @startuml
-title Frontend Auth and Session Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

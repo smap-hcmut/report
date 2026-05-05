@@ -1,0 +1,28 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor User
+participant "Giao diện" as UI
+participant "Project Service" as ProjectService
+participant "Ingest Service" as IngestService
+
+User -> UI : Mở dashboard hoặc khu vực theo dõi
+UI -> ProjectService : GET project or campaign status
+activate ProjectService
+ProjectService --> UI : project state + metadata
+deactivate ProjectService
+
+opt Cần trạng thái datasource hoặc dry run
+  UI -> IngestService : GET datasource and readiness status
+  activate IngestService
+  IngestService --> UI : datasource state + latest readiness
+  deactivate IngestService
+end
+
+UI --> User : Hiển thị trạng thái hiện tại
+@enduml

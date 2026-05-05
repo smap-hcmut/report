@@ -1,0 +1,40 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor User
+participant "Giao diện" as UI
+participant "Project Service" as ProjectService
+participant "Ingest Service" as IngestService
+
+User -> UI : Mở project cần vận hành
+UI -> ProjectService : GET activation readiness
+activate ProjectService
+ProjectService -> IngestService : GET /internal/projects/{id}/activation-readiness
+activate IngestService
+IngestService --> ProjectService : readiness result
+deactivate IngestService
+
+alt Chưa đủ điều kiện
+  ProjectService --> UI : blocked reason
+  deactivate ProjectService
+  UI --> User : Hiển thị lý do chưa thể activate
+else Đủ điều kiện
+  ProjectService --> UI : can proceed
+  deactivate ProjectService
+  User -> UI : Xác nhận activate
+  UI -> ProjectService : POST /projects/{id}/activate
+  activate ProjectService
+  ProjectService -> IngestService : POST /internal/projects/{id}/activate
+  activate IngestService
+  IngestService --> ProjectService : execution accepted
+  deactivate IngestService
+  ProjectService --> UI : project ACTIVE
+  deactivate ProjectService
+  UI --> User : Hiển thị trạng thái ACTIVE
+end
+@enduml

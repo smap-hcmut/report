@@ -1,5 +1,4 @@
 @startuml
-title Realtime and Alert Delivery Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

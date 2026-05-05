@@ -1,0 +1,42 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor User
+participant "Giao diện" as UI
+participant "Knowledge Service" as KnowledgeService
+database "Qdrant" as Qdrant
+participant "LLM Provider" as LLM
+database "Conversation Store" as ConversationStore
+
+User -> UI : Gửi câu hỏi trong trợ lý dữ liệu
+UI -> KnowledgeService : POST /chat
+activate KnowledgeService
+
+opt Tiếp tục hội thoại đã có
+  KnowledgeService -> ConversationStore : load conversation history
+  activate ConversationStore
+  ConversationStore --> KnowledgeService : recent messages
+  deactivate ConversationStore
+end
+
+KnowledgeService -> Qdrant : retrieve relevant context
+activate Qdrant
+Qdrant --> KnowledgeService : search results
+deactivate Qdrant
+KnowledgeService -> LLM : generate grounded answer
+activate LLM
+LLM --> KnowledgeService : answer
+deactivate LLM
+KnowledgeService -> ConversationStore : save user and assistant messages
+activate ConversationStore
+ConversationStore --> KnowledgeService : persisted
+deactivate ConversationStore
+KnowledgeService --> UI : answer + citations + suggestions
+deactivate KnowledgeService
+UI --> User : Hiển thị câu trả lời có dẫn chứng
+@enduml

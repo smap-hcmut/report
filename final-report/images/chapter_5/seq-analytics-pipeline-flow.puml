@@ -1,5 +1,4 @@
 @startuml
-title Analytics Pipeline Execution Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

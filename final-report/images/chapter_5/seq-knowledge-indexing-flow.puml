@@ -1,5 +1,4 @@
 @startuml
-title Knowledge Indexing Phase 1 - Intake and Routing
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

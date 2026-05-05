@@ -1,0 +1,33 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor User
+participant "Giao diện" as UI
+participant "Knowledge Service" as KnowledgeService
+participant "Project Service" as ProjectService
+database "Qdrant" as Qdrant
+
+User -> UI : Nhập truy vấn và bộ lọc
+UI -> KnowledgeService : POST /search
+activate KnowledgeService
+
+opt Cần resolve campaign scope
+  KnowledgeService -> ProjectService : GET campaign context
+  activate ProjectService
+  ProjectService --> KnowledgeService : project_ids in scope
+  deactivate ProjectService
+end
+
+KnowledgeService -> Qdrant : search relevant collections
+activate Qdrant
+Qdrant --> KnowledgeService : ranked results
+deactivate Qdrant
+KnowledgeService --> UI : results + aggregations
+deactivate KnowledgeService
+UI --> User : Hiển thị kết quả tra cứu
+@enduml

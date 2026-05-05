@@ -1,5 +1,4 @@
 @startuml
-title Canonical Crawl Execution and Completion Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

@@ -1,0 +1,61 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor User
+participant "Giao diện" as UI
+participant "Project Service" as ProjectService
+participant "Ingest Service" as IngestService
+
+alt Tạm dừng chiến dịch
+  User -> UI : Chọn pause
+  UI -> ProjectService : POST /projects/{id}/pause
+  activate ProjectService
+  ProjectService -> IngestService : POST /internal/projects/{id}/pause
+  activate IngestService
+  IngestService --> ProjectService : paused
+  deactivate IngestService
+  ProjectService --> UI : project PAUSED
+  deactivate ProjectService
+  UI --> User : Hiển thị trạng thái PAUSED
+else Tiếp tục chiến dịch
+  User -> UI : Chọn resume
+  UI -> ProjectService : POST /projects/{id}/resume
+  activate ProjectService
+  ProjectService -> IngestService : GET /internal/projects/{id}/activation-readiness?command=resume
+  activate IngestService
+  IngestService --> ProjectService : readiness result
+  deactivate IngestService
+  ProjectService -> IngestService : POST /internal/projects/{id}/resume
+  activate IngestService
+  IngestService --> ProjectService : resumed
+  deactivate IngestService
+  ProjectService --> UI : project ACTIVE
+  deactivate ProjectService
+  UI --> User : Hiển thị trạng thái ACTIVE
+else Lưu trữ chiến dịch
+  User -> UI : Chọn archive
+  UI -> ProjectService : POST /projects/{id}/archive
+  activate ProjectService
+  opt Chiến dịch đang ACTIVE
+    ProjectService -> IngestService : POST /internal/projects/{id}/pause
+    activate IngestService
+    IngestService --> ProjectService : paused before archive
+    deactivate IngestService
+  end
+  ProjectService --> UI : project ARCHIVED
+  deactivate ProjectService
+  UI --> User : Hiển thị trạng thái ARCHIVED
+else Mở lại chiến dịch
+  User -> UI : Chọn unarchive
+  UI -> ProjectService : POST /projects/{id}/unarchive
+  activate ProjectService
+  ProjectService --> UI : project PAUSED
+  deactivate ProjectService
+  UI --> User : Hiển thị trạng thái PAUSED
+end
+@enduml

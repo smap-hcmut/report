@@ -1,5 +1,4 @@
 @startuml
-title Project Lifecycle Control Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

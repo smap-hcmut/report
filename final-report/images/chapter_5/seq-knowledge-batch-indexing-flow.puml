@@ -1,5 +1,4 @@
 @startuml
-title Knowledge Indexing Phase 2 - Batch Document Indexing
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

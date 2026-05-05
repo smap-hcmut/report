@@ -54,6 +54,8 @@ Từ góc nhìn đó, các use case chính của SMAP được gom thành năm n
 
 Các yêu cầu FR-01, FR-09 và FR-12 đóng vai trò hỗ trợ cho các use case được bảo vệ: FR-01 là điều kiện xác thực trước khi người dùng thực hiện thao tác nghiệp vụ, FR-09 cung cấp dữ liệu phân tích cho các mục tiêu khai thác và cảnh báo, còn FR-12 bảo vệ liên thông nội bộ giữa các thành phần hệ thống. Vì vậy, các yêu cầu này không được tách thành use case người dùng độc lập trong bảng trên.
 
+Thứ tự đánh số use case trong bảng trên phản ánh nhóm mục tiêu nghiệp vụ, không nhất thiết là thứ tự thời gian tuyệt đối. Riêng UC-05 có thể được thực hiện trước hoặc trong quá trình vận hành chiến dịch để tạo rule context cho các cảnh báo mà người dùng quan sát ở UC-04.
+
 === 4.4.1 UC-01: Thiết lập chiến dịch theo dõi
 
 #context (align(center)[_Bảng #table_counter.display(): Use Case UC-01_])

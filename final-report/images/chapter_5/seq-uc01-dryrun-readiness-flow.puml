@@ -1,41 +1,49 @@
 @startuml
-title UC-01 Part 3 - Dry Run and Readiness Flow
-hide footbox
-skinparam style strictuml
+skinparam defaultFontName Arial
+skinparam shadowing false
 skinparam sequenceMessageAlign center
 skinparam responseMessageBelowArrow true
 skinparam maxMessageSize 70
+skinparam roundcorner 12
 
+actor User
 participant "Giao diện" as UI
 participant "Ingest Service" as IngestService
-participant "RabbitMQ" as RabbitMQ
+queue "RabbitMQ task queue" as TaskQueue
 participant "Scapper Worker" as Worker
-participant "MinIO" as MinIO
-participant "PostgreSQL" as PostgreSQL
+database "Artifact Storage" as Storage
+queue "RabbitMQ completion queue" as CompletionQueue
 
-UI -> IngestService : trigger dry run(datasource_id, target_id)
+User -> UI : Yêu cầu kiểm tra thử
+UI -> IngestService : POST /datasources/{id}/dryrun
 activate IngestService
-IngestService -> PostgreSQL : create dryrun result(RUNNING)
-activate PostgreSQL
-PostgreSQL --> IngestService : dryrun request persisted
-deactivate PostgreSQL
-IngestService ->> RabbitMQ : publish dryrun task
+IngestService ->> TaskQueue : publish dryrun task
+IngestService --> UI : dryrun accepted\n(status=RUNNING)
+deactivate IngestService
 
-RabbitMQ ->> Worker : deliver dryrun task
+TaskQueue ->> Worker : deliver dryrun task
 activate Worker
-Worker -> Worker : collect sample or validate source access
-Worker -> MinIO : upload sample artifact if needed
-activate MinIO
-MinIO --> Worker : storage metadata
-deactivate MinIO
-Worker ->> RabbitMQ : publish dryrun completion
+Worker -> Worker : Lấy mẫu hoặc xác nhận khả năng truy cập
+opt Có sample artifact
+  Worker -> Storage : save sample artifact
+  activate Storage
+  Storage --> Worker : artifact metadata
+  deactivate Storage
+end
+Worker ->> CompletionQueue : publish dryrun completion
 deactivate Worker
 
-RabbitMQ ->> IngestService : deliver dryrun completion
-IngestService -> PostgreSQL : update latest result and readiness evidence
-activate PostgreSQL
-PostgreSQL --> IngestService : dryrun status persisted
-deactivate PostgreSQL
-IngestService --> UI : latest dry run result and readiness state
+CompletionQueue ->> IngestService : deliver dryrun completion
+activate IngestService
+IngestService -> IngestService : update latest result and readiness
 deactivate IngestService
+
+loop User kiểm tra readiness
+  UI -> IngestService : GET /datasources/{id}/dryrun/latest
+  activate IngestService
+  IngestService --> UI : latest dryrun result\nand readiness state
+  deactivate IngestService
+end
+
+UI --> User : Hiển thị kết quả kiểm tra thử
 @enduml

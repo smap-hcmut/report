@@ -1,5 +1,4 @@
 @startuml
-title Frontend Same-Origin Proxy API Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

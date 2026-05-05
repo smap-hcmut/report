@@ -1,5 +1,4 @@
 @startuml
-title WebSocket Connection Establishment Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

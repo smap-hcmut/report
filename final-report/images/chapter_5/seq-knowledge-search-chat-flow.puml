@@ -1,5 +1,4 @@
 @startuml
-title Contextual Search and Chat Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

@@ -1,5 +1,4 @@
 @startuml
-title Ingest Completion Handling and UAP Publishing Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

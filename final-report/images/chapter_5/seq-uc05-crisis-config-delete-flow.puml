@@ -1,0 +1,21 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor User
+participant "Giao diện" as UI
+participant "Project Service" as ProjectService
+
+User -> UI : Chọn xóa cấu hình cảnh báo
+UI -> UI : Hiển thị xác nhận xóa
+User -> UI : Xác nhận thao tác
+UI -> ProjectService : DELETE /projects/{id}/crisis-config
+activate ProjectService
+ProjectService --> UI : delete success
+deactivate ProjectService
+UI --> User : Cập nhật trạng thái không còn cấu hình
+@enduml

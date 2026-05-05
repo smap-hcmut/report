@@ -1,5 +1,4 @@
 @startuml
-title Datasource and Target Management Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

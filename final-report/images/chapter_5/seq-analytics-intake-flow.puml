@@ -1,5 +1,4 @@
 @startuml
-title Analytics Kafka Intake Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

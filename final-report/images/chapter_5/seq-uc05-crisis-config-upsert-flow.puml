@@ -1,0 +1,25 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 70
+skinparam roundcorner 12
+
+actor User
+participant "Giao diện" as UI
+participant "Project Service" as ProjectService
+
+User -> UI : Mở cấu hình cảnh báo khủng hoảng
+UI -> ProjectService : GET /projects/{id}/crisis-config
+activate ProjectService
+ProjectService --> UI : current config or empty state
+deactivate ProjectService
+
+User -> UI : Chỉnh sửa và lưu bộ quy tắc
+UI -> ProjectService : PUT /projects/{id}/crisis-config
+activate ProjectService
+ProjectService --> UI : saved crisis config
+deactivate ProjectService
+UI --> User : Hiển thị cấu hình đã lưu
+@enduml

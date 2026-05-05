@@ -1,5 +1,4 @@
 @startuml
-title Crisis Configuration Flow
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam sequenceMessageAlign center

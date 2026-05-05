@@ -1,29 +1,31 @@
 @startuml
-title UC-01 Part 1 - Campaign and Project Setup Flow
-hide footbox
-skinparam style strictuml
+skinparam defaultFontName Arial
+skinparam shadowing false
 skinparam sequenceMessageAlign center
 skinparam responseMessageBelowArrow true
 skinparam maxMessageSize 70
+skinparam roundcorner 12
 
+actor User
 participant "Giao diện" as UI
 participant "Project Service" as ProjectService
-participant "PostgreSQL" as PostgreSQL
 
-UI -> ProjectService : create campaign or select existing campaign
-activate ProjectService
-alt create new campaign
-  ProjectService -> PostgreSQL : insert campaign metadata
-  activate PostgreSQL
-  PostgreSQL --> ProjectService : campaign persisted
-  deactivate PostgreSQL
+User -> UI : Chọn tạo chiến dịch theo dõi
+
+alt Tạo campaign mới
+  UI -> ProjectService : POST /campaigns
+  activate ProjectService
+  ProjectService --> UI : campaign context
+  deactivate ProjectService
+else Dùng campaign đã tồn tại
+  User -> UI : Chọn campaign hiện có
+  UI -> UI : Nạp campaign context
 end
-UI -> ProjectService : create project in campaign
-ProjectService -> ProjectService : validate business context
-ProjectService -> PostgreSQL : insert project metadata
-activate PostgreSQL
-PostgreSQL --> ProjectService : campaign_id, project_id, initial status
-deactivate PostgreSQL
-ProjectService --> UI : created campaign/project context
+
+User -> UI : Nhập thông tin đối tượng theo dõi
+UI -> ProjectService : POST /campaigns/{id}/projects
+activate ProjectService
+ProjectService --> UI : project context\n(project_id, status=PENDING)
 deactivate ProjectService
+UI --> User : Hiển thị campaign và project đã tạo
 @enduml

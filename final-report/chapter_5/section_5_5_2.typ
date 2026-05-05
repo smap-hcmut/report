@@ -13,7 +13,11 @@ Luồng này mô tả cách người dùng kiểm tra readiness và kích hoạt
 #align(center)[
   #image("../images/chapter_5/seq-uc02-readiness-activation-flow.svg", width: 96%)
 ]
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-02 Part 1: Kiểm tra mức sẵn sàng và kích hoạt chiến dịch_])
+#context (
+  align(
+    center,
+  )[_Hình #image_counter.display(): Sequence Diagram UC-02 Part 1: Kiểm tra mức sẵn sàng và kích hoạt chiến dịch_]
+)
 #image_counter.step()
 
 Luồng xử lý:
@@ -37,9 +41,13 @@ Luồng xử lý:
 Luồng này mô tả các thao tác vận hành còn lại sau khi chiến dịch đã được tạo và có thể đã hoạt động trước đó.
 
 #align(center)[
-  #image("../images/chapter_5/seq-uc02-lifecycle-control-flow.svg", width: 96%)
+  #image("../images/chapter_5/seq-uc02-lifecycle-control-flow.svg", width: 78%)
 ]
-#context (align(center)[_Hình #image_counter.display(): Sequence Diagram UC-02 Part 2: Tạm dừng, tiếp tục, lưu trữ và mở lại chiến dịch_])
+#context (
+  align(
+    center,
+  )[_Hình #image_counter.display(): Sequence Diagram UC-02 Part 2: Tạm dừng, tiếp tục, lưu trữ và mở lại chiến dịch_]
+)
 #image_counter.step()
 
 Luồng xử lý:
