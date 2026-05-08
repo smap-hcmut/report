@@ -42,13 +42,16 @@
 #pagebreak()
 // Chương 5: Thiết kế hệ thống
 #include "chapter_5/index.typ"
-// Chương 6: Tổng kết
+// Chương 6: Kiểm thử và đánh giá hệ thống
 #include "chapter_6/index.typ"
 #pagebreak()
-// Chương 7: tài liệu tham khảo
+// Chương 7: Tổng kết
 #include "chapter_7/index.typ"
-// Chương 8: Phụ lục
+#pagebreak()
+// Chương 8: Tài liệu tham khảo
 #include "chapter_8/index.typ"
+// Chương 9: Phụ lục
+#include "chapter_9/index.typ"
 // ==== Các hướng dẫn thêm chương mới ====
 // #import "chapter_x_typ" as cx
 // #cx

@@ -56,7 +56,7 @@ Luồng xử lý:
 
 ==== 5.5.4.3 Supporting flow: phát hiện khủng hoảng từ dữ liệu crawl
 
-Luồng này nối rõ phần xử lý nền đứng phía sau UC-04: dữ liệu được thu thập bởi execution plane, chuẩn hóa và đưa vào analytics pipeline; kết quả phân tích được đánh giá theo ngữ cảnh rule khủng hoảng của project; khi điều kiện cảnh báo khớp, hệ thống phát sinh `CRISIS_ALERT` để notification lane phân phối theo flow ở mục 5.5.4.2 và chi tiết giao tiếp ở mục 5.6.3.4.
+Luồng này nối rõ phần xử lý nền đứng phía sau UC-04: dữ liệu được thu thập bởi execution plane, chuẩn hóa và đưa vào analytics pipeline; kết quả phân tích được đánh giá thành crisis assessment; khi runtime auto-apply được bật, analysis lane gọi Project Service để áp dụng trạng thái khủng hoảng xuống crawl mode. Notification delivery vẫn được mô tả riêng ở mục 5.5.4.2 và boundary giao tiếp liên quan ở mục 5.6.3.4.
 
 #align(center)[
   #image("../images/chapter_5/seq-uc04-crisis-crawl-analytics-flow.svg", width: 92%)
@@ -70,16 +70,18 @@ Luồng này nối rõ phần xử lý nền đứng phía sau UC-04: dữ liệ
 
 Luồng xử lý:
 
-- Cấu hình cảnh báo khủng hoảng được Project Service quản lý theo project và được analytics lane sử dụng như rule context, bao gồm các nhóm rule như keyword, volume, sentiment hoặc influencer.
+- Cấu hình cảnh báo khủng hoảng được Project Service quản lý theo project; service này đồng thời cung cấp internal endpoint `apply-runtime` để áp dụng trạng thái khủng hoảng vào vận hành crawl.
 
 - Ingest Service dispatch task thu thập sang RabbitMQ; Scapper Worker thực thi crawl, materialize raw artifact vào MinIO và trả completion envelope về ingest lane.
 
 - Ingest Service verify artifact, parse dữ liệu và publish các bản ghi chuẩn hóa vào Kafka analytics input để analytics pipeline tiêu thụ.
 
-- Analysis Service chạy pipeline NLP, persist insight có cấu trúc và đánh giá các tín hiệu như sentiment, keyword, risk hoặc ngưỡng volume theo ngữ cảnh rule của project.
+- Analysis Service chạy pipeline NLP, persist insight có cấu trúc và đánh giá các tín hiệu như sentiment, keyword, risk hoặc áp lực volume thành crisis assessment.
 
-- Nếu điều kiện khủng hoảng được kích hoạt, Analysis Service tạo `CRISIS_ALERT` với severity, metric, threshold và affected aspects để đưa sang notification lane.
+- Nếu crisis assessment tạo ra trạng thái cần áp dụng và runtime auto-apply được bật, `analysis-consumer` gọi Project Service với trạng thái `NORMAL`, `WARNING` hoặc `CRITICAL` cùng reason/correlation metadata.
 
-- Phần delivery cụ thể của alert không lặp lại trong supporting flow này; nó được mô tả ở flow notification delivery tại mục 5.5.4.2 và communication pattern tại mục 5.6.3.4.
+- Project Service ánh xạ trạng thái đó sang crawl mode phù hợp và cập nhật các datasource liên quan qua ingest lane; notification lane chỉ xử lý delivery khi đã có notification event tương ứng.
+
+- Phần delivery cụ thể của notification không lặp lại trong supporting flow này; nó được mô tả ở flow notification delivery tại mục 5.5.4.2 và communication pattern tại mục 5.6.3.4.
 
 Điểm quan trọng: Flow này mô tả quan hệ nhân quả giữa crawl, phân tích và cảnh báo, nhưng vẫn giữ đúng ranh giới use case. Người dùng không trực tiếp điều khiển analytics pipeline trong UC-04; họ quan sát kết quả cảnh báo được hệ thống phát sinh từ các lane xử lý nền.

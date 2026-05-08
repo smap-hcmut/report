@@ -13,7 +13,7 @@ database "MinIO\nraw artifact" as MinIO
 queue "Kafka\nanalytics input" as AnalyticsInput
 participant "Analysis Service" as AnalysisService
 database "PostgreSQL\npost_insight" as PostInsight
-participant "Project Service\ncrisis config" as ProjectService
+participant "Project Service\nruntime apply" as ProjectService
 participant "Crisis Stage" as CrisisStage
 
 IngestService ->> RabbitMQ : dispatch crawl task
@@ -41,13 +41,17 @@ AnalysisService -> PostInsight : persist structured insight
 activate PostInsight
 PostInsight --> AnalysisService : persisted
 deactivate PostInsight
-AnalysisService -> ProjectService : get crisis rule context
-activate ProjectService
-ProjectService --> AnalysisService : active crisis rules
-deactivate ProjectService
 AnalysisService -> CrisisStage : assess crisis signals
 activate CrisisStage
 CrisisStage --> AnalysisService : crisis assessment\n(level, metric, threshold, aspects)
 deactivate CrisisStage
+AnalysisService -> ProjectService : apply-runtime\n(status, reason, event_ref)
+activate ProjectService
+ProjectService -> IngestService : apply crawl mode\nfor project datasources
+activate IngestService
+IngestService --> ProjectService : affected datasource count
+deactivate IngestService
+ProjectService --> AnalysisService : runtime apply result
+deactivate ProjectService
 deactivate AnalysisService
 @enduml

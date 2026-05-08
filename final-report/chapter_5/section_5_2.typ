@@ -54,7 +54,7 @@ Hình dưới đây trình bày kiến trúc tổng thể của SMAP.
 
 #context (
   align(center)[
-    #image("../images/diagram/c4-container-current.svg", width: 96%)
+    #image("../images/diagram/C4-level2.png", width: 100%)
   ]
 )
 #context (align(center)[_Hình #image_counter.display(): Kiến trúc tổng thể của SMAP_])

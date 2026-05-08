@@ -422,11 +422,13 @@ Tất cả WebSocket frames gửi tới client đều dùng cùng một envelope
 
 Ngoài WebSocket delivery, một số message families như `CRISIS_ALERT`, `DATA_ONBOARDING` và `CAMPAIGN_EVENT` còn có thể được chuyển tiếp sang alert dispatch layer của notification-srv cho các kênh ngoài trình duyệt như Discord. Tuy vậy, realtime contract ở đây vẫn được giữ thống nhất dưới cùng một WebSocket envelope, giúp notification boundary tách rời khỏi logic hiển thị cụ thể ở từng client.
 
-==== 5.6.3.4 Crisis alert path từ analytics sang notification
+==== 5.6.3.4 Crisis runtime path và notification boundary
 
-Trong luồng cảnh báo khủng hoảng, notification lane không tự phát hiện khủng hoảng mà chỉ đóng vai trò delivery boundary. Việc phát hiện bắt đầu từ analytics lane: dữ liệu crawl đã được ingest-srv chuẩn hóa và publish vào Kafka analytics input, sau đó analysis-srv xử lý NLP, persist insight và đánh giá kết quả phân tích theo crisis configuration của project.
+Trong luồng khủng hoảng, notification lane không tự phát hiện khủng hoảng mà chỉ đóng vai trò delivery boundary khi có notification event. Việc đánh giá bắt đầu từ analytics lane: dữ liệu crawl đã được ingest-srv chuẩn hóa và publish vào Kafka analytics input, sau đó `analysis-consumer` xử lý NLP, persist insight và tạo crisis assessment từ các tín hiệu phân tích.
 
-Khi analysis-srv xác định một điều kiện cảnh báo khớp với rule đang áp dụng, service tạo một message family `CRISIS_ALERT` và publish vào Redis Pub/Sub theo channel alert đã scope hóa tới user hoặc nhóm người nhận phù hợp. Payload của message cần giữ đủ thông tin để notification-srv không phải truy vấn ngược vào analytics lane trên request path, bao gồm các nhóm trường như:
+Trong hiện thực runtime đã kiểm chứng, khi crisis assessment tạo ra trạng thái cần áp dụng và runtime auto-apply được bật, `analysis-consumer` ánh xạ level sang status `NORMAL`, `WARNING` hoặc `CRITICAL`, rồi gọi internal API `project-srv` tại `/api/v1/internal/projects/{project_id}/crisis-config/apply-runtime`. Project Service giữ ownership của crisis configuration/runtime policy, ánh xạ status sang crawl mode và cập nhật ingest lane cho các datasource liên quan. Đây là runtime adaptation path đã được đối chiếu bằng response API, datasource state, audit table và log consumer.
+
+Notification-srv vẫn hỗ trợ delivery family `CRISIS_ALERT` qua Redis Pub/Sub và WebSocket. Tuy nhiên, đoạn này chỉ nên được hiểu là contract delivery khi một publisher phát sinh alert event phù hợp, không khẳng định `analysis-srv` luôn publish trực tiếp `CRISIS_ALERT` vào Redis trong runtime hiện tại. Payload của một alert event cần giữ đủ thông tin để notification-srv không phải truy vấn ngược vào analytics lane trên request path, bao gồm các nhóm trường như:
 
 - `project_id` hoặc `campaign_id` để gắn cảnh báo với ngữ cảnh nghiệp vụ;
 - `severity` để biểu diễn mức độ nghiêm trọng;
@@ -434,7 +436,7 @@ Khi analysis-srv xác định một điều kiện cảnh báo khớp với rule
 - `affected_aspects` hoặc nhóm keyword/sentiment/influencer liên quan để user hiểu nguyên nhân cảnh báo;
 - `triggered_at` và correlation metadata để hỗ trợ truy vết giữa analytics output và notification event.
 
-Sau khi nhận message từ Redis, notification-srv chỉ thực hiện các bước thuộc delivery lane: parse channel, nhận diện `CRISIS_ALERT`, chuẩn hóa WebSocket envelope, route theo user_id hoặc broadcast scope phù hợp, và chuyển tiếp sang alert dispatch layer nếu message thuộc nhóm cần gửi qua kênh ngoài trình duyệt như Discord. Cách tách này giúp analysis-srv giữ trách nhiệm phát hiện dựa trên dữ liệu và rule, còn notification-srv giữ trách nhiệm phân phối cảnh báo tới phiên người dùng.
+Sau khi nhận message từ Redis, notification-srv chỉ thực hiện các bước thuộc delivery lane: parse channel, nhận diện `CRISIS_ALERT`, chuẩn hóa WebSocket envelope, route theo user_id hoặc broadcast scope phù hợp, và chuyển tiếp sang alert dispatch layer nếu message thuộc nhóm cần gửi qua kênh ngoài trình duyệt như Discord. Cách tách này giúp analytics/project lane giữ trách nhiệm đánh giá và áp dụng runtime policy, còn notification-srv giữ trách nhiệm phân phối cảnh báo tới phiên người dùng.
 
 Điểm cần lưu ý là realtime ở đây chỉ áp dụng cho đoạn delivery sau khi alert event đã được phát sinh. Độ trễ end-to-end của cảnh báo vẫn phụ thuộc vào nhịp crawl, thời điểm completion được ingest-srv xử lý, cadence của analytics consumer và tình trạng kết nối của user tại notification-srv.
 

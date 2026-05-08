@@ -11,10 +11,12 @@ left to right direction
 
 rectangle "Analytics Service" {
   package "Presentation Layer (Delivery)" {
+    component "«component»\nAnalysis API\n(FastAPI)" as an_api
     component "«component»\nConsumerServer" as an_consumer
   }
 
   package "Application Layer (UseCase)" {
+    component "«component»\nAnalytics Query\nService" as an_query
     component "«component»\nIngestion Adapter" as an_adapter
     component "«UseCase»\nPipelineUseCase" as an_pipeline
     component "«UseCase»\nPostInsight UseCase" as an_post
@@ -27,13 +29,19 @@ rectangle "Analytics Service" {
 
   package "Infrastructure Layer" {
     component "«component»\nDomain Registry" as an_domain
+    component "«component»\nProject Service\nClient" as an_project_client
   }
 }
 
+component "«System»\nFrontend BFF" as an_fe
 queue "«System»\nKafka analytics\ninput" as an_in
 database "«System»\nPostgreSQL" as an_pg
 queue "«System»\nKafka analytics.*\ntopics" as an_out
+component "«System»\nproject-srv" as an_project
 
+an_fe -[#B45F06]-> an_api : GET /api/v1/analytics/*
+an_api -[#000000]-> an_query : read model query
+an_query -[#008000]-> an_pg : analytics reads
 an_in -[#0000FF]-> an_consumer : consume
 an_consumer -[#000000]-> an_domain : lookup
 an_consumer -[#000000]-> an_adapter
@@ -43,6 +51,8 @@ an_consumer -[#000000]-> an_post : persist facts
 an_post -[#008000]-> an_pg : post_insight
 an_consumer -[#000000]-> an_pub : publish outputs
 an_pub -[#0000FF]-> an_out : analytics.*
+an_consumer -[#000000]-> an_project_client : runtime apply
+an_project_client -[#B45F06]-> an_project : internal HTTP
 
 note bottom of an_consumer
 Kafka intake and
@@ -53,6 +63,7 @@ legend right
 |= Color |= Protocol |
 |<#0000FF>  | Kafka |
 |<#008000>  | PostgreSQL |
+|<#B45F06>  | HTTP / JSON |
 |<#000000>  | Internal Call |
 endlegend
 @enduml

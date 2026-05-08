@@ -25,7 +25,7 @@ rectangle "Frontend Application" {
     }
     package "API and Gateway" {
       component "«component»\nAPI Client and\nProxy Routes" as fe_api
-      component "«component»\nAnalytics and\nMetabase Gateway" as fe_analytics
+      component "«component»\nAnalytics API\nGateway" as fe_analytics
     }
   }
 
@@ -35,7 +35,7 @@ rectangle "Frontend Application" {
 }
 
 actor "«User»\nBrowser User" as fe_user
-database "«System»\nMetabase" as fe_metabase
+component "«System»\nanalysis-api" as fe_analysis
 component "«System»\nidentity-srv" as fe_identity
 component "«System»\nproject-srv" as fe_project
 component "«System»\ningest-srv" as fe_ingest
@@ -52,7 +52,7 @@ fe_reports -[#000000]-> fe_api : report calls
 fe_auth -[#000000]-> fe_api : login, /me
 fe_state -[#000000]-> fe_api : query state
 fe_routes -[#000000]-> fe_analytics : dashboard views
-fe_analytics -[#008000]-> fe_metabase : dataset, query
+fe_analytics -[#008000]-> fe_analysis : analytics JSON
 fe_api -[#008000]-> fe_identity : REST
 fe_api -[#008000]-> fe_project : REST
 fe_api -[#008000]-> fe_ingest : REST

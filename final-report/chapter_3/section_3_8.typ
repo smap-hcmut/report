@@ -46,10 +46,10 @@ Electron là một nền tảng cho phép xây dựng ứng dụng desktop đa n
 
 Trong SMAP, frontend không chỉ dừng ở web application thuần túy mà còn có khả năng đóng gói desktop thông qua Electron. Điều này đặc biệt hữu ích khi hệ thống cần một hình thức triển khai thuận tiện cho người dùng cuối, đồng thời vẫn tận dụng được toàn bộ stack giao diện dựa trên Next.js, React và TypeScript.
 
-=== 3.8.6 Tích hợp BI và Metabase
+=== 3.8.6 Tích hợp analytics API và dashboard
 
-Trong các hệ thống phân tích dữ liệu, lớp giao diện không chỉ đảm nhiệm hiển thị trang nghiệp vụ mà còn thường tích hợp các công cụ BI hoặc dashboard chuyên dụng để hỗ trợ truy vấn và trực quan hóa. Một hướng tiếp cận phổ biến là frontend cung cấp lớp tích hợp trung gian để truy xuất dữ liệu từ công cụ BI và đưa kết quả vào trải nghiệm sử dụng chung của hệ thống.
+Trong các hệ thống phân tích dữ liệu, lớp giao diện không chỉ đảm nhiệm hiển thị trang nghiệp vụ mà còn thường tích hợp các API phân tích hoặc dashboard chuyên dụng để hỗ trợ truy vấn và trực quan hóa. Một hướng tiếp cận phổ biến là frontend cung cấp lớp tích hợp trung gian để truy xuất dữ liệu từ service phân tích và đưa kết quả vào trải nghiệm sử dụng chung của hệ thống.
 
-Đối với SMAP, frontend còn tích hợp với Metabase thông qua các hook và API route chuyên biệt. Điều này cho thấy frontend không chỉ đóng vai trò giao diện thao tác, mà còn là nơi kết nối giữa trải nghiệm người dùng với các lớp báo cáo và khai thác dữ liệu có cấu trúc hơn.
+Đối với SMAP, frontend tích hợp analytics API thông qua các hook và route handler chuyên biệt. Điều này cho thấy frontend không chỉ đóng vai trò giao diện thao tác, mà còn là nơi kết nối giữa trải nghiệm người dùng với các lớp báo cáo và khai thác dữ liệu có cấu trúc hơn.
 
 Những công nghệ trên là cơ sở để hình thành frontend hiện tại của SMAP: một lớp giao diện dựa trên Next.js, React, TypeScript và Tailwind CSS, có hỗ trợ i18n, có khả năng tích hợp BI, và có hướng triển khai trên cả web lẫn desktop thông qua Electron.

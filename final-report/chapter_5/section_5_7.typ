@@ -10,7 +10,7 @@ Phần này trình bày thiết kế triển khai hệ thống SMAP lên môi tr
 Hệ thống SMAP được triển khai theo mô hình Kubernetes-based Microservices Architecture, trong đó các services được đóng gói thành containers và orchestrate bởi Kubernetes cluster. Ở góc nhìn triển khai, các trách nhiệm API, scheduler, consumer và worker được tách thành các pod riêng khi cần, giúp mỗi workload có vòng đời scale, restart và rollout độc lập hơn.
 
 #align(center)[
-  #image("../images/deploy/deployment-diagram-current.excalidraw.svg", width: 100%)
+  #image("../images/deploy/deployment-diagram.drawio.png", width: 100%)
   #context (align(center)[_Hình #image_counter.display(): Sơ đồ triển khai hệ thống SMAP_])
   #image_counter.step()
 ]
@@ -21,7 +21,7 @@ Kiến trúc triển khai được tổ chức thành các tầng sau:
 
 - Tầng Frontend: `web-ui` được triển khai như một pod giao diện và backend-for-frontend, phục vụ giao diện người dùng và gọi API đến backend services.
 
-- Tầng API Pods: Các pod phục vụ HTTP hoặc WebSocket bao gồm `identity-api`, `project-api`, `ingest-api`, `knowledge-api`, `notification-delivery` và `scapper-api`.
+- Tầng API Pods: Các pod phục vụ HTTP hoặc WebSocket bao gồm `identity-api`, `project-api`, `ingest-api`, `analysis-api`, `knowledge-api`, `notification-delivery` và `scapper-api`.
 
 - Tầng Runtime Pods: Các pod nền bao gồm `identity-audit-consumer`, `project-consumer`, `ingest-scheduler`, `ingest-completion-consumer`, `analysis-consumer`, `knowledge-consumer` và `scapper-worker`.
 
@@ -99,7 +99,9 @@ Hệ thống được cấu hình với domain smap-api.tantai.dev cho productio
     table.cell(align: center + horizon, inset: (y: 0.8em))[API pods và WebSocket delivery surface],
     table.cell(align: center + horizon, inset: (y: 0.8em))[5432, 6379, 5672, 9092/9094, 9000-9001, 6333-6334],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Internal],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Database, object storage, streaming và message infrastructure],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Database, object storage, streaming và message infrastructure],
   )
 ]
 
@@ -120,6 +122,7 @@ Ví dụ các images trong hệ thống:
 - registry.tantai.dev/smap/ingest-srv:241215-143022
 - registry.tantai.dev/smap/knowledge-srv:241215-143022
 - registry.tantai.dev/smap/notification-srv:241215-143022
+- registry.tantai.dev/smap/analysis-api:241215-143022
 - registry.tantai.dev/smap/analysis-consumer:241215-143022
 - registry.tantai.dev/smap/scapper-srv:241215-143022
 - registry.tantai.dev/smap/smap-ui:241215-143022
@@ -151,13 +154,19 @@ Quy trình CI/CD được tự động hóa thông qua GitHub Actions với các
     table.cell(align: center + horizon, inset: (y: 0.8em))[*Đặc điểm*],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Development],
     table.cell(align: center + horizon, inset: (y: 0.8em))[smap-dev],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cấu hình phục vụ phát triển, kiểm thử cục bộ và quan sát lỗi],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Cấu hình phục vụ phát triển, kiểm thử cục bộ và quan sát lỗi],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Staging],
     table.cell(align: center + horizon, inset: (y: 0.8em))[smap-staging],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cấu hình gần với môi trường vận hành, phục vụ kiểm thử tích hợp và xác nhận trước triển khai],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Cấu hình gần với môi trường vận hành, phục vụ kiểm thử tích hợp và xác nhận trước triển khai],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Production],
     table.cell(align: center + horizon, inset: (y: 0.8em))[smap],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Cấu hình vận hành chính, ưu tiên tính sẵn sàng, quan sát hệ thống và mở rộng theo workload],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Cấu hình vận hành chính, ưu tiên tính sẵn sàng, quan sát hệ thống và mở rộng theo workload],
   )
 ]
 
@@ -249,6 +258,14 @@ Các nguyên tắc triển khai chính gồm:
     table.cell(align: center + horizon, inset: (y: 0.8em))[Nhận completion cho execution và dry run lanes],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[
+      analysis-#linebreak()api
+    ],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[Analytics dashboard read API],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[8080],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[FastAPI surface cho `/api/v1/analytics/*` và probes],
+
+    table.cell(align: center + horizon, inset: (y: 0.8em))[
       analysis-#linebreak()consumer
     ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[analysis-srv],
@@ -281,7 +298,9 @@ Các nguyên tắc triển khai chính gồm:
       và Redis Pub/Sub delivery
     ],
     table.cell(align: center + horizon, inset: (y: 0.8em))[8081],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[Giữ subscriber cùng pod delivery vì phụ thuộc in-memory WebSocket hub],
+    table.cell(align: center + horizon, inset: (
+      y: 0.8em,
+    ))[Giữ subscriber cùng pod delivery vì phụ thuộc in-memory WebSocket hub],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[
       scapper-#linebreak()worker
