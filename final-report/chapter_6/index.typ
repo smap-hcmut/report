@@ -1034,7 +1034,7 @@ Notification-srv được kiểm tra theo hai mức. Ở unit test, WebSocket de
 
 === 6.5.1 Phạm vi và phương pháp đánh giá
 
-Đánh giá phi chức năng được thực hiện bằng workload HTTP trên môi trường K3s, kết hợp thu thập metric từ request log, cluster snapshot, queue snapshot và database snapshot. Mục tiêu là đo các chỉ số có thể quan sát trực tiếp: latency, throughput, timeout, infra error, trạng thái pod, queue/backlog, health check và trace của runtime apply.
+Đánh giá phi chức năng được thực hiện bằng workload HTTP trên môi trường K3s, kết hợp thu thập metric từ request log, cluster snapshot, queue snapshot và database snapshot. Mục tiêu là đo các chỉ số có thể quan sát trực tiếp: latency, throughput, timeout, infra error, trạng thái pod, queue/backlog, health check và trace của runtime apply. Trong phạm vi báo cáo, kết quả định lượng cứng chủ yếu áp dụng cho API-lane; các snapshot về queue, database và runtime state được dùng để bổ sung ngữ cảnh vận hành, chưa dùng để khóa toàn bộ NFR định lượng cho cả hệ thống.
 
 #block(width: 100%)[
   #set par(justify: false)
@@ -1114,13 +1114,13 @@ Bốn kịch bản workload được chạy trên API-lane gồm baseline, expec
 ]
 
 
-Kết quả cho thấy API-lane giữ p95 trong khoảng 159.397-224.661 ms ở các kịch bản đã chạy. Throughput quan sát được nằm trong khoảng 6.949-7.751 req/s. Tất cả kịch bản đều ghi nhận infra error 0.0000%, cho thấy workload không tạo lỗi hạ tầng trong cửa sổ đo.
+Kết quả cho thấy API-lane giữ p95 trong khoảng 159.397-224.661 ms ở các kịch bản đã chạy. Throughput quan sát được nằm trong khoảng 6.949-7.751 req/s. Tất cả kịch bản đều ghi nhận infra error 0.0000%, cho thấy workload không tạo lỗi hạ tầng trong cửa sổ đo. Các số liệu này phản ánh hành vi API-lane trong workload 12-20 phút, không được diễn giải thành ngưỡng bão hòa hoặc năng lực tải tối đa của toàn hệ thống.
 
 === 6.5.3 Availability và recovery
 
 Availability được kiểm tra bằng health endpoint và trạng thái runtime của các service chính. Trong cùng môi trường kiểm thử, sáu service identity-srv, project-srv, ingest-srv, knowledge-srv, notification-srv và crawler worker đều trả HTTP 200 ở health check. Notification-srv đồng thời trả trạng thái Redis `connected`; crawler worker trả `worker_active=true`.
 
-Recovery được kiểm tra bằng kịch bản restart một analysis consumer trong khi workload vẫn chạy. Kết quả kịch bản chaos ghi nhận throughput 7.751 req/s, p95 224.661 ms, timeout 0.0000% và infra error 0.0000%. Queue/backlog snapshot vẫn được thu trong thời gian theo dõi để quan sát trạng thái xử lý bất đồng bộ sau sự kiện restart.
+Recovery được kiểm tra bằng kịch bản restart một analysis consumer trong khi workload vẫn chạy. Kết quả kịch bản chaos ghi nhận throughput 7.751 req/s, p95 224.661 ms, timeout 0.0000% và infra error 0.0000%. Queue/backlog snapshot vẫn được thu trong thời gian theo dõi để quan sát trạng thái xử lý bất đồng bộ sau sự kiện restart; tuy nhiên kịch bản này chưa chuẩn hóa MTTR hoặc backlog drain time thành chỉ tiêu định lượng cuối cùng.
 
 === 6.5.4 Resource và khả năng mở rộng
 
@@ -1206,7 +1206,7 @@ Security được kiểm chứng ở hai mức: unit test của identity-srv và
 
 === 6.5.6 Data integrity
 
-Data integrity được kiểm tra bằng cả unit test cấp module và bằng chứng runtime. Ở analysis-srv, bộ 309 tests kiểm tra UAP ingest record, format detection, normalization, dedup, enrichment, sentiment/intent calibration, keyword extraction, crisis assessment, reporting, storage và output contract. Ở runtime apply, trạng thái crawl mode được đối chiếu giữa response API, danh sách datasource và bảng audit.
+Data integrity được kiểm tra bằng cả unit test cấp module và bằng chứng runtime ở các lát cắt có thể đối chiếu trực tiếp. Ở analysis-srv, bộ 309 tests kiểm tra UAP ingest record, format detection, normalization, dedup, enrichment, sentiment/intent calibration, keyword extraction, crisis assessment, reporting, storage và output contract. Ở runtime apply, trạng thái crawl mode được đối chiếu giữa response API, danh sách datasource và bảng audit. Các chỉ báo toàn tuyến như duplicate, loss, orphan hoặc data completeness dài hạn chưa được khóa thành hard-result trong lần đo này.
 
 #block(width: 100%)[
   #set par(justify: false)
@@ -1237,7 +1237,7 @@ Data integrity được kiểm tra bằng cả unit test cấp module và bằng
 
 Modularity được đánh giá bằng cách đối chiếu kết quả test với ranh giới service. Các kiểm thử chức năng, unit test và NFR đều bám theo từng service: identity-srv chịu trách nhiệm xác thực, project-srv quản lý campaign/project/crisis, ingest-srv quản lý datasource/target/execution, analysis-srv xử lý analytics pipeline, knowledge-srv phục vụ search/chat/report, notification-srv phục vụ WebSocket/Redis delivery, crawler worker xử lý task crawling.
 
-Observability được kiểm tra qua khả năng thu thập bằng chứng trong lúc workload chạy. Các artifact thu được gồm request metrics, status summary, cluster snapshot, queue snapshot, database snapshot, health summary và log runtime apply. Nhờ đó, mỗi kịch bản NFR đều có thể đối chiếu giữa request-level metric và trạng thái runtime của service, queue hoặc database.
+Observability được kiểm tra qua khả năng thu thập bằng chứng trong lúc workload chạy. Các artifact thu được gồm request metrics, status summary, cluster snapshot, queue snapshot, database snapshot, health summary và log runtime apply. Nhờ đó, các kịch bản NFR có thể đối chiếu request-level metric với trạng thái runtime của service, queue hoặc database ở mức snapshot; phần đối chiếu database đầy đủ nhất nằm ở baseline có DB evidence.
 
 #block(width: 100%)[
   #set par(justify: false)
@@ -1357,7 +1357,7 @@ Observability được kiểm tra qua khả năng thu thập bằng chứng tron
 
 Các kết quả trong chương này được diễn giải theo đúng phạm vi đã đo. Kiểm thử đầu cuối và NFR dùng các campaign/project cụ thể trong môi trường K3s tham chiếu, vì vậy kết luận tập trung vào những luồng và trạng thái đã có bằng chứng trực tiếp. Với các tổ hợp dữ liệu, platform hoặc rule chưa nằm trong kịch bản, hệ thống cần được mở rộng thêm test case khi đưa vào vận hành thực tế.
 
-Các chỉ số performance hiện tại phản ánh API-lane trong cửa sổ workload 12-20 phút. Những chỉ số vận hành dài hạn như MTTR chuẩn hóa, backlog drain time theo nhiều dạng chaos, saturation threshold theo replica và soak nhiều giờ nên được tiếp tục đo trong các đợt kiểm thử vận hành sau.
+Các chỉ số performance hiện tại phản ánh API-lane trong cửa sổ workload 12-20 phút. Những chỉ số vận hành dài hạn như MTTR chuẩn hóa, backlog drain time theo nhiều dạng chaos, saturation threshold theo replica và soak nhiều giờ nên được tiếp tục đo trong các đợt kiểm thử vận hành sau. Vì vậy, phần NFR chỉ chốt kết quả định lượng cho latency, throughput, timeout, infra error và xu hướng tài nguyên sơ bộ trong phạm vi các scenario đã chạy; các chỉ báo toàn hệ về integrity, capacity resilience và long-running stability được để lại cho các đợt đo tiếp theo.
 
 Đối với notification, báo cáo đã có bằng chứng unit test cho WebSocket/Redis delivery và route WebSocket qua gateway yêu cầu xác thực. Kiểm thử hai chiều bằng WebSocket client đầy đủ nên được bổ sung khi cần chốt thêm số liệu về độ trễ và độ ổn định kết nối thời gian thực.
 
@@ -1365,4 +1365,4 @@ Các chỉ số performance hiện tại phản ánh API-lane trong cửa sổ w
 
 Kết quả kiểm thử cho thấy các luồng thuộc phạm vi đồ án đã được nghiệm thu chức năng theo tầng xử lý: delivery, use case, repository, model, transport hoặc runtime boundary. Các bằng chứng ở mục 6.3 cho thấy các package/nhóm test được liệt kê của identity-srv, project-srv, ingest-srv, notification-srv, analysis-srv, shared-libs, knowledge-srv, crawler worker và smap-analyse đều pass trong lần chạy này. Với ingest-srv, báo cáo unit test trích nguyên văn cho thấy 15 package thuộc datasource, dry run, execution và UAP đều pass và đạt 100.0% statement coverage ở các package được đo.
 
-Đối với yêu cầu chức năng, các luồng chính như campaign/project, datasource/target, activation, search/chat/report, crisis runtime apply, crawler task và notification delivery đều có bằng chứng kiểm thử cụ thể ở mức API, UI hoặc runtime state. Đối với yêu cầu phi chức năng, các kịch bản NFR cho thấy API-lane duy trì p95 dưới 225 ms trong các scenario đã chạy, throughput nằm trong khoảng 6.949-7.751 req/s. Nhìn chung, hệ thống đã được kiểm chứng theo đúng ranh giới service và kiến trúc microservices đã thiết kế; các chỉ số vận hành dài hạn có thể tiếp tục được mở rộng trong các đợt đo sau.
+Đối với yêu cầu chức năng, các luồng chính như campaign/project, datasource/target, activation, search/chat/report, crisis runtime apply, crawler task và notification delivery đều có bằng chứng kiểm thử cụ thể ở mức API, UI hoặc runtime state. Đối với yêu cầu phi chức năng, các kịch bản NFR cho thấy API-lane duy trì p95 dưới 225 ms trong các scenario đã chạy, throughput nằm trong khoảng 6.949-7.751 req/s và không ghi nhận infra error trong cửa sổ đo. Nhìn chung, trong phạm vi kiểm thử đã thực hiện, hệ thống có bằng chứng phù hợp với các ranh giới service và kiến trúc microservices đã thiết kế; các chỉ số vận hành toàn hệ và dài hạn cần tiếp tục được mở rộng trong các đợt đo sau.
