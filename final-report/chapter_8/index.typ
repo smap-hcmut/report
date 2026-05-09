@@ -77,8 +77,6 @@
 
 + Object Management Group. (2017). _Unified Modeling Language (UML) Specification Version 2.5.1_.
 
-+ OpenAI Whisper. (2024). _Whisper - Robust Speech Recognition_. Truy cập tại: https://github.com/openai/whisper
-
 + Pang, B., & Lee, L. (2008). Opinion Mining and Sentiment Analysis. _Foundations and Trends in Information Retrieval_, 2(1-2), 1-135.
 
 + Playwright Documentation. (2024). _Playwright Documentation_. Truy cập tại: https://playwright.dev/docs/intro

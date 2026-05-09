@@ -1091,7 +1091,7 @@ Bốn kịch bản workload được chạy trên API-lane gồm baseline, expec
     table.cell(inset: (y: 0.6em))[6.949 req/s],
     table.cell(inset: (y: 0.6em))[41.652 / 159.397 / 357.020 ms],
     table.cell(inset: (y: 0.6em))[0.0360%],
-    table.cell(inset: (y: 0.6em))[0.0000%],
+    table.cell(inset: (y: 0.6em))[0.0360%],
     table.cell(inset: (y: 0.6em))[Expected load],
     table.cell(inset: (y: 0.6em))[20 phút],
     table.cell(inset: (y: 0.6em))[7.265 req/s],
@@ -1114,7 +1114,7 @@ Bốn kịch bản workload được chạy trên API-lane gồm baseline, expec
 ]
 
 
-Kết quả cho thấy API-lane giữ p95 trong khoảng 159.397-224.661 ms ở các kịch bản đã chạy. Throughput quan sát được nằm trong khoảng 6.949-7.751 req/s. Tất cả kịch bản đều ghi nhận infra error 0.0000%, cho thấy workload không tạo lỗi hạ tầng trong cửa sổ đo. Các số liệu này phản ánh hành vi API-lane trong workload 12-20 phút, không được diễn giải thành ngưỡng bão hòa hoặc năng lực tải tối đa của toàn hệ thống.
+Kết quả cho thấy API-lane giữ p95 trong khoảng 159.397-224.661 ms ở các kịch bản đã chạy. Throughput quan sát được nằm trong khoảng 6.949-7.751 req/s. Baseline ghi nhận infra error 0.0360% do timeout/status 000 theo định nghĩa `5xx + status 000`; ba kịch bản còn lại ghi nhận infra error 0.0000%. Các số liệu này phản ánh hành vi API-lane trong workload 12-20 phút, không được diễn giải thành ngưỡng bão hòa hoặc năng lực tải tối đa của toàn hệ thống.
 
 === 6.5.3 Availability và recovery
 
@@ -1365,4 +1365,4 @@ Các chỉ số performance hiện tại phản ánh API-lane trong cửa sổ w
 
 Kết quả kiểm thử cho thấy các luồng thuộc phạm vi đồ án đã được nghiệm thu chức năng theo tầng xử lý: delivery, use case, repository, model, transport hoặc runtime boundary. Các bằng chứng ở mục 6.3 cho thấy các package/nhóm test được liệt kê của identity-srv, project-srv, ingest-srv, notification-srv, analysis-srv, shared-libs, knowledge-srv, crawler worker và smap-analyse đều pass trong lần chạy này. Với ingest-srv, báo cáo unit test trích nguyên văn cho thấy 15 package thuộc datasource, dry run, execution và UAP đều pass và đạt 100.0% statement coverage ở các package được đo.
 
-Đối với yêu cầu chức năng, các luồng chính như campaign/project, datasource/target, activation, search/chat/report, crisis runtime apply, crawler task và notification delivery đều có bằng chứng kiểm thử cụ thể ở mức API, UI hoặc runtime state. Đối với yêu cầu phi chức năng, các kịch bản NFR cho thấy API-lane duy trì p95 dưới 225 ms trong các scenario đã chạy, throughput nằm trong khoảng 6.949-7.751 req/s và không ghi nhận infra error trong cửa sổ đo. Nhìn chung, trong phạm vi kiểm thử đã thực hiện, hệ thống có bằng chứng phù hợp với các ranh giới service và kiến trúc microservices đã thiết kế; các chỉ số vận hành toàn hệ và dài hạn cần tiếp tục được mở rộng trong các đợt đo sau.
+Đối với yêu cầu chức năng, các luồng chính như campaign/project, datasource/target, activation, search/chat/report, crisis runtime apply, crawler task và notification delivery đều có bằng chứng kiểm thử cụ thể ở mức API, UI hoặc runtime state. Đối với yêu cầu phi chức năng, các kịch bản NFR cho thấy API-lane duy trì p95 dưới 225 ms trong các scenario đã chạy, throughput nằm trong khoảng 6.949-7.751 req/s và infra error nằm trong khoảng 0.0000-0.0360% trong cửa sổ đo. Nhìn chung, trong phạm vi kiểm thử đã thực hiện, hệ thống có bằng chứng phù hợp với các ranh giới service và kiến trúc microservices đã thiết kế; các chỉ số vận hành toàn hệ và dài hạn cần tiếp tục được mở rộng trong các đợt đo sau.

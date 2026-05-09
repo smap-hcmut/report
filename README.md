@@ -43,7 +43,6 @@ Hệ thống SMAP bao gồm các microservices sau:
 | Service | Mô tả |
 |---------|-------|
 | **Analytics** | Phân tích sentiment và aspect bằng PhoBERT |
-| **Speech2Text** | Chuyển đổi âm thanh thành văn bản (Whisper) |
 | **Scrapper** | Thu thập dữ liệu từ YouTube, TikTok |
 
 ### Frontend
@@ -145,7 +144,7 @@ Xem [diagrams/README.md](diagrams/README.md) để biết thêm chi tiết.
 ### Backend
 
 - **Golang 1.23+**: Gin framework, SQLBoiler ORM
-- **Python 3.11+**: FastAPI, Pydantic, PhoBERT, Whisper
+- **Python 3.11+**: FastAPI, Pydantic, PhoBERT
 - **TypeScript**: Next.js, React
 
 ### Databases

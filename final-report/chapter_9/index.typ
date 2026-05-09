@@ -556,10 +556,6 @@
     table.cell(align: left + horizon, inset: (
       y: 0.6em,
     ))[Giao thức cho phép giao tiếp hai chiều real-time giữa client và server.],
-    table.cell(align: center + horizon, inset: (y: 0.6em))[Whisper],
-    table.cell(align: left + horizon, inset: (
-      y: 0.6em,
-    ))[Mô hình speech-to-text của OpenAI để chuyển đổi audio sang transcript.],
     table.cell(align: center + horizon, inset: (y: 0.6em))[Worker],
     table.cell(align: left + horizon, inset: (
       y: 0.6em,
