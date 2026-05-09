@@ -52,4 +52,4 @@ Trong các hệ thống phân tích dữ liệu, lớp giao diện không chỉ 
 
 Đối với SMAP, frontend tích hợp analytics API thông qua các hook và route handler chuyên biệt. Điều này cho thấy frontend không chỉ đóng vai trò giao diện thao tác, mà còn là nơi kết nối giữa trải nghiệm người dùng với các lớp báo cáo và khai thác dữ liệu có cấu trúc hơn.
 
-Những công nghệ trên là cơ sở để hình thành frontend hiện tại của SMAP: một lớp giao diện dựa trên Next.js, React, TypeScript và Tailwind CSS, có hỗ trợ i18n, có khả năng tích hợp BI, và có hướng triển khai trên cả web lẫn desktop thông qua Electron.
+Những công nghệ trên là cơ sở để hình thành frontend hiện tại của SMAP: một lớp giao diện dựa trên Next.js, React, TypeScript và Tailwind CSS, có hỗ trợ i18n, có khả năng tích hợp analytics dashboard/API, và có hướng triển khai trên cả web lẫn desktop thông qua Electron.
