@@ -48,7 +48,7 @@ Giải thích project structure là bước rất quan trọng trong luận văn
 
 ### 5.2.2 Lớp phân tích trên dự án SMAP
 
-Ở cấp workspace, SMAP hiện tại không phải là một root monorepo có Git repository chung cho toàn bộ hệ thống, mà là một tập hợp nhiều service và thư viện dùng chung đặt cạnh nhau. Những thư mục trọng tâm gồm `identity-srv`, `project-srv`, `ingest-srv`, `analysis-srv`, `knowledge-srv`, `notification-srv`, `scapper-srv`, `shared-libs` và `smap-analyse`. Cách tổ chức này phù hợp với một hệ thống đang được chia bounded context mạnh, nhưng cũng tạo thêm chi phí về đồng bộ tài liệu và versioning ở cấp toàn nền tảng.
+Ở cấp workspace, SMAP hiện tại không phải là một root monorepo có Git repository chung cho toàn bộ hệ thống, mà là một tập hợp nhiều service và thư viện dùng chung đặt cạnh nhau. Những thư mục trọng tâm gồm `identity-srv`, `project-srv`, `ingest-srv`, `analysis-srv`, `knowledge-srv`, `notification-srv`, `scrapper-srv`, `shared-libs` và `smap-analyse`. Cách tổ chức này phù hợp với một hệ thống đang được chia bounded context mạnh, nhưng cũng tạo thêm chi phí về đồng bộ tài liệu và versioning ở cấp toàn nền tảng.
 
 Ở cấp service, có thể thấy một mô hình tổ chức khá nhất quán. Các Go service thường có `cmd/`, `internal/`, `config/`, `migration/` hoặc `migrations/`, `docs/` và Dockerfile riêng. Python services như `analysis-srv` có `apps/consumer`, `internal/`, `pkg/`, `config/`, `tests/`, `scripts/`, `migration/` và `manifests/`. Điều này cho thấy một định hướng tổ chức source code thiên về domain modules và separation of concerns, thay vì đặt mọi thứ trong một cây file phẳng.
 
@@ -62,7 +62,7 @@ Giải thích project structure là bước rất quan trọng trong luận văn
 | `analysis-srv/` | Service xử lý analytics pipeline bằng Python |
 | `knowledge-srv/` | Service indexing, search, chat và reporting |
 | `notification-srv/` | Service WebSocket và Discord notification |
-| `scapper-srv/` | Worker runtime cho crawl tasks |
+| `scrapper-srv/` | Worker runtime cho crawl tasks |
 | `shared-libs/` | Thư viện dùng chung cho Go và Python |
 | `smap-analyse/` | Nested repo liên quan đến core pipeline / service wrapping |
 
@@ -92,9 +92,9 @@ Source tree hiện tại của `ingest-srv` cho thấy các module cốt lõi:
 
 Điều này cho thấy ingest layer được chia theo capability vận hành, không chỉ theo CRUD table.
 
-#### Cấu trúc `scapper-srv`
+#### Cấu trúc `scrapper-srv`
 
-Trong trạng thái source hiện tại, `scapper-srv` nên được hiểu như một dịch vụ FastAPI có worker RabbitMQ chạy kèm trong vòng đời ứng dụng, thay vì một worker độc lập tách hoàn toàn khỏi lớp API. File `../scapper-srv/app/main.py` cho thấy `FastAPI` được khởi tạo với `lifespan`, trong đó đối tượng `Worker` được gọi `start()` ở giai đoạn startup và `stop()` ở giai đoạn shutdown. Điều này có nghĩa là entry point tiêu biểu nhất của service hiện nay là `app/main.py`.
+Trong trạng thái source hiện tại, `scrapper-srv` nên được hiểu như một dịch vụ FastAPI có worker RabbitMQ chạy kèm trong vòng đời ứng dụng, thay vì một worker độc lập tách hoàn toàn khỏi lớp API. File `../scrapper-srv/app/main.py` cho thấy `FastAPI` được khởi tạo với `lifespan`, trong đó đối tượng `Worker` được gọi `start()` ở giai đoạn startup và `stop()` ở giai đoạn shutdown. Điều này có nghĩa là entry point tiêu biểu nhất của service hiện nay là `app/main.py`.
 
 Chi tiết này quan trọng đối với luận văn vì nó thay đổi cách mô tả runtime boundary của service. `app/worker.py` vẫn là nơi chứa logic worker cốt lõi, nhưng về mặt tổ chức triển khai, service hiện đã hợp nhất API surface, health endpoints và worker bootstrap vào cùng một application lifecycle. Ngoài việc consume task, worker còn gọi `save_result_data()` để lưu raw result theo local storage hoặc MinIO, rồi gọi `publish_completion()` để trả completion metadata về `ingest-srv`. Do đó, khi mô tả kiến trúc hiện thực ở Chương 5, `app/main.py` là điểm đại diện chính xác hơn cho current implementation, còn `app/worker.py`, `app/storage.py` và `app/publisher.py` là các file chốt cho completion path.
 
@@ -108,7 +108,7 @@ Chi tiết này quan trọng đối với luận văn vì nó thay đổi cách 
 | `analysis-srv` | `apps/consumer/main.py` | Docker image, Deployment, HPA | source tree + manifests |
 | `knowledge-srv` | `cmd/server/main.go` | Docker image | source tree + Dockerfile |
 | `notification-srv` | `cmd/server/main.go` | Docker image | source tree + Dockerfile |
-| `scapper-srv` | `app/main.py` | Docker image | source tree + Dockerfile |
+| `scrapper-srv` | `app/main.py` | Docker image | source tree + Dockerfile |
 
 ## 5.3 Core Feature Implementation
 
@@ -415,7 +415,7 @@ Workspace hiện tại cho thấy quá trình triển khai được thiết kế
 
 ### 5.4.3 Lớp minh họa từ mã nguồn
 
-- Dockerfiles: `../analysis-srv/apps/consumer/Dockerfile`, `../scapper-srv/Dockerfile`, `../identity-srv/cmd/server/Dockerfile`, `../project-srv/cmd/server/Dockerfile`, `../ingest-srv/cmd/server/Dockerfile`, `../knowledge-srv/cmd/server/Dockerfile`, `../notification-srv/cmd/server/Dockerfile`
+- Dockerfiles: `../analysis-srv/apps/consumer/Dockerfile`, `../scrapper-srv/Dockerfile`, `../identity-srv/cmd/server/Dockerfile`, `../project-srv/cmd/server/Dockerfile`, `../ingest-srv/cmd/server/Dockerfile`, `../knowledge-srv/cmd/server/Dockerfile`, `../notification-srv/cmd/server/Dockerfile`
 - Docker Compose local stacks: `../project-srv/docker-compose.yml`, `../ingest-srv/docker-compose.yml`
 - Kubernetes Deployment: `../analysis-srv/apps/consumer/deployment.yaml`
 - HPA: `../analysis-srv/manifests/hpa.yaml`

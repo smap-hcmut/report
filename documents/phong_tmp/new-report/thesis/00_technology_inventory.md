@@ -11,8 +11,8 @@ Danh sách dưới đây chỉ bao gồm các công nghệ được xác nhận 
 | Ngôn ngữ | Go `1.25.x` | `../identity-srv/go.mod`, `../project-srv/go.mod`, `../ingest-srv/go.mod`, `../knowledge-srv/go.mod`, `../notification-srv/go.mod` |
 | Ngôn ngữ | Python `>=3.12` | `../analysis-srv/pyproject.toml`, `../smap-analyse/pyproject.toml` |
 | Web framework Go | Gin | `../identity-srv/go.mod`, `../project-srv/go.mod`, `../ingest-srv/go.mod`, `../knowledge-srv/go.mod`, `../notification-srv/go.mod` |
-| Web framework Python | FastAPI | `../scapper-srv/requirements.txt`, `../shared-libs/python/pyproject.toml` |
-| ASGI server | Uvicorn | `../scapper-srv/requirements.txt`, `../shared-libs/python/pyproject.toml` |
+| Web framework Python | FastAPI | `../scrapper-srv/requirements.txt`, `../shared-libs/python/pyproject.toml` |
+| ASGI server | Uvicorn | `../scrapper-srv/requirements.txt`, `../shared-libs/python/pyproject.toml` |
 | Config management | Viper | `../identity-srv/go.mod`, `../project-srv/go.mod`, `../ingest-srv/go.mod`, `../knowledge-srv/go.mod`, `../notification-srv/go.mod` |
 
 ## 3. Authentication và security
@@ -39,8 +39,8 @@ Danh sách dưới đây chỉ bao gồm các công nghệ được xác nhận 
 | --- | --- | --- |
 | Streaming / event bus | Kafka | `../identity-srv/go.mod`, `../knowledge-srv/go.mod`, `../analysis-srv/pyproject.toml`, `../analysis-srv/docker-compose.e2e.yml`, `../project-srv/docker-compose.yml` |
 | Kafka client Go | Sarama | `../identity-srv/go.mod`, `../knowledge-srv/go.mod`, `../shared-libs/go/go.mod` |
-| AMQP broker | RabbitMQ | `../ingest-srv/go.mod`, `../shared-libs/go/go.mod`, `../scapper-srv/requirements.txt`, `../ingest-srv/docker-compose.yml` |
-| Python AMQP client | aio-pika | `../analysis-srv/pyproject.toml`, `../scapper-srv/requirements.txt` |
+| AMQP broker | RabbitMQ | `../ingest-srv/go.mod`, `../shared-libs/go/go.mod`, `../scrapper-srv/requirements.txt`, `../ingest-srv/docker-compose.yml` |
+| Python AMQP client | aio-pika | `../analysis-srv/pyproject.toml`, `../scrapper-srv/requirements.txt` |
 
 ## 6. NLP, ML và analytics
 
@@ -62,7 +62,7 @@ Danh sách dưới đây chỉ bao gồm các công nghệ được xác nhận 
 | --- | --- | --- |
 | Logging Go | Zap | `../shared-libs/go/go.mod` |
 | Logging Go | Logrus | `../knowledge-srv/go.mod` |
-| Logging Python | Loguru | `../analysis-srv/pyproject.toml`, `../scapper-srv/requirements.txt` |
+| Logging Python | Loguru | `../analysis-srv/pyproject.toml`, `../scrapper-srv/requirements.txt` |
 | Metrics | Prometheus client | `../analysis-srv/pyproject.toml` |
 | Testing Python | pytest, pytest-asyncio, testcontainers | `../analysis-srv/pyproject.toml`, `../shared-libs/python/pyproject.toml` |
 | Testing Go | testify | `../notification-srv/go.mod` |
@@ -71,7 +71,7 @@ Danh sách dưới đây chỉ bao gồm các công nghệ được xác nhận 
 
 | Nhóm | Công nghệ | Bằng chứng |
 | --- | --- | --- |
-| Containerization | Dockerfile | `../analysis-srv/apps/consumer/Dockerfile`, `../scapper-srv/Dockerfile`, `../identity-srv/cmd/server/Dockerfile`, `../project-srv/cmd/server/Dockerfile`, `../ingest-srv/cmd/server/Dockerfile`, `../knowledge-srv/cmd/server/Dockerfile`, `../notification-srv/cmd/server/Dockerfile` |
+| Containerization | Dockerfile | `../analysis-srv/apps/consumer/Dockerfile`, `../scrapper-srv/Dockerfile`, `../identity-srv/cmd/server/Dockerfile`, `../project-srv/cmd/server/Dockerfile`, `../ingest-srv/cmd/server/Dockerfile`, `../knowledge-srv/cmd/server/Dockerfile`, `../notification-srv/cmd/server/Dockerfile` |
 | Local environment | Docker Compose | `../project-srv/docker-compose.yml`, `../ingest-srv/docker-compose.yml`, `../analysis-srv/docker-compose.e2e.yml` |
 | Orchestration | Kubernetes Deployment | `../analysis-srv/apps/consumer/deployment.yaml` |
 | Auto scaling | HorizontalPodAutoscaler | `../analysis-srv/manifests/hpa.yaml` |

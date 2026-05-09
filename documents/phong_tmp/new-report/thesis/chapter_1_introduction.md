@@ -92,7 +92,7 @@ Các module có bằng chứng rõ trong mã nguồn và được xem là nằm 
 - `analysis-srv`: NLP/analytics pipeline
 - `knowledge-srv`: search, RAG, indexing, report generation
 - `notification-srv`: realtime notification và Discord alerts
-- `scapper-srv`: crawler worker runtime
+- `scrapper-srv`: crawler worker runtime
 - `shared-libs`: thư viện dùng chung cho Go và Python
 
 ### 1.4.2 Ngoài phạm vi xác nhận

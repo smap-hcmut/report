@@ -9,7 +9,7 @@ skinparam noteBackgroundColor #FFF2CC
 skinparam noteBorderColor #E06666
 left to right direction
 
-rectangle "Scapper Worker Service" {
+rectangle "Scrapper Worker Service" {
   package "Presentation Layer (Delivery)" {
     component "«component»\nTask Router /\nSubmit API" as sc_router
     component "«component»\nWorker Runtime" as sc_worker

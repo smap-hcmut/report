@@ -8,7 +8,7 @@ Khi đọc hình này, nên chú ý rằng đây là view mức bối cảnh, kh
 
 ## 2. `c4-container-current.svg`
 
-Hình này là trục chính để hiểu kiến trúc nhiều service hiện tại. `identity-srv` tạo security boundary. `project-srv` giữ business context. `ingest-srv` và `scapper-srv` tạo execution plane. `analysis-srv` là lớp NLP/analytics. `knowledge-srv` là lớp semantic search và chat. `notification-srv` là lớp delivery.
+Hình này là trục chính để hiểu kiến trúc nhiều service hiện tại. `identity-srv` tạo security boundary. `project-srv` giữ business context. `ingest-srv` và `scrapper-srv` tạo execution plane. `analysis-srv` là lớp NLP/analytics. `knowledge-srv` là lớp semantic search và chat. `notification-srv` là lớp delivery.
 
 Các hộp màu xanh lá và cam biểu thị hạ tầng chính. PostgreSQL, Redis, MinIO và Qdrant là storage/infrastructure. Kafka và RabbitMQ là các cơ chế giao tiếp bất đồng bộ. Nhìn vào các nhãn quan hệ sẽ thấy ngay sự phân tách giữa `HTTP control`, `dispatch tasks`, `Kafka UAP`, và `analytics topics`.
 
@@ -26,7 +26,7 @@ Hình này mô tả `knowledge-srv` như một lớp tri thức độc lập. `K
 
 ## 5. `dynamic-current-dataflow.svg`
 
-Đây là hình tóm tắt luồng dữ liệu hiện tại theo 5 bước. `project-srv` khởi động control plane, `ingest-srv` điều phối datasource và UAP, `scapper-srv` đảm nhiệm crawl runtime, `analysis-srv` xử lý pipeline, và `knowledge-srv` tiêu thụ analytics outputs.
+Đây là hình tóm tắt luồng dữ liệu hiện tại theo 5 bước. `project-srv` khởi động control plane, `ingest-srv` điều phối datasource và UAP, `scrapper-srv` đảm nhiệm crawl runtime, `analysis-srv` xử lý pipeline, và `knowledge-srv` tiêu thụ analytics outputs.
 
 Hộp `MinIO raw artifacts` phía dưới nhấn mạnh claim-check pattern: raw artifact không đi hết trong message bus mà được lưu ra object storage, còn các lane messaging mang metadata hoặc payload chuẩn hóa. Điều này là chìa khóa để hiểu vì sao hệ thống chia storage và messaging như hiện tại.
 
@@ -50,7 +50,7 @@ Hình này cho cái nhìn deployment-oriented ở mức vừa đủ. Phần trê
 
 ## 9. `sequence-project-execution-current.svg`
 
-Đây là sequence chính của luận văn cho luồng thực thi project. Luồng bắt đầu từ `User`, đi vào `project-srv`, sau đó chuyển sang `ingest-srv`, RabbitMQ, `scapper-srv`, MinIO, và cuối cùng lan sang `analysis-srv`.
+Đây là sequence chính của luận văn cho luồng thực thi project. Luồng bắt đầu từ `User`, đi vào `project-srv`, sau đó chuyển sang `ingest-srv`, RabbitMQ, `scrapper-srv`, MinIO, và cuối cùng lan sang `analysis-srv`.
 
 Khi đọc hình, nên chú ý rằng không phải mọi bước đều là lời gọi trực tiếp giữa các service. Có bước là task dispatch qua RabbitMQ, có bước là object handoff qua MinIO, và có bước là publish sang analytics lane. Đây là hình giúp nối business lifecycle với runtime processing trong một sequence duy nhất.
 

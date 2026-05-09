@@ -10,7 +10,7 @@ actor User
 participant "Giao diện" as UI
 participant "Ingest Service" as IngestService
 queue "RabbitMQ task queue" as TaskQueue
-participant "Scapper Worker" as Worker
+participant "Scrapper Worker" as Worker
 database "Artifact Storage" as Storage
 queue "RabbitMQ completion queue" as CompletionQueue
 

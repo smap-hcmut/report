@@ -42,7 +42,7 @@ Thư mục này là nhánh làm việc dành riêng cho bản luận văn 7 chư
 - Đã bổ sung thêm bảng học thuật cho Chương 1 và Chương 2, đồng thời đồng bộ caption hình và danh sách bảng với nội dung thực tế.
 - Đã bổ sung front matter và appendix để gói `thesis/` tiến gần hơn tới một bản luận văn hoàn chỉnh có thể dàn trang.
 - Đã bổ sung references và submission checklist để phục vụ giai đoạn hoàn thiện bản nộp cuối.
-- Đã cập nhật thesis để khớp hơn với implementation mới nhất, bao gồm `scapper-srv` entry point, bằng chứng E2E vận hành và semantics khủng hoảng hiện hành.
+- Đã cập nhật thesis để khớp hơn với implementation mới nhất, bao gồm `scrapper-srv` entry point, bằng chứng E2E vận hành và semantics khủng hoảng hiện hành.
 
 ## Quy ước
 

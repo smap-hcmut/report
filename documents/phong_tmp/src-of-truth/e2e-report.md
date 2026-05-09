@@ -33,7 +33,7 @@
 | ingest-srv | 200 | healthy | |
 | knowledge-srv | 200 | healthy | |
 | notification-srv | 200 | healthy | `active_connections=0`, `redis=connected` |
-| scapper-srv | 200 | healthy | `worker_active=true`, `api_base_url="https://api.tinlikesub.pro"` |
+| scrapper-srv | 200 | healthy | `worker_active=true`, `api_base_url="https://api.tinlikesub.pro"` |
 
 ---
 
@@ -192,7 +192,7 @@ The report handler fails to extract `user_id` from the JWT/auth context. When in
 
 ---
 
-## Phase 5 — Notification-srv & Scapper-srv
+## Phase 5 — Notification-srv & Scrapper-srv
 
 ### Notification-srv WebSocket
 
@@ -202,7 +202,7 @@ The report handler fails to extract `user_id` from the JWT/auth context. When in
 
 **Root cause:** notification-srv registers the WebSocket route at `/ws` (no prefix), but Traefik forwards requests as `/notification/ws` (keeping the path prefix). The notification-srv doesn't have a route for `/notification/ws`, so it returns 404. **Traefik routing configuration issue.**
 
-### Scapper-srv Task APIs
+### Scrapper-srv Task APIs
 
 | # | Method | Path | HTTP | Result | Notes |
 |---|--------|------|------|--------|-------|
@@ -210,7 +210,7 @@ The report handler fails to extract `user_id` from the JWT/auth context. When in
 | 2 | GET | /tasks/:id/result | 404 | **PASS** | "Task may still be processing" (correct for async) |
 | 3 | GET | /tasks | 200 | **PASS** | Empty list (results stored as files, none completed) |
 
-**Finding:** Scapper returns helpful error messages with valid action lists when an invalid action is submitted. Valid Facebook actions: `search`, `posts`, `post_detail`, `comments`, `comments_graphql`, `comments_graphql_batch`, `search_graphql`, `search_graphql_batch`, `full_flow`.
+**Finding:** Scrapper returns helpful error messages with valid action lists when an invalid action is submitted. Valid Facebook actions: `search`, `posts`, `post_detail`, `comments`, `comments_graphql`, `comments_graphql_batch`, `search_graphql`, `search_graphql_batch`, `full_flow`.
 
 ---
 
@@ -305,7 +305,7 @@ The report handler fails to extract `user_id` from the JWT/auth context. When in
 | ingest-srv | 29 | 16 | 13 | 1 | **55%** |
 | knowledge-srv | 18 | 11 | 9 | 1 | **61%** |
 | notification-srv | 4 | 1 | 0 | 1 | 25% (WebSocket routing issue) |
-| scapper-srv | 5 | 3 | 3 | 0 | **60%** |
+| scrapper-srv | 5 | 3 | 3 | 0 | **60%** |
 | **TOTAL** | **101** | **55** | **47** | **5** | **54%** |
 
 Untested routes are primarily:
@@ -339,4 +339,4 @@ Untested routes are primarily:
 | Target (PROFILE) | `426f9225-8032-4a11-b44c-12550f68d54c` | inactive |
 | Target (POST_URL) | `79c6550e-caef-4cca-a3a0-a1f589017330` | DELETED |
 | Conversation | `3cebc00b-c18b-4f1a-870b-619c593f32d3` | ACTIVE (4 messages) |
-| Scapper Task | `d5c8e9c1-d7f0-4fb2-837c-02a7466970e4` | Queued (facebook search) |
+| Scrapper Task | `d5c8e9c1-d7f0-4fb2-837c-02a7466970e4` | Queued (facebook search) |

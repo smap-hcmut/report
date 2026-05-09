@@ -177,7 +177,7 @@ Các phần cần fact-check kỹ:
   - `analytics.insights.published`
   - `analytics.report.digest`
 - `notification-srv` WebSocket route `/ws`
-- `scapper-srv` dùng FastAPI app + worker lifespan
+- `scrapper-srv` dùng FastAPI app + worker lifespan
 
 ### 3. Không overclaim phần chưa chứng minh đủ
 

@@ -6,7 +6,7 @@
 - `dry-run` validate target trước khi cho chạy thật
 - `execution` xử lý manual dispatch và scheduled dispatch
 - `scheduler` quét due targets để claim và dispatch
-- `scapper-srv` worker chạy task thật, ghi artifact lên MinIO, rồi publish completion
+- `scrapper-srv` worker chạy task thật, ghi artifact lên MinIO, rồi publish completion
 - `ingest-srv consumer` finalize state từ completion
 
 ## BRD
@@ -57,7 +57,7 @@ sequenceDiagram
     participant U as User
     participant I as ingest API
     participant R as RabbitMQ
-    participant S as scapper worker
+    participant S as scrapper worker
     participant M as MinIO
     participant C as ingest consumer
     participant DB as ingest DB
@@ -81,7 +81,7 @@ sequenceDiagram
     participant I as ingest API
     participant DB as ingest DB
     participant R as RabbitMQ
-    participant S as scapper worker
+    participant S as scrapper worker
     participant C as ingest consumer
 
     X->>I: POST /internal/.../dispatch
@@ -101,7 +101,7 @@ sequenceDiagram
     participant SCH as ingest scheduler
     participant DB as ingest DB
     participant R as RabbitMQ
-    participant S as scapper worker
+    participant S as scrapper worker
     participant C as ingest consumer
 
     SCH->>DB: list due targets
@@ -156,8 +156,8 @@ Code paths chính:
 - `ingest-srv/internal/execution/usecase/cron.go`
 - `ingest-srv/internal/execution/usecase/consumer.go`
 - `ingest-srv/internal/execution/repository/postgre/*`
-- `scapper-srv/app/worker.py`
-- `scapper-srv/app/publisher.py`
+- `scrapper-srv/app/worker.py`
+- `scrapper-srv/app/publisher.py`
 
 Test evidence:
 - `test_runtime_completion_e2e.py`

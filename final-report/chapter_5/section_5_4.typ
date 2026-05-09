@@ -116,7 +116,7 @@ Kiến trúc lưu trữ của SMAP gồm các nhóm thành phần chính sau:
 
 - Qdrant được sử dụng làm vector store cho Knowledge Service. Các analytics outputs sau khi được index sẽ trở thành vector points để phục vụ semantic search, RAG chat và các truy vấn tri thức theo campaign/project scope.
 
-- Local filesystem `output/` được sử dụng trong scapper runtime ở development mode như một biến thể triển khai của raw artifact storage, trong khi production mode dùng MinIO.
+- Local filesystem `output/` được sử dụng trong scrapper runtime ở development mode như một biến thể triển khai của raw artifact storage, trong khi production mode dùng MinIO.
 
 ==== 5.4.1.4 Lý do lựa chọn
 
@@ -124,7 +124,7 @@ PostgreSQL phù hợp với các dữ liệu cần tính nhất quán và truy v
 
 Redis được lựa chọn cho các dữ liệu có vòng đời ngắn hoặc cần latency thấp. Trong SMAP, Redis không thay thế database quan hệ mà bổ sung cho các nhu cầu như session lookup, blacklist/session mapping, cache kết quả search, cache mapping campaign-project, cache domain registry và Pub/Sub notification. TTL và atomic operations giúp giảm tải database chính cho các dữ liệu tạm thời hoặc được tính lại từ nguồn dữ liệu bền vững.
 
-MinIO được sử dụng cho các artifact có kích thước hoặc vòng đời không phù hợp để lưu trực tiếp trong message body hoặc bảng quan hệ. Scapper runtime ghi raw result thành artifact, Ingest Service nhận completion metadata, kiểm tra object metadata và tạo `raw_batches` lineage trước khi parse hoặc publish dữ liệu chuẩn hóa. Với S3-compatible API, MinIO cũng phù hợp cho các artifact báo cáo hoặc file output cần được truy xuất lại.
+MinIO được sử dụng cho các artifact có kích thước hoặc vòng đời không phù hợp để lưu trực tiếp trong message body hoặc bảng quan hệ. Scrapper runtime ghi raw result thành artifact, Ingest Service nhận completion metadata, kiểm tra object metadata và tạo `raw_batches` lineage trước khi parse hoặc publish dữ liệu chuẩn hóa. Với S3-compatible API, MinIO cũng phù hợp cho các artifact báo cáo hoặc file output cần được truy xuất lại.
 
 Qdrant được lựa chọn vì workload của Knowledge Service là semantic retrieval thay vì relational lookup. Vector embeddings, payload filters và collection theo project cho phép hệ thống tìm kiếm theo ngữ nghĩa trên kết quả analytics, trong khi PostgreSQL vẫn giữ phần tracking metadata như indexed documents, conversations, messages và reports.
 
@@ -702,7 +702,7 @@ SMAP giữ database-per-service ở mức logical schema ownership. `identity`, 
 
 ==== 5.4.7.2 Artifact Reference Pattern
 
-Các payload lớn không được coi là relational first-class data. Scapper runtime materialize raw output vào local filesystem ở development mode hoặc MinIO ở production mode; `ingest.raw_batches` chỉ giữ bucket/path/checksum/size và lineage metadata. Tương tự, knowledge-side reports lưu artifact URL thay vì nhúng toàn bộ báo cáo vào PostgreSQL row.
+Các payload lớn không được coi là relational first-class data. Scrapper runtime materialize raw output vào local filesystem ở development mode hoặc MinIO ở production mode; `ingest.raw_batches` chỉ giữ bucket/path/checksum/size và lineage metadata. Tương tự, knowledge-side reports lưu artifact URL thay vì nhúng toàn bộ báo cáo vào PostgreSQL row.
 
 ==== 5.4.7.3 Vector and Metadata Split
 

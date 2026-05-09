@@ -18,7 +18,7 @@ Campaign → Project → Datasource → Targets → Activate → Crawl → Index
 
 | Metric | Value |
 |--------|-------|
-| **Services reviewed** | 7 (identity, project, ingest, knowledge, notification, scapper, analysis) |
+| **Services reviewed** | 7 (identity, project, ingest, knowledge, notification, scrapper, analysis) |
 | **Bugs found & fixed** | 5 critical + 1 minor (HTTP status codes) |
 | **Repos with code changes** | 5 (shared-libs, ingest-srv, knowledge-srv, project-srv, notification-srv) |
 | **Commits pushed** | 11 across all repos |
@@ -180,7 +180,7 @@ Step 9: Datasource Status      → ✅ status=ACTIVE
 | ingest-srv | `260414-022325` | ✅ Running 1/1 |
 | knowledge-srv | `260414-021818` | ✅ Running 1/1 |
 | notification-srv | `260414-021819` | ✅ Running 1/1 |
-| scapper-srv | (unchanged) | ✅ Running 1/1 |
+| scrapper-srv | (unchanged) | ✅ Running 1/1 |
 | analysis-consumer | (unchanged) | ✅ Running 1/1 |
 | smap-portal | (unchanged) | ✅ Running 1/1 |
 
@@ -190,11 +190,11 @@ Step 9: Datasource Status      → ✅ status=ACTIVE
 
 These are not blocking the pipeline but are worth noting:
 
-1. **Search/Chat return empty results** — Expected. No actual crawled data has been indexed yet. The pipeline is ready to receive data; once scapper-srv starts crawling and analysis-consumer processes the data, Qdrant collections will be populated.
+1. **Search/Chat return empty results** — Expected. No actual crawled data has been indexed yet. The pipeline is ready to receive data; once scrapper-srv starts crawling and analysis-consumer processes the data, Qdrant collections will be populated.
 
 2. **Report generation returns FAILED** — Expected with "no relevant documents found". Will work once data is indexed.
 
-3. **Dryrun for new combos** — Only TIKTOK+KEYWORD and FACEBOOK+POST_URL have working dryrun workers. Adding dryrun for other combos requires building new crawler workers in scapper-srv.
+3. **Dryrun for new combos** — Only TIKTOK+KEYWORD and FACEBOOK+POST_URL have working dryrun workers. Adding dryrun for other combos requires building new crawler workers in scrapper-srv.
 
 4. **WebSocket E2E test** — Cannot fully test WebSocket upgrade via curl/HTTP2. Requires a proper WS client to verify bidirectional communication. The endpoint is confirmed reachable.
 
@@ -216,7 +216,7 @@ These are not blocking the pipeline but are worth noting:
     ┌────┼────┬──────────┬──────────┬──────────────┐
     ▼    ▼    ▼          ▼          ▼              ▼
 ┌──────┐┌──────┐┌──────────┐┌───────────┐┌──────────────┐┌──────────┐
-│iden- ││proj- ││ ingest-  ││knowledge- ││notification- ││ scapper- │
+│iden- ││proj- ││ ingest-  ││knowledge- ││notification- ││ scrapper- │
 │tity  ││ect   ││   srv    ││   srv     ││    srv       ││   srv    │
 │-srv  ││-srv  ││          ││           ││              ││          │
 └──┬───┘└──┬───┘└────┬─────┘└─────┬─────┘└──────────────┘└────┬─────┘

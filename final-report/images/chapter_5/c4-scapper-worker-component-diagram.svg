@@ -1,1 +1,321 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="DESCRIPTION" height="900px" preserveAspectRatio="none" style="width:869px;height:900px;background:#FFFFFF;" version="1.1" viewBox="0 0 869 900" width="869px" zoomAndPan="magnify"><defs/><g><!--cluster Scapper Worker Service--><g class="cluster" data-entity="Scapper Worker Service" data-source-line="11" data-uid="ent0002" id="cluster_Scapper Worker Service"><rect fill="none" height="446" rx="5" ry="5" style="stroke:#181818;stroke-width:1;" width="698.09" x="7" y="61.95"/><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="161.082" x="275.504" y="77.0818">Scapper Worker Service</text></g><!--cluster Presentation Layer (Delivery)--><g class="cluster" data-entity="Presentation Layer .Delivery." data-source-line="12" data-uid="ent0003" id="cluster_Presentation Layer .Delivery."><rect fill="none" height="226" rx="5" ry="5" style="stroke:#181818;stroke-width:1;" width="209" x="31" y="257.95"/><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="193.7441" x="38.6279" y="273.0818">Presentation Layer (Delivery)</text></g><!--cluster Application Layer (UseCase)--><g class="cluster" data-entity="Application Layer .UseCase." data-source-line="17" data-uid="ent0006" id="cluster_Application Layer .UseCase."><rect fill="none" height="129" rx="5" ry="5" style="stroke:#181818;stroke-width:1;" width="389.09" x="292" y="104.95"/><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="189.834" x="391.628" y="120.0818">Application Layer (UseCase)</text></g><!--cluster Infrastructure Layer--><g class="cluster" data-entity="Infrastructure Layer" data-source-line="22" data-uid="ent0009" id="cluster_Infrastructure Layer"><rect fill="none" height="226" rx="5" ry="5" style="stroke:#181818;stroke-width:1;" width="173.96" x="293.54" y="257.95"/><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="132.2686" x="314.3857" y="273.0818">Infrastructure Layer</text></g><!--entity sc_router--><g class="entity" data-entity="sc_router" data-source-line="13" data-uid="ent0004" id="entity_sc_router"><rect fill="#F1F1F1" height="78.2959" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;" width="124.8408" x="72.58" y="389.8"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="177.4208" y="394.8"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="175.4208" y="396.8"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="175.4208" y="400.8"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="84.8408" x="87.58" y="422.9318">&#171;component&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="84.0273" x="87.58" y="439.0305">Task Router /</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="70.0273" x="87.58" y="455.1291">Submit API</text></g><!--entity sc_worker--><g class="entity" data-entity="sc_worker" data-source-line="14" data-uid="ent0005" id="entity_sc_worker"><rect fill="#F1F1F1" height="62.1973" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;" width="141.1309" x="64.43" y="292.85"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="185.5609" y="297.85"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="183.5609" y="299.85"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="183.5609" y="303.85"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="84.8408" x="79.43" y="325.9818">&#171;component&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="101.1309" x="79.43" y="342.0805">Worker Runtime</text></g><!--entity sc_registry--><g class="entity" data-entity="sc_registry" data-source-line="18" data-uid="ent0007" id="entity_sc_registry"><rect fill="#F1F1F1" height="78.2959" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;" width="145.0479" x="308" y="139.8"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="433.0479" y="144.8"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="431.0479" y="146.8"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="431.0479" y="150.8"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="73.1514" x="323" y="172.9318">&#171;UseCase&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="105.0479" x="323" y="189.0305">Queue Registry /</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="85.5928" x="323" y="205.1291">Dispatch Map</text></g><!--entity sc_handlers--><g class="entity" data-entity="sc_handlers" data-source-line="19" data-uid="ent0008" id="entity_sc_handlers"><rect fill="#F1F1F1" height="62.1973" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;" width="152.041" x="513.05" y="147.85"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="645.091" y="152.85"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="643.091" y="154.85"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="643.091" y="158.85"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="73.1514" x="528.05" y="180.9818">&#171;UseCase&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="112.041" x="528.05" y="197.0805">Platform Handlers</text></g><!--entity sc_storage--><g class="entity" data-entity="sc_storage" data-source-line="23" data-uid="ent0010" id="entity_sc_storage"><rect fill="#F1F1F1" height="62.1973" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;" width="141.958" x="309.54" y="292.85"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="431.498" y="297.85"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="429.498" y="299.85"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="429.498" y="303.85"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="84.8408" x="324.54" y="325.9818">&#171;component&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="101.958" x="324.54" y="342.0805">Storage Adapter</text></g><!--entity sc_pub--><g class="entity" data-entity="sc_pub" data-source-line="24" data-uid="ent0011" id="entity_sc_pub"><rect fill="#F1F1F1" height="78.2959" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;" width="124.8408" x="318.1" y="389.8"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="422.9408" y="394.8"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="420.9408" y="396.8"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="420.9408" y="400.8"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="84.8408" x="333.1" y="422.9318">&#171;component&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="70.8135" x="333.1" y="439.0305">Completion</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="58.3652" x="333.1" y="455.1291">Publisher</text></g><!--entity sc_taskq--><g class="entity" data-entity="sc_taskq" data-source-line="28" data-uid="ent0012" id="entity_sc_taskq"><path d="M316.78,523.8 L444.2624,523.8 C449.2624,523.8 449.2624,552.9479 449.2624,552.9479 C449.2624,552.9479 449.2624,582.0959 444.2624,582.0959 L316.78,582.0959 C311.78,582.0959 311.78,552.9479 311.78,552.9479 C311.78,552.9479 311.78,523.8 316.78,523.8" fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><path d="M444.2624,523.8 C439.2624,523.8 439.2624,552.9479 439.2624,552.9479 C439.2624,582.0959 444.2624,582.0959 444.2624,582.0959" fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="62.248" x="316.78" y="541.9318">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="117.4824" x="316.78" y="558.0305">RabbitMQ platform</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="45.9307" x="316.78" y="574.1291">queues</text></g><!--entity sc_sdk--><g class="entity" data-entity="sc_sdk" data-source-line="29" data-uid="ent0013" id="entity_sc_sdk"><path d="M734.3659,156.372 C737.9047,150.3156 741.8297,151.8823 745.3915,156.3479 C749.2944,150.3787 754.2609,149.4573 758.2266,156.2848 C762.1458,150.5337 766.8269,150.2896 770.1664,156.8472 C773.1308,152.2786 776.5143,151.8427 780.2926,155.8907 C784.1212,149.8642 788.5303,149.5087 792.5799,155.6678 C796.5898,149.0485 801.02,150.0604 804.8888,155.8082 C808.7656,150.346 812.2418,150.7856 815.6132,156.302 C819.038,149.661 824.1283,150.4537 827.9865,155.8568 C831.2097,150.617 836.6717,150.7579 840.021,155.7078 C843.6137,151.869 848.3841,152.5563 850.1479,157.7567 C855.4869,160.5266 857.0809,163.615 852.7076,168.6642 C858.9452,170.1521 860.4711,173.3644 857.1154,178.9596 C862.1745,185.1517 860.1886,189.0345 853.6755,192.2262 C858.7825,196.1325 857.0515,200.8069 851.5792,202.5691 C848.1325,208.6317 843.9136,208.1469 839.9433,203.1184 C837.0001,210.6744 831.6868,211.3304 826.6796,205.1048 C824.3818,209.3347 819.4803,209.9585 816.7388,205.6197 C812.6045,211.3132 807.6802,211.8281 803.9937,205.1581 C801.8552,211.0845 796.5701,211.3514 793.4038,206.1349 C789.565,212.0964 784.0751,212.9379 780.4535,205.9183 C776.0231,211.4693 771.9776,210.5957 768.5788,204.8354 C765.5848,209.8993 760.4852,211.049 757.1747,205.1652 C752.8587,210.7017 749.237,209.5398 745.6154,204.4125 C740.6384,210.4045 736.6074,209.2377 733.5998,202.5468 C728.4871,199.6355 728.8357,194.3159 733.5986,191.4035 C727.2296,188.1297 727.3102,183.2159 732.5856,178.9918 C727.5547,176.0796 726.7629,170.9883 732.0336,167.5779 C727.4353,162.7395 729.0254,159.1419 734.3659,156.372" fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="62.248" x="740.09" y="175.9818">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="102.7168" x="740.09" y="192.0805">TinLikeSub SDK</text></g><!--entity sc_minio--><g class="entity" data-entity="sc_minio" data-source-line="30" data-uid="ent0014" id="entity_sc_minio"><path d="M547.94,534.35 C547.94,524.35 589.064,524.35 589.064,524.35 C589.064,524.35 630.188,524.35 630.188,534.35 L630.188,575.5473 C630.188,585.5473 589.064,585.5473 589.064,585.5473 C589.064,585.5473 547.94,585.5473 547.94,575.5473 L547.94,534.35" fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><path d="M547.94,534.35 C547.94,544.35 589.064,544.35 589.064,544.35 C589.064,544.35 630.188,544.35 630.188,534.35" fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="62.248" x="557.94" y="561.4818">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="37.3379" x="557.94" y="577.5805">MinIO</text></g><!--entity sc_fs--><g class="entity" data-entity="sc_fs" data-source-line="31" data-uid="ent0015" id="entity_sc_fs"><path d="M538.98,620.85 L574.98,620.85 A7.5,7.5 0 0 1 579.98,625.85 L586.98,641.85 L639.1519,641.85 A5,5 0 0 1 644.1519,646.85 L644.1519,686.0473 A5,5 0 0 1 639.1519,691.0473 L538.98,691.0473 A5,5 0 0 1 533.98,686.0473 L533.98,625.85 A5,5 0 0 1 538.98,620.85" fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="533.98" x2="586.98" y1="641.85" y2="641.85"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="62.248" x="543.98" y="661.9818">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="80.1719" x="543.98" y="678.0805">Local output/</text></g><!--entity sc_completionq--><g class="entity" data-entity="sc_completionq" data-source-line="32" data-uid="ent0016" id="entity_sc_completionq"><path d="M525.31,725.8 L652.8334,725.8 C657.8334,725.8 657.8334,754.9479 657.8334,754.9479 C657.8334,754.9479 657.8334,784.0959 652.8334,784.0959 L525.31,784.0959 C520.31,784.0959 520.31,754.9479 520.31,754.9479 C520.31,754.9479 520.31,725.8 525.31,725.8" fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><path d="M652.8334,725.8 C647.8334,725.8 647.8334,754.9479 647.8334,754.9479 C647.8334,784.0959 652.8334,784.0959 652.8334,784.0959" fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="62.248" x="525.31" y="743.9318">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="104.2686" x="525.31" y="760.0305">RabbitMQ ingest</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="117.5234" x="525.31" y="776.1291">completion queues</text></g><g class="entity" data-entity="GMN27" data-source-line="46" data-uid="ent0028" id="entity_GMN27"><path d="M86.2,11 L86.2,40.8975 A5,5 0 0 0 91.2,45.8975 L178.7908,45.8975 A5,5 0 0 0 183.7908,40.8975 L183.7908,16 L173.7908,6 L91.2,6 A5,5 0 0 0 86.2,11" fill="#FFF2CC" style="stroke:#E06666;stroke-width:0.5;"/><path d="M173.7908,6 L173.7908,13.5 A2.5,2.5 0 0 0 176.2908,16 L183.7908,16 L173.7908,6" fill="#FFF2CC" style="stroke:#E06666;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="69.3545" x="92.2" y="23.1938">submit task,</text><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="76.5908" x="92.2" y="38.1426">inspect result</text></g><!--link sc_router to sc_taskq--><g class="link" data-entity-1="sc_router" data-entity-2="sc_taskq" data-source-line="34" data-uid="lnk17" id="link_sc_router_sc_taskq"><path d="M134.81,468.35 C134.81,507.79 134.81,562.67 134.81,562.67 C134.81,562.67 232.75,562.67 305.42,562.67" fill="none" id="sc_router-to-sc_taskq" style="stroke:#0000FF;stroke-width:1;"/><polygon fill="#0000FF" points="311.42,562.67,302.42,558.67,306.42,562.67,302.42,566.67,311.42,562.67" style="stroke:#0000FF;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="92.4917" x="82.95" y="575.8638">auxiliary publish</text></g><!--link sc_taskq to sc_worker--><g class="link" data-entity-1="sc_taskq" data-entity-2="sc_worker" data-source-line="35" data-uid="lnk18" id="link_sc_taskq_sc_worker"><path d="M311.43,543.24 C260.41,543.24 199.81,543.24 199.81,543.24 C199.81,543.24 199.81,422 199.81,361.37" fill="none" id="sc_taskq-to-sc_worker" style="stroke:#0000FF;stroke-width:1;"/><polygon fill="#0000FF" points="199.81,355.37,195.81,364.37,199.81,360.37,203.81,364.37,199.81,355.37" style="stroke:#0000FF;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="52.749" x="146.81" y="518.3038">consume</text></g><!--link sc_worker to sc_registry--><g class="link" data-entity-1="sc_worker" data-entity-2="sc_registry" data-source-line="36" data-uid="lnk19" id="link_sc_worker_sc_registry"><path d="M194.81,292.49 C194.81,249.84 194.81,178.95 194.81,178.95 C194.81,178.95 249.63,178.95 301.66,178.95" fill="none" id="sc_worker-to-sc_registry" style="stroke:#000000;stroke-width:1;"/><polygon fill="#000000" points="307.66,178.95,298.66,174.95,302.66,178.95,298.66,182.95,307.66,178.95" style="stroke:#000000;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="88.8862" x="105.81" y="192.4938">resolve handler</text></g><!--link sc_registry to sc_handlers--><g class="link" data-entity-1="sc_registry" data-entity-2="sc_handlers" data-source-line="37" data-uid="lnk20" id="link_sc_registry_sc_handlers"><path d="M453.46,178.95 C472.61,178.95 487.31,178.95 506.63,178.95" fill="none" id="sc_registry-to-sc_handlers" style="stroke:#000000;stroke-width:1;"/><polygon fill="#000000" points="512.63,178.95,503.63,174.95,507.63,178.95,503.63,182.95,512.63,178.95" style="stroke:#000000;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="86.7217" x="396.05" y="192.1438">dispatch action</text></g><!--link sc_handlers to sc_sdk--><g class="link" data-entity-1="sc_handlers" data-entity-2="sc_sdk" data-source-line="38" data-uid="lnk21" id="link_sc_handlers_sc_sdk"><path d="M665.58,178.95 C685.06,178.95 699.83,178.95 718.77,178.95" fill="none" id="sc_handlers-to-sc_sdk" style="stroke:#000000;stroke-width:1;"/><polygon fill="#000000" points="724.77,178.95,715.77,174.95,719.77,178.95,715.77,182.95,724.77,178.95" style="stroke:#000000;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="30.3354" x="664.18" y="192.1438">crawl</text></g><!--link sc_worker to sc_storage--><g class="link" data-entity-1="sc_worker" data-entity-2="sc_storage" data-source-line="39" data-uid="lnk22" id="link_sc_worker_sc_storage"><path d="M206.02,323.95 C238.45,323.95 270.78,323.95 303.24,323.95" fill="none" id="sc_worker-to-sc_storage" style="stroke:#000000;stroke-width:1;"/><polygon fill="#000000" points="309.24,323.95,300.24,319.95,304.24,323.95,300.24,327.95,309.24,323.95" style="stroke:#000000;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="98.2554" x="158.63" y="337.1438">materialize result</text></g><!--link sc_storage to sc_minio--><g class="link" data-entity-1="sc_storage" data-entity-2="sc_minio" data-source-line="40" data-uid="lnk23" id="link_sc_storage_sc_minio"><path d="M451.91,313.59 C512.2,313.59 588.81,313.59 588.81,313.59 C588.81,313.59 588.81,452.7 588.81,517.89" fill="none" id="sc_storage-to-sc_minio" style="stroke:#FFA500;stroke-width:1;"/><polygon fill="#FFA500" points="588.81,523.89,592.81,514.89,588.81,518.89,584.81,514.89,588.81,523.89" style="stroke:#FFA500;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="96.8398" x="491.81" y="363.4838">production mode</text></g><!--link sc_storage to sc_fs--><g class="link" data-entity-1="sc_storage" data-entity-2="sc_fs" data-source-line="41" data-uid="lnk24" id="link_sc_storage_sc_fs"><path d="M451.76,334.32 C494.57,334.32 540.81,334.32 540.81,334.32 C540.81,334.32 540.81,531.06 540.81,614.61" fill="none" id="sc_storage-to-sc_fs" style="stroke:#FFA500;stroke-width:1;"/><polygon fill="#FFA500" points="540.81,620.61,544.81,611.61,540.81,615.61,536.81,611.61,540.81,620.61" style="stroke:#FFA500;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="110.5698" x="541.81" y="446.1338">development mode</text></g><!--link sc_worker to sc_pub--><g class="link" data-entity-1="sc_worker" data-entity-2="sc_pub" data-source-line="42" data-uid="lnk25" id="link_sc_worker_sc_pub"><path d="M202.81,355.46 C202.81,386.38 202.81,428.95 202.81,428.95 C202.81,428.95 260.49,428.95 311.62,428.95" fill="none" id="sc_worker-to-sc_pub" style="stroke:#000000;stroke-width:1;"/><polygon fill="#000000" points="317.62,428.95,308.62,424.95,312.62,428.95,308.62,432.95,317.62,428.95" style="stroke:#000000;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="83.8462" x="224.46" y="442.1438">build envelope</text></g><!--link sc_pub to sc_completionq--><g class="link" data-entity-1="sc_pub" data-entity-2="sc_completionq" data-source-line="43" data-uid="lnk26" id="link_sc_pub_sc_completionq"><path d="M443.41,428.95 C483.06,428.95 526.81,428.95 526.81,428.95 C526.81,428.95 526.81,639.2 526.81,719.45" fill="none" id="sc_pub-to-sc_completionq" style="stroke:#0000FF;stroke-width:1;"/><polygon fill="#0000FF" points="526.81,725.45,530.81,716.45,526.81,720.45,522.81,716.45,526.81,725.45" style="stroke:#0000FF;stroke-width:1;"/><text fill="#000000" font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="62.8672" x="463.81" y="548.6938">completion</text></g><!--link sc_router to GMN27--><g class="link" data-entity-1="sc_router" data-entity-2="GMN27" data-source-line="46" data-uid="lnk29" id="link_sc_router_GMN27"><path d="M72.32,428.95 C57.95,428.95 46.81,428.95 46.81,428.95 C46.81,428.95 46.81,25.95 46.81,25.95 C46.81,25.95 65.54,25.95 85.75,25.95" fill="none" id="sc_router-GMN27" style="stroke:#181818;stroke-width:1;stroke-dasharray:7,7;"/></g><g class="legend" data-source-line="50"><rect fill="#DDDDDD" height="78.3945" rx="5" ry="5" style="stroke:#000000;stroke-width:1;" width="136.8135" x="706.3611" y="802.0959"/><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="36.5518" x="715.2507" y="822.2277">Color</text><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="56.7793" x="759.5818" y="822.2277">Protocol</text><rect fill="#0000FF" height="16.0986" style="stroke:none;stroke-width:1;" width="44.3311" x="711.3611" y="825.1945"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="7.7793" x="711.3611" y="838.3264">&#160;&#160;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="63.0205" x="759.5818" y="838.3264">RabbitMQ</text><rect fill="#FFA500" height="16.0986" style="stroke:none;stroke-width:1;" width="44.3311" x="711.3611" y="841.2932"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="7.7793" x="711.3611" y="854.425">&#160;&#160;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="49.0342" x="759.5818" y="854.425">Storage</text><rect fill="#000000" height="16.0986" style="stroke:none;stroke-width:1;" width="44.3311" x="711.3611" y="857.3918"/><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="7.7793" x="711.3611" y="870.5236">&#160;&#160;</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="74.7031" x="759.5818" y="870.5236">Internal Call</text><line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="809.0959" y2="809.0959"/><line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="825.1945" y2="825.1945"/><line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="841.2932" y2="841.2932"/><line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="857.3918" y2="857.3918"/><line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="873.4904" y2="873.4904"/><line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="711.3611" y1="809.0959" y2="873.4904"/><line style="stroke:#000000;stroke-width:1;" x1="755.6921" x2="755.6921" y1="809.0959" y2="873.4904"/><line style="stroke:#000000;stroke-width:1;" x1="838.1745" x2="838.1745" y1="809.0959" y2="873.4904"/></g><!--SRC=[XLJBRXCn5DtxAwxI3KXK3PLWWQ1II8ceQ25jYbXGX9oPEuaLZw_hHqkWV16VmAvVnlMyEWdGpYQnppdskGzVlrB6IYTBoB6GKOS9cV1UbWWZfwGMliFzKkPqhSm22gazzf2CIai6JPY5jKQ8fTxleLPcAxd06dEO1MaMkYzt54sUaJFeuEcm1sXbCAmj0hcmf1vWAE1hFdPHISUaoS7EP3BP7u-tMUHoT0tZpV0vVq9Z4I0GEBLO1iXLygJ82D6PWy4iazQodq_aLlmpGtUbCXp03m5jG32OElGSjKngE9Ph9ZuwHAskqAqVrrouImuCRdzrYzlV5-PS-XMSKGoisximipWlLO3Hz6W0qeFFlheAU-2Knk5PD46Ls4glgrsM_XHznoDhjSes37_qE9OU_-st0TCzfn4ZmXakb0zkdGmVAczbo9Pm8crdkS7lFMggPIZ8bV1McboZywrwsQp_ydra2YVvt9Y5wB2s_d22Pu5SaezoQKCIrBVuUli1yPWN6bEcs72SQ-MNTqVOEAyyiilBAY-idgrzm399p-HyhiB9ATWcq0jJiReu0rV-KcIQOhwfF5VcMAsGMm5cX-ywm_bAv3B8EUTlat-YpD67bbOgeqWKfBdZDsd7b4aDt4qsXhsMNlXxlVD3HnykJDRb0JQ3k0CkXUYw5NO_xmpvcqo-x1vqiS8BaF6RqafowzWwcw83joLryx8c8-DZYU9khw4EXmsrxJScysCaVONGD97eezkojj5ObhTTBEifq4UtPLo8vCh9QtsFfwQ_c5bApWXFKVKzJJxFqrNqSDPD9gDddQwg7wkiepnMPg2a7E-J55K4U8MQR9cwk1NynngddWNpg7GEQ2fPHK_xsrNerRSgHRiI8WrMc5C8L08LlKdbwn6Mglf4AECj3zGsS3HvDP45pzz5MbJZLzoyWdewyv-feq0PQRWHDoyRCmS0Dz0rPGNK6QY0zeLtWcR_oB0Tmpq_bZeTXwcWwTO_]--></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css"
+    data-diagram-type="DESCRIPTION" height="900px" preserveAspectRatio="none"
+    style="width:869px;height:900px;background:#FFFFFF;" version="1.1" viewBox="0 0 869 900" width="869px"
+    zoomAndPan="magnify">
+    <defs />
+    <g>
+        <!--cluster Scrapper Worker Service-->
+        <g class="cluster" data-entity="Scrapper Worker Service" data-source-line="11" data-uid="ent0002"
+            id="cluster_Scrapper Worker Service">
+            <rect fill="none" height="446" rx="5" ry="5" style="stroke:#181818;stroke-width:1;" width="698.09" x="7"
+                y="61.95" /><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold"
+                lengthAdjust="spacing" textLength="161.082" x="275.504" y="77.0818">Scrapper Worker Service</text>
+        </g>
+        <!--cluster Presentation Layer (Delivery)-->
+        <g class="cluster" data-entity="Presentation Layer .Delivery." data-source-line="12" data-uid="ent0003"
+            id="cluster_Presentation Layer .Delivery.">
+            <rect fill="none" height="226" rx="5" ry="5" style="stroke:#181818;stroke-width:1;" width="209" x="31"
+                y="257.95" /><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold"
+                lengthAdjust="spacing" textLength="193.7441" x="38.6279" y="273.0818">Presentation Layer
+                (Delivery)</text>
+        </g>
+        <!--cluster Application Layer (UseCase)-->
+        <g class="cluster" data-entity="Application Layer .UseCase." data-source-line="17" data-uid="ent0006"
+            id="cluster_Application Layer .UseCase.">
+            <rect fill="none" height="129" rx="5" ry="5" style="stroke:#181818;stroke-width:1;" width="389.09" x="292"
+                y="104.95" /><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold"
+                lengthAdjust="spacing" textLength="189.834" x="391.628" y="120.0818">Application Layer (UseCase)</text>
+        </g>
+        <!--cluster Infrastructure Layer-->
+        <g class="cluster" data-entity="Infrastructure Layer" data-source-line="22" data-uid="ent0009"
+            id="cluster_Infrastructure Layer">
+            <rect fill="none" height="226" rx="5" ry="5" style="stroke:#181818;stroke-width:1;" width="173.96"
+                x="293.54" y="257.95" /><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold"
+                lengthAdjust="spacing" textLength="132.2686" x="314.3857" y="273.0818">Infrastructure Layer</text>
+        </g>
+        <!--entity sc_router-->
+        <g class="entity" data-entity="sc_router" data-source-line="13" data-uid="ent0004" id="entity_sc_router">
+            <rect fill="#F1F1F1" height="78.2959" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;"
+                width="124.8408" x="72.58" y="389.8" />
+            <rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="177.4208"
+                y="394.8" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="175.4208" y="396.8" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="175.4208" y="400.8" />
+            <text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="84.8408"
+                x="87.58" y="422.9318">&#171;component&#187;</text><text fill="#000000" font-family="Arial"
+                font-size="14" lengthAdjust="spacing" textLength="84.0273" x="87.58" y="439.0305">Task Router
+                /</text><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing"
+                textLength="70.0273" x="87.58" y="455.1291">Submit API</text>
+        </g>
+        <!--entity sc_worker-->
+        <g class="entity" data-entity="sc_worker" data-source-line="14" data-uid="ent0005" id="entity_sc_worker">
+            <rect fill="#F1F1F1" height="62.1973" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;"
+                width="141.1309" x="64.43" y="292.85" />
+            <rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="185.5609"
+                y="297.85" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="183.5609"
+                y="299.85" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="183.5609"
+                y="303.85" /><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing"
+                textLength="84.8408" x="79.43" y="325.9818">&#171;component&#187;</text><text fill="#000000"
+                font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="101.1309" x="79.43"
+                y="342.0805">Worker Runtime</text>
+        </g>
+        <!--entity sc_registry-->
+        <g class="entity" data-entity="sc_registry" data-source-line="18" data-uid="ent0007" id="entity_sc_registry">
+            <rect fill="#F1F1F1" height="78.2959" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;"
+                width="145.0479" x="308" y="139.8" />
+            <rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="433.0479"
+                y="144.8" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="431.0479" y="146.8" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="431.0479" y="150.8" />
+            <text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="73.1514" x="323"
+                y="172.9318">&#171;UseCase&#187;</text><text fill="#000000" font-family="Arial" font-size="14"
+                lengthAdjust="spacing" textLength="105.0479" x="323" y="189.0305">Queue Registry /</text><text
+                fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="85.5928" x="323"
+                y="205.1291">Dispatch Map</text>
+        </g>
+        <!--entity sc_handlers-->
+        <g class="entity" data-entity="sc_handlers" data-source-line="19" data-uid="ent0008" id="entity_sc_handlers">
+            <rect fill="#F1F1F1" height="62.1973" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;" width="152.041"
+                x="513.05" y="147.85" />
+            <rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="645.091"
+                y="152.85" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="643.091" y="154.85" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="643.091" y="158.85" />
+            <text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="73.1514"
+                x="528.05" y="180.9818">&#171;UseCase&#187;</text><text fill="#000000" font-family="Arial"
+                font-size="14" lengthAdjust="spacing" textLength="112.041" x="528.05" y="197.0805">Platform
+                Handlers</text>
+        </g>
+        <!--entity sc_storage-->
+        <g class="entity" data-entity="sc_storage" data-source-line="23" data-uid="ent0010" id="entity_sc_storage">
+            <rect fill="#F1F1F1" height="62.1973" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;" width="141.958"
+                x="309.54" y="292.85" />
+            <rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="431.498"
+                y="297.85" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="429.498" y="299.85" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="429.498" y="303.85" />
+            <text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="84.8408"
+                x="324.54" y="325.9818">&#171;component&#187;</text><text fill="#000000" font-family="Arial"
+                font-size="14" lengthAdjust="spacing" textLength="101.958" x="324.54" y="342.0805">Storage
+                Adapter</text>
+        </g>
+        <!--entity sc_pub-->
+        <g class="entity" data-entity="sc_pub" data-source-line="24" data-uid="ent0011" id="entity_sc_pub">
+            <rect fill="#F1F1F1" height="78.2959" rx="5" ry="5" style="stroke:#181818;stroke-width:0.5;"
+                width="124.8408" x="318.1" y="389.8" />
+            <rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="422.9408"
+                y="394.8" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="420.9408" y="396.8" />
+            <rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="420.9408" y="400.8" />
+            <text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="84.8408"
+                x="333.1" y="422.9318">&#171;component&#187;</text><text fill="#000000" font-family="Arial"
+                font-size="14" lengthAdjust="spacing" textLength="70.8135" x="333.1" y="439.0305">Completion</text><text
+                fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="58.3652" x="333.1"
+                y="455.1291">Publisher</text>
+        </g>
+        <!--entity sc_taskq-->
+        <g class="entity" data-entity="sc_taskq" data-source-line="28" data-uid="ent0012" id="entity_sc_taskq">
+            <path
+                d="M316.78,523.8 L444.2624,523.8 C449.2624,523.8 449.2624,552.9479 449.2624,552.9479 C449.2624,552.9479 449.2624,582.0959 444.2624,582.0959 L316.78,582.0959 C311.78,582.0959 311.78,552.9479 311.78,552.9479 C311.78,552.9479 311.78,523.8 316.78,523.8"
+                fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;" />
+            <path
+                d="M444.2624,523.8 C439.2624,523.8 439.2624,552.9479 439.2624,552.9479 C439.2624,582.0959 444.2624,582.0959 444.2624,582.0959"
+                fill="none" style="stroke:#181818;stroke-width:0.5;" /><text fill="#000000" font-family="Arial"
+                font-size="14" lengthAdjust="spacing" textLength="62.248" x="316.78"
+                y="541.9318">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14"
+                lengthAdjust="spacing" textLength="117.4824" x="316.78" y="558.0305">RabbitMQ platform</text><text
+                fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="45.9307" x="316.78"
+                y="574.1291">queues</text>
+        </g>
+        <!--entity sc_sdk-->
+        <g class="entity" data-entity="sc_sdk" data-source-line="29" data-uid="ent0013" id="entity_sc_sdk">
+            <path
+                d="M734.3659,156.372 C737.9047,150.3156 741.8297,151.8823 745.3915,156.3479 C749.2944,150.3787 754.2609,149.4573 758.2266,156.2848 C762.1458,150.5337 766.8269,150.2896 770.1664,156.8472 C773.1308,152.2786 776.5143,151.8427 780.2926,155.8907 C784.1212,149.8642 788.5303,149.5087 792.5799,155.6678 C796.5898,149.0485 801.02,150.0604 804.8888,155.8082 C808.7656,150.346 812.2418,150.7856 815.6132,156.302 C819.038,149.661 824.1283,150.4537 827.9865,155.8568 C831.2097,150.617 836.6717,150.7579 840.021,155.7078 C843.6137,151.869 848.3841,152.5563 850.1479,157.7567 C855.4869,160.5266 857.0809,163.615 852.7076,168.6642 C858.9452,170.1521 860.4711,173.3644 857.1154,178.9596 C862.1745,185.1517 860.1886,189.0345 853.6755,192.2262 C858.7825,196.1325 857.0515,200.8069 851.5792,202.5691 C848.1325,208.6317 843.9136,208.1469 839.9433,203.1184 C837.0001,210.6744 831.6868,211.3304 826.6796,205.1048 C824.3818,209.3347 819.4803,209.9585 816.7388,205.6197 C812.6045,211.3132 807.6802,211.8281 803.9937,205.1581 C801.8552,211.0845 796.5701,211.3514 793.4038,206.1349 C789.565,212.0964 784.0751,212.9379 780.4535,205.9183 C776.0231,211.4693 771.9776,210.5957 768.5788,204.8354 C765.5848,209.8993 760.4852,211.049 757.1747,205.1652 C752.8587,210.7017 749.237,209.5398 745.6154,204.4125 C740.6384,210.4045 736.6074,209.2377 733.5998,202.5468 C728.4871,199.6355 728.8357,194.3159 733.5986,191.4035 C727.2296,188.1297 727.3102,183.2159 732.5856,178.9918 C727.5547,176.0796 726.7629,170.9883 732.0336,167.5779 C727.4353,162.7395 729.0254,159.1419 734.3659,156.372"
+                fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;" /><text fill="#000000" font-family="Arial"
+                font-size="14" lengthAdjust="spacing" textLength="62.248" x="740.09"
+                y="175.9818">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14"
+                lengthAdjust="spacing" textLength="102.7168" x="740.09" y="192.0805">TinLikeSub SDK</text>
+        </g>
+        <!--entity sc_minio-->
+        <g class="entity" data-entity="sc_minio" data-source-line="30" data-uid="ent0014" id="entity_sc_minio">
+            <path
+                d="M547.94,534.35 C547.94,524.35 589.064,524.35 589.064,524.35 C589.064,524.35 630.188,524.35 630.188,534.35 L630.188,575.5473 C630.188,585.5473 589.064,585.5473 589.064,585.5473 C589.064,585.5473 547.94,585.5473 547.94,575.5473 L547.94,534.35"
+                fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;" />
+            <path
+                d="M547.94,534.35 C547.94,544.35 589.064,544.35 589.064,544.35 C589.064,544.35 630.188,544.35 630.188,534.35"
+                fill="none" style="stroke:#181818;stroke-width:0.5;" /><text fill="#000000" font-family="Arial"
+                font-size="14" lengthAdjust="spacing" textLength="62.248" x="557.94"
+                y="561.4818">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14"
+                lengthAdjust="spacing" textLength="37.3379" x="557.94" y="577.5805">MinIO</text>
+        </g>
+        <!--entity sc_fs-->
+        <g class="entity" data-entity="sc_fs" data-source-line="31" data-uid="ent0015" id="entity_sc_fs">
+            <path
+                d="M538.98,620.85 L574.98,620.85 A7.5,7.5 0 0 1 579.98,625.85 L586.98,641.85 L639.1519,641.85 A5,5 0 0 1 644.1519,646.85 L644.1519,686.0473 A5,5 0 0 1 639.1519,691.0473 L538.98,691.0473 A5,5 0 0 1 533.98,686.0473 L533.98,625.85 A5,5 0 0 1 538.98,620.85"
+                fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;" />
+            <line style="stroke:#181818;stroke-width:0.5;" x1="533.98" x2="586.98" y1="641.85" y2="641.85" /><text
+                fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="62.248" x="543.98"
+                y="661.9818">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14"
+                lengthAdjust="spacing" textLength="80.1719" x="543.98" y="678.0805">Local output/</text>
+        </g>
+        <!--entity sc_completionq-->
+        <g class="entity" data-entity="sc_completionq" data-source-line="32" data-uid="ent0016"
+            id="entity_sc_completionq">
+            <path
+                d="M525.31,725.8 L652.8334,725.8 C657.8334,725.8 657.8334,754.9479 657.8334,754.9479 C657.8334,754.9479 657.8334,784.0959 652.8334,784.0959 L525.31,784.0959 C520.31,784.0959 520.31,754.9479 520.31,754.9479 C520.31,754.9479 520.31,725.8 525.31,725.8"
+                fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;" />
+            <path
+                d="M652.8334,725.8 C647.8334,725.8 647.8334,754.9479 647.8334,754.9479 C647.8334,784.0959 652.8334,784.0959 652.8334,784.0959"
+                fill="none" style="stroke:#181818;stroke-width:0.5;" /><text fill="#000000" font-family="Arial"
+                font-size="14" lengthAdjust="spacing" textLength="62.248" x="525.31"
+                y="743.9318">&#171;System&#187;</text><text fill="#000000" font-family="Arial" font-size="14"
+                lengthAdjust="spacing" textLength="104.2686" x="525.31" y="760.0305">RabbitMQ ingest</text><text
+                fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="117.5234"
+                x="525.31" y="776.1291">completion queues</text>
+        </g>
+        <g class="entity" data-entity="GMN27" data-source-line="46" data-uid="ent0028" id="entity_GMN27">
+            <path
+                d="M86.2,11 L86.2,40.8975 A5,5 0 0 0 91.2,45.8975 L178.7908,45.8975 A5,5 0 0 0 183.7908,40.8975 L183.7908,16 L173.7908,6 L91.2,6 A5,5 0 0 0 86.2,11"
+                fill="#FFF2CC" style="stroke:#E06666;stroke-width:0.5;" />
+            <path d="M173.7908,6 L173.7908,13.5 A2.5,2.5 0 0 0 176.2908,16 L183.7908,16 L173.7908,6" fill="#FFF2CC"
+                style="stroke:#E06666;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="69.3545" x="92.2" y="23.1938">submit task,</text><text fill="#000000"
+                font-family="Arial" font-size="13" lengthAdjust="spacing" textLength="76.5908" x="92.2"
+                y="38.1426">inspect result</text>
+        </g>
+        <!--link sc_router to sc_taskq-->
+        <g class="link" data-entity-1="sc_router" data-entity-2="sc_taskq" data-source-line="34" data-uid="lnk17"
+            id="link_sc_router_sc_taskq">
+            <path
+                d="M134.81,468.35 C134.81,507.79 134.81,562.67 134.81,562.67 C134.81,562.67 232.75,562.67 305.42,562.67"
+                fill="none" id="sc_router-to-sc_taskq" style="stroke:#0000FF;stroke-width:1;" />
+            <polygon fill="#0000FF" points="311.42,562.67,302.42,558.67,306.42,562.67,302.42,566.67,311.42,562.67"
+                style="stroke:#0000FF;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="92.4917" x="82.95" y="575.8638">auxiliary publish</text>
+        </g>
+        <!--link sc_taskq to sc_worker-->
+        <g class="link" data-entity-1="sc_taskq" data-entity-2="sc_worker" data-source-line="35" data-uid="lnk18"
+            id="link_sc_taskq_sc_worker">
+            <path d="M311.43,543.24 C260.41,543.24 199.81,543.24 199.81,543.24 C199.81,543.24 199.81,422 199.81,361.37"
+                fill="none" id="sc_taskq-to-sc_worker" style="stroke:#0000FF;stroke-width:1;" />
+            <polygon fill="#0000FF" points="199.81,355.37,195.81,364.37,199.81,360.37,203.81,364.37,199.81,355.37"
+                style="stroke:#0000FF;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="52.749" x="146.81" y="518.3038">consume</text>
+        </g>
+        <!--link sc_worker to sc_registry-->
+        <g class="link" data-entity-1="sc_worker" data-entity-2="sc_registry" data-source-line="36" data-uid="lnk19"
+            id="link_sc_worker_sc_registry">
+            <path
+                d="M194.81,292.49 C194.81,249.84 194.81,178.95 194.81,178.95 C194.81,178.95 249.63,178.95 301.66,178.95"
+                fill="none" id="sc_worker-to-sc_registry" style="stroke:#000000;stroke-width:1;" />
+            <polygon fill="#000000" points="307.66,178.95,298.66,174.95,302.66,178.95,298.66,182.95,307.66,178.95"
+                style="stroke:#000000;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="88.8862" x="105.81" y="192.4938">resolve handler</text>
+        </g>
+        <!--link sc_registry to sc_handlers-->
+        <g class="link" data-entity-1="sc_registry" data-entity-2="sc_handlers" data-source-line="37" data-uid="lnk20"
+            id="link_sc_registry_sc_handlers">
+            <path d="M453.46,178.95 C472.61,178.95 487.31,178.95 506.63,178.95" fill="none"
+                id="sc_registry-to-sc_handlers" style="stroke:#000000;stroke-width:1;" />
+            <polygon fill="#000000" points="512.63,178.95,503.63,174.95,507.63,178.95,503.63,182.95,512.63,178.95"
+                style="stroke:#000000;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="86.7217" x="396.05" y="192.1438">dispatch action</text>
+        </g>
+        <!--link sc_handlers to sc_sdk-->
+        <g class="link" data-entity-1="sc_handlers" data-entity-2="sc_sdk" data-source-line="38" data-uid="lnk21"
+            id="link_sc_handlers_sc_sdk">
+            <path d="M665.58,178.95 C685.06,178.95 699.83,178.95 718.77,178.95" fill="none" id="sc_handlers-to-sc_sdk"
+                style="stroke:#000000;stroke-width:1;" />
+            <polygon fill="#000000" points="724.77,178.95,715.77,174.95,719.77,178.95,715.77,182.95,724.77,178.95"
+                style="stroke:#000000;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="30.3354" x="664.18" y="192.1438">crawl</text>
+        </g>
+        <!--link sc_worker to sc_storage-->
+        <g class="link" data-entity-1="sc_worker" data-entity-2="sc_storage" data-source-line="39" data-uid="lnk22"
+            id="link_sc_worker_sc_storage">
+            <path d="M206.02,323.95 C238.45,323.95 270.78,323.95 303.24,323.95" fill="none" id="sc_worker-to-sc_storage"
+                style="stroke:#000000;stroke-width:1;" />
+            <polygon fill="#000000" points="309.24,323.95,300.24,319.95,304.24,323.95,300.24,327.95,309.24,323.95"
+                style="stroke:#000000;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="98.2554" x="158.63" y="337.1438">materialize result</text>
+        </g>
+        <!--link sc_storage to sc_minio-->
+        <g class="link" data-entity-1="sc_storage" data-entity-2="sc_minio" data-source-line="40" data-uid="lnk23"
+            id="link_sc_storage_sc_minio">
+            <path d="M451.91,313.59 C512.2,313.59 588.81,313.59 588.81,313.59 C588.81,313.59 588.81,452.7 588.81,517.89"
+                fill="none" id="sc_storage-to-sc_minio" style="stroke:#FFA500;stroke-width:1;" />
+            <polygon fill="#FFA500" points="588.81,523.89,592.81,514.89,588.81,518.89,584.81,514.89,588.81,523.89"
+                style="stroke:#FFA500;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="96.8398" x="491.81" y="363.4838">production mode</text>
+        </g>
+        <!--link sc_storage to sc_fs-->
+        <g class="link" data-entity-1="sc_storage" data-entity-2="sc_fs" data-source-line="41" data-uid="lnk24"
+            id="link_sc_storage_sc_fs">
+            <path
+                d="M451.76,334.32 C494.57,334.32 540.81,334.32 540.81,334.32 C540.81,334.32 540.81,531.06 540.81,614.61"
+                fill="none" id="sc_storage-to-sc_fs" style="stroke:#FFA500;stroke-width:1;" />
+            <polygon fill="#FFA500" points="540.81,620.61,544.81,611.61,540.81,615.61,536.81,611.61,540.81,620.61"
+                style="stroke:#FFA500;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="110.5698" x="541.81" y="446.1338">development mode</text>
+        </g>
+        <!--link sc_worker to sc_pub-->
+        <g class="link" data-entity-1="sc_worker" data-entity-2="sc_pub" data-source-line="42" data-uid="lnk25"
+            id="link_sc_worker_sc_pub">
+            <path
+                d="M202.81,355.46 C202.81,386.38 202.81,428.95 202.81,428.95 C202.81,428.95 260.49,428.95 311.62,428.95"
+                fill="none" id="sc_worker-to-sc_pub" style="stroke:#000000;stroke-width:1;" />
+            <polygon fill="#000000" points="317.62,428.95,308.62,424.95,312.62,428.95,308.62,432.95,317.62,428.95"
+                style="stroke:#000000;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="83.8462" x="224.46" y="442.1438">build envelope</text>
+        </g>
+        <!--link sc_pub to sc_completionq-->
+        <g class="link" data-entity-1="sc_pub" data-entity-2="sc_completionq" data-source-line="43" data-uid="lnk26"
+            id="link_sc_pub_sc_completionq">
+            <path
+                d="M443.41,428.95 C483.06,428.95 526.81,428.95 526.81,428.95 C526.81,428.95 526.81,639.2 526.81,719.45"
+                fill="none" id="sc_pub-to-sc_completionq" style="stroke:#0000FF;stroke-width:1;" />
+            <polygon fill="#0000FF" points="526.81,725.45,530.81,716.45,526.81,720.45,522.81,716.45,526.81,725.45"
+                style="stroke:#0000FF;stroke-width:1;" /><text fill="#000000" font-family="Arial" font-size="13"
+                lengthAdjust="spacing" textLength="62.8672" x="463.81" y="548.6938">completion</text>
+        </g>
+        <!--link sc_router to GMN27-->
+        <g class="link" data-entity-1="sc_router" data-entity-2="GMN27" data-source-line="46" data-uid="lnk29"
+            id="link_sc_router_GMN27">
+            <path
+                d="M72.32,428.95 C57.95,428.95 46.81,428.95 46.81,428.95 C46.81,428.95 46.81,25.95 46.81,25.95 C46.81,25.95 65.54,25.95 85.75,25.95"
+                fill="none" id="sc_router-GMN27" style="stroke:#181818;stroke-width:1;stroke-dasharray:7,7;" />
+        </g>
+        <g class="legend" data-source-line="50">
+            <rect fill="#DDDDDD" height="78.3945" rx="5" ry="5" style="stroke:#000000;stroke-width:1;" width="136.8135"
+                x="706.3611" y="802.0959" /><text fill="#000000" font-family="Arial" font-size="14" font-weight="bold"
+                lengthAdjust="spacing" textLength="36.5518" x="715.2507" y="822.2277">Color</text><text fill="#000000"
+                font-family="Arial" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="56.7793"
+                x="759.5818" y="822.2277">Protocol</text>
+            <rect fill="#0000FF" height="16.0986" style="stroke:none;stroke-width:1;" width="44.3311" x="711.3611"
+                y="825.1945" /><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing"
+                textLength="7.7793" x="711.3611" y="838.3264">&#160;&#160;</text><text fill="#000000"
+                font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="63.0205" x="759.5818"
+                y="838.3264">RabbitMQ</text>
+            <rect fill="#FFA500" height="16.0986" style="stroke:none;stroke-width:1;" width="44.3311" x="711.3611"
+                y="841.2932" /><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing"
+                textLength="7.7793" x="711.3611" y="854.425">&#160;&#160;</text><text fill="#000000" font-family="Arial"
+                font-size="14" lengthAdjust="spacing" textLength="49.0342" x="759.5818" y="854.425">Storage</text>
+            <rect fill="#000000" height="16.0986" style="stroke:none;stroke-width:1;" width="44.3311" x="711.3611"
+                y="857.3918" /><text fill="#000000" font-family="Arial" font-size="14" lengthAdjust="spacing"
+                textLength="7.7793" x="711.3611" y="870.5236">&#160;&#160;</text><text fill="#000000"
+                font-family="Arial" font-size="14" lengthAdjust="spacing" textLength="74.7031" x="759.5818"
+                y="870.5236">Internal Call</text>
+            <line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="809.0959" y2="809.0959" />
+            <line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="825.1945" y2="825.1945" />
+            <line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="841.2932" y2="841.2932" />
+            <line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="857.3918" y2="857.3918" />
+            <line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="838.1745" y1="873.4904" y2="873.4904" />
+            <line style="stroke:#000000;stroke-width:1;" x1="711.3611" x2="711.3611" y1="809.0959" y2="873.4904" />
+            <line style="stroke:#000000;stroke-width:1;" x1="755.6921" x2="755.6921" y1="809.0959" y2="873.4904" />
+            <line style="stroke:#000000;stroke-width:1;" x1="838.1745" x2="838.1745" y1="809.0959" y2="873.4904" />
+        </g>
+        <!--SRC=[XLJBRXCn5DtxAwxI3KXK3PLWWQ1II8ceQ25jYbXGX9oPEuaLZw_hHqkWV16VmAvVnlMyEWdGpYQnppdskGzVlrB6IYTBoB6GKOS9cV1UbWWZfwGMliFzKkPqhSm22gazzf2CIai6JPY5jKQ8fTxleLPcAxd06dEO1MaMkYzt54sUaJFeuEcm1sXbCAmj0hcmf1vWAE1hFdPHISUaoS7EP3BP7u-tMUHoT0tZpV0vVq9Z4I0GEBLO1iXLygJ82D6PWy4iazQodq_aLlmpGtUbCXp03m5jG32OElGSjKngE9Ph9ZuwHAskqAqVrrouImuCRdzrYzlV5-PS-XMSKGoisximipWlLO3Hz6W0qeFFlheAU-2Knk5PD46Ls4glgrsM_XHznoDhjSes37_qE9OU_-st0TCzfn4ZmXakb0zkdGmVAczbo9Pm8crdkS7lFMggPIZ8bV1McboZywrwsQp_ydra2YVvt9Y5wB2s_d22Pu5SaezoQKCIrBVuUli1yPWN6bEcs72SQ-MNTqVOEAyyiilBAY-idgrzm399p-HyhiB9ATWcq0jJiReu0rV-KcIQOhwfF5VcMAsGMm5cX-ywm_bAv3B8EUTlat-YpD67bbOgeqWKfBdZDsd7b4aDt4qsXhsMNlXxlVD3HnykJDRb0JQ3k0CkXUYw5NO_xmpvcqo-x1vqiS8BaF6RqafowzWwcw83joLryx8c8-DZYU9khw4EXmsrxJScysCaVONGD97eezkojj5ObhTTBEifq4UtPLo8vCh9QtsFfwQ_c5bApWXFKVKzJJxFqrNqSDPD9gDddQwg7wkiepnMPg2a7E-J55K4U8MQR9cwk1NynngddWNpg7GEQ2fPHK_xsrNerRSgHRiI8WrMc5C8L08LlKdbwn6Mglf4AECj3zGsS3HvDP45pzz5MbJZLzoyWdewyv-feq0PQRWHDoyRCmS0Dz0rPGNK6QY0zeLtWcR_oB0Tmpq_bZeTXwcWwTO_]-->
+    </g>
+</svg>

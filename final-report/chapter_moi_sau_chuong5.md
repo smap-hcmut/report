@@ -319,14 +319,14 @@ Pha health check gọi các endpoint `/health` của sáu service chính qua gat
 | ingest-srv | 200 | `status=healthy` |
 | knowledge-srv | 200 | `status=healthy` |
 | notification-srv | 200 | `status=healthy`, `redis=connected`, `active_connections=0` |
-| scapper-srv | 200 | `status=healthy`, `worker_active=true` |
+| scrapper-srv | 200 | `status=healthy`, `worker_active=true` |
 
 
 Kết quả chạy API E2E:
 
 | Nhóm | Số lượng | Ghi nhận |
 |---|---:|---|
-| Tổng endpoint được gọi | 55 | Thuộc identity, project, ingest, knowledge, notification và scapper |
+| Tổng endpoint được gọi | 55 | Thuộc identity, project, ingest, knowledge, notification và scrapper |
 | Endpoint đạt đúng kỳ vọng | 44 | Endpoint trả status và body đúng theo kịch bản |
 | Endpoint kiểm chứng một phần | 4 | Endpoint trả response hợp lệ nhưng còn giới hạn về mapping hoặc paginator |
 | Not testable | 2 | Chưa đủ điều kiện runtime hoặc cần kịch bản riêng |
@@ -339,7 +339,7 @@ Thời điểm chạy: 2026-04-14, ICT +7
 Môi trường: K3s Production Cluster, gateway smap-api.tantai.dev qua Traefik
 Auth: JWT cookie smap_auth_token
 Test user: e2e-test, role=ADMIN, user_id=550e8400-e29b-41d4-a716-446655440099
-Base services: identity, project, ingest, knowledge, notification, scapper
+Base services: identity, project, ingest, knowledge, notification, scrapper
 Tổng API call case trong manifest: 55
 Số call case được phân tích trong chương này: 50 (44 đạt kỳ vọng, 4 kiểm chứng một phần, 2 not testable)
 Health probe: 6 service, ghi riêng để xác nhận môi trường trước khi chạy E2E
@@ -449,7 +449,7 @@ POST /scraper/tasks/facebook
 -> HTTP 200, queue=facebook_tasks, task_id=d5c8e9c1-d7f0-4fb2-837c-02a7466970e4
 ```
 
-Điểm quan trọng của kiểm thử này là mỗi kết quả đều có response cụ thể. Ví dụ, `POST /project/api/v1/projects/:id/activate` khi project chưa có datasource trả lỗi nghiệp vụ `160026`, tức hệ thống từ chối đúng theo điều kiện kích hoạt. `GET /knowledge/api/v1/internal/index/statistics/:project_id` trả 200 với `total_indexed=0` khi chưa có dữ liệu indexed. `GET /scapper/tasks/:id/result` trả trạng thái chưa có kết quả theo kỳ vọng vì task bất đồng bộ chưa hoàn tất.
+Điểm quan trọng của kiểm thử này là mỗi kết quả đều có response cụ thể. Ví dụ, `POST /project/api/v1/projects/:id/activate` khi project chưa có datasource trả lỗi nghiệp vụ `160026`, tức hệ thống từ chối đúng theo điều kiện kích hoạt. `GET /knowledge/api/v1/internal/index/statistics/:project_id` trả 200 với `total_indexed=0` khi chưa có dữ liệu indexed. `GET /scrapper/tasks/:id/result` trả trạng thái chưa có kết quả theo kỳ vọng vì task bất đồng bộ chưa hoàn tất.
 
 ### 6.4.3. UC-01: Thiết lập chiến dịch theo dõi
 
@@ -633,7 +633,7 @@ Kết quả cho thấy API-lane giữ p95 trong khoảng 159.397-224.661 ms ở 
 
 ### 6.5.3. Availability và recovery
 
-Availability được kiểm tra bằng health endpoint và trạng thái runtime của các service chính. Trong cùng môi trường kiểm thử, sáu service identity-srv, project-srv, ingest-srv, knowledge-srv, notification-srv và scapper-srv đều trả HTTP 200 ở health check. Notification-srv đồng thời trả trạng thái Redis `connected`; scapper-srv trả `worker_active=true`.
+Availability được kiểm tra bằng health endpoint và trạng thái runtime của các service chính. Trong cùng môi trường kiểm thử, sáu service identity-srv, project-srv, ingest-srv, knowledge-srv, notification-srv và scrapper-srv đều trả HTTP 200 ở health check. Notification-srv đồng thời trả trạng thái Redis `connected`; scrapper-srv trả `worker_active=true`.
 
 Recovery được kiểm tra bằng kịch bản restart một analysis consumer trong khi workload vẫn chạy. Kết quả kịch bản chaos ghi nhận throughput 7.751 req/s, p95 224.661 ms, timeout 0.0000% và infra error 0.0000%. Queue/backlog snapshot vẫn được thu trong thời gian theo dõi để quan sát trạng thái xử lý bất đồng bộ sau sự kiện restart.
 
@@ -664,7 +664,7 @@ ingest-srv                   1m CPU    19Mi memory
 knowledge-srv                3m CPU    24Mi memory
 notification-srv             2m CPU    6Mi memory
 project-srv                  1m CPU    15Mi memory
-scapper-srv                  2m CPU    61Mi memory
+scrapper-srv                  2m CPU    61Mi memory
 rabbitmq                     71m CPU   143Mi memory
 redis                        6m CPU    163Mi memory
 redpanda                     7m CPU    264Mi memory

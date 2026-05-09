@@ -11,6 +11,6 @@
 - Viết lại toàn bộ theo current architecture của SMAP.
 - Giữ khung `lựa chọn kiến trúc`, `kiến trúc tổng thể`, `service ownership`, `technology stack`, `tổng kết`, nhưng thay toàn bộ narrative cũ bằng current-state model.
 - Dùng lại hình kiến trúc tổng thể current-state đã chuẩn bị trong bộ source-of-truth mới.
-- Đồng bộ service boundaries với các service hiện tại: `identity-srv`, `project-srv`, `ingest-srv`, `analysis-srv`, `knowledge-srv`, `notification-srv`, `scapper-srv`.
+- Đồng bộ service boundaries với các service hiện tại: `identity-srv`, `project-srv`, `ingest-srv`, `analysis-srv`, `knowledge-srv`, `notification-srv`, `scrapper-srv`.
 - Đồng bộ storage và transport choices với Chương 3: PostgreSQL, Redis, Qdrant, MinIO, internal HTTP, RabbitMQ, Kafka, Redis Pub/Sub.
 - Bỏ phần lớn các scoring matrix và con số cứng khó bảo vệ, chuyển sang đánh giá định tính và justification theo architectural drivers.

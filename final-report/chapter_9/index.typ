@@ -239,7 +239,6 @@
     table.cell(align: center + horizon, inset: (y: 0.6em))[Web Socket Protocol],
 
     // Y
-
   )
 ]
 
@@ -686,7 +685,7 @@
     [48], [Hiện thực Project Service], [01/10 - 15/10], [Đặng Quốc Phong],
     [49], [Hiện thực Ingest Service], [15/10 - 31/10], [Đặng Quốc Phong],
     [50], [Hiện thực Analytics Service], [01/10 - 31/10], [Nguyễn Tấn Tài],
-    [51], [Hiện thực Scapper Worker Service], [15/09 - 31/10], [Đặng Quốc Phong],
+    [51], [Hiện thực Scrapper Worker Service], [15/09 - 31/10], [Đặng Quốc Phong],
     [52], [Hiện thực Knowledge Service], [01/11 - 15/11], [Nguyễn Tấn Tài],
     [53], [Hiện thực Notification Service], [15/11 - 25/11], [Đặng Quốc Phong],
     [54], [Hiện thực Web UI], [01/10 - 30/11], [Nguyễn Chánh Tín],

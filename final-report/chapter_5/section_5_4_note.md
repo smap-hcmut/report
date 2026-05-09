@@ -56,6 +56,6 @@ Tất cả ERD mới dùng Graphviz để text/padding được căn tự độn
 - `knowledge-srv/migrations/006_create_messages_table.sql`
 - `knowledge-srv/migrations/007_create_reports_table.sql`
 - `knowledge-srv/migrations/010_drop_notebook_tables.sql`
-- `scapper-srv/app/storage.py`
+- `scrapper-srv/app/storage.py`
 - `ingest-srv/internal/execution/usecase/consumer.go`
 - `knowledge-srv/internal/point/constants.go`

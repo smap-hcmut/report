@@ -80,7 +80,7 @@ flowchart LR
     UI --> ID[identity-srv]
     PROJECT -->|internal lifecycle/readiness| INGEST
     INGEST -->|publish dryrun/dispatch task| RABBIT[(RabbitMQ)]
-    RABBIT --> SCAP[scapper-srv worker]
+    RABBIT --> SCAP[scrapper-srv worker]
     SCAP -->|artifact| MINIO[(MinIO)]
     SCAP -->|completion| RABBIT
     RABBIT --> INGESTC[ingest-srv consumer]
@@ -99,7 +99,7 @@ flowchart LR
 | Dry-run lineage/result | `ingest-srv` |
 | Execution lineage/runtime timestamps | `ingest-srv` |
 | Auth acceptance | `identity-srv` + shared middleware |
-| Artifact payload | `MinIO` object được `scapper-srv` publish và `ingest-srv` verify |
+| Artifact payload | `MinIO` object được `scrapper-srv` publish và `ingest-srv` verify |
 
 ## Runtime Flow Families
 

@@ -39,7 +39,7 @@
     <circle cx="45" cy="45" r="34" fill="#0284c7"/>
     <text x="45" y="52" text-anchor="middle" class="step">3</text>
     <rect x="105" y="5" width="220" height="86" rx="16" class="node"/>
-    <text x="215" y="40" text-anchor="middle" class="label">scapper-srv</text>
+    <text x="215" y="40" text-anchor="middle" class="label">scrapper-srv</text>
     <text x="215" y="64" text-anchor="middle" class="body">FastAPI surface and crawl worker</text>
   </g>
 

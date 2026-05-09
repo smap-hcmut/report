@@ -50,7 +50,7 @@ Ví dụ, `analysis-srv` cần runtime Python với dependency ML nặng và có
 #### Lớp minh họa từ mã nguồn
 
 - `../identity-srv/go.mod`, `../project-srv/go.mod`, `../ingest-srv/go.mod`, `../knowledge-srv/go.mod`, `../notification-srv/go.mod` chứng minh mỗi Go service là một module độc lập.
-- `../analysis-srv/pyproject.toml` và `../scapper-srv/requirements.txt` chứng minh analytics và crawler runtime dùng Python độc lập với Go services.
+- `../analysis-srv/pyproject.toml` và `../scrapper-srv/requirements.txt` chứng minh analytics và crawler runtime dùng Python độc lập với Go services.
 - `../analysis-srv/apps/consumer/deployment.yaml` chứng minh ít nhất analytics consumer đã được đóng gói như một workload riêng có thể deploy độc lập.
 
 Table 2.2 compares monolithic and microservice styles in the context of the current SMAP codebase.
@@ -72,7 +72,7 @@ Tuy nhiên, một điểm quan trọng là không phải mọi hệ thống có 
 
 #### Lớp phân tích trên dự án SMAP
 
-SMAP là ví dụ điển hình của cách phân tách cơ chế truyền thông theo từng loại luồng xử lý. Hệ thống hiện tại không dùng một cơ chế giao tiếp duy nhất cho mọi luồng. `project-srv -> ingest-srv` hiện nghiêng về internal HTTP cho lifecycle/control plane. `ingest-srv <-> scapper-srv` dùng RabbitMQ cho task queue. `ingest-srv -> analysis-srv -> knowledge-srv` dùng Kafka như analytics data plane. `notification-srv` lại ingest message từ Redis Pub/Sub.
+SMAP là ví dụ điển hình của cách phân tách cơ chế truyền thông theo từng loại luồng xử lý. Hệ thống hiện tại không dùng một cơ chế giao tiếp duy nhất cho mọi luồng. `project-srv -> ingest-srv` hiện nghiêng về internal HTTP cho lifecycle/control plane. `ingest-srv <-> scrapper-srv` dùng RabbitMQ cho task queue. `ingest-srv -> analysis-srv -> knowledge-srv` dùng Kafka như analytics data plane. `notification-srv` lại ingest message từ Redis Pub/Sub.
 
 Việc lựa chọn như vậy là hợp lý. Internal HTTP thuận lợi cho control semantics và phản hồi nhanh. RabbitMQ phù hợp với work queue và completion correlation theo `task_id`. Kafka phù hợp với streaming analytics outputs và downstream fanout. Redis Pub/Sub phù hợp cho realtime ingress nhẹ. Điều này cho thấy SMAP không áp dụng event-driven như một khẩu hiệu chung chung, mà áp dụng có chọn lọc theo lane.
 
@@ -88,7 +88,7 @@ Table 2.3 compares the communication mechanisms that coexist in the current arch
 | Cơ chế | Vai trò trong SMAP | Bằng chứng |
 | --- | --- | --- |
 | Internal HTTP | control plane giữa business và execution layers | route files + gap doc |
-| RabbitMQ | crawl tasks và completion metadata | `ingest-srv/go.mod`, `scapper-srv/RABBITMQ.md` |
+| RabbitMQ | crawl tasks và completion metadata | `ingest-srv/go.mod`, `scrapper-srv/RABBITMQ.md` |
 | Kafka | analytics data plane | `analysis-srv/pyproject.toml`, `analysis-srv/README.md` |
 | Redis Pub/Sub | notification ingress và cache | `notification-srv/documents/contracts.md`, `knowledge-srv/go.mod` |
 
@@ -119,12 +119,12 @@ Python thường được lựa chọn cho analytics workloads do hệ sinh thá
 
 #### Lớp phân tích trên dự án SMAP
 
-Trong SMAP, Python không được dùng cho toàn bộ backend mà được dùng chọn lọc cho hai lane chính. `analysis-srv` dùng Python vì cần stack NLP/ML phức tạp, trong khi `scapper-srv` dùng Python cho crawler worker và FastAPI debug/runtime API. Điều này phản ánh một quyết định kiến trúc hợp lý: chỉ đưa Python vào những nơi lợi ích từ ecosystem ML hoặc SDK vượt trội hơn chi phí runtime.
+Trong SMAP, Python không được dùng cho toàn bộ backend mà được dùng chọn lọc cho hai lane chính. `analysis-srv` dùng Python vì cần stack NLP/ML phức tạp, trong khi `scrapper-srv` dùng Python cho crawler worker và FastAPI debug/runtime API. Điều này phản ánh một quyết định kiến trúc hợp lý: chỉ đưa Python vào những nơi lợi ích từ ecosystem ML hoặc SDK vượt trội hơn chi phí runtime.
 
 #### Lớp minh họa từ mã nguồn
 
 - `../analysis-srv/pyproject.toml` xác nhận `aiokafka`, `aio-pika`, `sqlalchemy`, `asyncpg`, `minio`, `torch`, `transformers`, `spacy`, `yake`, `polars`, `pydantic`.
-- `../scapper-srv/requirements.txt` xác nhận `fastapi`, `uvicorn`, `aio-pika`, `aioboto3`, `loguru`.
+- `../scrapper-srv/requirements.txt` xác nhận `fastapi`, `uvicorn`, `aio-pika`, `aioboto3`, `loguru`.
 - Tính năng consume và xử lý message Kafka được hiện thực tại `../analysis-srv/internal/consumer/server.py` qua lớp `ConsumerServer` và hàm `_handle_message`.
 - Tính năng chạy pipeline analytics được hiện thực tại `../analysis-srv/internal/pipeline/usecase/usecase.py` qua hàm `run`.
 - Tính năng NLP batch enrichment được hiện thực tại `../analysis-srv/internal/analytics/usecase/batch_enricher.py` qua hàm `enrich_batch`.
@@ -156,7 +156,7 @@ Table 2.4 summarizes the backend technology stack by service boundary.
 | `analysis-srv` | Python + aiokafka + SQLAlchemy + NLP stack | analytics pipeline bất đồng bộ |
 | `knowledge-srv` | Go + Gin + Qdrant + LLM clients | search, chat, indexing, notebook |
 | `notification-srv` | Go + Gin + WebSocket + Redis | realtime delivery và Discord alerting |
-| `scapper-srv` | Python + FastAPI + aio-pika | crawl worker runtime |
+| `scrapper-srv` | Python + FastAPI + aio-pika | crawl worker runtime |
 
 Table 2.5 summarizes the authentication components confirmed in the source code.
 
@@ -229,7 +229,7 @@ Workspace hiện tại có bằng chứng mạnh cho containerization và một 
 
 ### 2.6.3 Lớp minh họa từ mã nguồn
 
-- Dockerfiles hiện diện tại các service server/consumer, ví dụ `../analysis-srv/apps/consumer/Dockerfile`, `../scapper-srv/Dockerfile`, `../identity-srv/cmd/server/Dockerfile`.
+- Dockerfiles hiện diện tại các service server/consumer, ví dụ `../analysis-srv/apps/consumer/Dockerfile`, `../scrapper-srv/Dockerfile`, `../identity-srv/cmd/server/Dockerfile`.
 - Local infra stack của project service được mô tả trong `../project-srv/docker-compose.yml` với PostgreSQL, Redis, Zookeeper, Kafka và dev UIs.
 - Local infra stack của ingest service được mô tả trong `../ingest-srv/docker-compose.yml` với PostgreSQL, Redis, MinIO, Kafka và RabbitMQ.
 - Kubernetes Deployment được hiện thực tại `../analysis-srv/apps/consumer/deployment.yaml`.

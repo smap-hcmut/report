@@ -52,6 +52,6 @@ Thư mục `diagram/` cũ được xem là `legacy` và không còn là nguồn 
 Report cũ trong `../../final-report/` có giá trị rất lớn về mặt khung trình bày, nhưng một phần nội dung transport và execution flow đã lệch so với hệ hiện tại. Tài liệu này chủ động sửa lại những điểm đó, đặc biệt ở các luồng:
 
 - `project-srv -> ingest-srv`: current nghiêng về internal HTTP control plane
-- `ingest-srv <-> scapper-srv`: RabbitMQ cho crawl runtime
+- `ingest-srv <-> scrapper-srv`: RabbitMQ cho crawl runtime
 - `ingest-srv -> analysis-srv -> knowledge-srv`: Kafka cho data plane analytics và knowledge
 - `notification-srv`: Redis Pub/Sub cho realtime notification ingress

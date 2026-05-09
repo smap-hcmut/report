@@ -31,7 +31,7 @@ SMAP phục vụ agency hoặc doanh nghiệp cần:
 Các service hỗ trợ trong bức tranh đầy đủ:
 
 - `identity-srv`: authentication/RBAC/audit boundary cho user và service access
-- `scapper-srv`: crawler worker/API thực thi task crawl và trả completion/raw artifact về ingest
+- `scrapper-srv`: crawler worker/API thực thi task crawl và trả completion/raw artifact về ingest
 - `notification-srv`: realtime/WebSocket/Discord notification layer cho alert user-facing
 
 ### 1.2 Nguyên tắc thiết kế

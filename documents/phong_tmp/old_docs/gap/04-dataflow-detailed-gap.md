@@ -101,7 +101,7 @@ Do đó, nếu muốn giữ section này, phải đổi nhãn:
    - execution/scheduler
 2. `Current Data Pipeline`
    - RMQ task
-   - scapper worker
+   - scrapper worker
    - MinIO artifact
    - `smap.collector.output`
 3. `Planned Flows`

@@ -42,6 +42,7 @@
 #pagebreak()
 // Chương 5: Thiết kế hệ thống
 #include "chapter_5/index.typ"
+#pagebreak()
 // Chương 6: Kiểm thử và đánh giá hệ thống
 #include "chapter_6/index.typ"
 #pagebreak()

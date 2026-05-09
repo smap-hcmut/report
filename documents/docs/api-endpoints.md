@@ -210,7 +210,7 @@
 
 ## 6. Scraper Service
 
-**Prefix:** `/scraper` → stripped → service at `scapper-api:80`
+**Prefix:** `/scraper` → stripped → service at `scrapper-api:80`
 **Docs UI:** `https://smap-api.tantai.dev/scraper/docs`
 
 > Internal worker service that submits scraping tasks to RabbitMQ queues (TikTok, Facebook, YouTube) via TinLikeSub API. Results are stored in MinIO.
@@ -266,7 +266,7 @@ Traefik (smap-api.tantai.dev)
   ├── /ingest/*     ──► ingest-api:8080
   ├── /knowledge/*  ──► knowledge-api:8080
   ├── /notification/* ──► notification-api:8080
-  └── /scraper/*    ──► scapper-api:8105
+  └── /scraper/*    ──► scrapper-api:8105
 
 Internal (in-cluster)
   project-api ──► identity-api  (token validate)

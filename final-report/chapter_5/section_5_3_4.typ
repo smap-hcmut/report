@@ -127,7 +127,7 @@ Flow này là phần quan trọng nhất của execution plane hiện tại.
 ]
 
 1. Ingest Service publish crawl task sang RabbitMQ.
-2. `scapper-srv` thực thi task và publish completion metadata trở lại.
+2. `scrapper-srv` thực thi task và publish completion metadata trở lại.
 3. Ingest Service kiểm tra object storage, tạo `external_task` completion record và `raw_batch` lineage.
 4. Nếu flow phù hợp, service parse và chuẩn hóa dữ liệu sang UAP.
 5. Kết quả được publish sang analytics data plane để `analysis-srv` tiếp tục tiêu thụ.

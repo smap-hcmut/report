@@ -11,7 +11,7 @@ participant "Project Internal API" as project_api
 database "ingest.scheduled_jobs\nexternal_tasks" as ingest_db #LightCyan
 queue "RabbitMQ Producer" as producer #LightBlue
 queue "Task Queue\n(tiktok/facebook/youtube)" as task_queue #LightBlue
-participant "Scapper Worker" as worker
+participant "Scrapper Worker" as worker
 database "Object Storage\n(MinIO current supported path)" as storage #LightYellow
 queue "Completion Queue" as completion_queue #LightBlue
 participant "Completion Consumer" as completion_consumer

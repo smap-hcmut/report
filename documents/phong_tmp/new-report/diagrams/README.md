@@ -72,7 +72,7 @@ diagrams/
   current activate flow: `project-srv -> ingest-srv` qua internal HTTP control plane
 
 - `data-flow/dataflow_crawl_runtime_completion_current.puml`
-  dispatch task -> scapper worker -> storage -> completion -> raw batch -> UAP publish
+  dispatch task -> scrapper worker -> storage -> completion -> raw batch -> UAP publish
 
 - `data-flow/dataflow_analytics_pipeline_current.puml`
   `smap.collector.output` -> analysis consumer -> pipeline -> contract topics -> knowledge indexing

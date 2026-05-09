@@ -43,7 +43,7 @@
   <text x="715" y="306" text-anchor="middle" class="meta">Go + Gin + RabbitMQ + Kafka</text>
 
   <rect x="880" y="220" width="220" height="120" rx="16" class="service"/>
-  <text x="990" y="256" text-anchor="middle" class="h2">scapper-srv</text>
+  <text x="990" y="256" text-anchor="middle" class="h2">scrapper-srv</text>
   <text x="990" y="282" text-anchor="middle" class="body">FastAPI app + worker in lifespan</text>
   <text x="990" y="306" text-anchor="middle" class="meta">Python + FastAPI + aio-pika</text>
 

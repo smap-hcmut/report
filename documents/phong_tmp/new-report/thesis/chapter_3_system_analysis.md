@@ -18,7 +18,7 @@ Nguồn thứ hai là các README của từng service. Các README này không 
 
 Nguồn thứ ba là các file route và handler, dùng để xác nhận trực tiếp các use case đã được hiện thực ở mức API hoặc delivery layer. Ví dụ, login flow có thể được xác nhận qua route `/login`, `/callback`, `/me`, `/logout` trong `identity-srv`, trong khi project lifecycle có thể được xác nhận qua các route `activate`, `pause`, `resume`, `archive` trong `project-srv`.
 
-Nguồn thứ tư là các contract docs và gap docs, tiêu biểu như `../notification-srv/documents/contracts.md`, `../scapper-srv/RABBITMQ.md`, và `../../src-of-truth/4-implementation-gap-checklist.md`. Các file này giúp tách biệt rõ giữa current-state và target-state, đồng thời ngăn việc luận văn lặp lại transport model cũ đã không còn phản ánh đúng hiện trạng.
+Nguồn thứ tư là các contract docs và gap docs, tiêu biểu như `../notification-srv/documents/contracts.md`, `../scrapper-srv/RABBITMQ.md`, và `../../src-of-truth/4-implementation-gap-checklist.md`. Các file này giúp tách biệt rõ giữa current-state và target-state, đồng thời ngăn việc luận văn lặp lại transport model cũ đã không còn phản ánh đúng hiện trạng.
 
 ### 3.1.3 Lớp minh họa từ mã nguồn
 
@@ -97,7 +97,7 @@ Table 3.2 links each functional requirement to the service, file and implementat
 | FR-05 | `ingest-srv` | `../ingest-srv/internal/datasource/delivery/http/routes.go` | datasource CRUD routes |
 | FR-06 | `ingest-srv` | `../ingest-srv/internal/datasource/delivery/http/routes.go` | target create/list/update/activate/deactivate |
 | FR-07 | `ingest-srv` | `../ingest-srv/internal/dryrun/delivery/http/routes.go` | `Trigger`, `GetLatest`, `ListHistory` |
-| FR-08 | `ingest-srv`, `scapper-srv` | `../ingest-srv/internal/execution/delivery/rabbitmq/producer/producer.go`, `../ingest-srv/internal/execution/usecase/consumer.go`, `../scapper-srv/app/worker.py`, `../scapper-srv/app/publisher.py` | `PublishDispatch`, `HandleCompletion`, `publish_completion` |
+| FR-08 | `ingest-srv`, `scrapper-srv` | `../ingest-srv/internal/execution/delivery/rabbitmq/producer/producer.go`, `../ingest-srv/internal/execution/usecase/consumer.go`, `../scrapper-srv/app/worker.py`, `../scrapper-srv/app/publisher.py` | `PublishDispatch`, `HandleCompletion`, `publish_completion` |
 | FR-09 | `analysis-srv` | `../analysis-srv/internal/consumer/server.py`, `../analysis-srv/internal/pipeline/usecase/usecase.py` | `_handle_message`, `run` |
 | FR-10 | `knowledge-srv` | `../knowledge-srv/internal/search/usecase/search.go`, `../knowledge-srv/internal/chat/usecase/chat.go` | `Search`, `Chat` |
 | FR-11 | `notification-srv` | `../notification-srv/internal/websocket/delivery/http/handlers.go` | `HandleWebSocket` |
@@ -140,7 +140,7 @@ Table 3.4 summarizes the non-functional requirements that can be inferred and ev
 | NFR-02 | Security | Hệ thống phải hỗ trợ OAuth2 login, JWT, cookie-based session và internal service authentication | `identity-srv/config/auth-config.yaml`, `notification-srv/documents/contracts.md` |
 | NFR-03 | Availability | Workloads quan trọng phải có health check hoặc probe để phát hiện lỗi runtime | `analysis-srv/apps/consumer/deployment.yaml` |
 | NFR-04 | Scalability | Analytics consumer phải có khả năng scale theo CPU và workload | `analysis-srv/manifests/hpa.yaml` |
-| NFR-05 | Data Integrity | Các flow bất đồng bộ phải dùng correlation keys hoặc canonical contracts | `scapper-srv/RABBITMQ.md`, `ingest-srv/internal/execution/usecase/consumer.go`, `../../src-of-truth/3-event-contracts.md` |
+| NFR-05 | Data Integrity | Các flow bất đồng bộ phải dùng correlation keys hoặc canonical contracts | `scrapper-srv/RABBITMQ.md`, `ingest-srv/internal/execution/usecase/consumer.go`, `../../src-of-truth/3-event-contracts.md` |
 | NFR-06 | Modularity | Các bounded contexts phải được tách thành service/module độc lập | cấu trúc thư mục + `go.mod` / `pyproject.toml` riêng |
 | NFR-07 | Observability | Hệ thống phải hỗ trợ logging có cấu hình và metrics ở ít nhất một số workload | `analysis-srv/pyproject.toml`, `shared-libs/go/go.mod`, `knowledge-srv/go.mod` |
 
@@ -157,7 +157,7 @@ Về tính sẵn sàng và khả năng mở rộng, các Docker Compose stacks v
 - `../analysis-srv/apps/consumer/deployment.yaml` định nghĩa `livenessProbe`, `startupProbe`, resource requests/limits và rolling update strategy cho `analysis-consumer`.
 - `../analysis-srv/manifests/hpa.yaml` định nghĩa autoscaling dựa trên CPU, `minReplicas: 1`, `maxReplicas: 3`.
 - `../identity-srv/config/auth-config.yaml` định nghĩa `oauth2`, `jwt`, `cookie`, `session`, `blacklist`, `internal.service_keys`.
-- `../scapper-srv/RABBITMQ.md` quy định `task_id` là correlation key và completion envelope phải idempotent theo `task_id`.
+- `../scrapper-srv/RABBITMQ.md` quy định `task_id` là correlation key và completion envelope phải idempotent theo `task_id`.
 - `../ingest-srv/internal/execution/usecase/consumer.go` thể hiện ingest dùng `task_id`, `batch_id`, `storage_bucket`, `storage_path` và kiểm tra duplicate/raw-batch existence để bảo toàn tính nhất quán khi nhận completion.
 
 ### 3.3.5 Stakeholder-to-Requirement Traceability Matrix

@@ -52,7 +52,7 @@ Ghi chú quan trọng: bản 2026-04-13 supersede các checklist cũ từng nói
 - DB schema hiện tại trong source là `ingest`, không phải `schema_ingest`
   - Status: `Already in source`
 
-### 2.3 `scapper-srv` / crawl worker
+### 2.3 `scrapper-srv` / crawl worker
 
 - Source có worker consume RabbitMQ task và chạy TinLikeSub handlers
   - Status: `Already in source`
@@ -184,7 +184,7 @@ Ghi chú quan trọng: bản 2026-04-13 supersede các checklist cũ từng nói
 - [ ] Add idempotency/logging for crawl mode changes
 - [ ] Keep `smap.collector.output` as current UAP topic unless a dedicated topic migration is approved
 
-### `scapper-srv`
+### `scrapper-srv`
 
 - [ ] Run/record smoke test for production `MODE=production` MinIO upload
 - [ ] Run/record smoke test for completion publish to ingest queues

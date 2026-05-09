@@ -12,7 +12,7 @@ SMAP (Social Media Analytics Platform) là nền tảng social listening / marke
 - `identity-srv`: xác thực, JWT, RBAC, audit.
 - `project-srv`: business/control plane cho `Campaign -> Project -> Crisis Config`.
 - `ingest-srv`: execution plane cho datasource, target, task dispatch, raw batch, UAP.
-- `scapper-srv`: crawler worker/API cho TikTok/Facebook/YouTube qua TinLikeSub SDK.
+- `scrapper-srv`: crawler worker/API cho TikTok/Facebook/YouTube qua TinLikeSub SDK.
 - `analysis-srv`: intelligence plane cho UAP consume, NLP/enrichment, domain-aware routing, contract publishing.
 - `knowledge-srv`: reporting/RAG plane cho indexing, chat, report generation.
 - `notification-srv`: realtime alert/WebSocket/Discord relay.
@@ -24,7 +24,7 @@ user
   -> identity-srv
   -> project-srv
   -> ingest-srv
-  -> scapper-srv
+  -> scrapper-srv
   -> ingest-srv
   -> analysis-srv
   -> knowledge-srv / notification-srv
@@ -87,7 +87,7 @@ Target note:
 
 - Cần chuẩn hóa event/adapter giữa `project-srv` và `ingest-srv` cho crisis-driven crawl mode.
 
-### 2.4 `scapper-srv`
+### 2.4 `scrapper-srv`
 
 Current source:
 
@@ -176,7 +176,7 @@ Browser
        campaign/project/crisis config/domain_type_code
   -> ingest-srv
        datasource/target/dryrun/schedule/task/raw batch/UAP
-  -> scapper-srv
+  -> scrapper-srv
        crawl + raw artifact + completion
   -> ingest-srv
        completion handling + UAP publish
@@ -206,5 +206,5 @@ Browser
 
 - Cập nhật các canonical docs còn lại để bỏ claim stale về analysis UAP/domain routing.
 - Thêm note vào `6-srv-core-mismatch-report.md` rằng report đó supersede các gap cũ liên quan analysis input.
-- Verify e2e `scapper -> ingest` MinIO/completion path vì README và source đang lệch nhau.
+- Verify e2e `scrapper -> ingest` MinIO/completion path vì README và source đang lệch nhau.
 - Verify `analysis -> knowledge` contract bằng test hoặc smoke runtime, vì source đã có publisher nhưng cần đảm bảo knowledge consumer đọc đúng schema.

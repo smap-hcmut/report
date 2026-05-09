@@ -30,7 +30,7 @@
   <text x="385" y="159" text-anchor="middle" class="head">project-srv</text>
   <text x="645" y="159" text-anchor="middle" class="head">ingest-srv</text>
   <text x="890" y="159" text-anchor="middle" class="head">RabbitMQ</text>
-  <text x="1155" y="159" text-anchor="middle" class="head">scapper-srv</text>
+  <text x="1155" y="159" text-anchor="middle" class="head">scrapper-srv</text>
   <text x="1400" y="159" text-anchor="middle" class="head">MinIO</text>
   <text x="1645" y="159" text-anchor="middle" class="head">analysis-srv</text>
 

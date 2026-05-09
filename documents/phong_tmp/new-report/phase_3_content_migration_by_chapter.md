@@ -63,7 +63,7 @@ Việc phải làm:
 - port `chapter_5_implementation.md`
 - rà đặc biệt các chỗ dễ lệch:
   - service entry points
-  - runtime model của `scapper-srv`
+  - runtime model của `scrapper-srv`
   - lifecycle logic
   - `domain_type_code`
   - ingest -> analysis -> knowledge flow

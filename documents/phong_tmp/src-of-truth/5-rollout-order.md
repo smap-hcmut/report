@@ -258,7 +258,7 @@ Mở rộng từ current source `analysis-srv YAML/domain config -> Redis -> pro
 
 - Giảm rủi ro: không cho edit trực tiếp thành active; dùng draft/validated/approved/active + rollback.
 
-### Rủi ro 5: README/source mismatch ở `scapper-srv`
+### Rủi ro 5: README/source mismatch ở `scrapper-srv`
 
 - Giảm rủi ro: verify e2e MinIO/completion rồi cập nhật README/status.
 

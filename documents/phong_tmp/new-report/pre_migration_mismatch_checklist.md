@@ -25,8 +25,8 @@ Nguyên tắc:
 - `web-ui` có source thật và có `package.json`
 - lifecycle `project -> ingest` hiện tại đi theo internal HTTP control plane, không phải Kafka-first orchestration
 - `project-srv` vẫn publish Kafka lifecycle events, nhưng đó không phải main execution path
-- `scapper-srv` hiện có FastAPI app + worker lifespan, có storage abstraction và có completion publish codepath
-- với `scapper-srv`, code hiện tại đáng tin hơn README ở các điểm README chưa cập nhật
+- `scrapper-srv` hiện có FastAPI app + worker lifespan, có storage abstraction và có completion publish codepath
+- với `scrapper-srv`, code hiện tại đáng tin hơn README ở các điểm README chưa cập nhật
 
 ## 3. Blockers Phải Sửa Trước Khi Migrate
 
@@ -159,19 +159,19 @@ Các phase docs từng dùng path giả định kiểu `report/thesis` và `docu
 - [ ] `thesis/chapter_5_implementation.md`
   Action: rà các đoạn core feature implementation liên quan lifecycle để mô tả internal control plane là current path.
 
-## 3.4 `scapper-srv` current-state phải phân biệt rõ code và README
+## 3.4 `scrapper-srv` current-state phải phân biệt rõ code và README
 
 ### Evidence từ code
 
-- `scapper-srv/app/main.py`
-- `scapper-srv/app/worker.py`
-- `scapper-srv/app/publisher.py`
-- `scapper-srv/app/storage.py`
-- `scapper-srv/RABBITMQ.md`
+- `scrapper-srv/app/main.py`
+- `scrapper-srv/app/worker.py`
+- `scrapper-srv/app/publisher.py`
+- `scrapper-srv/app/storage.py`
+- `scrapper-srv/RABBITMQ.md`
 
 ### Những gì có thể khẳng định từ code
 
-- `scapper-srv` là FastAPI app có worker chạy trong lifespan
+- `scrapper-srv` là FastAPI app có worker chạy trong lifespan
 - worker save raw result qua storage abstraction
 - `MODE=production` có code upload MinIO
 - worker publish completion message sau khi save artifact
@@ -179,7 +179,7 @@ Các phase docs từng dùng path giả định kiểu `report/thesis` và `docu
 
 ### Điều phải cẩn thận
 
-- README của `scapper-srv` vẫn còn dòng nói MinIO upload và completion publish “Not implemented yet”
+- README của `scrapper-srv` vẫn còn dòng nói MinIO upload và completion publish “Not implemented yet”
 - phần current-state trong thesis phải ưu tiên code hiện tại, không copy nguyên README snapshot này
 
 ### File cần rà
@@ -188,7 +188,7 @@ Các phase docs từng dùng path giả định kiểu `report/thesis` và `docu
   Action: giữ bằng chứng ở `app/publisher.py` và `app/main.py`; nếu cần, bổ sung `app/storage.py` và `app/worker.py` để chứng minh completion + storage path.
 
 - [ ] `thesis/chapter_5_implementation.md`
-  Action: nếu mô tả `scapper-srv`, phải ghi rõ current runtime là FastAPI + worker lifespan + completion publish path.
+  Action: nếu mô tả `scrapper-srv`, phải ghi rõ current runtime là FastAPI + worker lifespan + completion publish path.
 
 - [ ] `thesis/chapter_4_system_design.md`
   Action: nếu vẽ crawl runtime sequence, phải dùng completion envelope + storage metadata hiện tại, không dùng local-output-only narrative.
@@ -213,7 +213,7 @@ Các phase docs từng dùng path giả định kiểu `report/thesis` và `docu
 1. Sửa toàn bộ mismatch về frontend evidence trong `thesis/*`.
 2. Sửa toàn bộ path references trong `phase_1` đến `phase_5`.
 3. Rà lại `chapter_3`, `chapter_4`, `chapter_5` theo lifecycle current-state.
-4. Rà `scapper-srv` narrative trong `chapter_4`, `chapter_5`, `01_source_evidence_matrix.md`.
+4. Rà `scrapper-srv` narrative trong `chapter_4`, `chapter_5`, `01_source_evidence_matrix.md`.
 5. Chỉ sau đó mới bắt đầu migrate nội dung sang `final-report` Typst.
 
 ## 5. Definition of Ready Trước Khi Port Vào `final-report`
@@ -221,5 +221,5 @@ Các phase docs từng dùng path giả định kiểu `report/thesis` và `docu
 - [ ] Không còn file nào trong `thesis/` nói workspace không có frontend source hoặc không có `package.json`
 - [ ] Không còn phase doc nào dùng path giả định `report/thesis` hoặc `document/reporting`
 - [ ] Chương 3-5 đã khóa narrative `project -> ingest = internal HTTP main path`
-- [ ] Narrative về `scapper-srv` đã bám code hiện tại, không bám README cũ
+- [ ] Narrative về `scrapper-srv` đã bám code hiện tại, không bám README cũ
 - [ ] Sau khi đạt đủ các điều kiện trên mới bắt đầu port sang Typst

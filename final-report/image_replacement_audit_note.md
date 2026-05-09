@@ -39,7 +39,7 @@ Ghi lại các phần trong `final-report` hiện vẫn đang dùng hình cũ ho
     - `../images/chapter_5/seq-knowledge-indexing-flow.svg`
 - `chapter_5/section_5_3_8.typ`
   - đang dùng SVG render từ PlantUML cho:
-    - `../images/chapter_5/seq-scapper-runtime-flow.svg`
+    - `../images/chapter_5/seq-scrapper-runtime-flow.svg`
 
 ## Backlog cần vẽ hoặc chỉnh sửa
 
@@ -97,9 +97,9 @@ Tạm dừng vẽ hình. Phần dưới đây chỉ ghi lại các mục cần x
   - Cần cân nhắc vẽ thêm contextual search/chat flow vì đây là FR-10 chính.
   - Cần cân nhắc vẽ thêm report generation capability flow nếu report generation vẫn được giữ trong narrative.
 
-- `chapter_5/section_5_3_8.typ` - Scapper Worker Service
+- `chapter_5/section_5_3_8.typ` - Scrapper Worker Service
   - Sequence canonical crawl execution và completion đã có source PlantUML và SVG render:
-    - `../images/chapter_5/seq-scapper-runtime-flow.svg`
+    - `../images/chapter_5/seq-scrapper-runtime-flow.svg`
   - Cần review trực quan diagram này trong PDF trước khi xem là final.
   - Cần cân nhắc vẽ thêm dryrun completion variant nếu `runtime_kind` và dryrun lane vẫn được nhấn mạnh trong text.
 
@@ -150,7 +150,7 @@ Tạm dừng vẽ hình. Phần dưới đây chỉ ghi lại các mục cần x
 - `chapter_5/section_5_7.typ`
   - Cần thay hoặc kiểm tra lại deployment diagram cũ:
     - `../images/deploy/deployment-diagram.drawio.png`
-  - Cần đối chiếu deployment narrative với service/runtime boundary hiện tại, bao gồm `knowledge-srv`, Qdrant, MinIO, Kafka, RabbitMQ, Redis, PostgreSQL và scapper runtime.
+  - Cần đối chiếu deployment narrative với service/runtime boundary hiện tại, bao gồm `knowledge-srv`, Qdrant, MinIO, Kafka, RabbitMQ, Redis, PostgreSQL và scrapper runtime.
 
 ### Chương 6 - Testing / Evaluation
 

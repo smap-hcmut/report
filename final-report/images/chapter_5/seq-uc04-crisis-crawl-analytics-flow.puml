@@ -8,7 +8,7 @@ skinparam roundcorner 12
 
 participant "Ingest Service" as IngestService
 queue "RabbitMQ\ncrawl task" as RabbitMQ
-participant "Scapper Worker" as ScapperWorker
+participant "Scrapper Worker" as ScrapperWorker
 database "MinIO\nraw artifact" as MinIO
 queue "Kafka\nanalytics input" as AnalyticsInput
 participant "Analysis Service" as AnalysisService
@@ -17,14 +17,14 @@ participant "Project Service\nruntime apply" as ProjectService
 participant "Crisis Stage" as CrisisStage
 
 IngestService ->> RabbitMQ : dispatch crawl task
-RabbitMQ ->> ScapperWorker : deliver task
-activate ScapperWorker
-ScapperWorker -> MinIO : write raw crawl artifact
+RabbitMQ ->> ScrapperWorker : deliver task
+activate ScrapperWorker
+ScrapperWorker -> MinIO : write raw crawl artifact
 activate MinIO
-MinIO --> ScapperWorker : object metadata
+MinIO --> ScrapperWorker : object metadata
 deactivate MinIO
-ScapperWorker ->> IngestService : completion envelope\n(bucket, path, checksum, task_id)
-deactivate ScapperWorker
+ScrapperWorker ->> IngestService : completion envelope\n(bucket, path, checksum, task_id)
+deactivate ScrapperWorker
 
 activate IngestService
 IngestService -> MinIO : verify and parse artifact

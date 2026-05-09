@@ -72,7 +72,7 @@ Luồng xử lý:
 
 - Cấu hình cảnh báo khủng hoảng được Project Service quản lý theo project; service này đồng thời cung cấp internal endpoint `apply-runtime` để áp dụng trạng thái khủng hoảng vào vận hành crawl.
 
-- Ingest Service dispatch task thu thập sang RabbitMQ; Scapper Worker thực thi crawl, materialize raw artifact vào MinIO và trả completion envelope về ingest lane.
+- Ingest Service dispatch task thu thập sang RabbitMQ; Scrapper Worker thực thi crawl, materialize raw artifact vào MinIO và trả completion envelope về ingest lane.
 
 - Ingest Service verify artifact, parse dữ liệu và publish các bản ghi chuẩn hóa vào Kafka analytics input để analytics pipeline tiêu thụ.
 

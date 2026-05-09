@@ -44,7 +44,7 @@ Em xin chân thành cảm ơn!
   *TÓM TẮT ĐỀ TÀI*
 ]
 
-Đề tài tập trung xây dựng hệ thống SMAP - Social Media Analytics Platform  nhằm hỗ trợ phân tích dữ liệu mạng xã hội phục vụ hoạt động marketing. Trọng tâm của đồ án không nằm ở việc nghiên cứu thuật toán học máy chuyên sâu, mà tập trung vào bài toán thiết kế kiến trúc phần mềm, tổ chức luồng xử lý dữ liệu và đảm bảo khả năng vận hành ổn định trong bối cảnh dữ liệu lớn và thay đổi liên tục.
+Đề tài tập trung xây dựng hệ thống SMAP - Social Media Analytics Platform nhằm hỗ trợ phân tích dữ liệu mạng xã hội phục vụ hoạt động marketing. Trọng tâm của đồ án không nằm ở việc nghiên cứu thuật toán học máy chuyên sâu, mà tập trung vào bài toán thiết kế kiến trúc phần mềm, tổ chức luồng xử lý dữ liệu và đảm bảo khả năng vận hành ổn định trong bối cảnh dữ liệu lớn và thay đổi liên tục.
 
 Hệ thống được định hướng như một nền tảng phục vụ nhu cầu vận hành và khai thác thông tin trong phạm vi nội bộ, hỗ trợ thu thập, xử lý, phân tích và tổng hợp dữ liệu từ các nguồn mạng xã hội nhằm cung cấp thông tin có giá trị cho việc theo dõi thương hiệu, nhận diện xu hướng và hỗ trợ ra quyết định. Trên cơ sở đó, đồ án tập trung vào việc phân tích yêu cầu, thiết kế kiến trúc và hiện thực các thành phần kỹ thuật chính của hệ thống theo hướng phân tách nhiều dịch vụ với các vai trò chuyên biệt như quản lý ngữ cảnh nghiệp vụ, điều phối thu thập dữ liệu, xử lý phân tích, truy hồi tri thức và thông báo thời gian thực.
 

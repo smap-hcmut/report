@@ -35,7 +35,7 @@
   <text x="650" y="415" text-anchor="middle" class="label">RabbitMQ</text>
   <text x="650" y="438" text-anchor="middle" class="body">request queues: `tiktok_tasks`, `facebook_tasks`, `youtube_tasks`</text>
   <text x="650" y="458" text-anchor="middle" class="body">completion queue: `ingest_task_completions`</text>
-  <text x="1075" y="430" text-anchor="middle" class="label">scapper-srv</text>
+  <text x="1075" y="430" text-anchor="middle" class="label">scrapper-srv</text>
   <path d="M340 425 L470 425" class="edge"/>
   <path d="M830 425 L960 425" class="edge"/>
   <path d="M960 445 L830 445" class="edge"/>

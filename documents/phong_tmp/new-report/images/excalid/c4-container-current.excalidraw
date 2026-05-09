@@ -292,7 +292,7 @@
       "lineHeight": 1.22
     },
     {
-      "id": "svc-scapper-box",
+      "id": "svc-scrapper-box",
       "type": "rectangle",
       "x": 700,
       "y": 170,
@@ -319,7 +319,7 @@
       "locked": false
     },
     {
-      "id": "svc-scapper-text",
+      "id": "svc-scrapper-text",
       "type": "text",
       "x": 710,
       "y": 180,
@@ -344,13 +344,13 @@
       "updated": 1760373000000,
       "link": null,
       "locked": false,
-      "text": "scapper-srv\nCrawler worker and debug API\nContainer\nPython service",
+      "text": "scrapper-srv\nCrawler worker and debug API\nContainer\nPython service",
       "fontSize": 14,
       "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": null,
-      "originalText": "scapper-srv\nCrawler worker and debug API\nContainer\nPython service",
+      "originalText": "scrapper-srv\nCrawler worker and debug API\nContainer\nPython service",
       "autoResize": false,
       "lineHeight": 1.22
     },

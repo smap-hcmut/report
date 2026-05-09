@@ -16,7 +16,7 @@ Hình 4.1 trình bày kiến trúc tổng thể của SMAP ở current-state.
 
 ![Figure 4.1 - High-level Architecture](../images/diagram/c4-container-current.svg)
 
-Kiến trúc này cho thấy SMAP được chia thành sáu nhóm thành phần chính. `identity-srv` tạo security boundary cho toàn hệ thống. `project-srv` giữ business context và lifecycle của campaign/project. `ingest-srv` cùng `scapper-srv` hình thành execution plane để điều phối crawl và chuẩn hóa dữ liệu. `analysis-srv` xử lý pipeline AI/NLP. `knowledge-srv` xây dựng lớp semantic search và RAG. `notification-srv` chịu trách nhiệm delivery theo thời gian thực. Các thành phần này kết nối với PostgreSQL, Redis, Kafka, RabbitMQ, MinIO và Qdrant theo cơ chế chuyên biệt hóa transport.
+Kiến trúc này cho thấy SMAP được chia thành sáu nhóm thành phần chính. `identity-srv` tạo security boundary cho toàn hệ thống. `project-srv` giữ business context và lifecycle của campaign/project. `ingest-srv` cùng `scrapper-srv` hình thành execution plane để điều phối crawl và chuẩn hóa dữ liệu. `analysis-srv` xử lý pipeline AI/NLP. `knowledge-srv` xây dựng lớp semantic search và RAG. `notification-srv` chịu trách nhiệm delivery theo thời gian thực. Các thành phần này kết nối với PostgreSQL, Redis, Kafka, RabbitMQ, MinIO và Qdrant theo cơ chế chuyên biệt hóa transport.
 
 Một điểm quan trọng của kiến trúc hiện tại là không áp dụng một transport duy nhất cho toàn bộ hệ thống. Control plane giữa `project-srv` và `ingest-srv` nghiêng về internal HTTP. Crawl runtime dùng RabbitMQ. Data plane phân tích dùng Kafka. Notification ingress dùng Redis Pub/Sub. Cách tổ chức này phản ánh trực tiếp các yêu cầu phi chức năng đã nêu ở Chương 3, đặc biệt là yêu cầu về hiệu năng, khả năng mở rộng và tính phù hợp giữa workload với cơ chế giao tiếp.
 
@@ -38,7 +38,7 @@ Table 4.1 summarizes the most important architecture decisions identified from t
 | Tách identity khỏi business services | `identity-srv` riêng | cô lập xác thực, JWT, session và OAuth2 | `identity-srv/internal/httpserver/handler.go`, `identity-srv/config/auth-config.yaml` |
 | Tách project context khỏi ingest runtime | `project-srv` và `ingest-srv` riêng | giữ ownership business context tách khỏi execution plane | `project-srv/internal/project/delivery/http/routes.go`, `ingest-srv/internal/datasource/delivery/http/routes.go` |
 | Dùng internal HTTP cho lifecycle control plane | `project-srv` gọi internal APIs của `ingest-srv` | readiness check và activate/pause/resume cần phản hồi đồng bộ trước khi đổi business status | `project-srv/pkg/microservice/ingest/usecase.go`, `ingest-srv/internal/datasource/delivery/http/routes.go` |
-| Dùng RabbitMQ cho crawl runtime | task queues theo platform | phù hợp work queue, completion correlation theo `task_id` | `ingest-srv/internal/execution/delivery/rabbitmq/producer/producer.go`, `scapper-srv/RABBITMQ.md` |
+| Dùng RabbitMQ cho crawl runtime | task queues theo platform | phù hợp work queue, completion correlation theo `task_id` | `ingest-srv/internal/execution/delivery/rabbitmq/producer/producer.go`, `scrapper-srv/RABBITMQ.md` |
 | Dùng Kafka cho analytics data plane | `smap.collector.output` và analytics topics | phù hợp batch consumer, fanout và downstream indexing | `analysis-srv/pyproject.toml`, `analysis-srv/README.md`, `knowledge-srv/go.mod` |
 | Dùng Redis cho notification ingress | Pub/Sub channels theo scope | phù hợp fanout thời gian thực và routing nhẹ | `notification-srv/documents/contracts.md`, `notification-srv/go.mod` |
 | Dùng Qdrant cho knowledge layer | vector store riêng | phục vụ semantic search và RAG | `knowledge-srv/go.mod`, `knowledge-srv/pkg/qdrant/qdrant.go` |
@@ -55,7 +55,7 @@ Table 4.2 clarifies ownership boundaries so that responsibilities are not confus
 | `analysis-srv` | NLP enrichment, reporting bundle, crisis signals, analytics topics | project CRUD, datasource CRUD, websocket delivery | owner của analytics pipeline |
 | `knowledge-srv` | semantic search, chat, notebook sync, indexed documents, conversations | crawl orchestration, project lifecycle control | owner của retrieval và knowledge consumption |
 | `notification-srv` | WebSocket connection management, Discord alert formatting and dispatch | project decision logic, analytics computation | owner của delivery channels |
-| `scapper-srv` | platform-specific crawling, raw artifact storage và completion publish | project business logic, analytics, semantic retrieval | worker runtime tách khỏi business services |
+| `scrapper-srv` | platform-specific crawling, raw artifact storage và completion publish | project business logic, analytics, semantic retrieval | worker runtime tách khỏi business services |
 
 ## 4.2 Database Design
 
@@ -506,7 +506,7 @@ Table 4.21 presents the main module partitioning of the current source tree.
 | `knowledge-srv` | `internal/notebook` | notebook sync and job status | `internal/notebook/*` |
 | `notification-srv` | `internal/websocket` | WebSocket delivery | `internal/websocket/*` |
 | `notification-srv` | `internal/alert` | Discord alert dispatch | `internal/alert/*` |
-| `scapper-srv` | `app/main.py`, `app/worker.py`, `app/publisher.py` | FastAPI application, worker execution and queue publish | Python runtime files |
+| `scrapper-srv` | `app/main.py`, `app/worker.py`, `app/publisher.py` | FastAPI application, worker execution and queue publish | Python runtime files |
 
 ### 4.3.3 Lớp phân tích trên dự án SMAP
 
@@ -531,7 +531,7 @@ Table 4.22 maps the main code modules to the functional requirements identified 
 | FR-04 | `project-srv/internal/crisis` | quản lý crisis config |
 | FR-05, FR-06 | `ingest-srv/internal/datasource` | datasource CRUD, target CRUD, crawl mode |
 | FR-07 | `ingest-srv/internal/dryrun` | trigger, history, bằng chứng về mức sẵn sàng |
-| FR-08 | `ingest-srv/internal/execution`, `scapper-srv/app/worker.py`, `scapper-srv/app/publisher.py` | publish task, consume completion, runtime orchestration |
+| FR-08 | `ingest-srv/internal/execution`, `scrapper-srv/app/worker.py`, `scrapper-srv/app/publisher.py` | publish task, consume completion, runtime orchestration |
 | FR-09 | `analysis-srv/internal/consumer`, `internal/pipeline`, `internal/analytics` | consume UAP, run pipeline, persist/publish outputs |
 | FR-10 | `knowledge-srv/internal/search`, `internal/chat`, `internal/notebook` | semantic search, chat routing, async notebook jobs |
 | FR-11 | `notification-srv/internal/websocket`, `internal/alert` | WebSocket delivery và Discord alerting |

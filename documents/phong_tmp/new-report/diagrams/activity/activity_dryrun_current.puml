@@ -23,7 +23,7 @@ endif
 :Mark datasource dryrun status running;
 :Publish dryrun dispatch to RabbitMQ;
 
-|Scapper Worker|
+|Scrapper Worker|
 :Consume task and fetch sample data;
 :Store result and publish dryrun completion;
 

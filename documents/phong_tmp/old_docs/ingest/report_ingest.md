@@ -10,7 +10,7 @@
 `ingest-srv` đóng vai trò là **"Cửa ngõ thu thập dữ liệu"** (Data Ingestion Gateway) của toàn bộ hệ thống SMAP v2. Trách nhiệm cốt lõi của service này bao gồm:
 
 1. **Quản lý Onboarding Nguồn Dữ Liệu**: Nhận các yêu cầu thu thập dữ liệu từ người dùng thông qua các chiến dịch (Campaign) và dự án (Project).
-2. **Lập lịch và Điều phối (Scheduling & Dispatching)**: Lên lịch định kỳ để ra lệnh cho các Crawler (như `scapper-srv`) đi thu thập dữ liệu trên các nền tảng (TikTok, Facebook, YouTube) dựa trên các mục tiêu (Targets) đã được cấu hình.
+2. **Lập lịch và Điều phối (Scheduling & Dispatching)**: Lên lịch định kỳ để ra lệnh cho các Crawler (như `scrapper-srv`) đi thu thập dữ liệu trên các nền tảng (TikTok, Facebook, YouTube) dựa trên các mục tiêu (Targets) đã được cấu hình.
 3. **Phẳng hóa & Chuẩn hóa dữ liệu (Flattening & Normalization)**: Nhận dữ liệu thô cào về từ MinIO, tách bóc (parse), và chuyển đổi các file JSON khổng lồ/lồng nhau thành luồng dữ liệu sự kiện phẳng (Flat Event Stream) theo chuẩn **UAP (Universal Analytics Profile)**.
 4. **Phân phối cho Phân tích**: Đẩy các UAP đã chuẩn hóa sang cho `analysis-srv` (thông qua Kafka/RabbitMQ) để tiến hành phân loại cảm xúc, đánh giá ý định và nhận diện thực thể bằng AI.
 
@@ -57,16 +57,16 @@ graph LR
     style D fill:#e67e22,stroke:#d35400,color:#fff
 ```
 
-### Bước 2: Thu thập Dữ liệu (Crawling tại Scapper-srv)
-**Module phụ trách:** `scapper-srv` (Python Worker)
+### Bước 2: Thu thập Dữ liệu (Crawling tại Scrapper-srv)
+**Module phụ trách:** `scrapper-srv` (Python Worker)
 
 1. Worker lắng nghe trên `platform_tasks` queue.
 2. Khi nhận được Request Envelope, gọi `tinlikesub` SDK để lấy dữ liệu (Post, Comments).
 3. Gom dữ liệu vào một file JSON khổng lồ (Batch).
 
 ### Bước 3: Data Handoff (Chuyển giao qua MinIO & RabbitMQ)
-1. `scapper-srv` upload file JSON Raw lên **MinIO** (Data Lake) theo cấu trúc: `crawl-raw/{platform}/{action}/{yyyy}/{mm}/{dd}/{task_id}.json`.
-2. `scapper-srv` tạo Completion Envelope (chứa path, bucket, checksum, task_id) và publish vào queue `ingest_task_completions`.
+1. `scrapper-srv` upload file JSON Raw lên **MinIO** (Data Lake) theo cấu trúc: `crawl-raw/{platform}/{action}/{yyyy}/{mm}/{dd}/{task_id}.json`.
+2. `scrapper-srv` tạo Completion Envelope (chứa path, bucket, checksum, task_id) và publish vào queue `ingest_task_completions`.
 
 ### Bước 4: Consume, Parser & Phân phối (Ingestion & Normalization)
 **Module phụ trách:** `internal/execution/delivery/rabbitmq/consumer` & `internal/uap`
@@ -97,9 +97,9 @@ graph TD
 `ingest-srv` tuân thủ 2 loại Contract chính:
 
 ### A. Runtime Contract (RabbitMQ)
-Định nghĩa giao tiếp giữa `ingest-srv` và `scapper-srv`:
+Định nghĩa giao tiếp giữa `ingest-srv` và `scrapper-srv`:
 - **Request Envelope**: Gửi từ Ingest. Chứa `task_id`, `action` (vd: `full_flow`, `post_detail`), và `params` (chứa array keywords hoặc URL).
-- **Completion Envelope**: Gửi từ Scapper. Xác nhận trạng thái thành công/thất bại, số lượng item cào được, và quan trọng nhất là tọa độ file lưu trên Data Lake: `storage_bucket`, `storage_path`, `checksum`.
+- **Completion Envelope**: Gửi từ Scrapper. Xác nhận trạng thái thành công/thất bại, số lượng item cào được, và quan trọng nhất là tọa độ file lưu trên Data Lake: `storage_bucket`, `storage_path`, `checksum`.
 
 ### B. Data Payload Contract (UAP - Universal Analytics Profile)
 Đây là "Ngôn ngữ chung" của hệ thống SMAP v2, chuẩn hóa mọi loại dữ liệu hỗn tạp từ mạng xã hội thành định dạng mà AI và RAG có thể hiểu được.
@@ -126,7 +126,7 @@ sequenceDiagram
     participant ProjectSrv as Project Service
     participant IngestSrv as Ingest Service (Scheduler & Parser)
     participant RMQ as RabbitMQ (Task & Completion)
-    participant ScapperSrv as Scapper Service (Worker)
+    participant ScrapperSrv as Scrapper Service (Worker)
     participant MinIO as MinIO (Data Lake)
     participant Kafka as Kafka (UAP Stream)
     participant AnalysisSrv as Analysis Service
@@ -143,10 +143,10 @@ sequenceDiagram
     end
 
     %% Crawling & Data Handoff
-    RMQ->>ScapperSrv: 6. Consume Task
-    ScapperSrv->>ScapperSrv: 7. Crawl dữ liệu (SDK tinlikesub)
-    ScapperSrv->>MinIO: 8. Upload Raw JSON (Batch)
-    ScapperSrv->>RMQ: 9. Publish Completion Envelope (kèm MinIO path)
+    RMQ->>ScrapperSrv: 6. Consume Task
+    ScrapperSrv->>ScrapperSrv: 7. Crawl dữ liệu (SDK tinlikesub)
+    ScrapperSrv->>MinIO: 8. Upload Raw JSON (Batch)
+    ScrapperSrv->>RMQ: 9. Publish Completion Envelope (kèm MinIO path)
 
     %% Ingestion, Normalization & Distribution
     RMQ->>IngestSrv: 10. Consume Completion

@@ -126,7 +126,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
     table.cell(align: horizon, inset: (y: 0.8em))[UC-02],
     table.cell(align: horizon, inset: (y: 0.8em))[
       ingest-srv, #linebreak()
-      scapper-srv, #linebreak()
+      scrapper-srv, #linebreak()
       analysis-srv
     ],
     table.cell(align: horizon, inset: (y: 0.8em))[
@@ -197,7 +197,7 @@ Bảng dưới đây liên hệ các yêu cầu chức năng ở mục 4.2 với
 Nhìn từ ma trận trên, có ba nhóm liên hệ chính:
 
 - FR-01, FR-09 và FR-12 đóng vai trò supporting concern cho các use case được bảo vệ, đúng với cách Chương 4 đã tách các cơ chế xác thực, xử lý nền và kiểm tra liên thông khỏi mục tiêu nghiệp vụ của người dùng.
-- FR-02 đến FR-08 chủ yếu gắn với hai mục tiêu nghiệp vụ đầu tiên là thiết lập và vận hành chiến dịch theo dõi, trong đó `project-srv`, `ingest-srv` và `scapper-srv` tạo thành trục business control plane kết hợp với execution plane.
+- FR-02 đến FR-08 chủ yếu gắn với hai mục tiêu nghiệp vụ đầu tiên là thiết lập và vận hành chiến dịch theo dõi, trong đó `project-srv`, `ingest-srv` và `scrapper-srv` tạo thành trục business control plane kết hợp với execution plane.
 - FR-10 và FR-11 gắn trực tiếp với các capability khai thác kết quả ở `knowledge-srv`, `notification-srv` và lớp giao diện người dùng.
 
 ==== 5.8.1.2 Truy xuất đặc tính kiến trúc
@@ -435,7 +435,7 @@ Phần này ghi lại sáu quyết định kiến trúc quan trọng của hệ 
 
 Bối cảnh: Hệ thống cần đồng thời hỗ trợ business context, execution plane, analytics pipeline, knowledge retrieval và notification delivery. Các nhóm tải và ranh giới trách nhiệm khác nhau đủ lớn để việc gộp mọi thứ vào một runtime duy nhất làm tăng coupling và blast radius.
 
-Quyết định: Tổ chức SMAP theo kiến trúc microservices, tách các bounded context chính thành `identity-srv`, `project-srv`, `ingest-srv`, `analysis-srv`, `knowledge-srv`, `notification-srv` và `scapper-srv`.
+Quyết định: Tổ chức SMAP theo kiến trúc microservices, tách các bounded context chính thành `identity-srv`, `project-srv`, `ingest-srv`, `analysis-srv`, `knowledge-srv`, `notification-srv` và `scrapper-srv`.
 
 Các lựa chọn đã xem xét:
 
@@ -460,7 +460,7 @@ Mục liên quan: 5.1.1, 5.2.1, 5.2.3.
 
 Bối cảnh: Các API và control plane cần runtime gọn nhẹ, concurrency tốt và chi phí bộ nhớ hợp lý, trong khi analytics hoặc crawl runtime cần hệ sinh thái thư viện dữ liệu và automation phong phú hơn.
 
-Quyết định: Dùng Go cho các service nghiêng về API, control plane hoặc delivery như `identity-srv`, `project-srv`, `ingest-srv`, `knowledge-srv`, `notification-srv`; dùng Python cho `analysis-srv` và `scapper-srv` để phục vụ NLP pipeline và crawl runtime.
+Quyết định: Dùng Go cho các service nghiêng về API, control plane hoặc delivery như `identity-srv`, `project-srv`, `ingest-srv`, `knowledge-srv`, `notification-srv`; dùng Python cho `analysis-srv` và `scrapper-srv` để phục vụ NLP pipeline và crawl runtime.
 
 Các lựa chọn đã xem xét:
 

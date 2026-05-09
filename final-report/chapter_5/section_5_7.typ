@@ -21,9 +21,9 @@ Kiến trúc triển khai được tổ chức thành các tầng sau:
 
 - Tầng Frontend: `web-ui` được triển khai như một pod giao diện và backend-for-frontend, phục vụ giao diện người dùng và gọi API đến backend services.
 
-- Tầng API Pods: Các pod phục vụ HTTP hoặc WebSocket bao gồm `identity-api`, `project-api`, `ingest-api`, `analysis-api`, `knowledge-api`, `notification-delivery` và `scapper-api`.
+- Tầng API Pods: Các pod phục vụ HTTP hoặc WebSocket bao gồm `identity-api`, `project-api`, `ingest-api`, `analysis-api`, `knowledge-api`, `notification-delivery` và `scrapper-api`.
 
-- Tầng Runtime Pods: Các pod nền bao gồm `identity-audit-consumer`, `project-consumer`, `ingest-scheduler`, `ingest-completion-consumer`, `analysis-consumer`, `knowledge-consumer` và `scapper-worker`.
+- Tầng Runtime Pods: Các pod nền bao gồm `identity-audit-consumer`, `project-consumer`, `ingest-scheduler`, `ingest-completion-consumer`, `analysis-consumer`, `knowledge-consumer` và `scrapper-worker`.
 
 - Tầng Infrastructure: Các dịch vụ hạ tầng bao gồm PostgreSQL cho lưu trữ dữ liệu quan hệ, Redis cho caching và pub/sub, RabbitMQ cho task queue, Kafka cho analytics data plane, MinIO cho object storage và Qdrant cho vector retrieval.
 
@@ -124,7 +124,7 @@ Ví dụ các images trong hệ thống:
 - registry.tantai.dev/smap/notification-srv:241215-143022
 - registry.tantai.dev/smap/analysis-api:241215-143022
 - registry.tantai.dev/smap/analysis-consumer:241215-143022
-- registry.tantai.dev/smap/scapper-srv:241215-143022
+- registry.tantai.dev/smap/scrapper-srv:241215-143022
 - registry.tantai.dev/smap/smap-ui:241215-143022
 
 Mỗi service được build bằng multi-stage Dockerfile để tối ưu kích thước image. Các Go services sử dụng runtime distroless sau giai đoạn biên dịch binary, trong khi các Python services chủ yếu sử dụng slim base image với dependencies được cài đặt qua pip.
@@ -303,17 +303,17 @@ Các nguyên tắc triển khai chính gồm:
     ))[Giữ subscriber cùng pod delivery vì phụ thuộc in-memory WebSocket hub],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[
-      scapper-#linebreak()worker
+      scrapper-#linebreak()worker
     ],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scrapper-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[RabbitMQ crawl worker],
     table.cell(align: center + horizon, inset: (y: 0.8em))[N/A],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Thực thi crawl task và materialize raw artifact],
 
     table.cell(align: center + horizon, inset: (y: 0.8em))[
-      scapper-#linebreak()api
+      scrapper-#linebreak()api
     ],
-    table.cell(align: center + horizon, inset: (y: 0.8em))[scapper-srv],
+    table.cell(align: center + horizon, inset: (y: 0.8em))[scrapper-srv],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Auxiliary submit, result và health API],
     table.cell(align: center + horizon, inset: (y: 0.8em))[8105],
     table.cell(align: center + horizon, inset: (y: 0.8em))[Pod hỗ trợ cho thao tác vận hành hoặc kiểm tra cục bộ],

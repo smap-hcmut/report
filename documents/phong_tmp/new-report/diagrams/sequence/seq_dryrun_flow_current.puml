@@ -9,7 +9,7 @@ participant "Dryrun UseCase" as DryrunUC
 database "Ingest DB" as IngestDB
 queue "RabbitMQ Producer" as Producer
 queue "Dryrun Task Queue" as TaskQueue
-participant "Scapper Worker" as Worker
+participant "Scrapper Worker" as Worker
 queue "Dryrun Completion Queue" as CompletionQueue
 participant "Dryrun Completion Consumer" as Consumer
 
