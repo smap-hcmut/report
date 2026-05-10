@@ -2,7 +2,7 @@
 
 = CHƯƠNG 3: CƠ SỞ KỸ THUẬT VÀ CÔNG NGHỆ SỬ DỤNG
 
-Chương này hệ thống hóa các nền tảng lý thuyết và công nghệ chủ đạo làm cơ sở cho việc thiết kế, hiện thực và đánh giá hệ thống SMAP. Nội dung bao quát các phong cách kiến trúc, cơ chế giao tiếp trong hệ thống phân tán, nhóm công nghệ lưu trữ dữ liệu cùng các công nghệ triển khai.
+Chương này hệ thống hóa các nền tảng lý thuyết và công nghệ chủ đạo làm cơ sở cho việc thiết kế, hiện thực và đánh giá hệ thống SMAP. Nội dung bao quát các phong cách kiến trúc, cơ chế giao tiếp trong hệ thống phân tán, nhóm công nghệ lưu trữ dữ liệu, các kỹ thuật AI/NLP và khai thác tri thức, cùng các công nghệ triển khai.
 
 #import "section_3_1.typ" as section_3_1
 #section_3_1
@@ -33,3 +33,6 @@ Chương này hệ thống hóa các nền tảng lý thuyết và công nghệ 
 
 #import "section_3_10.typ" as section_3_10
 #section_3_10
+
+#import "section_3_11.typ" as section_3_11
+#section_3_11

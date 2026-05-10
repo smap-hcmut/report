@@ -35,12 +35,12 @@ Phạm vi ứng dụng của hệ thống tập trung vào việc hỗ trợ qua
 === 1.3.2 Phạm vi dữ liệu
 Nguồn dữ liệu được sử dụng trong hệ thống bao gồm các bài đăng, bình luận và phản hồi công khai được thu thập từ các nền tảng mạng xã hội như TikTok, YouTube và Facebook.
 
-Trong phạm vi của đồ án, dữ liệu được xem là đầu vào phục vụ cho quá trình thu thập, xử lý và phân tích thông tin. Hệ thống tập trung vào việc tổ chức luồng xử lý và khai thác giá trị từ dữ liệu đầu vào, không đặt mục tiêu xác minh tính xác thực tuyệt đối của từng nội dung phát sinh trên các nền tảng mạng xã hội.
+Trong phạm vi của đồ án, dữ liệu được xem là đầu vào phục vụ cho quá trình thu thập, xử lý và phân tích thông tin. Hệ thống tập trung vào việc tổ chức luồng xử lý và khai thác giá trị từ dữ liệu đầu vào, không đặt mục tiêu xác minh tính xác thực tuyệt đối của từng nội dung phát sinh trên các nền tảng mạng xã hội. Do chất lượng kết quả phân tích phụ thuộc trực tiếp vào chất lượng dữ liệu đầu vào, hệ thống không cam kết độ chính xác cao trong mọi trường hợp; các kết quả phân tích cần được hiểu theo nguyên tắc "garbage in, garbage out" và nên được sử dụng như nguồn hỗ trợ tham khảo cho quá trình đánh giá.
 
 === 1.3.3 Phạm vi kỹ thuật
 Về mặt kỹ thuật, đồ án tập trung vào việc xây dựng một hệ thống phân tán gồm nhiều thành phần chuyên biệt, trong đó dữ liệu được thu thập từ các nguồn mạng xã hội, chuẩn hóa, xử lý phân tích và cung cấp cho người dùng thông qua các cơ chế lưu trữ, truyền tin và thông báo phù hợp. Phạm vi kỹ thuật của đề tài bao gồm tổ chức kiến trúc hệ thống, thiết kế luồng xử lý dữ liệu và làm rõ cách các thành phần trong hệ thống phối hợp với nhau thông qua cả cơ chế giao tiếp đồng bộ lẫn bất đồng bộ.
 
-Đồ án không đi sâu vào việc nghiên cứu các mô hình học máy mới hay tối ưu thuật toán ở mức học thuật. Trọng tâm chính là làm rõ cách hệ thống được tổ chức và hiện thực để hỗ trợ thiết lập đối tượng theo dõi, thu thập dữ liệu, xử lý phân tích, khai thác thông tin theo ngữ cảnh và cung cấp thông tin phục vụ công tác theo dõi, đánh giá và ra quyết định.
+Đồ án không đi sâu vào việc nghiên cứu các mô hình học máy mới, tối ưu thuật toán AI hay chứng minh độ chính xác của mô hình ở mức học thuật. Thay vào đó, đồ án tập trung nghiên cứu, lựa chọn và sử dụng các công cụ, thư viện và mô hình phù hợp để giải quyết bài toán trong phạm vi hệ thống. Trọng tâm chính là xây dựng một hệ thống đạt đủ điều kiện phục vụ các luồng nghiệp vụ cốt lõi như thiết lập đối tượng theo dõi, thu thập dữ liệu, xử lý phân tích, khai thác thông tin theo ngữ cảnh và cung cấp thông tin phục vụ công tác theo dõi, đánh giá và ra quyết định.
 
 Ngoài ra, đồ án cũng xem xét các yếu tố hỗ trợ triển khai và vận hành như container hóa, tổ chức môi trường thực thi và khả năng mở rộng của từng thành phần, nhưng không đặt mục tiêu mô tả chi tiết toàn bộ hạ tầng triển khai như một tài liệu vận hành hoàn chỉnh.
 

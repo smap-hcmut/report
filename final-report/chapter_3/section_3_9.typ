@@ -1,33 +1,55 @@
-== 3.9 Containerization và Orchestration
+== 3.9 Công nghệ Frontend
 
-=== 3.9.1 Docker
+=== 3.9.1 Next.js
 
-Docker là một nền tảng phục vụ việc phát triển, đóng gói và chạy ứng dụng trong môi trường container. Container là các gói thực thi nhẹ và độc lập, bao gồm toàn bộ thành phần cần thiết để chạy ứng dụng như mã nguồn, runtime, công cụ hệ thống, thư viện và cấu hình. Docker cho phép đóng gói ứng dụng cùng toàn bộ phụ thuộc của nó thành các image container, có thể chạy nhất quán trên nhiều môi trường triển khai khác nhau.
+Next.js là một React framework được phát triển bởi Vercel, cung cấp nhiều tính năng để xây dựng các ứng dụng web sẵn sàng sản xuất. Next.js hỗ trợ Server-Side Rendering, Static Site Generation, và Client-Side Rendering, cho phép chọn chiến lược render phù hợp cho từng trang. Next.js đã trở thành một trong những React framework phổ biến nhất cho các ứng dụng doanh nghiệp.
 
-Công nghệ container giải quyết vấn đề khác biệt môi trường chạy giữa máy phát triển, máy kiểm thử và máy triển khai. Khi ứng dụng và các phụ thuộc của nó được đóng gói trong cùng một image, hành vi của ứng dụng trở nên nhất quán hơn và ít phụ thuộc vào cấu hình thủ công của từng máy. Nhờ đó, container đặc biệt phù hợp với các hệ thống có nhiều thành phần hoặc nhiều service cần được triển khai độc lập.
+Server-Side Rendering cho phép render các React component trên server và gửi HTML đến client. Điều này cải thiện thời gian tải trang ban đầu và SEO vì các công cụ tìm kiếm có thể lập chỉ mục nội dung. SSR đặc biệt quan trọng cho các trang có nhiều nội dung và ứng dụng cần SEO tốt.
 
-Docker image là các template chỉ đọc chứa hướng dẫn để tạo container. Image thường được xây dựng từ Dockerfile, trong đó mô tả rõ các bước cài đặt môi trường, sao chép mã nguồn, cấu hình runtime và lệnh khởi động. Cấu trúc phân lớp của image giúp tối ưu không gian lưu trữ và tăng tốc quá trình build lại khi chỉ một phần của ứng dụng thay đổi.
+Next.js hỗ trợ định tuyến dựa trên hệ thống file và có thể được tổ chức theo nhiều chiến lược khác nhau tùy theo giai đoạn phát triển của dự án. Trong frontend của SMAP, có thể thấy cả hướng tổ chức Pages Router lẫn App Router, cho thấy lớp giao diện có khả năng mở rộng và tái cấu trúc dần theo nhu cầu thực tế. Điều này phản ánh tính linh hoạt của Next.js trong việc hỗ trợ nhiều cách tổ chức routing trong cùng một hệ thống.
 
-=== 3.9.2 Docker Compose
+API Routes cho phép tạo các endpoint API trong cùng ứng dụng Next.js. Điều này hữu ích cho mẫu backend-for-frontend, nơi frontend cần lớp API để tổng hợp dữ liệu từ nhiều service. API Routes có thể xử lý xác thực, chuyển đổi dữ liệu, và bộ nhớ đệm.
 
-Docker Compose là công cụ cho phép định nghĩa và khởi động nhiều container như một tập hợp thống nhất. Thay vì chạy từng container riêng lẻ bằng lệnh thủ công, Docker Compose cho phép mô tả service, network, volume và dependency trong một file cấu hình. Cách tiếp cận này đặc biệt hữu ích trong môi trường phát triển, kiểm thử tích hợp hoặc mô phỏng các hệ thống nhiều thành phần ở quy mô gọn nhẹ.
+=== 3.9.2 React
 
-Trong các hệ thống nhiều service, Docker Compose giúp đơn giản hóa quá trình khởi động đồng thời nhiều thành phần như API service, cache, message broker hay cơ sở dữ liệu. Điều này không thay thế cho orchestration ở quy mô lớn, nhưng là bước đệm quan trọng để duy trì tính nhất quán môi trường trong quá trình phát triển và kiểm thử.
+React là một thư viện JavaScript để xây dựng giao diện người dùng, được phát triển bởi Facebook. React sử dụng kiến trúc dựa trên component, nơi UI được chia thành các component có thể tái sử dụng. React đã trở thành một trong những thư viện frontend phổ biến nhất với hệ sinh thái rộng lớn.
 
-=== 3.9.3 Kubernetes
+Kiến trúc dựa trên component cho phép xây dựng UI phức tạp từ các phần nhỏ, độc lập. Mỗi component quản lý trạng thái và render của riêng nó. Các component có thể được kết hợp để tạo UI phức tạp. Điều này tăng khả năng tái sử dụng và bảo trì.
 
-Kubernetes là một nền tảng orchestration cho container, được thiết kế để tự động hóa việc triển khai, mở rộng và quản lý các ứng dụng được đóng gói trong container. Hệ thống này cho phép phân phối workload lên nhiều node, điều phối vòng đời của container, và duy trì trạng thái mong muốn của ứng dụng trong môi trường triển khai.
+Virtual DOM là một trong những đổi mới của React. Thay vì thao tác DOM trực tiếp, React tạo biểu diễn ảo của DOM trong bộ nhớ. Khi trạng thái thay đổi, React tính toán các thay đổi tối thiểu cần thiết và cập nhật DOM theo lô. Điều này cải thiện hiệu suất đáng kể.
 
-Khả năng orchestration của Kubernetes được xây dựng trên nhiều thành phần cơ bản. Pod là đơn vị triển khai nhỏ nhất, có thể chứa một hoặc nhiều container. Deployment quản lý việc phát hành phiên bản mới và hỗ trợ rollback. Service cung cấp lớp địa chỉ ổn định và cân bằng tải cho các pod. ConfigMap và Secret hỗ trợ tách cấu hình khỏi image triển khai. Ingress cho phép định tuyến lưu lượng từ bên ngoài vào các service trong cụm.
+Hook là tính năng được giới thiệu trong React 16.8, cho phép sử dụng trạng thái và tính năng vòng đời trong các functional component. useState cho trạng thái cục bộ, useEffect cho tác dụng phụ, useContext cho tiêu thụ context. Hook làm cho mã ngắn gọn và dễ kiểm thử hơn class component.
 
-Một lợi ích quan trọng của Kubernetes là khả năng duy trì trạng thái mong muốn của hệ thống. Các controller liên tục so sánh trạng thái thực tế với cấu hình khai báo và tự động điều chỉnh khi có sai lệch. Nhờ đó, việc triển khai trở nên có thể tái tạo, dễ kiểm soát bằng mã cấu hình và phù hợp với các hệ thống cần vận hành ổn định ở quy mô nhiều service.
+=== 3.9.3 TypeScript
 
-=== 3.9.4 Auto Scaling và Self-Healing
+TypeScript là một tập cha của JavaScript thêm kiểu tĩnh. TypeScript được phát triển bởi Microsoft và đã trở thành tiêu chuẩn cho các ứng dụng JavaScript quy mô lớn. Mã TypeScript được biên dịch thành JavaScript, có thể chạy trên bất kỳ runtime JavaScript nào.
 
-Trong các hệ thống phân tán, tải xử lý giữa các thành phần thường không đồng đều và có thể thay đổi theo thời gian. Vì vậy, orchestration không chỉ dừng ở việc khởi động container mà còn cần hỗ trợ mở rộng và phục hồi tự động. Auto scaling cho phép tăng hoặc giảm số lượng bản sao của một thành phần dựa trên tín hiệu như CPU, bộ nhớ hoặc tải xử lý. Điều này giúp hệ thống sử dụng tài nguyên linh hoạt hơn và tránh lãng phí trong các thời điểm tải thấp.
+Kiểu tĩnh là lợi ích chính của TypeScript. Các kiểu được kiểm tra tại thời điểm biên dịch, phát hiện lỗi trước khi mã chạy. Hỗ trợ IDE tốt hơn với tự động hoàn thành, tái cấu trúc, và điều hướng. Tài liệu được nhúng trong mã thông qua các kiểu.
 
-Self-healing là khả năng tự khôi phục khi container hoặc pod gặp sự cố. Nếu một tiến trình bị treo, crash hoặc không còn đáp ứng kiểm tra sức khỏe, hệ thống orchestration có thể tự động khởi động lại hoặc thay thế instance tương ứng. Cơ chế này đặc biệt quan trọng với các hệ thống nhiều thành phần, nơi việc can thiệp thủ công vào từng service sẽ nhanh chóng trở nên khó quản lý.
+Suy luận kiểu giảm mã boilerplate. TypeScript có thể suy luận kiểu từ ngữ cảnh, không cần chú thích mọi biến. Điều này cân bằng giữa tính an toàn kiểu và năng suất của nhà phát triển.
 
-Các cơ chế auto scaling và self-healing không thay thế cho thiết kế hệ thống tốt, nhưng chúng là những lớp hỗ trợ vận hành quan trọng giúp tăng tính sẵn sàng và ổn định của hệ thống khi được triển khai ở môi trường thực tế.
+Interface và Type cho phép định nghĩa hình dạng của các đối tượng. Interface có thể mở rộng và triển khai. Union type và intersection type cho phép biểu đạt các mối quan hệ kiểu phức tạp. Generic cho phép mã có thể tái sử dụng và an toàn kiểu.
 
-Những khái niệm về containerization và orchestration là nền tảng phù hợp để hiểu cách các hệ thống nhiều service như SMAP có thể được đóng gói, triển khai và vận hành theo hướng nhất quán hơn, đồng thời tạo tiền đề cho việc mở rộng và quản lý các thành phần độc lập ở các chương sau.
+=== 3.9.4 Tailwind CSS
+
+Tailwind CSS là một CSS framework utility-first, cung cấp các class tiện ích cấp thấp thay vì các component được thiết kế sẵn. Tailwind cho phép xây dựng thiết kế tùy chỉnh mà không cần viết CSS tùy chỉnh. Tailwind đã trở thành một trong những CSS framework phổ biến nhất cho phát triển web hiện đại.
+
+Phương pháp utility-first có nghĩa là styling được thực hiện bằng cách kết hợp các class tiện ích. Thay vì viết CSS tùy chỉnh cho mỗi component, các nhà phát triển sử dụng các class được định nghĩa sẵn như flex, pt-4, text-center. Điều này tăng tốc độ phát triển và tính nhất quán.
+
+Thiết kế responsive được tích hợp sẵn với các tiền tố responsive. Các class như md:flex chỉ áp dụng trên màn hình trung bình trở lên. Điều này làm cho thiết kế responsive dễ dàng và có thể dự đoán được.
+
+Tùy chỉnh thông qua file cấu hình cho phép định nghĩa màu sắc, khoảng cách, phông chữ, và breakpoint tùy chỉnh. Tailwind có thể được điều chỉnh cho hệ thống thiết kế của dự án, đồng thời hỗ trợ tốt cho việc xây dựng các giao diện có nhiều biến thể thành phần.
+
+=== 3.9.5 Electron và khả năng đóng gói desktop
+
+Electron là một nền tảng cho phép xây dựng ứng dụng desktop đa nền tảng bằng công nghệ web như HTML, CSS và JavaScript. Electron kết hợp Chromium để hiển thị giao diện và Node.js để cung cấp khả năng truy cập hệ thống ở phía desktop runtime. Nhờ đó, cùng một nền mã giao diện có thể được sử dụng để phát hành ứng dụng desktop bên cạnh phiên bản web.
+
+Trong SMAP, frontend không chỉ dừng ở web application thuần túy mà còn có khả năng đóng gói desktop thông qua Electron. Điều này đặc biệt hữu ích khi hệ thống cần một hình thức triển khai thuận tiện cho người dùng cuối, đồng thời vẫn tận dụng được toàn bộ stack giao diện dựa trên Next.js, React và TypeScript.
+
+=== 3.9.6 Tích hợp analytics API và dashboard
+
+Trong các hệ thống phân tích dữ liệu, lớp giao diện không chỉ đảm nhiệm hiển thị trang nghiệp vụ mà còn thường tích hợp các API phân tích hoặc dashboard chuyên dụng để hỗ trợ truy vấn và trực quan hóa. Một hướng tiếp cận phổ biến là frontend cung cấp lớp tích hợp trung gian để truy xuất dữ liệu từ service phân tích và đưa kết quả vào trải nghiệm sử dụng chung của hệ thống.
+
+Đối với SMAP, frontend tích hợp analytics API thông qua các hook và route handler chuyên biệt. Điều này cho thấy frontend không chỉ đóng vai trò giao diện thao tác, mà còn là nơi kết nối giữa trải nghiệm người dùng với các lớp báo cáo và khai thác dữ liệu có cấu trúc hơn.
+
+Những công nghệ trên là cơ sở để hình thành frontend hiện tại của SMAP: một lớp giao diện dựa trên Next.js, React, TypeScript và Tailwind CSS, có hỗ trợ i18n, có khả năng tích hợp analytics dashboard/API, và có hướng triển khai trên cả web lẫn desktop thông qua Electron.
