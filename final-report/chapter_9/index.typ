@@ -686,6 +686,63 @@
     [53], [Hiện thực Notification Service], [15/11 - 25/11], [Đặng Quốc Phong],
     [54], [Hiện thực Web UI], [01/10 - 30/11], [Nguyễn Chánh Tín],
     [55], [Tích hợp và chạy thử MVP], [01/12 - 10/12], [Cả nhóm],
+
+    // Phase 9: Bổ sung theo lịch sử commit từ tháng 1 đến tháng 5
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 9: Tháng 1/2026 - Khởi tạo repository và chuẩn hóa tài liệu nền*],
+
+    [56], [Tách cấu trúc thành các repository/service độc lập và chuẩn hóa hướng dẫn quản lý source (report: 0330108, 04260c8; ingest-srv: 554d19f)], [11/01 - 25/01], [Cả nhóm],
+    [57], [Cập nhật sequence diagrams, đường dẫn hình ảnh và README diagram cho báo cáo kiến trúc (report: 2de68ca, e87418a, ab90a08)], [11/01 - 26/01], [Cả nhóm],
+
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 10: Tháng 2/2026 - Xây dựng lõi service và contract dữ liệu*],
+
+    [58], [Hiện thực nền tảng Backend cho Identity Service, JWT, token blacklist, internal admin và security enhancements (identity-srv: 570fedd, 4b3606c, 24aaf73)], [09/02 - 15/02], [Đặng Quốc Phong],
+    [59], [Hiện thực Project-Campaign hierarchy, refactor package convention và Kafka consumer nền cho Project Service (project-srv: dde4514, 2e1359d, e0fa363)], [18/02 - 19/02], [Đặng Quốc Phong],
+    [60], [Thiết kế contract UAP, data flow, ingest API specification và project/data source hierarchy (report: 3fafd06, eeaff7d, 5bcbf9e, b2913ae)], [08/02 - 20/02], [Đặng Quốc Phong],
+    [61], [Hiện thực Analysis Service clean architecture, RabbitMQ/Kafka consumer, NLP domains, UAP và post_insight pipeline (analysis-srv: 86f6ea2, 2ad5b97, f0da7ce, b4448fc)], [11/02 - 19/02], [Nguyễn Tấn Tài],
+    [62], [Hiện thực Knowledge Service với MinIO, Qdrant, Voyage/Gemini, indexing, semantic search, chat và report generation (knowledge-srv: 576478e, d5e6808, 049c817, ba95eb2, 46f43bc)], [15/02 - 17/02], [Nguyễn Tấn Tài],
+    [63], [Hiện thực Notification Service WebSocket, alert dispatching và notification event contract (notification-srv: adaac4f, e5ec7d7, e7ab7d3, a094254)], [17/02], [Nguyễn Tấn Tài],
+
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 11: Tháng 3/2026 - Tích hợp runtime, tracing và kiểm thử UI/API*],
+
+    [64], [Hoàn thiện Ingest Service với dry-run, cron job, execution task, UAP parser và Kafka producer (ingest-srv: 03d1255, 69ceb62, da32036, 8c006d3)], [06/03 - 08/03], [Đặng Quốc Phong],
+    [65], [Phát triển Scapper Service, RabbitMQ/MinIO dev mode, completion routing, YouTube logic và SDK release (scapper-srv: 96b7702, a8669d3, 7e3917f, b3ef730)], [04/03 - 24/03], [Đặng Quốc Phong],
+    [66], [Chuẩn hóa shared-libs cho tracing, logging, HTTP/Kafka/Postgres clients, auth middleware và internal service auth (shared-libs: 3e6cdb4, cfe40ac, 891be8e, 350081f)], [12/03 - 16/03], [Đặng Quốc Phong],
+    [67], [Docker hóa, tracing, JSON logging và cấu hình vận hành cho Analysis/Knowledge/Notification services (analysis-srv: 52e5539; knowledge-srv: ffc9a5c; notification-srv: d680afd)], [10/03 - 16/03], [Nguyễn Tấn Tài],
+    [68], [Tích hợp NotebookLM automation, dynamic Qdrant collection, knowledge contracts và demo analyse CLI (knowledge-srv: 99c6ec0, 6fc03f4; smap-analyse: 2964617, 558892c)], [24/03 - 31/03], [Nguyễn Tấn Tài],
+    [69], [Xây dựng UI test, kết nối prod API, các màn hình Knowledge Chat, Search, AI Reports, Scraper Task và WebSocket notifications (report: 81a6c31, 1140824, 66a9649)], [12/03 - 18/03], [Nguyễn Chánh Tín],
+    [70], [Thiết lập deployment manifests, Fluent Bit, log viewer, Discord bot và pipeline triển khai ban đầu (smap-deploy: 91bfb73, a64e509, 21617eb)], [10/03 - 12/03], [Đặng Quốc Phong],
+
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 12: Tháng 4/2026 - Hoàn thiện nghiệp vụ, UI và báo cáo chính thức*],
+
+    [71], [Hoàn thiện lifecycle datasource/crawl target, UAP parser TikTok/YouTube/Facebook, dry-run guard và readiness contract (ingest-srv: 9c61837, 5489683, 8df317e, 3e6148e)], [08/04 - 14/04], [Đặng Quốc Phong],
+    [72], [Hoàn thiện Project Service với domain registry, lifecycle enum, internal campaign endpoint và HTTP 404 contract (project-srv: a149461, 34fc7fe, 343ca15, 43c22c5)], [08/04 - 14/04], [Đặng Quốc Phong],
+    [73], [Chuẩn hóa Identity Service schema, middleware, Swagger gateway-aware BasePath và shared auth dependency (identity-srv: e814a1e, 5a6a40c, 90be4bc, c326826)], [13/04 - 21/04], [Đặng Quốc Phong],
+    [74], [Tích hợp Analysis new core, ontology/domain registry, Redis publication, batch processing, ONNX và language-filtered NLP flow (analysis-srv: 5b66695, d770dc0, 8eec279, 7b69688, b688b35)], [08/04 - 23/04], [Nguyễn Tấn Tài],
+    [75], [Hoàn thiện Knowledge Service với multi-provider LLM, Qdrant per-project collections, search/chat bugfix, parallel LLM và citation quality (knowledge-srv: a3c296c, 0973c79, 606b99e, 3bcb0da, 7b7551e)], [14/04 - 26/04], [Nguyễn Tấn Tài],
+    [76], [Ổn định Notification Service WebSocket sau Traefik, shared-libs dependency và production middleware (notification-srv: 50ecc47, 62f1cd6, ecede9e)], [14/04 - 21/04], [Nguyễn Tấn Tài],
+    [77], [Hiện thực Web UI authentication, scope filter, onboarding nhiều project, dashboard chart, proxy/middleware, dry-run flow và responsive fixes (web-ui: 5ac7b98, 092191a, 3f2ba03, a5ddfa5, 57bb171)], [15/04 - 26/04], [Nguyễn Chánh Tín],
+    [78], [Tập trung manifests vào smap-deploy, cấu hình infra UI, Redpanda/RabbitMQ, Metabase, E2E assets và rollout hardening (smap-deploy: 8ebac1e, 3ec495a, 97772c9, 4163c02, cb76a71)], [13/04 - 26/04], [Đặng Quốc Phong],
+    [79], [Biên soạn báo cáo chính thức chương 0-6, C4/ERD/sequence diagrams, database strategy và kiểm thử tích hợp (report: 7503206, 554e453, 597bc8b, ce57cd2, 981605b)], [15/04 - 30/04], [Cả nhóm],
+
+    table.cell(colspan: 4, align: left + horizon, fill: luma(230), inset: (
+      y: 0.6em,
+    ))[*Giai đoạn 13: Tháng 5/2026 - Kiểm thử cuối, polish và triển khai bản hoàn thiện*],
+
+    [80], [Bổ sung datasource lifecycle runtime và crawl source tagging cho Ingest Service (ingest-srv: bf8d629, e5bc847)], [05/05 - 09/05], [Đặng Quốc Phong],
+    [81], [Bổ sung crisis response policy, project states, ontology rules configuration và access control/login domain (project-srv: 9910409, a48bcea; identity-srv: 1221155, 7a60d8d)], [09/05 - 10/05], [Đặng Quốc Phong],
+    [82], [Tối ưu analytics crisis runtime, source filter, query performance, source link preservation và giảm nhiễu Redis log (analysis-srv: 211a463, 33a02e2, 09aa0d2, 7a35851)], [09/05 - 10/05], [Nguyễn Tấn Tài],
+    [83], [Phục vụ reports từ Knowledge Service, cải thiện search relevance/citations và bridge crisis alerts sang realtime notifications (knowledge-srv: e29c688; notification-srv: 6468f61, 4acbeef, f886ed0)], [09/05 - 10/05], [Nguyễn Tấn Tài],
+    [84], [Hoàn thiện SMAP dashboard workflows, source filters, post/report filtering, auth cookie và notification socket stability (web-ui: 73b3b7d, 0367922, 1f28347, c35eba4)], [09/05 - 10/05], [Nguyễn Chánh Tín],
+    [85], [Cập nhật scapper handlers, SDK surface, local RabbitMQ/MinIO infrastructure và rollout service images/source filters (scapper-srv: ad99ab7, caa0202, 9639a69; smap-deploy: ae544ec, 627ad34, 7b7e34b)], [05/05 - 10/05], [Đặng Quốc Phong],
+    [86], [Hoàn thiện chương 5-6, rà soát evidence, bổ sung review findings và chỉnh sửa final-report sau kiểm tra chéo source code (report: 559d8bb, 8dc0eb6, 5d19007, d1db2aa)], [01/05 - 10/05], [Cả nhóm],
   )
 ]
 
