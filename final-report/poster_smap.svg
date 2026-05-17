@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2480" height="3508" viewBox="0 0 2480 3508">
+  <defs>
+    <linearGradient id="pageBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f4fbff"/>
+      <stop offset="62%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#eef9ff"/>
+    </linearGradient>
+    <linearGradient id="headerBg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#075985"/>
+      <stop offset="58%" stop-color="#0369a1"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.14"/>
+    </filter>
+    <marker id="arrowHead" markerWidth="15" markerHeight="15" refX="12" refY="7.5" orient="auto">
+      <path d="M 0 0 L 15 7.5 L 0 15 z" fill="#0284c7"/>
+    </marker>
+    <style>
+      .font { font-family: Arial, Helvetica, sans-serif; letter-spacing: 0; }
+      .school { font-size: 32px; font-weight: 700; fill: #dff7ff; }
+      .poster-title { font-size: 82px; font-weight: 900; fill: #ffffff; }
+      .poster-subtitle { font-size: 46px; font-weight: 700; fill: #dff7ff; }
+      .header-meta { font-size: 34px; font-weight: 700; fill: #ffffff; }
+      .section-title { font-size: 58px; font-weight: 900; fill: #0f172a; }
+      .section-title-light { font-size: 58px; font-weight: 900; fill: #ffffff; }
+      .lead { font-size: 42px; font-weight: 700; fill: #0f172a; }
+      .body { font-size: 38px; fill: #334155; }
+      .body-dark { font-size: 38px; fill: #0f172a; }
+      .body-strong { font-size: 40px; font-weight: 800; fill: #0f172a; }
+      .small { font-size: 30px; fill: #475569; }
+      .tiny { font-size: 26px; fill: #64748b; }
+      .tag { font-size: 31px; font-weight: 800; fill: #075985; }
+      .white { fill: #ffffff; }
+      .card { fill: #ffffff; stroke: #cfe8ff; stroke-width: 3; filter: url(#shadow); }
+      .card-soft { fill: #f8fafc; stroke: #dbeafe; stroke-width: 3; }
+      .card-blue { fill: #e0f2fe; stroke: #7dd3fc; stroke-width: 3; }
+      .accent { stroke: #06b6d4; stroke-width: 10; stroke-linecap: round; }
+      .bullet { fill: #0284c7; }
+      .bullet-green { fill: #0f766e; }
+      .arrow { stroke: #0284c7; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; fill: none; marker-end: url(#arrowHead); }
+      .icon-bg { fill: #e0f2fe; stroke: #7dd3fc; stroke-width: 3; }
+      .icon-line { stroke: #075985; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .metric-number { font-size: 78px; font-weight: 900; fill: #075985; }
+      .metric-label { font-size: 30px; font-weight: 700; fill: #334155; }
+    </style>
+  </defs>
+
+  <rect width="2480" height="3508" fill="url(#pageBg)"/>
+
+  <!-- Header -->
+  <rect x="95" y="85" width="2290" height="590" rx="42" fill="url(#headerBg)" filter="url(#shadow)"/>
+  <circle cx="2115" cy="230" r="170" fill="#ffffff" opacity="0.08"/>
+  <circle cx="2280" cy="500" r="245" fill="#ffffff" opacity="0.06"/>
+
+  <rect x="145" y="132" width="196" height="196" rx="28" fill="#ffffff" opacity="0.95"/>
+  <image href="/Users/phongdang/Documents/GitHub/SMAP/report/final-report/images/logos/hcmut.png" xlink:href="/Users/phongdang/Documents/GitHub/SMAP/report/final-report/images/logos/hcmut.png" x="165" y="150" width="156" height="156" preserveAspectRatio="xMidYMid meet"/>
+
+  <text class="font school" x="385" y="176">TRƯỜNG ĐẠI HỌC BÁCH KHOA - ĐHQG TP.HCM</text>
+  <text class="font school" x="385" y="222">KHOA KHOA HỌC VÀ KỸ THUẬT MÁY TÍNH</text>
+
+  <text class="font poster-title" x="145" y="410">NỀN TẢNG PHÂN TÍCH MẠNG XÃ HỘI</text>
+  <text class="font poster-subtitle" x="150" y="478">SMAP - Social Media Analysis Platform</text>
+
+  <text class="font header-meta" x="150" y="565">Mã đề tài: HK252-DATN-386</text>
+  <text class="font header-meta" x="650" y="565">GVHD: ThS. Lê Đình Thuận</text>
+  <text class="font header-meta" x="150" y="620">SVTH: Đặng Quốc Phong - 2212548  |  Nguyễn Chánh Tín - 2213491  |  Nguyễn Tấn Tài - 2212990</text>
+
+  <!-- Top cards -->
+  <rect class="card" x="95" y="755" width="1095" height="630" rx="36"/>
+  <line class="accent" x1="155" y1="860" x2="315" y2="860"/>
+  <text class="font section-title" x="155" y="830">VẤN ĐỀ</text>
+  <text class="font lead" x="155" y="925">Dữ liệu mạng xã hội lớn, nhiễu,</text>
+  <text class="font lead" x="155" y="982">phân tán và khó khai thác kịp thời.</text>
+
+  <g transform="translate(155 1070)">
+    <circle class="bullet" cx="18" cy="16" r="12"/>
+    <text class="font body" x="55" y="30">Nội dung phi cấu trúc, thay đổi liên tục.</text>
+    <circle class="bullet" cx="18" cy="96" r="12"/>
+    <text class="font body" x="55" y="110">Khó nhận diện sentiment, xu hướng, rủi ro.</text>
+    <circle class="bullet" cx="18" cy="176" r="12"/>
+    <text class="font body" x="55" y="190">Cần tổng hợp insight để hỗ trợ quyết định.</text>
+    <circle class="bullet" cx="18" cy="256" r="12"/>
+    <text class="font body" x="55" y="270">Cần cảnh báo khi xuất hiện tín hiệu nổi bật.</text>
+  </g>
+
+  <rect class="card" x="1290" y="755" width="1095" height="630" rx="36"/>
+  <line class="accent" x1="1350" y1="860" x2="1510" y2="860"/>
+  <text class="font section-title" x="1350" y="830">GIẢI PHÁP</text>
+  <text class="font lead" x="1350" y="925">SMAP tổ chức quy trình social listening</text>
+  <text class="font lead" x="1350" y="982">theo kiến trúc microservices.</text>
+
+  <g transform="translate(1350 1070)">
+    <circle class="bullet-green" cx="18" cy="16" r="12"/>
+    <text class="font body" x="55" y="30">Thiết lập campaign, project và phạm vi theo dõi.</text>
+    <circle class="bullet-green" cx="18" cy="96" r="12"/>
+    <text class="font body" x="55" y="110">Thu thập, chuẩn hóa và phân tích dữ liệu.</text>
+    <circle class="bullet-green" cx="18" cy="176" r="12"/>
+    <text class="font body" x="55" y="190">Semantic search, knowledge chat, AI reports.</text>
+    <circle class="bullet-green" cx="18" cy="256" r="12"/>
+    <text class="font body" x="55" y="270">Dashboard và notification gần thời gian thực.</text>
+  </g>
+
+  <!-- Pipeline -->
+  <rect class="card" x="95" y="1460" width="2290" height="690" rx="38"/>
+  <text class="font section-title" x="155" y="1555">LUỒNG XỬ LÝ TỔNG QUAN</text>
+  <text class="font small" x="155" y="1605">Từ dữ liệu mạng xã hội đến phân tích, khai thác tri thức và cảnh báo.</text>
+
+  <g transform="translate(160 1705)">
+    <g>
+      <circle class="icon-bg" cx="108" cy="108" r="92"/>
+      <path class="icon-line" d="M63 118 C86 62 132 62 153 118"/>
+      <path class="icon-line" d="M76 147 C96 166 122 166 142 147"/>
+      <text class="font body-strong" x="-20" y="270">Social Data</text>
+    </g>
+
+    <path class="arrow" d="M235 108 L370 108"/>
+
+    <g transform="translate(405 0)">
+      <circle class="icon-bg" cx="108" cy="108" r="92"/>
+      <path class="icon-line" d="M70 78 H146 V146 H70 Z"/>
+      <path class="icon-line" d="M88 58 V78 M128 58 V78 M88 146 V166 M128 146 V166"/>
+      <text class="font body-strong" x="46" y="270">Crawl</text>
+    </g>
+
+    <path class="arrow" d="M640 108 L775 108"/>
+
+    <g transform="translate(810 0)">
+      <circle class="icon-bg" cx="108" cy="108" r="92"/>
+      <path class="icon-line" d="M70 78 H148 M70 108 H148 M70 138 H126"/>
+      <text class="font body-strong" x="-18" y="270">Normalize</text>
+    </g>
+
+    <path class="arrow" d="M1045 108 L1180 108"/>
+
+    <g transform="translate(1215 0)">
+      <circle class="icon-bg" cx="108" cy="108" r="92"/>
+      <path class="icon-line" d="M75 150 L92 105 L116 126 L144 72"/>
+      <path class="icon-line" d="M66 158 H154"/>
+      <text class="font body-strong" x="-6" y="270">Analytics</text>
+    </g>
+
+    <path class="arrow" d="M1450 108 L1585 108"/>
+
+    <g transform="translate(1620 0)">
+      <circle class="icon-bg" cx="108" cy="108" r="92"/>
+      <path class="icon-line" d="M76 78 C113 50 150 78 148 114 C146 148 101 156 76 130"/>
+      <path class="icon-line" d="M148 138 L170 160"/>
+      <text class="font body-strong" x="-20" y="270">Knowledge</text>
+    </g>
+
+    <path class="arrow" d="M1855 108 L1990 108"/>
+
+    <g transform="translate(2025 0)">
+      <circle class="icon-bg" cx="108" cy="108" r="92"/>
+      <path class="icon-line" d="M76 145 H148 V78 H76 Z"/>
+      <path class="icon-line" d="M90 126 L106 108 L124 120 L143 92"/>
+      <text class="font body-strong" x="-28" y="270">Dashboard</text>
+    </g>
+  </g>
+
+  <g transform="translate(210 2070)">
+    <rect x="0" y="0" width="310" height="70" rx="35" fill="#e0f2fe"/>
+    <text class="font tag" x="48" y="46">Microservices</text>
+    <rect x="355" y="0" width="315" height="70" rx="35" fill="#e0f2fe"/>
+    <text class="font tag" x="405" y="46">Event-Driven</text>
+    <rect x="715" y="0" width="220" height="70" rx="35" fill="#e0f2fe"/>
+    <text class="font tag" x="782" y="46">NLP/AI</text>
+    <rect x="980" y="0" width="365" height="70" rx="35" fill="#e0f2fe"/>
+    <text class="font tag" x="1035" y="46">Semantic Search</text>
+    <rect x="1390" y="0" width="190" height="70" rx="35" fill="#e0f2fe"/>
+    <text class="font tag" x="1448" y="46">RAG</text>
+    <rect x="1625" y="0" width="430" height="70" rx="35" fill="#e0f2fe"/>
+    <text class="font tag" x="1685" y="46">Realtime Notification</text>
+  </g>
+
+  <!-- Results -->
+  <rect class="card" x="95" y="2235" width="2290" height="720" rx="38"/>
+  <text class="font section-title" x="155" y="2330">KẾT QUẢ ĐẠT ĐƯỢC</text>
+  <text class="font small" x="155" y="2380">Hệ thống có thiết kế rõ ràng, phân tách trách nhiệm và có bằng chứng kiểm thử trong phạm vi đã đo.</text>
+
+  <g transform="translate(155 2465)">
+    <rect class="card-soft" x="0" y="0" width="480" height="190" rx="28"/>
+    <text class="font metric-number" x="45" y="90">12</text>
+    <text class="font metric-label" x="45" y="142">Yêu cầu chức năng</text>
+
+    <rect class="card-soft" x="545" y="0" width="480" height="190" rx="28"/>
+    <text class="font metric-number" x="590" y="90">7</text>
+    <text class="font metric-label" x="590" y="142">Yêu cầu phi chức năng</text>
+
+    <rect class="card-soft" x="1090" y="0" width="480" height="190" rx="28"/>
+    <text class="font metric-number" x="1135" y="90">5</text>
+    <text class="font metric-label" x="1135" y="142">Use case nghiệp vụ</text>
+
+    <rect class="card-soft" x="1635" y="0" width="480" height="190" rx="28"/>
+    <text class="font metric-number" x="1680" y="90">Web</text>
+    <text class="font metric-label" x="1680" y="142">Giao diện khai thác</text>
+  </g>
+
+  <g transform="translate(155 2735)">
+    <circle class="bullet" cx="18" cy="18" r="12"/>
+    <text class="font body" x="58" y="32">Quản lý campaign/project, datasource/target và quy trình theo dõi.</text>
+    <circle class="bullet" cx="18" cy="88" r="12"/>
+    <text class="font body" x="58" y="102">Analytics dashboard, semantic search, knowledge chat và AI reports.</text>
+    <circle class="bullet" cx="18" cy="158" r="12"/>
+    <text class="font body" x="58" y="172">Notification, crisis configuration, unit test, E2E và NFR trong phạm vi đo.</text>
+  </g>
+
+  <!-- Bottom highlights -->
+  <rect x="95" y="3000" width="2290" height="335" rx="38" fill="#0f172a" filter="url(#shadow)"/>
+  <text class="font section-title-light" x="155" y="3090">ĐIỂM NHẤN THIẾT KẾ</text>
+
+  <g transform="translate(155 3145)">
+    <text class="font body white" x="0" y="45">Phân tách control plane, execution plane, analytics, retrieval và realtime delivery.</text>
+    <text class="font body white" x="0" y="105">Kết hợp PostgreSQL, Redis, MinIO, Qdrant, RabbitMQ, Kafka và WebSocket theo workload.</text>
+    <text class="font body white" x="0" y="165">Trọng tâm đề tài: kiến trúc phần mềm, luồng dữ liệu và hệ thống đủ điều kiện phục vụ nghiệp vụ.</text>
+  </g>
+
+  <text class="font tiny" x="155" y="3425">SMAP | Nền tảng phân tích mạng xã hội | smap.tantai.dev</text>
+  <text class="font tiny" x="1450" y="3425">Đặng Quốc Phong - Nguyễn Chánh Tín - Nguyễn Tấn Tài</text>
+</svg>
