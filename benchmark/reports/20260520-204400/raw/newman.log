@@ -1,0 +1,67 @@
+npm warn deprecated har-validator@5.1.5: this library is no longer supported
+npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated uuid@3.4.0: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated @faker-js/faker@5.5.3: Please update to a newer version.
+newman
+
+SMAP API Benchmark Smoke
+
+→ health
+  GET https://smap.tantai.dev/api/health [200 OK, 218B, 158ms]
+  ✓  status 200
+
+→ analytics_kpis
+  GET https://smap.tantai.dev/api/analytics/kpis?campaignId=5cc6763f-3ec5-4481-9c7b-597bd5bb6126&projectIds=d25fe723-a407-4a77-ac69-1556749f51ff&sourceKind=all [200 OK, 1.35kB, 1295ms]
+  ✓  status 200
+
+→ analytics_platforms
+  GET https://smap.tantai.dev/api/analytics/platforms?campaignId=5cc6763f-3ec5-4481-9c7b-597bd5bb6126&projectIds=d25fe723-a407-4a77-ac69-1556749f51ff&sourceKind=all [200 OK, 1.23kB, 667ms]
+  ✓  status 200
+
+→ analytics_sentiment
+  GET https://smap.tantai.dev/api/analytics/sentiment?campaignId=5cc6763f-3ec5-4481-9c7b-597bd5bb6126&projectIds=d25fe723-a407-4a77-ac69-1556749f51ff&sourceKind=all [200 OK, 837B, 654ms]
+  ✓  status 200
+
+→ analytics_keywords
+  GET https://smap.tantai.dev/api/analytics/keywords?campaignId=5cc6763f-3ec5-4481-9c7b-597bd5bb6126&projectIds=d25fe723-a407-4a77-ac69-1556749f51ff&sourceKind=all&limit=20 [200 OK, 2.9kB, 300ms]
+  ✓  status 200
+
+→ posts_latest
+  GET https://smap.tantai.dev/api/analytics/posts?campaignId=5cc6763f-3ec5-4481-9c7b-597bd5bb6126&projectIds=d25fe723-a407-4a77-ac69-1556749f51ff&sourceKind=all&limit=20&offset=0&sort=time [200 OK, 17.59kB, 533ms]
+  ✓  status 200
+
+→ posts_engagement
+  GET https://smap.tantai.dev/api/analytics/posts?campaignId=5cc6763f-3ec5-4481-9c7b-597bd5bb6126&projectIds=d25fe723-a407-4a77-ac69-1556749f51ff&sourceKind=all&limit=20&offset=0&sort=engagement [200 OK, 20.66kB, 456ms]
+  ✓  status 200
+
+→ posts_page_2
+  GET https://smap.tantai.dev/api/analytics/posts?campaignId=5cc6763f-3ec5-4481-9c7b-597bd5bb6126&projectIds=d25fe723-a407-4a77-ac69-1556749f51ff&sourceKind=all&limit=20&offset=20&sort=engagement [200 OK, 22.45kB, 32ms]
+  ✓  status 200
+
+→ project_stats
+  GET https://smap.tantai.dev/api/analytics/project-stats?campaignId=5cc6763f-3ec5-4481-9c7b-597bd5bb6126&projectIds=d25fe723-a407-4a77-ac69-1556749f51ff&sourceKind=all [200 OK, 349B, 371ms]
+  ✓  status 200
+
+→ heap_chart
+  GET https://smap.tantai.dev/api/analytics/heap?campaignId=5cc6763f-3ec5-4481-9c7b-597bd5bb6126&projectIds=d25fe723-a407-4a77-ac69-1556749f51ff&sourceKind=all [200 OK, 2.26kB, 568ms]
+  ✓  status 200
+
+┌─────────────────────────┬─────────────────────┬────────────────────┐
+│                         │            executed │             failed │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│              iterations │                   1 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│                requests │                  10 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│            test-scripts │                  10 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│      prerequest-scripts │                   0 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│              assertions │                  10 │                  0 │
+├─────────────────────────┴─────────────────────┴────────────────────┤
+│ total run duration: 5.1s                                           │
+├────────────────────────────────────────────────────────────────────┤
+│ total data received: 67.81kB (approx)                              │
+├────────────────────────────────────────────────────────────────────┤
+│ average response time: 503ms [min: 32ms, max: 1295ms, s.d.: 329ms] │
+└────────────────────────────────────────────────────────────────────┘

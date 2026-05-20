@@ -1,0 +1,90 @@
+# Log scan after benchmark
+2026-05-20T13:52:37Z
+
+## analysis-api warnings/errors since 30m
+
+## smap-portal warnings/errors since 30m
+
+## smap-ui warnings/errors since 30m
+
+## events tail
+30m         Normal    ScalingReplicaSet   deployment/scapper-srv                      Scaled up replica set scapper-srv-5f9549f8b7 to 1
+30m         Normal    ScalingReplicaSet   deployment/project-srv                      Scaled up replica set project-srv-759fdc4645 to 1
+30m         Normal    Started             pod/identity-srv-868777dcf8-mwn66           Started container identity-srv
+30m         Normal    Started             pod/ingest-srv-79f446fbcc-lt6jw             Started container ingest-srv
+30m         Normal    SuccessfulCreate    replicaset/project-srv-759fdc4645           Created pod: project-srv-759fdc4645-h8vs9
+30m         Normal    Pulled              pod/scapper-srv-5f9549f8b7-qfs9w            Container image "registry.tantai.dev/smap/scapper-srv:260520-000956-worker-failfast" already present on machine
+30m         Normal    Pulled              pod/project-srv-759fdc4645-h8vs9            Container image "registry.tantai.dev/smap/project-srv:260517-1409-admin-rbac" already present on machine
+30m         Normal    SuccessfulCreate    replicaset/smap-ui-6c7c9ff565               Created pod: smap-ui-6c7c9ff565-qng5f
+30m         Normal    ScalingReplicaSet   deployment/smap-ui                          Scaled up replica set smap-ui-6c7c9ff565 to 1
+30m         Normal    Pulled              pod/smap-portal-f84c446ff-sb856             Successfully pulled image "registry.tantai.dev/smap/smap-portal:latest" in 251ms (251ms including waiting). Image size: 7960357 bytes.
+30m         Normal    Pulled              pod/smap-ui-6c7c9ff565-qng5f                Successfully pulled image "registry.tantai.dev/smap/smap-ui:260519-213726-insights-rbac-risk-ui" in 705ms (705ms including waiting). Image size: 82109825 bytes.
+30m         Normal    Started             pod/scapper-srv-5f9549f8b7-qfs9w            Started container scapper-srv
+30m         Normal    Pulling             pod/smap-ui-6c7c9ff565-qng5f                Pulling image "registry.tantai.dev/smap/smap-ui:260519-213726-insights-rbac-risk-ui"
+30m         Normal    Created             pod/smap-portal-f84c446ff-sb856             Created container: portal
+30m         Normal    Started             pod/project-srv-759fdc4645-h8vs9            Started container project-srv
+30m         Normal    Created             pod/project-srv-759fdc4645-h8vs9            Created container: project-srv
+30m         Normal    Created             pod/scapper-srv-5f9549f8b7-qfs9w            Created container: scapper-srv
+30m         Normal    Pulling             pod/smap-portal-f84c446ff-sb856             Pulling image "registry.tantai.dev/smap/smap-portal:latest"
+30m         Normal    Created             pod/smap-ui-6c7c9ff565-qng5f                Created container: smap-ui
+30m         Normal    Started             pod/smap-ui-6c7c9ff565-qng5f                Started container smap-ui
+30m         Normal    Started             pod/smap-portal-f84c446ff-sb856             Started container portal
+30m         Normal    Pulled              pod/notification-srv-59f66b998d-qbdt5       Successfully pulled image "registry.tantai.dev/smap/notification-srv:260510-154135-ws-auth-log-noise" in 4.619s (4.619s including waiting). Image size: 11264951 bytes.
+30m         Warning   Unhealthy           pod/smap-portal-f84c446ff-sb856             Readiness probe failed: Get "http://10.42.2.203:8080/health": dial tcp 10.42.2.203:8080: connect: connection refused
+30m         Normal    Created             pod/notification-srv-59f66b998d-qbdt5       Created container: notification-srv
+30m         Normal    Started             pod/notification-srv-59f66b998d-qbdt5       Started container notification-srv
+30m         Warning   Unhealthy           pod/scapper-srv-5f9549f8b7-qfs9w            Startup probe failed: Get "http://10.42.2.201:8105/live": dial tcp 10.42.2.201:8105: connect: connection refused
+30m         Normal    ScalingReplicaSet   deployment/smap-portal                      Scaled down replica set smap-portal-5668ccdcf to 0 from 1
+30m         Normal    SuccessfulDelete    replicaset/smap-portal-5668ccdcf            Deleted pod: smap-portal-5668ccdcf-g76kf
+30m         Normal    Killing             pod/smap-portal-5668ccdcf-g76kf             Stopping container portal
+30m         Normal    Killing             pod/scapper-srv-854d8c8d87-q5q2j            Stopping container scapper-srv
+30m         Normal    ScalingReplicaSet   deployment/scapper-srv                      Scaled down replica set scapper-srv-854d8c8d87 to 0 from 1
+30m         Normal    SuccessfulDelete    replicaset/scapper-srv-854d8c8d87           Deleted pod: scapper-srv-854d8c8d87-q5q2j
+30m         Normal    ScalingReplicaSet   deployment/analysis-api                     Scaled down replica set analysis-api-85ddccd9d7 to 0 from 1
+30m         Normal    SuccessfulDelete    replicaset/analysis-api-85ddccd9d7          Deleted pod: analysis-api-85ddccd9d7-wjws8
+30m         Normal    Killing             pod/analysis-api-85ddccd9d7-wjws8           Stopping container analysis-api
+30m         Normal    ScalingReplicaSet   deployment/ingest-srv                       Scaled down replica set ingest-srv-5ddcdc546 to 0 from 1
+30m         Normal    Killing             pod/knowledge-srv-c549fd65-wtlxl            Stopping container knowledge-srv
+30m         Normal    SuccessfulDelete    replicaset/notification-srv-9cf4d8bd8       Deleted pod: notification-srv-9cf4d8bd8-htlbl
+30m         Normal    SuccessfulDelete    replicaset/ingest-srv-5ddcdc546             Deleted pod: ingest-srv-5ddcdc546-b6mgn
+30m         Normal    ScalingReplicaSet   deployment/notification-srv                 Scaled down replica set notification-srv-9cf4d8bd8 to 0 from 1
+30m         Normal    Killing             pod/ingest-srv-5ddcdc546-b6mgn              Stopping container ingest-srv
+30m         Normal    ScalingReplicaSet   deployment/identity-srv                     Scaled down replica set identity-srv-7fd497cb5d to 0 from 1
+30m         Normal    SuccessfulDelete    replicaset/identity-srv-7fd497cb5d          Deleted pod: identity-srv-7fd497cb5d-t9czf
+30m         Normal    Killing             pod/identity-srv-7fd497cb5d-t9czf           Stopping container identity-srv
+30m         Normal    Killing             pod/notification-srv-9cf4d8bd8-htlbl        Stopping container notification-srv
+30m         Normal    ScalingReplicaSet   deployment/knowledge-srv                    Scaled down replica set knowledge-srv-c549fd65 to 0 from 1
+30m         Normal    SuccessfulDelete    replicaset/knowledge-srv-c549fd65           Deleted pod: knowledge-srv-c549fd65-wtlxl
+30m         Normal    SuccessfulDelete    replicaset/project-srv-f54575bd             Deleted pod: project-srv-f54575bd-4ch62
+30m         Normal    ScalingReplicaSet   deployment/project-srv                      Scaled down replica set project-srv-f54575bd to 0 from 1
+30m         Warning   Unhealthy           pod/knowledge-srv-c549fd65-wtlxl            Readiness probe failed: Get "http://10.42.0.215:8080/health": dial tcp 10.42.0.215:8080: connect: connection refused
+30m         Normal    Killing             pod/project-srv-f54575bd-4ch62              Stopping container project-srv
+30m         Normal    SuccessfulDelete    replicaset/smap-ui-6b6774fc78               Deleted pod: smap-ui-6b6774fc78-r2qv9
+30m         Normal    ScalingReplicaSet   deployment/smap-ui                          Scaled down replica set smap-ui-6b6774fc78 to 0 from 1
+30m         Warning   Unhealthy           pod/ingest-srv-5ddcdc546-b6mgn              Readiness probe failed: Get "http://10.42.0.214:8080/ready": dial tcp 10.42.0.214:8080: connect: connection refused
+30m         Normal    Killing             pod/smap-ui-6b6774fc78-r2qv9                Stopping container smap-ui
+30m         Warning   Unhealthy           pod/smap-ui-6b6774fc78-r2qv9                Readiness probe failed: Get "http://10.42.0.220:3000/api/health": dial tcp 10.42.0.220:3000: connect: connection refused
+30m         Warning   Unhealthy           pod/redpanda-console-7d869fcb4b-l85s9       Readiness probe failed: Get "http://10.42.0.211:8080/admin/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+29m         Warning   Unhealthy           pod/analysis-consumer-859459b658-rl5zj      Startup probe failed:
+29m         Normal    ScalingReplicaSet   deployment/analysis-consumer                Scaled down replica set analysis-consumer-6d698bdc87 to 1 from 2
+29m         Normal    Killing             pod/analysis-consumer-6d698bdc87-f5prf      Stopping container analysis-consumer
+29m         Normal    SuccessfulDelete    replicaset/analysis-consumer-6d698bdc87     Deleted pod: analysis-consumer-6d698bdc87-f5prf
+29m         Normal    SuccessfulCreate    replicaset/analysis-consumer-859459b658     Created pod: analysis-consumer-859459b658-pcx6r
+29m         Normal    Started             pod/analysis-consumer-859459b658-pcx6r      Started container analysis-consumer
+29m         Normal    Created             pod/analysis-consumer-859459b658-pcx6r      Created container: analysis-consumer
+29m         Normal    Pulling             pod/analysis-consumer-859459b658-pcx6r      Pulling image "registry.tantai.dev/smap/analysis-consumer:260510-012201-ontology-rules"
+29m         Normal    Pulled              pod/analysis-consumer-859459b658-pcx6r      Successfully pulled image "registry.tantai.dev/smap/analysis-consumer:260510-012201-ontology-rules" in 230ms (230ms including waiting). Image size: 1014552613 bytes.
+29m         Normal    Killing             pod/analysis-consumer-6d698bdc87-cbvgz      Stopping container analysis-consumer
+29m         Normal    ScalingReplicaSet   deployment/analysis-consumer                Scaled down replica set analysis-consumer-6d698bdc87 to 0 from 1
+29m         Normal    SuccessfulDelete    replicaset/analysis-consumer-6d698bdc87     Deleted pod: analysis-consumer-6d698bdc87-cbvgz
+10m         Normal    SuccessfulRescale   horizontalpodautoscaler/analysis-consumer   New size: 1; reason: All metrics below target
+10m         Normal    ScalingReplicaSet   deployment/analysis-consumer                Scaled down replica set analysis-consumer-859459b658 to 1 from 2
+10m         Normal    Killing             pod/analysis-consumer-859459b658-rl5zj      Stopping container analysis-consumer
+10m         Normal    SuccessfulDelete    replicaset/analysis-consumer-859459b658     Deleted pod: analysis-consumer-859459b658-rl5zj
+4m13s       Normal    SuccessfulRescale   horizontalpodautoscaler/analysis-consumer   New size: 2; reason: cpu resource utilization (percentage of request) above target
+4m13s       Normal    SuccessfulCreate    replicaset/analysis-consumer-859459b658     Created pod: analysis-consumer-859459b658-vrv9h
+4m13s       Normal    ScalingReplicaSet   deployment/analysis-consumer                Scaled up replica set analysis-consumer-859459b658 to 2 from 1
+4m12s       Normal    Pulled              pod/analysis-consumer-859459b658-vrv9h      Successfully pulled image "registry.tantai.dev/smap/analysis-consumer:260510-012201-ontology-rules" in 246ms (246ms including waiting). Image size: 1014552613 bytes.
+4m12s       Normal    Created             pod/analysis-consumer-859459b658-vrv9h      Created container: analysis-consumer
+4m12s       Normal    Pulling             pod/analysis-consumer-859459b658-vrv9h      Pulling image "registry.tantai.dev/smap/analysis-consumer:260510-012201-ontology-rules"
+4m11s       Normal    Started             pod/analysis-consumer-859459b658-vrv9h      Started container analysis-consumer

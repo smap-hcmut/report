@@ -1,0 +1,67 @@
+{
+  "baseUrl": "https://smap.tantai.dev",
+  "campaignId": "5cc6763f-3ec5-4481-9c7b-597bd5bb6126",
+  "projectId": "d25fe723-a407-4a77-ac69-1556749f51ff",
+  "endpoints": [
+    {
+      "name": "health",
+      "method": "GET",
+      "path": "/api/health",
+      "expectedStatus": 200
+    },
+    {
+      "name": "analytics_kpis",
+      "method": "GET",
+      "path": "/api/analytics/kpis?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all",
+      "expectedStatus": 200
+    },
+    {
+      "name": "analytics_platforms",
+      "method": "GET",
+      "path": "/api/analytics/platforms?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all",
+      "expectedStatus": 200
+    },
+    {
+      "name": "analytics_sentiment",
+      "method": "GET",
+      "path": "/api/analytics/sentiment?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all",
+      "expectedStatus": 200
+    },
+    {
+      "name": "analytics_keywords",
+      "method": "GET",
+      "path": "/api/analytics/keywords?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20",
+      "expectedStatus": 200
+    },
+    {
+      "name": "posts_latest",
+      "method": "GET",
+      "path": "/api/analytics/posts?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20&offset=0&sort=time",
+      "expectedStatus": 200
+    },
+    {
+      "name": "posts_engagement",
+      "method": "GET",
+      "path": "/api/analytics/posts?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20&offset=0&sort=engagement",
+      "expectedStatus": 200
+    },
+    {
+      "name": "posts_page_2",
+      "method": "GET",
+      "path": "/api/analytics/posts?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20&offset=20&sort=engagement",
+      "expectedStatus": 200
+    },
+    {
+      "name": "project_stats",
+      "method": "GET",
+      "path": "/api/analytics/project-stats?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all",
+      "expectedStatus": 200
+    },
+    {
+      "name": "heap_chart",
+      "method": "GET",
+      "path": "/api/analytics/heap?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all",
+      "expectedStatus": 200
+    }
+  ]
+}

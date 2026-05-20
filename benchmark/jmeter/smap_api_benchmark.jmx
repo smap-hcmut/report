@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="SMAP API Benchmark" enabled="true">
+      <stringProp name="TestPlan.comments">Controlled benchmark for SMAP analytics APIs.</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Marketing dashboard users" enabled="true">
+        <stringProp name="ThreadGroup.num_threads">${__P(threads,10)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(ramp_seconds,10)}</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" enabled="true">
+          <stringProp name="LoopController.loops">${__P(loops,3)}</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP defaults" enabled="true">
+          <stringProp name="HTTPSampler.domain">${__P(base_host,smap.tantai.dev)}</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+          <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+        </ConfigTestElement>
+        <hashTree/>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Headers" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="" elementType="Header">
+              <stringProp name="Header.name">Accept</stringProp>
+              <stringProp name="Header.value">application/json</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="health" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/health</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="analytics_kpis" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/analytics/kpis?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="analytics_platforms" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/analytics/platforms?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="analytics_sentiment" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/analytics/sentiment?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="analytics_keywords" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/analytics/keywords?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all&amp;limit=20</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="posts_latest" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/analytics/posts?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all&amp;limit=20&amp;offset=0&amp;sort=time</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="posts_engagement" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/analytics/posts?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all&amp;limit=20&amp;offset=0&amp;sort=engagement</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="posts_page_2" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/analytics/posts?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all&amp;limit=20&amp;offset=20&amp;sort=engagement</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="project_stats" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/analytics/project-stats?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="heap_chart" enabled="true">
+          <stringProp name="HTTPSampler.path">/api/analytics/heap?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

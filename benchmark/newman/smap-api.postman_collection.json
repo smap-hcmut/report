@@ -1,0 +1,63 @@
+{
+  "info": {
+    "name": "SMAP API Benchmark Smoke",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://smap.tantai.dev" },
+    { "key": "campaignId", "value": "5cc6763f-3ec5-4481-9c7b-597bd5bb6126" },
+    { "key": "projectId", "value": "d25fe723-a407-4a77-ac69-1556749f51ff" }
+  ],
+  "item": [
+    {
+      "name": "health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/health" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "analytics_kpis",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/kpis?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "analytics_platforms",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/platforms?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "analytics_sentiment",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/sentiment?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "analytics_keywords",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/keywords?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "posts_latest",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/posts?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20&offset=0&sort=time" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "posts_engagement",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/posts?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20&offset=0&sort=engagement" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "posts_page_2",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/posts?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20&offset=20&sort=engagement" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "project_stats",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/project-stats?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "heap_chart",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/heap?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
+    }
+  ]
+}

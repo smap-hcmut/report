@@ -1,0 +1,27 @@
+# Sentiment Misclassifications
+
+- `24aa291c-c8f5-4db8-a751-f39ba90ee9fa` platform=facebook predicted=negative gold=neutral relevance=irrelevant: Cuộc sống cho bạn nhiều điều hấp dẫn nhưng lại lấy đi khả năng để dễ dàng có được chúng.
+- `74c56066-2828-4d37-9c31-100c606d7504` platform=facebook predicted=negative gold=neutral relevance=irrelevant: Chuẩn mực đạo đức là tam quan chỉnh tề, chân thành và tử tế.
+- `6f543f1d-7533-485a-ac93-277e7ec386d6` platform=facebook predicted=negative gold=positive relevance=irrelevant: Phải kết hôn với người mà mình rất yêu nhiều.
+- `63d38bdd-d25b-4169-b524-82333a55e6b3` platform=facebook predicted=negative gold=neutral relevance=irrelevant: Khi đầy đủ nhân duyên cái gì đến sẽ đến, không cần nôn nóng.
+- `b19027c5-27ce-4f88-8959-d8b7208955f3` platform=facebook predicted=neutral gold=positive relevance=irrelevant: Có người sợ bạn bị ướt mà nằng nặc đòi đến đón bạn về.
+- `0e4bbb0a-b819-41cc-822c-e910f2edb727` platform=facebook predicted=neutral gold=positive relevance=irrelevant: Sự tử tế khiến phụ nữ thấy mình được tôn trọng và an toàn.
+- `3b8c8bc7-966b-413c-9a51-0db80e5b4e0f` platform=youtube predicted=neutral gold=positive relevance=relevant: Shipper nói đúng, làm ăn lương thiện rất đáng khen.
+- `9860f6c5-b7cd-4c46-8fa3-1d862a0db25a` platform=facebook predicted=neutral gold=positive relevance=irrelevant: Dáng vẻ của một người cố gắng ở bên cạnh mình làm trái tim rung động.
+- `615647db-976f-4bf6-9281-ef0adb326061` platform=facebook predicted=neutral gold=negative relevance=irrelevant: Mệt nhất trong một mối quan hệ là chỉ có một người cố sửa chữa.
+- `01ddf28f-64a9-4656-998c-b0652fa03a9c` platform=youtube predicted=neutral gold=positive relevance=relevant: Mình đi nhậu thường đi Grab, tip thêm 20k, giá rẻ mà an toàn.
+- `702a18eb-0551-4f44-a0dc-a541a8920f26` platform=facebook predicted=neutral gold=positive relevance=irrelevant: Tình yêu thật sự là vẫn muốn gắn bó lúc mệt mỏi khó khăn.
+- `c53a4883-a94a-4f33-8433-57eb25d3fe01` platform=youtube predicted=neutral gold=positive relevance=relevant: Chúc em nhiều sức khỏe, từng chạy Grab và hiểu cảnh mưu sinh khó khăn.
+- `180412c7-a4cc-4921-be3f-7fda7cac0c61` platform=facebook predicted=neutral gold=negative relevance=irrelevant: Hay cười vậy thôi, chứ tâm tư mang đầy tâm sự.
+- `50c8353e-73c9-4617-ab81-52f45d01b9aa` platform=tiktok predicted=neutral gold=positive relevance=relevant: Ahamove ok nha mọi người, có xe bán tải giá ok hơn Lalamove.
+- `6cea3715-6b15-458e-92fa-b43c9d2ea1e2` platform=youtube predicted=neutral gold=positive relevance=relevant: Bộ mày có tiền muốn sai ai là sai à. Anh ship quá đỉnh.
+- `0f5e9682-df1f-4db0-b61a-ba66ba2f9cc1` platform=facebook predicted=positive gold=negative relevance=irrelevant: Ngủ đi nhé, người ta không thương bạn nhiều đến thế đâu.
+- `7cd407da-0952-487b-99b1-c0bf0cefe3a2` platform=tiktok predicted=positive gold=neutral relevance=relevant: Shipper đưa tiền hàng cho mình trước được không ạ?
+- `fb05d320-988d-4bd4-855a-ec0797292792` platform=tiktok predicted=positive gold=negative relevance=relevant: Ahamove chiết khấu gần 30% rồi.
+- `030f38ea-e380-4aad-bfc5-bdae3597b9b2` platform=facebook predicted=positive gold=neutral relevance=irrelevant: Follow nhiều con gái là sở thích cá nhân, miễn không phải bạn trai mình.
+- `69a0a7d7-6432-4119-94fc-31d6077b4a8d` platform=tiktok predicted=positive gold=neutral relevance=irrelevant: This reminds me of a scene in Hotel Transylvania.
+- `adfffbba-8889-4785-9a46-e1d6ce5f5fb2` platform=youtube predicted=positive gold=negative relevance=relevant: Tài xế cứ hỏi hoài làm mình hơi bực, muốn relax mà nói nhiều quá cũng stress.
+- `c32f8282-4883-4fe9-9d14-f7dadd24a447` platform=youtube predicted=positive gold=neutral relevance=relevant: Bảo vệ làm đúng nhiệm vụ, shipper không đồng ý thì có thể tự hủy cuốc.
+- `749ce2a4-80cd-4121-9c28-7544c7094b8e` platform=youtube predicted=positive gold=neutral relevance=relevant: Grab Dubai nha anh em.
+- `0656e68b-41a9-41f2-8a6f-9f04fb026ce8` platform=youtube predicted=positive gold=neutral relevance=relevant: Top những dòng xe mặc thêm áo Grab để trốn công an.
+- `b539c6a4-9ade-4322-b017-b3ed2476c12a` platform=youtube predicted=positive gold=neutral relevance=relevant: Link đăng ký Ahamove và link sản phẩm.
