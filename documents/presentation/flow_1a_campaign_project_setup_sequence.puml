@@ -1,0 +1,53 @@
+@startuml
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 18
+skinparam BoxPadding 10
+
+actor User
+participant UI as "Giao diện"
+participant Project as "project-srv"
+participant Ingest as "ingest-srv"
+database PG as "PostgreSQL"
+
+User -> UI: Nhập thông tin campaign
+UI -> Project: POST /campaigns
+Project -> PG: Insert campaign
+Project --> UI: 200 campaign created
+
+User -> UI: Nhập thông tin project
+UI -> Project: POST /campaigns/{campaign_id}/projects
+Project -> PG: Validate campaign + domain
+Project -> PG: Insert project
+Project --> UI: 200 project created
+
+User -> UI: Cấu hình datasource crawl
+UI -> Ingest: POST /datasources
+Ingest -> PG: Insert data_sources\n(crawl_mode, crawl_interval_minutes)
+Ingest --> UI: 200 datasource created
+
+alt Target loại keyword
+  User -> UI: Tạo keyword target
+  UI -> Ingest: POST /datasources/{source_id}/targets/keywords
+  Ingest -> PG: Insert crawl_targets\n(target_type=KEYWORD, crawl_interval_minutes, is_active=false)
+  Ingest --> UI: 200 target created
+else Target loại profile
+  User -> UI: Tạo profile target
+  UI -> Ingest: POST /datasources/{source_id}/targets/profiles
+  Ingest -> PG: Insert crawl_targets\n(target_type=PROFILE, crawl_interval_minutes, is_active=false)
+  Ingest --> UI: 200 target created
+else Target loại post
+  User -> UI: Tạo post target
+  UI -> Ingest: POST /datasources/{source_id}/targets/posts
+  Ingest -> PG: Insert crawl_targets\n(target_type=POST_URL, crawl_interval_minutes, is_active=false)
+  Ingest --> UI: 200 target created
+end
+
+opt Dry-run đã đủ điều kiện và target cần kích hoạt riêng
+  User -> UI: Kích hoạt target
+  UI -> Ingest: POST /datasources/{source_id}/targets/{target_id}/activate
+  Ingest -> PG: Get target + source + latest dryrun
+  Ingest -> PG: Update crawl_targets.is_active=true
+  Ingest --> UI: 200 target activated
+end
+@enduml

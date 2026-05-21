@@ -1,0 +1,64 @@
+@startuml
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 18
+skinparam BoxPadding 10
+
+actor User
+participant Ingest as "ingest-srv"
+queue Stream as "Redpanda / Kafka API"
+participant Analysis as "analysis-srv"
+database AnalysisPG as "PostgreSQL"
+participant Knowledge as "knowledge-srv"
+database Qdrant
+participant Bridge as "notification-srv bridge"
+participant RedisSub as "notification-srv Redis subscriber"
+participant WebSocket as "notification-srv WebSocket"
+database Redis
+
+User -> WebSocket: GET /ws?token=...
+WebSocket -> WebSocket: Register connection in hub
+RedisSub -> Redis: PSubscribe(project:*:user:*, campaign:*:user:*, alert:*:user:*, system:*)
+
+Ingest -> Stream: Publish UAP record(s)\ntopic=smap.collector.output
+Stream --> Analysis: Consume batch from smap.collector.output
+Analysis -> Analysis: Parse UAP + group by (project_id, domain_type_code)\nrun NLP pipeline
+loop mỗi NLP fact hợp lệ
+  Analysis -> AnalysisPG: Insert analysis.post_insight
+end
+Analysis -> Stream: Publish analytics.batch.completed
+loop mỗi insight card
+  Analysis -> Stream: Publish analytics.insights.published
+end
+Analysis -> Stream: Publish analytics.report.digest
+opt crisis level >= trigger threshold
+  Analysis -> Stream: Publish analytics.crisis.alert
+end
+
+par Knowledge indexing
+  Stream --> Knowledge: Consume analytics.batch.completed
+  Knowledge -> Qdrant: IndexBatch(documents[])
+  Stream --> Knowledge: Consume analytics.insights.published
+  Knowledge -> Qdrant: IndexInsight(...)
+  Stream --> Knowledge: Consume analytics.report.digest
+  Knowledge -> Qdrant: IndexDigest(...)
+else Notification delivery
+  Stream --> Bridge: Consume analytics.report.digest
+  Bridge -> Redis: PUBLISH system:analytics
+  Redis --> RedisSub: Deliver system:* message
+  RedisSub -> WebSocket: ProcessMessage(channel, payload)
+  WebSocket -> WebSocket: routeMessage(...)
+  WebSocket --> User: WebSocket analytics update
+
+  opt crisis alert được phát hành
+    Stream --> Bridge: Consume analytics.crisis.alert
+    Bridge -> Redis: PUBLISH alert:crisis:user:{user_id}
+    Redis --> RedisSub: Deliver alert:*:user:* message
+    RedisSub -> WebSocket: ProcessMessage(channel, payload)
+    opt severity=critical và ops_alert=true
+      WebSocket -> WebSocket: DispatchCrisisAlert(...)
+    end
+    WebSocket --> User: WebSocket crisis alert
+  end
+end
+@enduml
