@@ -38,39 +38,39 @@ jmeter runtime: Apache JMeter 5.5 (see raw/jmeter.log)
 
 ## API Response Time
 
-| Tool | Endpoint | Requests | Avg | P95 | Max | Error rate |
-| --- | --- | --- | --- | --- | --- | --- |
-| jmeter | analytics_keywords | 30 | 170 ms | 363 ms | 430 ms | 0.00% |
-| jmeter | analytics_kpis | 30 | 287 ms | 1525 ms | 1644 ms | 0.00% |
-| jmeter | analytics_platforms | 30 | 192 ms | 570 ms | 894 ms | 0.00% |
-| jmeter | analytics_sentiment | 30 | 258 ms | 859 ms | 1042 ms | 0.00% |
-| jmeter | health | 30 | 148 ms | 209 ms | 670 ms | 0.00% |
-| jmeter | heap_chart | 30 | 456 ms | 1456 ms | 1563 ms | 0.00% |
-| jmeter | posts_engagement | 30 | 333 ms | 1040 ms | 1157 ms | 0.00% |
-| jmeter | posts_latest | 30 | 300 ms | 929 ms | 985 ms | 0.00% |
-| jmeter | posts_page_2 | 30 | 169 ms | 337 ms | 392 ms | 0.00% |
-| jmeter | project_stats | 30 | 195 ms | 405 ms | 600 ms | 0.00% |
-| newman | analytics_keywords | 1 | 300 ms | 300 ms | 300 ms | 0.00% |
-| newman | analytics_kpis | 1 | 1295 ms | 1295 ms | 1295 ms | 0.00% |
-| newman | analytics_platforms | 1 | 667 ms | 667 ms | 667 ms | 0.00% |
-| newman | analytics_sentiment | 1 | 654 ms | 654 ms | 654 ms | 0.00% |
-| newman | health | 1 | 158 ms | 158 ms | 158 ms | 0.00% |
-| newman | heap_chart | 1 | 568 ms | 568 ms | 568 ms | 0.00% |
-| newman | posts_engagement | 1 | 456 ms | 456 ms | 456 ms | 0.00% |
-| newman | posts_latest | 1 | 533 ms | 533 ms | 533 ms | 0.00% |
-| newman | posts_page_2 | 1 | 32 ms | 32 ms | 32 ms | 0.00% |
-| newman | project_stats | 1 | 371 ms | 371 ms | 371 ms | 0.00% |
+| Tool   | Endpoint            | Requests | Avg     | P95     | Max     | Error rate |
+| ------ | ------------------- | -------- | ------- | ------- | ------- | ---------- |
+| jmeter | analytics_keywords  | 30       | 170 ms  | 363 ms  | 430 ms  | 0.00%      |
+| jmeter | analytics_kpis      | 30       | 287 ms  | 1525 ms | 1644 ms | 0.00%      |
+| jmeter | analytics_platforms | 30       | 192 ms  | 570 ms  | 894 ms  | 0.00%      |
+| jmeter | analytics_sentiment | 30       | 258 ms  | 859 ms  | 1042 ms | 0.00%      |
+| jmeter | health              | 30       | 148 ms  | 209 ms  | 670 ms  | 0.00%      |
+| jmeter | heap_chart          | 30       | 456 ms  | 1456 ms | 1563 ms | 0.00%      |
+| jmeter | posts_engagement    | 30       | 333 ms  | 1040 ms | 1157 ms | 0.00%      |
+| jmeter | posts_latest        | 30       | 300 ms  | 929 ms  | 985 ms  | 0.00%      |
+| jmeter | posts_page_2        | 30       | 169 ms  | 337 ms  | 392 ms  | 0.00%      |
+| jmeter | project_stats       | 30       | 195 ms  | 405 ms  | 600 ms  | 0.00%      |
+| newman | analytics_keywords  | 1        | 300 ms  | 300 ms  | 300 ms  | 0.00%      |
+| newman | analytics_kpis      | 1        | 1295 ms | 1295 ms | 1295 ms | 0.00%      |
+| newman | analytics_platforms | 1        | 667 ms  | 667 ms  | 667 ms  | 0.00%      |
+| newman | analytics_sentiment | 1        | 654 ms  | 654 ms  | 654 ms  | 0.00%      |
+| newman | health              | 1        | 158 ms  | 158 ms  | 158 ms  | 0.00%      |
+| newman | heap_chart          | 1        | 568 ms  | 568 ms  | 568 ms  | 0.00%      |
+| newman | posts_engagement    | 1        | 456 ms  | 456 ms  | 456 ms  | 0.00%      |
+| newman | posts_latest        | 1        | 533 ms  | 533 ms  | 533 ms  | 0.00%      |
+| newman | posts_page_2        | 1        | 32 ms   | 32 ms   | 32 ms   | 0.00%      |
+| newman | project_stats       | 1        | 371 ms  | 371 ms  | 371 ms  | 0.00%      |
 
 ![API p95 by endpoint](charts/api_p95_by_endpoint.svg)
 
 ## Load Test: Concurrent Users
 
-| Concurrent users | Requests | RPS | Avg | P95 | Max | Error rate |
-| --- | --- | --- | --- | --- | --- | --- |
-| 5 | 484 | 10.97 | 30 ms | 100 ms | 197 ms | 0.00% |
-| 10 | 1047 | 23.76 | 29 ms | 100 ms | 573 ms | 0.00% |
-| 25 | 1668 | 37.78 | 241 ms | 270 ms | 7882 ms | 0.00% |
-| 50 | 4048 | 91.71 | 89 ms | 240 ms | 2096 ms | 0.02% |
+| Concurrent users | Requests | RPS   | Avg    | P95    | Max     | Error rate |
+| ---------------- | -------- | ----- | ------ | ------ | ------- | ---------- |
+| 5                | 484      | 10.97 | 30 ms  | 100 ms | 197 ms  | 0.00%      |
+| 10               | 1047     | 23.76 | 29 ms  | 100 ms | 573 ms  | 0.00%      |
+| 25               | 1668     | 37.78 | 241 ms | 270 ms | 7882 ms | 0.00%      |
+| 50               | 4048     | 91.71 | 89 ms  | 240 ms | 2096 ms | 0.02%      |
 
 Acceptance rule for this live benchmark: `error_rate <= 0.1%` and aggregate `p95 <= 2500 ms`.
 
@@ -86,11 +86,11 @@ Observed load-test failures:
 
 ## AI/ML Quality: Sentiment
 
-| Label | Precision | Recall | F1 | Support |
-| --- | --- | --- | --- | --- |
-| negative | 0.733 | 0.688 | 0.710 | 16 |
-| neutral | 0.267 | 0.286 | 0.276 | 14 |
-| positive | 0.333 | 0.333 | 0.333 | 15 |
+| Label    | Precision | Recall | F1    | Support |
+| -------- | --------- | ------ | ----- | ------- |
+| negative | 0.733     | 0.688  | 0.710 | 16      |
+| neutral  | 0.267     | 0.286  | 0.276 | 14      |
+| positive | 0.333     | 0.333  | 0.333 | 15      |
 
 Macro F1: **0.440**. Weighted F1: **0.449**. Accuracy: **0.444**.
 
