@@ -1,0 +1,37 @@
+@startuml
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 18
+skinparam BoxPadding 10
+
+actor User
+participant UI as "Giao diện"
+participant Project as "project-srv"
+participant Ingest as "ingest-srv"
+database PG as "PostgreSQL"
+
+User -> UI: Activate project
+UI -> Project: POST /projects/{project_id}/activate
+Project -> PG: Detail project + validate status
+Project -> Ingest: GET /internal/projects/{project_id}/activation-readiness?command=activate
+Ingest -> PG: List data_sources(project_id)
+
+loop mỗi crawl datasource
+  Ingest -> PG: List crawl_targets(source_id)
+  opt source/target cần dry-run
+    Ingest -> PG: GetLatestDryrunByTarget(target_id)
+  end
+end
+
+alt Readiness blocked
+  Ingest --> Project: can_proceed = false
+  Project --> UI: 4xx activation blocked
+else Readiness passed
+  Ingest --> Project: can_proceed = true
+  Project -> Ingest: POST /internal/projects/{project_id}/activate
+  Ingest -> PG: UpdateProjectDataSourcesLifecycle(project_id, activate)
+  Ingest --> Project: 200 affected_data_source_count
+  Project -> PG: Update project status = ACTIVE
+  Project --> UI: 200 project activated
+end
+@enduml

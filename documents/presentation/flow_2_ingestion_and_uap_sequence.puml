@@ -1,0 +1,54 @@
+@startuml
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 18
+skinparam BoxPadding 10
+
+participant Scheduler as "Scheduler\n(ingest-srv)"
+participant Exec as "Execution usecase\n(ingest-srv)"
+participant Completion as "Completion consumer\n(ingest-srv)"
+participant UAP as "UAP parser\n(ingest-srv)"
+
+database PG as "PostgreSQL"
+queue Rabbit as "RabbitMQ"
+participant Worker as "scapper-srv worker"
+collections Social as "TikTok / Facebook / YouTube"
+database MinIO as "MinIO"
+queue Stream as "Redpanda / Kafka API"
+
+Scheduler -> PG: ListDueTargets(now, limit)
+loop mỗi due target
+  Scheduler -> PG: ClaimTarget(source_id, target_id, next_crawl_at)
+  Scheduler -> Exec: DispatchDueTargets(..., trigger_type=SCHEDULED)
+  Exec -> PG: CreateScheduledJob(...)
+  loop mỗi dispatch spec
+    Exec -> PG: CreateExternalTask(...)
+    Exec -> Rabbit: PublishDispatch(queue, action, params)
+    Exec -> PG: MarkExternalTaskPublished(...)
+  end
+end
+
+Rabbit --> Worker: Deliver task message
+Worker -> Social: Crawl requested resource
+Social --> Worker: Raw posts / comments / videos
+Worker -> MinIO: Save raw artifact
+Worker -> Rabbit: Publish completion\nqueue=ingest_task_completions
+
+Rabbit --> Completion: Deliver completion message
+Completion -> PG: GetCompletionContext(task_id)
+
+alt completion.status = error
+  Completion -> PG: CompleteTaskError(...)
+else completion.status = success
+  Completion -> MinIO: Verify storage object
+  Completion -> PG: CompleteTaskSuccess(...)\ninsert raw_batches + mark external_task completed
+  Completion -> UAP: ParseAndStoreRawBatch(raw_batch_id, ...)
+  UAP -> PG: ClaimRawBatchForParsing(raw_batch_id)
+  UAP -> MinIO: Download raw artifact
+  loop mỗi UAP record parse được
+    UAP -> Stream: Publish smap.collector.output
+  end
+  UAP -> MinIO: Upload parsed UAP chunk(s)
+  UAP -> PG: MarkRawBatchParsed(...)
+end
+@enduml
