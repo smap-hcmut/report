@@ -74,6 +74,7 @@ Important paths:
 | `report/documents/docs/api-endpoints.md` | Public API reference by service prefix |
 | `report/documents/docs/dataflow-detailed.md` | Component-level dataflow and UAP model |
 | `report/documents/docs/migration-plan.md` | Original architecture/migration plan |
+| `report/documents/docs/indexing-time-to-first-data-benchmark.md` | Benchmark TTFD (campaign/project start → first data) with SQL + recommendations |
 | `report/documents/presentation/slides` | Defense slide content |
 | `report/documents/presentation/evaluation` | Evaluation/unit-test/NFR presentation material |
 | `report/documents/barem.md` | HCMUT grading rubric |
