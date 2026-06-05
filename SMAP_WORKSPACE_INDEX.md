@@ -22,6 +22,77 @@ Target repos pulled and indexed:
 | `report` | `master` | `c9252ef` | Official report, use cases, diagrams, slides, evaluation evidence |
 | `smap-deploy` | `main` | `77a646b` | Homelab Kubernetes manifests, NFR evidence, deploy runbooks |
 
+### 2026-06-05 17:55 (Giờ local) - Pass ổn định ngắn hạn SMAP
+
+- Mục tiêu pass này: chốt nguyên nhân gián đoạn kéo dài (long-tail crawl task), giảm nghẽn queue theo luồng business, và đồng bộ lại runtime `scapper-srv`.
+- Kết luận gốc rễ:
+  - Từ luồng ingest đến scapper, thông số `full_flow` đang cực nặng (`limit=50`, `comment_count=100`) nên task rất lâu, không phải infra chết đột ngột.
+  - `scapper-srv` trước đó đôi lúc đọc `WORKER_PREFETCH_COUNT=1` do deploy mismatch giữa pod cũ và manifest, nên không tận dụng băng thông xử lý song song.
+- Đã patch ngay trong repo:
+  - `ingest-srv/internal/execution/types.go`: giảm mạnh mặc định `full_flow`:
+    - `TikTokFullFlowLimit=12`, `TikTokFullFlowCommentCount=30`
+    - `FacebookFullFlowLimit=12`, `FacebookFullFlowCommentCount=30`
+    - `YouTubeFullFlowLimit=12`, `YouTubeFullFlowCommentCount=30`
+    - `TikTokUserFullFlowCount=12`, `FacebookPageFullFlowCount=2`, `FacebookPageFullFlowCommentCount=8`
+  - `smap-deploy/services/scapper/configmap.yaml`: thêm `TINLIKESUB_TIMEOUT_SECONDS=180`, giữ `WORKER_PREFETCH_COUNT=4`.
+  - `smap-deploy/services/scapper/deployment.yaml`: ép inject các biến runtime `WORKER_*`, `TASK_TIMEOUT_SECONDS`, `TINLIKESUB_TIMEOUT_SECONDS` trực tiếp vào env.
+  - `scapper-srv/app/config.py`: đồng bộ default `WORKER_PREFETCH_COUNT=4`, thêm `TINLIKESUB_TIMEOUT_SECONDS`.
+  - `scapper-srv/app/worker.py`: áp dụng timeout client từ config, thêm hàm `_sanitize_task_params(...)` để chặn tham số quá to theo action (đang cần rebuild image mới có hiệu lực).
+- Kết quả rollout trên cluster homelab lúc chạy pass:
+  - `smap` chuyển sang `scapper-srv` 2 replicas (status ready 2/2).
+  - Env thực tế trong pod mới: `WORKER_PREFETCH_COUNT=4`, `TASK_TIMEOUT_SECONDS=600`, `TINLIKESUB_TIMEOUT_SECONDS=180`.
+  - RabbitMQ queues đang chạy: `facebook_tasks`, `youtube_tasks`, `tiktok_tasks`, `ingest_task_completions`, `ingest_dryrun_completions` (consumers bình thường, `tiktok_tasks` có 1 in-flight).
+  - Redpanda consumer lag của các nhóm chính hiện tại = `0` khi kiểm tra nhanh.
+- Lưu ý vận hành:
+  - `scapper-srv` vẫn đang dùng image tag cũ `260605-160135-dryrun-route`; các patch Python mới chưa chạy thực tế cho đến khi build+push image mới rồi cập nhật tag deployment.
+
+### 2026-06-05 18:45 (Giờ local) - Deploy bản vá thực thi
+
+- Mình đã build/push 2 image mới cho `scapper-srv` và đổi deployment sang `260606-0002-stability-fix-amd64` để chạy đúng trên node amd64:
+  - `260606-0001-stability-fix` (đầu tiên) lỗi kiến trúc => `exec format error`.
+  - `260606-0002-stability-fix-amd64` chạy ổn.
+- Kết quả rollout:
+  - `scapper-srv` đã về ổn định `2/2` replicas.
+  - Các pod cũ được terminate sạch sau rollout.
+- Dấu hiệu thay đổi hiệu năng:
+  - Log trực tiếp đã thấy clamp: `limit=50 -> 12`, `comment_count=100 -> 30` trước khi gọi handler.
+- Tình trạng hạ tầng thời điểm pass:
+  - RabbitMQ queues đang chạy: `facebook_tasks`, `youtube_tasks`, `tiktok_tasks`, `ingest_task_completions`, `ingest_dryrun_completions`.
+  - `tiktok_tasks` còn `messages=2`, `unacked=2` (workload đang xử lý live).
+  - Kafka lag hiện có (khi snapshot này): `analytics-service 563`, `knowledge-indexing-* 3`, `notification-service 3`.
+- Nhận xét:
+  - Việc "giảm nghẽn" đã có hiệu ứng rõ ràng ở đầu pipeline (input đã bị clamp ngay khi nhận task), giảm rủi ro full-flow kéo dài hàng nghìn giây và giảm áp lực downstream.
+
+### 2026-06-05 18:00 (Giờ local) - Final verification sau patch
+
+- Mục tiêu phase này: xác nhận không còn "silent dead" + đo ổn định data-plane sau rollout.
+- Trạng thái namespace `smap`:
+  - Tất cả pod đều `Running` với `READY` đầy đủ; `kubectl -n smap get pods --field-selector=status.phase!=Running` trả về `No resources found`.
+  - `scapper-srv` đang chạy image `registry.tantai.dev/smap/scapper-srv:260606-0002-stability-fix-amd64`.
+  - `identity-srv` có `4` restart cũ (~3d2h), không phải restart mới sau phiên trace.
+- Storage/runtime dependency:
+  - Trong namespace `smap` hiện không còn PVC nào đang dùng.
+  - Longhorn vẫn chạy ở `longhorn` v1.5.3, nhưng không còn persistent claim của `smap` gắn vào Redis/RabbitMQ/Redpanda.
+  - Dấu hiệu Longhorn ổn định tốt hơn do workload đã được loại `smap` khỏi Longhorn.
+- Messaging:
+  - RabbitMQ queues:
+    - `facebook_tasks 0/0/0`
+    - `youtube_tasks 0/0/0`
+    - `tiktok_tasks 0/0/0`
+    - `ingest_task_completions 0/0/0`
+    - `ingest_dryrun_completions 0/0/0`
+  - Redpanda consumer lag:
+    - `analytics-service`: `TOTAL-LAG 0`
+    - `knowledge-indexing-batch`: `TOTAL-LAG 0`
+    - `knowledge-indexing-digest`: `TOTAL-LAG 0`
+    - `knowledge-indexing-insights`: `TOTAL-LAG 0`
+    - `notification-service`: `TOTAL-LAG 0`
+- Luồng nghiệp vụ (business readiness):
+  - Theo `SMAP_BUSINESS_DATA_PROCESS_STOP_REPORT.md`, thời điểm dừng nghiệp vụ cuối cùng đã đưa campaign/project/datasource về trạng thái không `ACTIVE`; không có task/scheduled job open mới.
+  - Số liệu benchmark mới nhất ở `report/documents/docs/indexing-time-to-first-data-benchmark.md` vẫn cho thấy:
+    - `TTFD`: ~5m26s ở một run có data tốt (E2E mẫu gần nhất),
+    - nhưng tỷ lệ `has data` vẫn đang phân tán, cần hoàn thiện reliability trước khi optimize p95.
+
 Other top-level repos present but not deep-read in this pass:
 
 | Path | Likely role |
