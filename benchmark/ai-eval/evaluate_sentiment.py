@@ -2,7 +2,7 @@
 import argparse
 import csv
 import json
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
 
