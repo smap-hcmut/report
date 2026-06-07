@@ -1,0 +1,17 @@
+WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+START Running Jmeter on Sat Jun  6 19:54:17 CEST 2026
+JVM_ARGS=-Xmn1404m -Xms5616m -Xmx5616m
+jmeter args=-n -t /tests/smap_api_benchmark.jmx -Jbase_host=smap.tantai.dev -Jcampaign_id=5cc6763f-3ec5-4481-9c7b-597bd5bb6126 -Jproject_id=d25fe723-a407-4a77-ac69-1556749f51ff -Jthreads=10 -Jloops=3 -Jramp_seconds=10 -l /out/jmeter_results.jtl -j /out/jmeter.log
+jmeter ALL ARGS=-Dlog4j2.formatMsgNoLookups=true -n -t /tests/smap_api_benchmark.jmx -Jbase_host=smap.tantai.dev -Jcampaign_id=5cc6763f-3ec5-4481-9c7b-597bd5bb6126 -Jproject_id=d25fe723-a407-4a77-ac69-1556749f51ff -Jthreads=10 -Jloops=3 -Jramp_seconds=10 -l /out/jmeter_results.jtl -j /out/jmeter.log
+Jun 06, 2026 7:54:19 PM java.util.prefs.FileSystemPreferences$1 run
+INFO: Created user preferences directory.
+Creating summariser <summary>
+Created the tree successfully using /tests/smap_api_benchmark.jmx
+Starting standalone test @ June 6, 2026 7:54:20 PM CEST (1780768460357)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +    205 in 00:00:09 =   22.0/s Avg:   133 Min:    92 Max:   605 Err:     0 (0.00%) Active: 4 Started: 10 Finished: 6
+summary +     65 in 00:00:05 =   14.0/s Avg:   222 Min:   102 Max:   963 Err:     0 (0.00%) Active: 0 Started: 10 Finished: 10
+summary =    270 in 00:00:14 =   19.3/s Avg:   155 Min:    92 Max:   963 Err:     0 (0.00%)
+Tidying up ...    @ June 6, 2026 7:54:34 PM CEST (1780768474813)
+... end of run
+END Running Jmeter on Sat Jun  6 19:54:35 CEST 2026

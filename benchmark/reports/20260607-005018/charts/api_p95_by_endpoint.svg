@@ -1,0 +1,46 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1100' height='556' viewBox='0 0 1100 556'>
+<rect width='100%' height='100%' fill='#fbfaf7'/>
+<text x='24' y='34' font-family='Arial' font-size='22' font-weight='700' fill='#1f2937'>API p95 by endpoint</text>
+<text x='24' y='84' font-family='Arial' font-size='13' fill='#374151'>newman  analytics_platforms</text>
+<rect x='250' y='64' width='770.0' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='1028.0' y='80' font-family='Arial' font-size='12' fill='#111827'>1040 ms</text>
+<text x='24' y='118' font-family='Arial' font-size='13' fill='#374151'>newman  analytics_sentiment</text>
+<rect x='250' y='98' width='752.2' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='1010.2' y='114' font-family='Arial' font-size='12' fill='#111827'>1016 ms</text>
+<text x='24' y='152' font-family='Arial' font-size='13' fill='#374151'>jmeter  posts_engagement</text>
+<rect x='250' y='132' width='672.8' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='930.8' y='148' font-family='Arial' font-size='12' fill='#111827'>909 ms</text>
+<text x='24' y='186' font-family='Arial' font-size='13' fill='#374151'>jmeter  posts_latest</text>
+<rect x='250' y='166' width='543.6' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='801.6' y='182' font-family='Arial' font-size='12' fill='#111827'>734 ms</text>
+<text x='24' y='220' font-family='Arial' font-size='13' fill='#374151'>newman  posts_latest</text>
+<rect x='250' y='200' width='486.4' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='744.4' y='216' font-family='Arial' font-size='12' fill='#111827'>657 ms</text>
+<text x='24' y='254' font-family='Arial' font-size='13' fill='#374151'>newman  posts_engagement</text>
+<rect x='250' y='234' width='455.3' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='713.3' y='250' font-family='Arial' font-size='12' fill='#111827'>615 ms</text>
+<text x='24' y='288' font-family='Arial' font-size='13' fill='#374151'>newman  project_stats</text>
+<rect x='250' y='268' width='380.6' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='638.6' y='284' font-family='Arial' font-size='12' fill='#111827'>514 ms</text>
+<text x='24' y='322' font-family='Arial' font-size='13' fill='#374151'>newman  analytics_keywords</text>
+<rect x='250' y='302' width='316.9' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='574.9' y='318' font-family='Arial' font-size='12' fill='#111827'>428 ms</text>
+<text x='24' y='356' font-family='Arial' font-size='13' fill='#374151'>jmeter  project_stats</text>
+<rect x='250' y='336' width='171.0' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='429.0' y='352' font-family='Arial' font-size='12' fill='#111827'>231 ms</text>
+<text x='24' y='390' font-family='Arial' font-size='13' fill='#374151'>jmeter  posts_page_2</text>
+<rect x='250' y='370' width='162.0' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='420.0' y='386' font-family='Arial' font-size='12' fill='#111827'>219 ms</text>
+<text x='24' y='424' font-family='Arial' font-size='13' fill='#374151'>jmeter  health</text>
+<rect x='250' y='404' width='154.6' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='412.6' y='420' font-family='Arial' font-size='12' fill='#111827'>209 ms</text>
+<text x='24' y='458' font-family='Arial' font-size='13' fill='#374151'>jmeter  analytics_keywords</text>
+<rect x='250' y='438' width='149.7' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='407.7' y='454' font-family='Arial' font-size='12' fill='#111827'>202 ms</text>
+<text x='24' y='492' font-family='Arial' font-size='13' fill='#374151'>jmeter  analytics_platforms</text>
+<rect x='250' y='472' width='149.6' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='407.6' y='488' font-family='Arial' font-size='12' fill='#111827'>202 ms</text>
+<text x='24' y='526' font-family='Arial' font-size='13' fill='#374151'>jmeter  analytics_sentiment</text>
+<rect x='250' y='506' width='149.2' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='407.2' y='522' font-family='Arial' font-size='12' fill='#111827'>202 ms</text>
+</svg>

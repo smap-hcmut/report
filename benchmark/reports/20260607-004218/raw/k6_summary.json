@@ -1,0 +1,266 @@
+{
+    "metrics": {
+        "http_req_blocked": {
+            "avg": 0.43072275823529266,
+            "min": 0.00025,
+            "med": 0.000958,
+            "max": 103.635714,
+            "p(90)": 0.002334,
+            "p(95)": 0.002958
+        },
+        "http_req_failed": {
+            "passes": 350,
+            "fails": 1350,
+            "thresholds": {
+                "rate<0.01": true
+            },
+            "value": 0.20588235294117646
+        },
+        "http_reqs": {
+            "rate": 36.717829951986694,
+            "count": 1700
+        },
+        "http_req_duration": {
+            "avg": 68.34713325999991,
+            "min": 7.316274,
+            "med": 47.293321500000005,
+            "max": 1171.131826,
+            "p(90)": 117.5285882,
+            "p(95)": 149.84490399999999,
+            "thresholds": {
+                "p(95)<2500": false
+            }
+        },
+        "http_req_tls_handshaking": {
+            "p(95)": 0,
+            "avg": 0.3571132735294118,
+            "min": 0,
+            "med": 0,
+            "max": 91.43859,
+            "p(90)": 0
+        },
+        "http_req_connecting": {
+            "avg": 0.05802004117647058,
+            "min": 0,
+            "med": 0,
+            "max": 10.129908,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "data_received": {
+            "count": 9848149,
+            "rate": 212707.4472493105
+        },
+        "http_req_waiting": {
+            "med": 43.906122499999995,
+            "max": 1164.956557,
+            "p(90)": 115.60100330000002,
+            "p(95)": 145.81263435,
+            "avg": 65.27213062058819,
+            "min": 7.12419
+        },
+        "vus": {
+            "max": 10,
+            "value": 5,
+            "min": 5
+        },
+        "checks": {
+            "passes": 3050,
+            "fails": 350,
+            "value": 0.8970588235294118
+        },
+        "vus_max": {
+            "max": 10,
+            "value": 10,
+            "min": 10
+        },
+        "iteration_duration": {
+            "max": 3663.587928,
+            "p(90)": 2908.1758852,
+            "p(95)": 3267.096228849999,
+            "avg": 2706.39690722941,
+            "min": 2340.918357,
+            "med": 2627.160417
+        },
+        "iterations": {
+            "count": 170,
+            "rate": 3.6717829951986696
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 69.84253495777774,
+            "min": 7.316274,
+            "med": 50.857436500000006,
+            "max": 1171.131826,
+            "p(90)": 116.68949359999999,
+            "p(95)": 148.56420164999983
+        },
+        "http_req_sending": {
+            "avg": 0.136809658235294,
+            "min": 0.036917,
+            "med": 0.112313,
+            "max": 0.938837,
+            "p(90)": 0.24124650000000003,
+            "p(95)": 0.2862120499999998
+        },
+        "http_req_receiving": {
+            "avg": 2.938192981176473,
+            "min": 0.008167,
+            "med": 0.1347295,
+            "max": 1064.160976,
+            "p(90)": 5.546972800000001,
+            "p(95)": 6.786602649999996
+        },
+        "data_sent": {
+            "count": 123309,
+            "rate": 2663.3169962056045
+        }
+    },
+    "root_group": {
+        "groups": {},
+        "checks": {
+                "health status 200": {
+                    "fails": 0,
+                    "name": "health status 200",
+                    "path": "::health status 200",
+                    "id": "54cc6b20b1977b24d2246b3d411f7567",
+                    "passes": 170
+                },
+                "health json-ish": {
+                    "name": "health json-ish",
+                    "path": "::health json-ish",
+                    "id": "5e0bccb51c0e3093564217553327b98f",
+                    "passes": 170,
+                    "fails": 0
+                },
+                "analytics_kpis status 200": {
+                    "id": "24a0bb6240e63269e59b50383aff64d6",
+                    "passes": 0,
+                    "fails": 170,
+                    "name": "analytics_kpis status 200",
+                    "path": "::analytics_kpis status 200"
+                },
+                "analytics_kpis json-ish": {
+                    "name": "analytics_kpis json-ish",
+                    "path": "::analytics_kpis json-ish",
+                    "id": "c4687a5fef9f8b3b7f5749fdc631a61b",
+                    "passes": 170,
+                    "fails": 0
+                },
+                "analytics_platforms status 200": {
+                    "passes": 164,
+                    "fails": 6,
+                    "name": "analytics_platforms status 200",
+                    "path": "::analytics_platforms status 200",
+                    "id": "de0a077866e07dad36b5c4950acb0bb6"
+                },
+                "analytics_platforms json-ish": {
+                    "name": "analytics_platforms json-ish",
+                    "path": "::analytics_platforms json-ish",
+                    "id": "beded7902c0fe8d70a3b9e62372f0c6a",
+                    "passes": 170,
+                    "fails": 0
+                },
+                "analytics_sentiment status 200": {
+                    "fails": 2,
+                    "name": "analytics_sentiment status 200",
+                    "path": "::analytics_sentiment status 200",
+                    "id": "4d95a52b14aae86cab8ccec4bf950bc9",
+                    "passes": 168
+                },
+                "analytics_sentiment json-ish": {
+                    "passes": 170,
+                    "fails": 0,
+                    "name": "analytics_sentiment json-ish",
+                    "path": "::analytics_sentiment json-ish",
+                    "id": "8a3f1560b7322ebb699eb6309d7a28ea"
+                },
+                "analytics_keywords status 200": {
+                    "passes": 169,
+                    "fails": 1,
+                    "name": "analytics_keywords status 200",
+                    "path": "::analytics_keywords status 200",
+                    "id": "6afa7b4625680fd4fd25fcc6e5d3e288"
+                },
+                "analytics_keywords json-ish": {
+                    "name": "analytics_keywords json-ish",
+                    "path": "::analytics_keywords json-ish",
+                    "id": "739e51eb3a1052800164f219eee4754b",
+                    "passes": 170,
+                    "fails": 0
+                },
+                "posts_latest status 200": {
+                    "name": "posts_latest status 200",
+                    "path": "::posts_latest status 200",
+                    "id": "0a4af1c8f45b51f347bc4de9a90269d0",
+                    "passes": 170,
+                    "fails": 0
+                },
+                "posts_latest json-ish": {
+                    "name": "posts_latest json-ish",
+                    "path": "::posts_latest json-ish",
+                    "id": "0e107ce1ba4e8d248a88ed05c1fa0f79",
+                    "passes": 170,
+                    "fails": 0
+                },
+                "posts_engagement status 200": {
+                    "fails": 0,
+                    "name": "posts_engagement status 200",
+                    "path": "::posts_engagement status 200",
+                    "id": "6173fc38a16febe4f8ecd91148938f47",
+                    "passes": 170
+                },
+                "posts_engagement json-ish": {
+                    "path": "::posts_engagement json-ish",
+                    "id": "ce8b56ab8ea37c3ce7e8c9ddd64cf666",
+                    "passes": 170,
+                    "fails": 0,
+                    "name": "posts_engagement json-ish"
+                },
+                "posts_page_2 status 200": {
+                    "name": "posts_page_2 status 200",
+                    "path": "::posts_page_2 status 200",
+                    "id": "b0642c1e4754155a66a976797d7437e6",
+                    "passes": 170,
+                    "fails": 0
+                },
+                "posts_page_2 json-ish": {
+                    "name": "posts_page_2 json-ish",
+                    "path": "::posts_page_2 json-ish",
+                    "id": "421e385f2e366d40551bb91ae6aafd63",
+                    "passes": 170,
+                    "fails": 0
+                },
+                "project_stats status 200": {
+                    "fails": 1,
+                    "name": "project_stats status 200",
+                    "path": "::project_stats status 200",
+                    "id": "994bffa201c60fb0ab0f256499dae71a",
+                    "passes": 169
+                },
+                "project_stats json-ish": {
+                    "path": "::project_stats json-ish",
+                    "id": "bb4cdc650c9c6b22592c66489034e82a",
+                    "passes": 170,
+                    "fails": 0,
+                    "name": "project_stats json-ish"
+                },
+                "heap_chart status 200": {
+                    "path": "::heap_chart status 200",
+                    "id": "c2c7f899b40f80e43a4bc53027c8172a",
+                    "passes": 0,
+                    "fails": 170,
+                    "name": "heap_chart status 200"
+                },
+                "heap_chart json-ish": {
+                    "passes": 170,
+                    "fails": 0,
+                    "name": "heap_chart json-ish",
+                    "path": "::heap_chart json-ish",
+                    "id": "f12ad1841ac64fee8e0eecdbedcd9d38"
+                }
+            },
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+}

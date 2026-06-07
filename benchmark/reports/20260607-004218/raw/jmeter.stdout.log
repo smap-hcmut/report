@@ -1,0 +1,37 @@
+Unable to find image 'justb4/jmeter:latest' locally
+latest: Pulling from justb4/jmeter
+1b7ca6aea1dd: Pulling fs layer
+cba15738ba5b: Pulling fs layer
+c0012e9d365f: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+4f4fb700ef54: Waiting
+c0012e9d365f: Download complete
+1b7ca6aea1dd: Verifying Checksum
+1b7ca6aea1dd: Download complete
+1b7ca6aea1dd: Pull complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+cba15738ba5b: Verifying Checksum
+cba15738ba5b: Download complete
+cba15738ba5b: Pull complete
+c0012e9d365f: Pull complete
+4f4fb700ef54: Pull complete
+Digest: sha256:088ac52b759a198a5afa5ae13d0a6306e9f2017d71ad140ff57427f6930406f7
+Status: Downloaded newer image for justb4/jmeter:latest
+WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
+START Running Jmeter on Sat Jun  6 19:47:00 CEST 2026
+JVM_ARGS=-Xmn1382m -Xms5528m -Xmx5528m
+jmeter args=-n -t /tests/smap_api_benchmark.jmx -Jbase_host=smap.tantai.dev -Jcampaign_id=5cc6763f-3ec5-4481-9c7b-597bd5bb6126 -Jproject_id=d25fe723-a407-4a77-ac69-1556749f51ff -Jthreads=10 -Jloops=3 -Jramp_seconds=10 -l /out/jmeter_results.jtl -j /out/jmeter.log
+jmeter ALL ARGS=-Dlog4j2.formatMsgNoLookups=true -n -t /tests/smap_api_benchmark.jmx -Jbase_host=smap.tantai.dev -Jcampaign_id=5cc6763f-3ec5-4481-9c7b-597bd5bb6126 -Jproject_id=d25fe723-a407-4a77-ac69-1556749f51ff -Jthreads=10 -Jloops=3 -Jramp_seconds=10 -l /out/jmeter_results.jtl -j /out/jmeter.log
+Jun 06, 2026 7:47:02 PM java.util.prefs.FileSystemPreferences$1 run
+INFO: Created user preferences directory.
+Creating summariser <summary>
+Created the tree successfully using /tests/smap_api_benchmark.jmx
+Starting standalone test @ June 6, 2026 7:47:03 PM CEST (1780768023566)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +      1 in 00:00:01 =    1.0/s Avg:   691 Min:   691 Max:   691 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+summary +    299 in 00:00:13 =   23.7/s Avg:   142 Min:    84 Max:   305 Err:    63 (21.07%) Active: 0 Started: 10 Finished: 10
+summary =    300 in 00:00:14 =   22.1/s Avg:   144 Min:    84 Max:   691 Err:    63 (21.00%)
+Tidying up ...    @ June 6, 2026 7:47:17 PM CEST (1780768037643)
+... end of run
+END Running Jmeter on Sat Jun  6 19:47:18 CEST 2026

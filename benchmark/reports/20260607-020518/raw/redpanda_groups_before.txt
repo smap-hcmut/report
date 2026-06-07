@@ -1,0 +1,6 @@
+BROKER  GROUP                        STATE
+0       analytics-service            Stable
+0       knowledge-indexing-batch     Stable
+0       knowledge-indexing-digest    Stable
+0       knowledge-indexing-insights  Stable
+0       notification-service         Stable

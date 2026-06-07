@@ -1,0 +1,126 @@
+# Kubernetes snapshot: after
+2026-06-06T17:54:35Z
+
+## context
+homelab
+
+## deployments
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS              IMAGES                                                                         SELECTOR
+analysis-api        1/1     1            1           36d   analysis-api            registry.tantai.dev/smap/analysis-api:260607-0050-rollup-cast-fix              app=analysis-api
+analysis-consumer   3/3     3            3           54d   analysis-consumer       registry.tantai.dev/smap/analysis-consumer:260607-0055-probe-logger-fix        app=analysis-consumer
+identity-srv        1/1     1            1           54d   identity-srv            registry.tantai.dev/smap/identity-srv:260606-2330-perf-sprint                  app=identity-srv
+ingest-srv          1/1     1            1           54d   ingest-srv              registry.tantai.dev/smap/ingest-srv:260607-0010-dryrun-dlx                     app=ingest-srv
+knowledge-srv       1/1     1            1           54d   knowledge-srv           registry.tantai.dev/smap/knowledge-srv:260607-0130-chat-sse                    app=knowledge-srv
+notification-srv    1/1     1            1           54d   notification-srv        registry.tantai.dev/smap/notification-srv:260606-2330-perf-sprint              app=notification-srv
+project-srv         1/1     1            1           54d   project-srv             registry.tantai.dev/smap/project-srv:260606-2330-perf-sprint                   app=project-srv
+redpanda-console    1/1     1            1           54d   console                 redpandadata/console:v2.8.2                                                    app=redpanda-console
+scapper-srv         2/2     2            2           54d   scapper-srv             registry.tantai.dev/smap/scapper-srv:260606-2330-perf-sprint                   app=scapper-srv
+smap-central-log    1/1     1            1           54d   fluent-bit,log-viewer   fluent/fluent-bit:3.2,registry.tantai.dev/smap/smap-log-viewer:260311-002133   app=smap-central-log
+smap-portal         1/1     1            1           54d   portal                  registry.tantai.dev/smap/smap-portal:latest                                    app=smap-portal
+smap-ui             1/1     1            1           47d   smap-ui                 registry.tantai.dev/smap/smap-ui:260607-0050-heap-lazy                         app=smap-ui
+
+## pods
+NAME                                 READY   STATUS    RESTARTS       AGE     IP            NODE     NOMINATED NODE   READINESS GATES
+analysis-api-7c988469f-wsfl7         1/1     Running   0              6m16s   10.42.1.230   k3s-02   <none>           <none>
+analysis-consumer-79bcb65fc7-6dwcm   1/1     Running   0              37m     10.42.2.33    k3s-03   <none>           <none>
+analysis-consumer-79bcb65fc7-mnx7k   1/1     Running   0              36m     10.42.2.34    k3s-03   <none>           <none>
+analysis-consumer-79bcb65fc7-s4nvs   1/1     Running   0              35m     10.42.1.220   k3s-02   <none>           <none>
+identity-srv-6fddb78bd-wjrrl         1/1     Running   0              66m     10.42.1.211   k3s-02   <none>           <none>
+ingest-srv-5bf88c46bb-b8dc7          1/1     Running   0              51m     10.42.2.27    k3s-03   <none>           <none>
+knowledge-srv-d56c8df44-t7ksx        1/1     Running   0              22m     10.42.1.229   k3s-02   <none>           <none>
+notification-srv-5bc76f9cd5-85pdl    1/1     Running   0              66m     10.42.1.213   k3s-02   <none>           <none>
+project-srv-c5568f7f5-wdxpb          1/1     Running   0              66m     10.42.1.215   k3s-02   <none>           <none>
+rabbitmq-0                           1/1     Running   0              35h     10.42.0.222   k3s-01   <none>           <none>
+redis-0                              1/1     Running   0              35h     10.42.0.221   k3s-01   <none>           <none>
+redpanda-0                           1/1     Running   0              4d10h   10.42.2.242   k3s-03   <none>           <none>
+redpanda-console-7d869fcb4b-wxv7z    1/1     Running   5 (4d9h ago)   4d10h   10.42.0.197   k3s-01   <none>           <none>
+scapper-srv-5495565fdd-54x5k         1/1     Running   0              53m     10.42.1.219   k3s-02   <none>           <none>
+scapper-srv-5495565fdd-shdhs         1/1     Running   0              53m     10.42.2.26    k3s-03   <none>           <none>
+smap-central-log-7b98b765d7-gnb6x    2/2     Running   0              4d10h   10.42.2.236   k3s-03   <none>           <none>
+smap-node-log-4tc2l                  1/1     Running   0              16d     10.42.1.162   k3s-02   <none>           <none>
+smap-node-log-gbd9k                  1/1     Running   0              16d     10.42.2.234   k3s-03   <none>           <none>
+smap-node-log-lvrph                  1/1     Running   0              16d     10.42.0.4     k3s-01   <none>           <none>
+smap-portal-6849cd765d-psfnn         1/1     Running   0              77m     10.42.1.191   k3s-02   <none>           <none>
+smap-ui-6b64d7fcb9-gqpsh             1/1     Running   0              38m     10.42.2.32    k3s-03   <none>           <none>
+
+## recent warning events
+37m         Normal    ScalingReplicaSet              deployment/knowledge-srv                  Scaled down replica set knowledge-srv-6c97746997 to 0 from 1
+37m         Normal    SuccessfulDelete               replicaset/knowledge-srv-6c97746997       Deleted pod: knowledge-srv-6c97746997-z5km6
+37m         Normal    Killing                        pod/knowledge-srv-6c97746997-z5km6        Stopping container knowledge-srv
+37m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled down replica set analysis-consumer-7d84dcccbb to 0 from 1
+37m         Normal    SuccessfulDelete               replicaset/analysis-consumer-7d84dcccbb   Deleted pod: analysis-consumer-7d84dcccbb-f25qc
+37m         Normal    SuccessfulCreate               replicaset/analysis-consumer-79bcb65fc7   Created pod: analysis-consumer-79bcb65fc7-6dwcm
+37m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled up replica set analysis-consumer-79bcb65fc7 to 1 from 0
+37m         Normal    Pulling                        pod/analysis-consumer-79bcb65fc7-6dwcm    Pulling image "registry.tantai.dev/smap/analysis-consumer:260607-0055-probe-logger-fix"
+37m         Normal    Pulled                         pod/analysis-consumer-79bcb65fc7-6dwcm    Successfully pulled image "registry.tantai.dev/smap/analysis-consumer:260607-0055-probe-logger-fix" in 699ms (700ms including waiting). Image size: 1014809631 bytes.
+37m         Normal    Created                        pod/analysis-consumer-79bcb65fc7-6dwcm    Created container: analysis-consumer
+37m         Normal    Started                        pod/analysis-consumer-79bcb65fc7-6dwcm    Started container analysis-consumer
+36m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled down replica set analysis-consumer-56785d69dd to 2 from 3
+36m         Normal    SuccessfulDelete               replicaset/analysis-consumer-56785d69dd   Deleted pod: analysis-consumer-56785d69dd-6hz8j
+36m         Normal    SuccessfulCreate               replicaset/analysis-consumer-79bcb65fc7   Created pod: analysis-consumer-79bcb65fc7-mnx7k
+36m         Normal    Killing                        pod/analysis-consumer-56785d69dd-6hz8j    Stopping container analysis-consumer
+36m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled up replica set analysis-consumer-79bcb65fc7 to 2 from 1
+36m         Normal    Pulled                         pod/analysis-consumer-79bcb65fc7-mnx7k    Successfully pulled image "registry.tantai.dev/smap/analysis-consumer:260607-0055-probe-logger-fix" in 155ms (155ms including waiting). Image size: 1014809631 bytes.
+36m         Normal    Pulling                        pod/analysis-consumer-79bcb65fc7-mnx7k    Pulling image "registry.tantai.dev/smap/analysis-consumer:260607-0055-probe-logger-fix"
+36m         Normal    Started                        pod/analysis-consumer-79bcb65fc7-mnx7k    Started container analysis-consumer
+36m         Normal    Created                        pod/analysis-consumer-79bcb65fc7-mnx7k    Created container: analysis-consumer
+35m         Warning   Unhealthy                      pod/analysis-consumer-79bcb65fc7-mnx7k    Startup probe failed: Get "http://10.42.2.34:8080/healthz": dial tcp 10.42.2.34:8080: connect: connection refused
+35m         Normal    SuccessfulCreate               replicaset/analysis-consumer-79bcb65fc7   Created pod: analysis-consumer-79bcb65fc7-s4nvs
+35m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled up replica set analysis-consumer-79bcb65fc7 to 3 from 2
+35m         Normal    SuccessfulDelete               replicaset/analysis-consumer-56785d69dd   Deleted pod: analysis-consumer-56785d69dd-tlqqr
+35m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled down replica set analysis-consumer-56785d69dd to 1 from 2
+35m         Normal    Killing                        pod/analysis-consumer-56785d69dd-tlqqr    Stopping container analysis-consumer
+35m         Normal    Pulling                        pod/analysis-consumer-79bcb65fc7-s4nvs    Pulling image "registry.tantai.dev/smap/analysis-consumer:260607-0055-probe-logger-fix"
+35m         Normal    Started                        pod/analysis-consumer-79bcb65fc7-s4nvs    Started container analysis-consumer
+35m         Normal    Created                        pod/analysis-consumer-79bcb65fc7-s4nvs    Created container: analysis-consumer
+35m         Normal    Pulled                         pod/analysis-consumer-79bcb65fc7-s4nvs    Successfully pulled image "registry.tantai.dev/smap/analysis-consumer:260607-0055-probe-logger-fix" in 1.999s (1.999s including waiting). Image size: 1014809631 bytes.
+34m         Normal    SuccessfulDelete               replicaset/analysis-consumer-56785d69dd   Deleted pod: analysis-consumer-56785d69dd-94xfx
+34m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled down replica set analysis-consumer-56785d69dd to 0 from 1
+34m         Normal    Killing                        pod/analysis-consumer-56785d69dd-94xfx    Stopping container analysis-consumer
+31m         Normal    Created                        pod/pg-probe                              Created container: pg-probe
+31m         Normal    Started                        pod/pg-probe                              Started container pg-probe
+31m         Normal    Pulled                         pod/pg-probe                              Container image "postgres:15-alpine" already present on machine
+31m         Normal    Pulled                         pod/pg-root                               Container image "postgres:15-alpine" already present on machine
+31m         Normal    Started                        pod/pg-root                               Started container pg-root
+31m         Normal    Created                        pod/pg-root                               Created container: pg-root
+30m         Normal    Started                        pod/pg-m1                                 Started container pg-m1
+30m         Normal    Pulled                         pod/pg-m1                                 Container image "postgres:15-alpine" already present on machine
+30m         Normal    Created                        pod/pg-m1                                 Created container: pg-m1
+30m         Normal    Pulled                         pod/pg-m2                                 Container image "postgres:15-alpine" already present on machine
+30m         Normal    Created                        pod/pg-m2                                 Created container: pg-m2
+30m         Normal    Started                        pod/pg-m2                                 Started container pg-m2
+30m         Normal    Pulled                         pod/pg-m3                                 Container image "postgres:15-alpine" already present on machine
+30m         Normal    Started                        pod/pg-m3                                 Started container pg-m3
+30m         Normal    Created                        pod/pg-m3                                 Created container: pg-m3
+30m         Normal    Created                        pod/pg-verify                             Created container: pg-verify
+30m         Normal    Pulled                         pod/pg-verify                             Container image "postgres:15-alpine" already present on machine
+30m         Normal    Started                        pod/pg-verify                             Started container pg-verify
+27m         Normal    SuccessfulCreate               replicaset/knowledge-srv-54bbf469dd       Created pod: knowledge-srv-54bbf469dd-fhtps
+27m         Normal    ScalingReplicaSet              deployment/knowledge-srv                  Scaled up replica set knowledge-srv-54bbf469dd to 1
+27m         Normal    Pulling                        pod/knowledge-srv-54bbf469dd-fhtps        Pulling image "registry.tantai.dev/smap/knowledge-srv:260607-0110-batch-embed"
+27m         Normal    Created                        pod/knowledge-srv-54bbf469dd-fhtps        Created container: knowledge-srv
+27m         Normal    Pulled                         pod/knowledge-srv-54bbf469dd-fhtps        Successfully pulled image "registry.tantai.dev/smap/knowledge-srv:260607-0110-batch-embed" in 1.263s (1.263s including waiting). Image size: 17811679 bytes.
+27m         Normal    Started                        pod/knowledge-srv-54bbf469dd-fhtps        Started container knowledge-srv
+27m         Normal    Killing                        pod/knowledge-srv-565b76d58-qb7sr         Stopping container knowledge-srv
+27m         Normal    SuccessfulDelete               replicaset/knowledge-srv-565b76d58        Deleted pod: knowledge-srv-565b76d58-qb7sr
+27m         Normal    ScalingReplicaSet              deployment/knowledge-srv                  Scaled down replica set knowledge-srv-565b76d58 to 0 from 1
+22m         Normal    Pulling                        pod/knowledge-srv-d56c8df44-t7ksx         Pulling image "registry.tantai.dev/smap/knowledge-srv:260607-0130-chat-sse"
+22m         Normal    SuccessfulCreate               replicaset/knowledge-srv-d56c8df44        Created pod: knowledge-srv-d56c8df44-t7ksx
+22m         Normal    ScalingReplicaSet              deployment/knowledge-srv                  Scaled up replica set knowledge-srv-d56c8df44 to 1
+22m         Normal    Pulled                         pod/knowledge-srv-d56c8df44-t7ksx         Successfully pulled image "registry.tantai.dev/smap/knowledge-srv:260607-0130-chat-sse" in 1.153s (1.153s including waiting). Image size: 17842519 bytes.
+22m         Normal    Created                        pod/knowledge-srv-d56c8df44-t7ksx         Created container: knowledge-srv
+22m         Normal    Started                        pod/knowledge-srv-d56c8df44-t7ksx         Started container knowledge-srv
+22m         Normal    SuccessfulDelete               replicaset/knowledge-srv-54bbf469dd       Deleted pod: knowledge-srv-54bbf469dd-fhtps
+22m         Normal    ScalingReplicaSet              deployment/knowledge-srv                  Scaled down replica set knowledge-srv-54bbf469dd to 0 from 1
+22m         Normal    Killing                        pod/knowledge-srv-54bbf469dd-fhtps        Stopping container knowledge-srv
+6m16s       Normal    SuccessfulCreate               replicaset/analysis-api-7c988469f         Created pod: analysis-api-7c988469f-wsfl7
+6m16s       Normal    ScalingReplicaSet              deployment/analysis-api                   Scaled up replica set analysis-api-7c988469f to 1
+6m16s       Normal    Pulling                        pod/analysis-api-7c988469f-wsfl7          Pulling image "registry.tantai.dev/smap/analysis-api:260607-0050-rollup-cast-fix"
+6m15s       Normal    Pulled                         pod/analysis-api-7c988469f-wsfl7          Successfully pulled image "registry.tantai.dev/smap/analysis-api:260607-0050-rollup-cast-fix" in 693ms (693ms including waiting). Image size: 1015454882 bytes.
+6m15s       Normal    Created                        pod/analysis-api-7c988469f-wsfl7          Created container: analysis-api
+6m15s       Normal    Started                        pod/analysis-api-7c988469f-wsfl7          Started container analysis-api
+6m5s        Normal    ScalingReplicaSet              deployment/analysis-api                   Scaled down replica set analysis-api-9db845889 to 0 from 1
+6m5s        Normal    Killing                        pod/analysis-api-9db845889-zxkmn          Stopping container analysis-api
+6m5s        Normal    SuccessfulDelete               replicaset/analysis-api-9db845889         Deleted pod: analysis-api-9db845889-zxkmn
+5m51s       Warning   FailedGetResourceMetric        horizontalpodautoscaler/analysis-api      failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+5m51s       Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/analysis-api      invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)

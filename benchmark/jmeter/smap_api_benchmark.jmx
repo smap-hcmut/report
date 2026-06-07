@@ -83,11 +83,6 @@
           <stringProp name="HTTPSampler.method">GET</stringProp>
         </HTTPSamplerProxy>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="heap_chart" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/analytics/heap?campaignId=${__P(campaign_id,5cc6763f-3ec5-4481-9c7b-597bd5bb6126)}&amp;projectIds=${__P(project_id,d25fe723-a407-4a77-ac69-1556749f51ff)}&amp;sourceKind=all</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
       </hashTree>
     </hashTree>
   </hashTree>

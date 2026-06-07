@@ -1,0 +1,74 @@
+{
+  "sample_size": 45,
+  "accuracy": 0.4444444444444444,
+  "macro": {
+    "precision": 0.4444444444444444,
+    "recall": 0.435515873015873,
+    "f1": 0.43962427388456304
+  },
+  "weighted": {
+    "precision": 0.4548148148148148,
+    "recall": 0.4444444444444444,
+    "f1": 0.44926461500432574
+  },
+  "labels": {
+    "negative": {
+      "precision": 0.7333333333333333,
+      "recall": 0.6875,
+      "f1": 0.7096774193548386,
+      "support": 16,
+      "tp": 11,
+      "fp": 4,
+      "fn": 5
+    },
+    "neutral": {
+      "precision": 0.26666666666666666,
+      "recall": 0.2857142857142857,
+      "f1": 0.2758620689655172,
+      "support": 14,
+      "tp": 4,
+      "fp": 11,
+      "fn": 10
+    },
+    "positive": {
+      "precision": 0.3333333333333333,
+      "recall": 0.3333333333333333,
+      "f1": 0.3333333333333333,
+      "support": 15,
+      "tp": 5,
+      "fp": 10,
+      "fn": 10
+    }
+  },
+  "confusion_matrix": {
+    "negative": {
+      "negative": 11,
+      "neutral": 2,
+      "positive": 3
+    },
+    "neutral": {
+      "negative": 3,
+      "neutral": 4,
+      "positive": 7
+    },
+    "positive": {
+      "negative": 1,
+      "neutral": 9,
+      "positive": 5
+    }
+  },
+  "gold_distribution": {
+    "negative": 16,
+    "neutral": 14,
+    "positive": 15
+  },
+  "predicted_distribution": {
+    "negative": 15,
+    "neutral": 15,
+    "positive": 15
+  },
+  "relevance_distribution": {
+    "relevant": 27,
+    "irrelevant": 18
+  }
+}

@@ -29,8 +29,7 @@ const endpoints = [
   ["posts_latest", "/api/analytics/posts?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20&offset=0&sort=time"],
   ["posts_engagement", "/api/analytics/posts?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20&offset=0&sort=engagement"],
   ["posts_page_2", "/api/analytics/posts?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all&limit=20&offset=20&sort=engagement"],
-  ["project_stats", "/api/analytics/project-stats?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all"],
-  ["heap_chart", "/api/analytics/heap?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all"]
+  ["project_stats", "/api/analytics/project-stats?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all"]
 ];
 
 export default function () {

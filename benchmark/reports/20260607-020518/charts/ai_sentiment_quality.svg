@@ -1,0 +1,16 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='720' height='260' viewBox='0 0 720 260'>
+<rect width='100%' height='100%' fill='#fbfaf7'/>
+<text x='24' y='34' font-family='Arial' font-size='22' font-weight='700' fill='#1f2937'>AI sentiment quality</text>
+<text x='24' y='90' font-family='Arial' font-size='14' fill='#374151'>Accuracy</text>
+<rect x='130' y='70' width='500' height='26' rx='5' fill='#e5e7eb'/>
+<rect x='130' y='70' width='222.2' height='26' rx='5' fill='#0f5bd7'/>
+<text x='642' y='89' font-family='Arial' font-size='13' fill='#111827'>0.444</text>
+<text x='24' y='142' font-family='Arial' font-size='14' fill='#374151'>Macro F1</text>
+<rect x='130' y='122' width='500' height='26' rx='5' fill='#e5e7eb'/>
+<rect x='130' y='122' width='219.8' height='26' rx='5' fill='#0f5bd7'/>
+<text x='642' y='141' font-family='Arial' font-size='13' fill='#111827'>0.440</text>
+<text x='24' y='194' font-family='Arial' font-size='14' fill='#374151'>Weighted F1</text>
+<rect x='130' y='174' width='500' height='26' rx='5' fill='#e5e7eb'/>
+<rect x='130' y='174' width='224.6' height='26' rx='5' fill='#0f5bd7'/>
+<text x='642' y='193' font-family='Arial' font-size='13' fill='#111827'>0.449</text>
+</svg>

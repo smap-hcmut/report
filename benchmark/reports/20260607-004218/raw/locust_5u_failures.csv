@@ -1,0 +1,8 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,analytics_kpis,HTTPError('500 Server Error: Internal Server Error for url: analytics_kpis'),72,2026-06-06T17:43:49Z,2026-06-06T17:44:32Z
+GET,heap_chart,HTTPError('404 Client Error: Not Found for url: heap_chart'),18,2026-06-06T17:43:50Z,2026-06-06T17:44:32Z
+GET,posts_engagement,HTTPError('502 Server Error: Bad Gateway for url: posts_engagement'),1,2026-06-06T17:44:32Z,2026-06-06T17:44:32Z
+GET,posts_page_2,HTTPError('502 Server Error: Bad Gateway for url: posts_page_2'),1,2026-06-06T17:44:07Z,2026-06-06T17:44:07Z
+GET,posts_latest,HTTPError('502 Server Error: Bad Gateway for url: posts_latest'),1,2026-06-06T17:43:49Z,2026-06-06T17:43:49Z
+GET,analytics_sentiment,HTTPError('502 Server Error: Bad Gateway for url: analytics_sentiment'),1,2026-06-06T17:44:10Z,2026-06-06T17:44:10Z
+GET,analytics_platforms,HTTPError('502 Server Error: Bad Gateway for url: analytics_platforms'),3,2026-06-06T17:44:04Z,2026-06-06T17:44:19Z

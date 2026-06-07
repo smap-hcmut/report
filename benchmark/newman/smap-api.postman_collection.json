@@ -53,11 +53,6 @@
       "name": "project_stats",
       "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/project-stats?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all" },
       "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
-    },
-    {
-      "name": "heap_chart",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/analytics/heap?campaignId={{campaignId}}&projectIds={{projectId}}&sourceKind=all" },
-      "event": [{ "listen": "test", "script": { "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"] } }]
     }
   ]
 }

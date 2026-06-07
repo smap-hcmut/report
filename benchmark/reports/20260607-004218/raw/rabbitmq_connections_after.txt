@@ -1,0 +1,5 @@
+Listing connections ...
+name	state	channels	recv_oct	send_oct
+10.42.1.219:34856 -> 10.42.0.222:5672	running	1	28915	29154
+10.42.2.26:51470 -> 10.42.0.222:5672	running	1	28915	29154
+10.42.2.27:47298 -> 10.42.0.222:5672	running	11	7848	6088

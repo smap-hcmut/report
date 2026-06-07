@@ -1,0 +1,12 @@
+Timeout: 60.0 seconds ...
+Listing queues for vhost / ...
+name	messages_ready	messages_unacknowledged	consumers
+facebook_tasks	0	0	2
+ingest_task_dead_letter	0	0	0
+tiktok_tasks	0	0	2
+ingest_task_completions	0	0	1
+tiktok_tasks.dlq	0	0	0
+facebook_tasks.dlq	0	0	0
+youtube_tasks.dlq	0	0	0
+youtube_tasks	0	0	2
+ingest_dryrun_completions	0	0	1

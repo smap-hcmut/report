@@ -1,0 +1,132 @@
+# Kubernetes snapshot: after
+2026-06-06T19:09:34Z
+
+## context
+homelab
+
+## deployments
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS              IMAGES                                                                         SELECTOR
+analysis-api        2/2     2            2           36d   analysis-api            registry.tantai.dev/smap/analysis-api:260607-0210-rollups                      app=analysis-api
+analysis-consumer   3/3     3            3           54d   analysis-consumer       registry.tantai.dev/smap/analysis-consumer:260607-0210-rollups                 app=analysis-consumer
+identity-srv        1/1     1            1           54d   identity-srv            registry.tantai.dev/smap/identity-srv:260607-0155-metrics                      app=identity-srv
+ingest-srv          1/1     1            1           54d   ingest-srv              registry.tantai.dev/smap/ingest-srv:260607-0210-metrics                        app=ingest-srv
+knowledge-srv       1/1     1            1           54d   knowledge-srv           registry.tantai.dev/smap/knowledge-srv:260607-0210-metrics                     app=knowledge-srv
+notification-srv    1/1     1            1           54d   notification-srv        registry.tantai.dev/smap/notification-srv:260607-0210-metrics                  app=notification-srv
+project-srv         1/1     1            1           54d   project-srv             registry.tantai.dev/smap/project-srv:260607-0210-metrics                       app=project-srv
+redis-exporter      1/1     1            1           51m   exporter                oliver006/redis_exporter:v1.66.0-alpine                                        app=redis-exporter
+redpanda-console    1/1     1            1           54d   console                 redpandadata/console:v2.8.2                                                    app=redpanda-console
+reloader-reloader   1/1     1            1           11m   reloader-reloader       ghcr.io/stakater/reloader:v1.4.14                                              app=reloader-reloader
+scapper-srv         2/2     2            2           54d   scapper-srv             registry.tantai.dev/smap/scapper-srv:260606-2330-perf-sprint                   app=scapper-srv
+smap-central-log    1/1     1            1           54d   fluent-bit,log-viewer   fluent/fluent-bit:3.2,registry.tantai.dev/smap/smap-log-viewer:260311-002133   app=smap-central-log
+smap-portal         1/1     1            1           54d   portal                  registry.tantai.dev/smap/smap-portal:latest                                    app=smap-portal
+smap-ui             1/1     1            1           47d   smap-ui                 registry.tantai.dev/smap/smap-ui:260607-0210-animated-trim                     app=smap-ui
+
+## pods
+NAME                                 READY   STATUS      RESTARTS        AGE     IP            NODE     NOMINATED NODE   READINESS GATES
+analysis-api-5dc56bb9dd-7747k        1/1     Running     0               11m     10.42.1.253   k3s-02   <none>           <none>
+analysis-api-5dc56bb9dd-sfv2s        1/1     Running     0               27s     10.42.1.5     k3s-02   <none>           <none>
+analysis-consumer-7dc645cf68-2z5bm   1/1     Running     0               9m9s    10.42.0.247   k3s-01   <none>           <none>
+analysis-consumer-7dc645cf68-c6jnh   1/1     Running     0               11m     10.42.2.51    k3s-03   <none>           <none>
+analysis-consumer-7dc645cf68-cbl78   1/1     Running     0               10m     10.42.2.52    k3s-03   <none>           <none>
+identity-srv-56b8c5cf99-gtq6r        1/1     Running     0               33m     10.42.1.243   k3s-02   <none>           <none>
+ingest-dlq-watch-29679540-pvflw      0/1     Completed   0               9m34s   10.42.1.2     k3s-02   <none>           <none>
+ingest-srv-8b46f9cfd-z6xjx           1/1     Running     0               30m     10.42.1.245   k3s-02   <none>           <none>
+knowledge-srv-d794f7848-klsrh        1/1     Running     0               30m     10.42.1.247   k3s-02   <none>           <none>
+notification-srv-754df587cd-28tj7    1/1     Running     0               30m     10.42.1.248   k3s-02   <none>           <none>
+project-srv-7df756f964-pgnn9         1/1     Running     0               30m     10.42.1.246   k3s-02   <none>           <none>
+rabbitmq-0                           1/1     Running     0               36h     10.42.0.222   k3s-01   <none>           <none>
+redis-0                              1/1     Running     0               36h     10.42.0.221   k3s-01   <none>           <none>
+redis-exporter-78bf65d646-jw2lv      1/1     Running     0               51m     10.42.1.234   k3s-02   <none>           <none>
+redpanda-0                           1/1     Running     0               4d11h   10.42.2.242   k3s-03   <none>           <none>
+redpanda-console-7d869fcb4b-wxv7z    1/1     Running     5 (4d11h ago)   4d11h   10.42.0.197   k3s-01   <none>           <none>
+reloader-reloader-6c79fb5977-fv4vl   1/1     Running     0               11m     10.42.1.252   k3s-02   <none>           <none>
+scapper-srv-5495565fdd-54x5k         1/1     Running     0               128m    10.42.1.219   k3s-02   <none>           <none>
+scapper-srv-5495565fdd-shdhs         1/1     Running     0               128m    10.42.2.26    k3s-03   <none>           <none>
+smap-central-log-7b98b765d7-gnb6x    2/2     Running     0               4d11h   10.42.2.236   k3s-03   <none>           <none>
+smap-node-log-4tc2l                  1/1     Running     0               16d     10.42.1.162   k3s-02   <none>           <none>
+smap-node-log-gbd9k                  1/1     Running     0               16d     10.42.2.234   k3s-03   <none>           <none>
+smap-node-log-lvrph                  1/1     Running     0               16d     10.42.0.4     k3s-01   <none>           <none>
+smap-portal-6849cd765d-psfnn         1/1     Running     0               152m    10.42.1.191   k3s-02   <none>           <none>
+smap-ui-596cb94744-ng2xr             1/1     Running     0               11m     10.42.1.254   k3s-02   <none>           <none>
+
+## recent warning events
+29m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/project-srv       invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+29m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/project-srv       failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+13m         Normal    Started                        pod/pgm11                                 Started container pgm11
+13m         Normal    Created                        pod/pgm11                                 Created container: pgm11
+13m         Normal    Pulled                         pod/pgm11                                 Container image "postgres:15-alpine" already present on machine
+13m         Normal    Started                        pod/pgm12                                 Started container pgm12
+13m         Normal    Pulled                         pod/pgm12                                 Container image "postgres:15-alpine" already present on machine
+13m         Normal    Created                        pod/pgm12                                 Created container: pgm12
+11m         Normal    ScalingReplicaSet              deployment/reloader-reloader              Scaled up replica set reloader-reloader-6c79fb5977 to 1
+11m         Normal    SuccessfulCreate               replicaset/reloader-reloader-6c79fb5977   Created pod: reloader-reloader-6c79fb5977-fv4vl
+11m         Normal    Pulling                        pod/reloader-reloader-6c79fb5977-fv4vl    Pulling image "ghcr.io/stakater/reloader:v1.4.14"
+11m         Normal    Created                        pod/reloader-reloader-6c79fb5977-fv4vl    Created container: reloader-reloader
+11m         Normal    Started                        pod/reloader-reloader-6c79fb5977-fv4vl    Started container reloader-reloader
+11m         Normal    Pulled                         pod/reloader-reloader-6c79fb5977-fv4vl    Successfully pulled image "ghcr.io/stakater/reloader:v1.4.14" in 6.271s (6.271s including waiting). Image size: 15736635 bytes.
+11m         Normal    SuccessfulCreate               replicaset/analysis-api-5dc56bb9dd        Created pod: analysis-api-5dc56bb9dd-7747k
+11m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled up replica set analysis-consumer-7dc645cf68 to 1
+11m         Normal    SuccessfulCreate               replicaset/analysis-consumer-7dc645cf68   Created pod: analysis-consumer-7dc645cf68-c6jnh
+11m         Normal    ScalingReplicaSet              deployment/analysis-api                   Scaled up replica set analysis-api-5dc56bb9dd to 1
+11m         Normal    SuccessfulCreate               replicaset/smap-ui-596cb94744             Created pod: smap-ui-596cb94744-ng2xr
+11m         Normal    ScalingReplicaSet              deployment/smap-ui                        Scaled up replica set smap-ui-596cb94744 to 1
+11m         Normal    Pulling                        pod/smap-ui-596cb94744-ng2xr              Pulling image "registry.tantai.dev/smap/smap-ui:260607-0210-animated-trim"
+11m         Normal    Pulling                        pod/analysis-api-5dc56bb9dd-7747k         Pulling image "registry.tantai.dev/smap/analysis-api:260607-0210-rollups"
+11m         Normal    Pulling                        pod/analysis-consumer-7dc645cf68-c6jnh    Pulling image "registry.tantai.dev/smap/analysis-consumer:260607-0210-rollups"
+10m         Normal    Pulled                         pod/analysis-api-5dc56bb9dd-7747k         Successfully pulled image "registry.tantai.dev/smap/analysis-api:260607-0210-rollups" in 2.882s (2.882s including waiting). Image size: 1015458156 bytes.
+10m         Normal    Started                        pod/analysis-api-5dc56bb9dd-7747k         Started container analysis-api
+10m         Normal    Pulled                         pod/smap-ui-596cb94744-ng2xr              Successfully pulled image "registry.tantai.dev/smap/smap-ui:260607-0210-animated-trim" in 4.033s (4.033s including waiting). Image size: 81996535 bytes.
+10m         Normal    Created                        pod/analysis-api-5dc56bb9dd-7747k         Created container: analysis-api
+10m         Normal    Started                        pod/smap-ui-596cb94744-ng2xr              Started container smap-ui
+10m         Normal    Created                        pod/smap-ui-596cb94744-ng2xr              Created container: smap-ui
+10m         Normal    Created                        pod/analysis-consumer-7dc645cf68-c6jnh    Created container: analysis-consumer
+10m         Normal    Pulled                         pod/analysis-consumer-7dc645cf68-c6jnh    Successfully pulled image "registry.tantai.dev/smap/analysis-consumer:260607-0210-rollups" in 4.14s (4.14s including waiting). Image size: 1014812902 bytes.
+10m         Normal    Started                        pod/analysis-consumer-7dc645cf68-c6jnh    Started container analysis-consumer
+10m         Warning   Unhealthy                      pod/analysis-api-5dc56bb9dd-7747k         Startup probe failed: Get "http://10.42.1.253:8080/health": dial tcp 10.42.1.253:8080: connect: connection refused
+10m         Normal    Killing                        pod/analysis-api-6469cddfdb-mvss7         Stopping container analysis-api
+10m         Normal    SuccessfulDelete               replicaset/analysis-api-6469cddfdb        Deleted pod: analysis-api-6469cddfdb-mvss7
+10m         Normal    ScalingReplicaSet              deployment/analysis-api                   Scaled down replica set analysis-api-6469cddfdb to 0 from 1
+10m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/analysis-api      invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+10m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/analysis-api      failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+10m         Normal    SuccessfulDelete               replicaset/smap-ui-6b64d7fcb9             Deleted pod: smap-ui-6b64d7fcb9-gqpsh
+10m         Normal    ScalingReplicaSet              deployment/smap-ui                        Scaled down replica set smap-ui-6b64d7fcb9 to 0 from 1
+10m         Normal    Killing                        pod/smap-ui-6b64d7fcb9-gqpsh              Stopping container smap-ui
+10m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/analysis-api      failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+10m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/analysis-api      invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+10m         Warning   Unhealthy                      pod/analysis-consumer-7dc645cf68-c6jnh    Startup probe failed: Get "http://10.42.2.51:8081/healthz": dial tcp 10.42.2.51:8081: connect: connection refused
+10m         Normal    Killing                        pod/analysis-consumer-576c6b76-fks4w      Stopping container analysis-consumer
+10m         Normal    SuccessfulDelete               replicaset/analysis-consumer-576c6b76     Deleted pod: analysis-consumer-576c6b76-fks4w
+10m         Normal    SuccessfulCreate               replicaset/analysis-consumer-7dc645cf68   Created pod: analysis-consumer-7dc645cf68-cbl78
+10m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled down replica set analysis-consumer-576c6b76 to 2 from 3
+10m         Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled up replica set analysis-consumer-7dc645cf68 to 2 from 1
+9m59s       Normal    Started                        pod/analysis-consumer-7dc645cf68-cbl78    Started container analysis-consumer
+9m59s       Normal    Created                        pod/analysis-consumer-7dc645cf68-cbl78    Created container: analysis-consumer
+9m59s       Normal    Pulled                         pod/analysis-consumer-7dc645cf68-cbl78    Successfully pulled image "registry.tantai.dev/smap/analysis-consumer:260607-0210-rollups" in 173ms (173ms including waiting). Image size: 1014812902 bytes.
+9m59s       Normal    Pulling                        pod/analysis-consumer-7dc645cf68-cbl78    Pulling image "registry.tantai.dev/smap/analysis-consumer:260607-0210-rollups"
+9m34s       Normal    SuccessfulCreate               job/ingest-dlq-watch-29679540             Created pod: ingest-dlq-watch-29679540-pvflw
+9m34s       Normal    SuccessfulCreate               cronjob/ingest-dlq-watch                  Created job ingest-dlq-watch-29679540
+9m33s       Normal    Pulled                         pod/ingest-dlq-watch-29679540-pvflw       Container image "curlimages/curl:8.10.1" already present on machine
+9m33s       Normal    Created                        pod/ingest-dlq-watch-29679540-pvflw       Created container: dlq-watch
+9m33s       Normal    Started                        pod/ingest-dlq-watch-29679540-pvflw       Started container dlq-watch
+9m28s       Normal    Completed                      job/ingest-dlq-watch-29679540             Job completed
+9m28s       Normal    SawCompletedJob                cronjob/ingest-dlq-watch                  Saw completed job: ingest-dlq-watch-29679540, status: Complete
+9m20s       Warning   Unhealthy                      pod/analysis-consumer-7dc645cf68-cbl78    Startup probe failed: Get "http://10.42.2.52:8081/healthz": dial tcp 10.42.2.52:8081: connect: connection refused
+9m9s        Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled up replica set analysis-consumer-7dc645cf68 to 3 from 2
+9m9s        Normal    SuccessfulDelete               replicaset/analysis-consumer-576c6b76     Deleted pod: analysis-consumer-576c6b76-5m2hf
+9m9s        Normal    Killing                        pod/analysis-consumer-576c6b76-5m2hf      Stopping container analysis-consumer
+9m9s        Normal    SuccessfulCreate               replicaset/analysis-consumer-7dc645cf68   Created pod: analysis-consumer-7dc645cf68-2z5bm
+9m9s        Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled down replica set analysis-consumer-576c6b76 to 1 from 2
+9m8s        Normal    Pulling                        pod/analysis-consumer-7dc645cf68-2z5bm    Pulling image "registry.tantai.dev/smap/analysis-consumer:260607-0210-rollups"
+9m7s        Normal    Started                        pod/analysis-consumer-7dc645cf68-2z5bm    Started container analysis-consumer
+9m7s        Normal    Created                        pod/analysis-consumer-7dc645cf68-2z5bm    Created container: analysis-consumer
+9m7s        Normal    Pulled                         pod/analysis-consumer-7dc645cf68-2z5bm    Successfully pulled image "registry.tantai.dev/smap/analysis-consumer:260607-0210-rollups" in 1.363s (1.363s including waiting). Image size: 1014812902 bytes.
+8m28s       Normal    Killing                        pod/analysis-consumer-576c6b76-729v6      Stopping container analysis-consumer
+8m28s       Normal    ScalingReplicaSet              deployment/analysis-consumer              Scaled down replica set analysis-consumer-576c6b76 to 0 from 1
+8m28s       Normal    SuccessfulDelete               replicaset/analysis-consumer-576c6b76     Deleted pod: analysis-consumer-576c6b76-729v6
+27s         Normal    SuccessfulCreate               replicaset/analysis-api-5dc56bb9dd        Created pod: analysis-api-5dc56bb9dd-sfv2s
+27s         Normal    ScalingReplicaSet              deployment/analysis-api                   Scaled up replica set analysis-api-5dc56bb9dd to 2 from 1
+27s         Normal    SuccessfulRescale              horizontalpodautoscaler/analysis-api      New size: 2; reason: cpu resource utilization (percentage of request) above target
+26s         Normal    Pulling                        pod/analysis-api-5dc56bb9dd-sfv2s         Pulling image "registry.tantai.dev/smap/analysis-api:260607-0210-rollups"
+26s         Normal    Pulled                         pod/analysis-api-5dc56bb9dd-sfv2s         Successfully pulled image "registry.tantai.dev/smap/analysis-api:260607-0210-rollups" in 224ms (224ms including waiting). Image size: 1015458156 bytes.
+26s         Normal    Started                        pod/analysis-api-5dc56bb9dd-sfv2s         Started container analysis-api
+26s         Normal    Created                        pod/analysis-api-5dc56bb9dd-sfv2s         Created container: analysis-api

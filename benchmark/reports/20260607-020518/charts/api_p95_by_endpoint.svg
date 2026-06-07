@@ -1,0 +1,46 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1100' height='556' viewBox='0 0 1100 556'>
+<rect width='100%' height='100%' fill='#fbfaf7'/>
+<text x='24' y='34' font-family='Arial' font-size='22' font-weight='700' fill='#1f2937'>API p95 by endpoint</text>
+<text x='24' y='84' font-family='Arial' font-size='13' fill='#374151'>newman  analytics_keywords</text>
+<rect x='250' y='64' width='770.0' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='1028.0' y='80' font-family='Arial' font-size='12' fill='#111827'>765 ms</text>
+<text x='24' y='118' font-family='Arial' font-size='13' fill='#374151'>newman  project_stats</text>
+<rect x='250' y='98' width='587.8' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='845.8' y='114' font-family='Arial' font-size='12' fill='#111827'>584 ms</text>
+<text x='24' y='152' font-family='Arial' font-size='13' fill='#374151'>jmeter  posts_page_2</text>
+<rect x='250' y='132' width='238.3' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='496.3' y='148' font-family='Arial' font-size='12' fill='#111827'>237 ms</text>
+<text x='24' y='186' font-family='Arial' font-size='13' fill='#374151'>jmeter  posts_engagement</text>
+<rect x='250' y='166' width='228.2' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='486.2' y='182' font-family='Arial' font-size='12' fill='#111827'>227 ms</text>
+<text x='24' y='220' font-family='Arial' font-size='13' fill='#374151'>jmeter  posts_latest</text>
+<rect x='250' y='200' width='207.0' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='465.0' y='216' font-family='Arial' font-size='12' fill='#111827'>206 ms</text>
+<text x='24' y='254' font-family='Arial' font-size='13' fill='#374151'>jmeter  analytics_sentiment</text>
+<rect x='250' y='234' width='205.1' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='463.1' y='250' font-family='Arial' font-size='12' fill='#111827'>204 ms</text>
+<text x='24' y='288' font-family='Arial' font-size='13' fill='#374151'>jmeter  project_stats</text>
+<rect x='250' y='268' width='203.3' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='461.3' y='284' font-family='Arial' font-size='12' fill='#111827'>202 ms</text>
+<text x='24' y='322' font-family='Arial' font-size='13' fill='#374151'>jmeter  analytics_keywords</text>
+<rect x='250' y='302' width='202.0' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='460.0' y='318' font-family='Arial' font-size='12' fill='#111827'>201 ms</text>
+<text x='24' y='356' font-family='Arial' font-size='13' fill='#374151'>jmeter  health</text>
+<rect x='250' y='336' width='201.5' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='459.5' y='352' font-family='Arial' font-size='12' fill='#111827'>200 ms</text>
+<text x='24' y='390' font-family='Arial' font-size='13' fill='#374151'>jmeter  analytics_kpis</text>
+<rect x='250' y='370' width='196.9' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='454.9' y='386' font-family='Arial' font-size='12' fill='#111827'>196 ms</text>
+<text x='24' y='424' font-family='Arial' font-size='13' fill='#374151'>newman  health</text>
+<rect x='250' y='404' width='196.3' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='454.3' y='420' font-family='Arial' font-size='12' fill='#111827'>195 ms</text>
+<text x='24' y='458' font-family='Arial' font-size='13' fill='#374151'>jmeter  analytics_platforms</text>
+<rect x='250' y='438' width='192.3' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='450.3' y='454' font-family='Arial' font-size='12' fill='#111827'>191 ms</text>
+<text x='24' y='492' font-family='Arial' font-size='13' fill='#374151'>newman  posts_latest</text>
+<rect x='250' y='472' width='148.0' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='406.0' y='488' font-family='Arial' font-size='12' fill='#111827'>147 ms</text>
+<text x='24' y='526' font-family='Arial' font-size='13' fill='#374151'>newman  posts_page_2</text>
+<rect x='250' y='506' width='41.3' height='22' rx='4' fill='#0f5bd7' opacity='0.82'/>
+<text x='299.3' y='522' font-family='Arial' font-size='12' fill='#111827'>41 ms</text>
+</svg>

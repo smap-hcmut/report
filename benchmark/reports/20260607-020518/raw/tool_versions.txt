@@ -1,0 +1,16 @@
+# Tool versions
+2026-06-06T19:05:18Z
+
+Docker version 28.5.2, build ecc6942
+v25.9.0
+11.12.1
+Python 3.14.4
+The operation couldn’t be completed. Unable to locate a Java Runtime.
+Please visit http://www.java.com for information on installing Java.
+
+Client Version: v1.32.7
+Kustomize Version: v5.5.0
+
+k6 image: grafana/k6:latest
+locust image: locustio/locust:latest
+jmeter image: justb4/jmeter:latest

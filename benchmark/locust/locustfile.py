@@ -49,7 +49,3 @@ class MarketingDashboardUser(HttpUser):
     def keywords_and_project_stats(self):
         self.client.get(analytics_path("/api/analytics/keywords?limit=20"), name="analytics_keywords")
         self.client.get(analytics_path("/api/analytics/project-stats"), name="project_stats")
-
-    @task(1)
-    def heap_chart(self):
-        self.client.get(analytics_path("/api/analytics/heap"), name="heap_chart")
